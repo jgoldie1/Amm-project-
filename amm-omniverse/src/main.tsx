@@ -36,6 +36,8 @@ const OmniWorkstation=lazy(()=>import('./components/OmniWorkstation'))
 const AllAmericanNetworkHub=lazy(()=>import('./components/AllAmericanNetworkHub'))
 const AllAmericanNetworkControlRoom=lazy(()=>import('./components/AllAmericanNetworkControlRoom'))
 const TryammBroadcastNetworkCenter=lazy(()=>import('./components/TryammBroadcastNetworkCenter'))
+const TryammConnectedGrowthLanding=lazy(()=>import('./components/TryammConnectedGrowthLanding'))
+const MediaStudioLauncher=lazy(()=>import('./components/MediaStudioLauncher'))
 const ServantsOfChristMinistry=lazy(()=>import('./components/ServantsOfChristMinistry'))
 const OmniCareCashSuite=lazy(()=>import('./components/OmniCareCashSuite'))
 const GlobalTradeWorldHub=lazy(()=>import('./components/GlobalTradeWorldHub'))
@@ -70,6 +72,7 @@ try {
   const standaloneMatch=currentPath.match(/^\/standalone\/([^/]+)\/?$/)
   const standaloneSite=standaloneMatch ? getStandaloneSite(standaloneMatch[1]) : undefined
   const reelMatch=currentPath.match(/^\/reels\/([^/]+)\/?$/)
+  const isDiscover=currentPath==='/discover'||currentPath==='/discover/'
   const isAccessibility=currentPath==='/accessibility'||currentPath==='/accessibility/'
   const isAssetFactory=['/asset-factory','/asset-factory/','/meshy-factory','/meshy-factory/'].includes(currentPath)
   const isWorkstation=currentPath==='/workstation'||currentPath==='/workstation/'
@@ -148,11 +151,12 @@ try {
     <OmniCashLauncher />
   </>
   
-  if(reelMatch)routeContent=<Suspense fallback={routeFallback}><PublicReelPage slug={decodeURIComponent(reelMatch[1])} /></Suspense>
+  if(isDiscover)routeContent=<Suspense fallback={routeFallback}><TryammConnectedGrowthLanding /></Suspense>
+  else if(reelMatch)routeContent=<Suspense fallback={routeFallback}><PublicReelPage slug={decodeURIComponent(reelMatch[1])} /></Suspense>
   else if(isAssetFactory)routeContent=<Suspense fallback={routeFallback}><MeshyFactoryControlPanel /></Suspense>
   else if(isAccessibility)routeContent=<AccessibilityStatement />
   else if(isWorkstation)routeContent=<Suspense fallback={routeFallback}><OmniWorkstation /></Suspense>
-  else if(isLive)routeContent=<Suspense fallback={routeFallback}><LiveCenter onClose={()=>{window.location.href='/'}} /></Suspense>
+  else if(isLive)routeContent=<Suspense fallback={routeFallback}><LiveCenter initialFormat={new URLSearchParams(window.location.search).get('format')==='gamecast'?'gamecast':'live'} initialRole={new URLSearchParams(window.location.search).get('role')==='viewer'?'viewer':'host'} onClose={()=>{window.location.href='/'}} /></Suspense>
   else if(isGuardian)routeContent=<Suspense fallback={routeFallback}><GuardianCommandCenter /></Suspense>
   else if(isAccountDeletion)routeContent=<Suspense fallback={routeFallback}><AccountPrivacyCenter onClose={()=>{window.location.href='/'}} /></Suspense>
   else if(isHoloDrama)routeContent=<Suspense fallback={routeFallback}><HoloDramaHub /></Suspense>
@@ -291,6 +295,7 @@ const installOptionalRuntimes = () => {
   queueOptionalRuntime(() => import('./runtime/AICafeMultiAgentRuntime').then(m => m.installAICafeMultiAgentRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installAICafeMultiAgentRuntime failed after core mount.', error)))
   queueOptionalRuntime(() => import('./runtime/MiddleverseRemoteWorkRuntime').then(m => m.installMiddleverseRemoteWorkRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installMiddleverseRemoteWorkRuntime failed after core mount.', error)))
   queueOptionalRuntime(() => import('./runtime/BroadcastStudioRuntime').then(m => m.installBroadcastStudioRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installBroadcastStudioRuntime failed after core mount.', error)))
+  queueOptionalRuntime(() => import('./runtime/HoloAdsRevenueRuntime').then(m => m.installHoloAdsRevenueRuntime()).catch(error => console.error('[TRYAMM] Holo Ads campaign draft runtime failed.', error)))
   queueOptionalRuntime(() => import('./runtime/FreeTvCommercialRuntime').then(m => m.installFreeTvCommercialRuntime()).catch(error => console.error('[TRYAMM] Free TV Commercial Runtime failed after core mount.', error)))
   queueOptionalRuntime(() => import('./runtime/StubbsHarmonyAIRuntime').then(m => m.installStubbsHarmonyAIRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installStubbsHarmonyAIRuntime failed after core mount.', error)))
   queueOptionalRuntime(() => import('./runtime/CreatorExperienceRuntime').then(m => m.installCreatorExperienceRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installCreatorExperienceRuntime failed after core mount.', error)))
@@ -314,6 +319,7 @@ root.render(
     <HolographicVerseTransitOverlay />
     <VerseRadioDock />
     <FreeTvCommercialBreakOverlay />
+    {!window.location.pathname.startsWith('/streetverse')&&<Suspense fallback={null}><MediaStudioLauncher /></Suspense>}
     {entryDiagnostic}
   </StrictMode>
 )
@@ -328,6 +334,24 @@ queueMicrotask(() => {
   if (window.location.pathname.startsWith('/streetverse')) {
     // Keep StreetVerse lightweight while still installing only release-critical
     // Circle Park progression and the Chicago Time Machine. Heavy global launchers remain excluded.
+    // Lightweight integration services: queue after playable world mount, not before.
+    // Their events connect StreetVerse to Broadcast OS, operations, JARVIS and travel
+    // while preserving the single-canvas game launch and protected commerce gates.
+    queueOptionalRuntime(() => import('./runtime/TryammBroadcastOSRuntime')
+      .then(m => m.installTryammBroadcastOSRuntime())
+      .catch(error => console.error('[TRYAMM] StreetVerse Broadcast OS bridge failed.',error)))
+    queueOptionalRuntime(() => import('./runtime/StubbsLyonsMiddleverseRuntime')
+      .then(m => m.installStubbsLyonsMiddleverseRuntime())
+      .catch(error => console.error('[TRYAMM] StreetVerse operating fabric bridge failed.',error)))
+    queueOptionalRuntime(() => import('./runtime/JarvisOrchestratorRuntime')
+      .then(m => m.installJarvisOrchestratorRuntime())
+      .catch(error => console.error('[TRYAMM] StreetVerse JARVIS command router failed.',error)))
+    queueOptionalRuntime(() => import('./runtime/GlobalTravelExperienceRuntime')
+      .then(m => m.installGlobalTravelExperienceRuntime())
+      .catch(error => console.error('[TRYAMM] StreetVerse global travel bridge failed.',error)))
+    queueOptionalRuntime(() => import('./runtime/StreetVersePlayableCharactersRuntime')
+      .then(m => m.installStreetVersePlayableCharactersRuntime())
+      .catch(error => console.error('[TRYAMM] Playable character roster failed after StreetVerse mount.',error)))
     queueOptionalRuntime(() => import('./runtime/TryammModPassRuntime')
       .then(m => m.installTryammModPassRuntime())
       .catch(error => console.error('[TRYAMM] StreetVerse Mod Pass failed after mount.', error)))

@@ -36,8 +36,16 @@ export default function StreetVerseCoreGameplayDock(){
   },[])
 
   const missionAction=()=>{
-    dispatchEvent(new CustomEvent('tryamm:streetverse-cinematic-mission-open',{detail:{missionId:mission?.id,source:'streetverse-core-dock'}}))
-    setMessage('SCRIPTED MISSION SELECTOR OPENED')
+    if(!mission){
+      // User-initiated first journey start. The mobile world owns repair/drive
+      // state and listens for this specific event; never auto-start on mount.
+      dispatchEvent(new CustomEvent('tryamm:streetverse-first-journey-start',{detail:{missionId:'iphone-first-journey',source:'streetverse-core-dock'}}))
+      setMission({id:'iphone-first-journey',label:'FIRST RIDE • CIRCLE PARK',source:'streetverse-core-dock'})
+      setMessage('FIRST RIDE STARTED • REPAIR THE CAR')
+    }else{
+      dispatchEvent(new CustomEvent('tryamm:streetverse-cinematic-mission-open',{detail:{missionId:mission.id,source:'streetverse-core-dock'}}))
+      setMessage('SCRIPTED MISSION SELECTOR OPENED')
+    }
   }
 
   const repair=()=>{
@@ -54,11 +62,15 @@ export default function StreetVerseCoreGameplayDock(){
   const ride=()=>{dispatchEvent(new Event('tryamm:holo-mobility-open'));setMessage('RIDE SHARE OPEN')}
   const reel=()=>{dispatchEvent(new CustomEvent('tryamm:open-reel-creator',{detail:{source:'streetverse-core-dock',missionId:mission?.id||'',missionLabel:mission?.label||''}}));setMessage('REEL OPEN')}
   const liveCast=()=>{
-    dispatchEvent(new CustomEvent('tryamm:streetverse-live-cast-open',{detail:{source:'streetverse-core-dock',missionId:mission?.id||'',mode:'gamecast'}}))
-    dispatchEvent(new CustomEvent('tryamm:live-center-open',{detail:{source:'streetverse-core-dock',format:'gamecast'}}))
-    dispatchEvent(new CustomEvent('tryamm:volcano-holocast-open',{detail:{source:'streetverse-core-dock',keepGameplayActive:true}}))
-    dispatchEvent(new CustomEvent('tryamm:accessibility-announce',{detail:{text:'Live and cast controls opened. StreetVerse gameplay stays active while you choose streaming and display destinations.'}}))
-    setMessage('LIVE / CAST OPEN')
+    // The browser screen picker works best when StreetVerse remains in its own
+    // visible tab. This direct click opens a separate host tab for Gamecast.
+    const studio=window.open('/live?format=gamecast&role=host&from=streetverse','_blank')
+    if(studio)try{studio.opener=null}catch{}
+    if(!studio){
+      dispatchEvent(new CustomEvent('tryamm:streetverse-live-cast-open',{detail:{source:'streetverse-core-dock',missionId:mission?.id||'',mode:'gamecast'}}))
+      setMessage('LIVE STUDIO OPENED HERE • ALLOW POPUPS TO CAPTURE THE GAME')
+    }else setMessage('LIVE STUDIO IN NEW TAB • SHARE STREETVERSE TAB')
+    dispatchEvent(new CustomEvent('tryamm:accessibility-announce',{detail:{text:'StreetVerse Gamecast requested in a separate tab. Sign in to LIVE, then share this StreetVerse tab.'}}))
   }
   const social=()=>{dispatchEvent(new CustomEvent('tryamm:mini-panel-open',{detail:{tab:'social',source:'streetverse-core-dock'}}));setMessage('SOCIAL PANEL OPEN')}
   const tickets=()=>{dispatchEvent(new CustomEvent('tryamm:stream-ticket-center-open',{detail:{source:'streetverse-core-dock'}}));setMessage('STREAM TICKETS OPEN')}

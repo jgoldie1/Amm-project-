@@ -3,7 +3,7 @@ import type { RealtimeChannel } from '@supabase/supabase-js'
 import { getSupabaseClient } from '../services/supabaseClient'
 
 type PlayerPosition={x?:number;z?:number;vehicle?:boolean;vehicleType?:string;ride?:{id?:string;label?:string}}
-type PresencePayload={userId:string;displayName:string;avatarUrl?:string;x:number;z:number;heading:number;vehicle:boolean;vehicleType:string;rideId?:string;rideLabel?:string;live:boolean;streamRoom?:string;creatorMode:boolean;updatedAt:string}
+type PresencePayload={userId:string;displayName:string;avatarUrl?:string;characterId?:string;characterLabel?:string;x:number;z:number;heading:number;vehicle:boolean;vehicleType:string;rideId?:string;rideLabel?:string;live:boolean;streamRoom?:string;creatorMode:boolean;updatedAt:string}
 type PresenceState=Record<string,PresencePayload[]>
 type MotionEnvelope={payload?:PresencePayload}
 type PlayerAction={fromUserId:string;toUserId:string;action:'wave'|'crew-invite'|'race-challenge'|'drop-request'|'drop-accept'|'drop-decline';sentAt:string;x?:number;z?:number}
@@ -37,7 +37,15 @@ export default function StreetVerseRealtimePresence(){
     }
     const syncPresence=(presence:PresenceState)=>{
       const activeIds=new Set<string>()
-      Object.values(presence).flat().forEach(p=>{if(p?.userId&&p.userId!==localUserId){activeIds.add(p.userId);peers.set(p.userId,p)}})
+      // Presence key must match the claimed Supabase account. Broadcast payloads
+      // are client-originated and are not sufficient to establish player identity.
+      Object.entries(presence).forEach(([key,records])=>{
+        if(key===localUserId||!Array.isArray(records))return
+        const p=records.find(record=>record?.userId===key)
+        if(p&&Number.isFinite(Number(p.x))&&Number.isFinite(Number(p.z))){
+          activeIds.add(key);peers.set(key,p)
+        }
+      })
       for(const id of peers.keys())if(!activeIds.has(id))peers.delete(id)
       emitPlayers()
     }
@@ -67,7 +75,12 @@ export default function StreetVerseRealtimePresence(){
         .on('broadcast',{event:'player-motion'},(event:MotionEnvelope)=>{
           const p=event?.payload
           if(!p?.userId||p.userId===localUserId)return
-          peers.set(p.userId,p)
+          // Only known presence members may send movement. This prevents an
+          // unjoined broadcast from inventing an arbitrary visible player.
+          // It is not a substitute for server-authoritative anti-spoofing.
+          if(!peers.has(p.userId))return
+          if(!Number.isFinite(Number(p.x))||!Number.isFinite(Number(p.z)))return
+          peers.set(p.userId,{...p,x:clamp(Number(p.x)),z:clamp(Number(p.z))})
           emitPlayers()
         })
         .on('broadcast',{event:'player-action'},(event:ActionEnvelope)=>{
@@ -81,6 +94,13 @@ export default function StreetVerseRealtimePresence(){
             setState('LIVE')
             const meta=(session?.user?.user_metadata||{}) as Record<string,unknown>
             const initial:PresencePayload={userId,displayName:String(meta.full_name||meta.name||meta.user_name||session?.user?.email?.split('@')[0]||'StreetVerse Player').slice(0,50),avatarUrl:String(meta.avatar_url||meta.picture||'')||undefined,x:0,z:54,heading:0,vehicle:false,vehicleType:'foot',live:false,creatorMode:false,updatedAt:new Date().toISOString()}
+            try{
+              const saved=JSON.parse(localStorage.getItem('tryamm.streetverse.playable-character.v1')||'{}')?.character
+              if(saved?.id&&/^[a-z0-9._-]{2,80}$/i.test(String(saved.id))){
+                initial.characterId=String(saved.id)
+                initial.characterLabel=String(saved.label||'PLAYER').replace(/[<>]/g,'').slice(0,35)
+              }
+            }catch{}
             latestRef.current=initial
             await channel!.track(initial)
             window.dispatchEvent(new CustomEvent('tryamm:streetverse-multiplayer-status',{detail:{state:'LIVE',online:1,transport:'broadcast+presence'}}))
@@ -119,6 +139,14 @@ export default function StreetVerseRealtimePresence(){
       if(!localUserId||!detail.toUserId||!detail.action)return
       const current=latestRef.current;const action:PlayerAction={fromUserId:localUserId,toUserId:String(detail.toUserId),action:detail.action,sentAt:new Date().toISOString()};if(detail.action==='drop-accept'&&current){action.x=current.x;action.z=current.z}sendAction(action)
     }
+    const onSelectedCharacter=(event:Event)=>{
+      const detail=(event as CustomEvent<{id?:string;label?:string}>).detail||{}
+      const current=latestRef.current
+      if(!current||!channelRef.current||!detail.id||!/^[a-z0-9._-]{2,80}$/i.test(detail.id))return
+      const next:PresencePayload={...current,characterId:detail.id,characterLabel:String(detail.label||'PLAYER').replace(/[<>]/g,'').slice(0,35),updatedAt:new Date().toISOString()}
+      latestRef.current=next
+      void channelRef.current.track(next)
+    }
     const onLiveSession=(event:Event)=>{
       const detail=(event as CustomEvent<{roomId?:string;roomName?:string;sessionId?:string;status?:string;live?:boolean;ended?:boolean}>).detail||{}
       const current=latestRef.current
@@ -129,6 +157,7 @@ export default function StreetVerseRealtimePresence(){
       sendMotion(next)
       void channelRef.current.track(next)
     }
+    addEventListener('tryamm:streetverse-character-select',onSelectedCharacter)
     addEventListener('tryamm:streetverse-player-position',onPosition)
     addEventListener('tryamm:streetverse-vehicle-controlled',onVehicle)
     addEventListener('tryamm:streetverse-player-action-send',onPlayerAction)
@@ -137,6 +166,7 @@ export default function StreetVerseRealtimePresence(){
     void start()
     return()=>{
       cancelled=true
+      removeEventListener('tryamm:streetverse-character-select',onSelectedCharacter)
       removeEventListener('tryamm:streetverse-player-position',onPosition)
       removeEventListener('tryamm:streetverse-vehicle-controlled',onVehicle)
       removeEventListener('tryamm:streetverse-player-action-send',onPlayerAction)

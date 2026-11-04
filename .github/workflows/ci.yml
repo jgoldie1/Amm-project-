@@ -98,8 +98,28 @@ jobs:
       - name: Omniverse readiness and provider gates
         run: npm run readiness
 
+      - name: StreetVerse character and injury regressions
+        run: |
+          node tests/streetverse-playable-roster-multiplayer-contract.mjs
+          node tests/streetverse-injury-rigging-contract.mjs
+          node tests/streetverse-anatomy-simulation.test.mjs
+          node tests/streetverse-cabin-fit.test.mjs
+          node tests/streetverse-transit-displays.test.mjs
+          node tests/streetverse-airport-walkway.test.mjs
+          node tests/streetverse-transit-motion-broadcast-contract.mjs
+          node tests/streetverse-radio-transport-bridge-contract.mjs
+          node tests/streetverse-tv-free-channels-contract.mjs
+          node tests/tryamm-connected-growth-workflow.test.mjs
+          node tests/tryamm-product-placement-handoff.test.mjs
+          node tests/tryamm-holo-ads-draft-handoff.test.mjs
+          node tests/streetverse-radio-station-tuner.test.mjs
+          node tests/streetverse-height-and-first-journey-regression.mjs
+
       - name: Omniverse typecheck
         run: npm run typecheck
+
+      - name: React customer journey render smoke
+        run: node scripts/tryamm-customer-journey-react-render.mjs
 
       - name: Vercel parity build from pristine checkout
         run: npm run build
@@ -183,6 +203,9 @@ jobs:
 
       - name: Omniverse Vite production build
         run: npx vite build
+
+      - name: Customer journey compiled route HTTP smoke
+        run: node scripts/customer-journey-preview-smoke.mjs
 
       - name: Main synchronization audit
         run: node scripts/main-sync-audit.mjs

@@ -25,8 +25,16 @@ export default async function handler(req,res){
   const user=await requireUser(req,res);
   if(!user)return;
 
-  const body=typeof req.body==='string'?JSON.parse(req.body||'{}'):req.body||{};
+  let body;
+  try{body=typeof req.body==='string'?JSON.parse(req.body||'{}'):req.body||{}}
+  catch{return res.status(400).json({error:'Invalid JSON body'})}
   const role=body.role==='viewer'?'viewer':'host';
+  // Never let any signed-in visitor become a broadcaster merely by asking for host.
+  // LIVE_HOST_USER_IDS is a server-only comma-separated list of approved Supabase user UUIDs.
+  const allowedHosts=new Set(String(process.env.LIVE_HOST_USER_IDS||'').split(',').map(v=>v.trim()).filter(Boolean));
+  if(role==='host'&&!allowedHosts.has(String(user.id))){
+    return res.status(403).json({error:'LIVE hosting is restricted to approved creator accounts'});
+  }
   const room=cleanRoom(body.room);
   const displayName=cleanName(body.displayName,user.user_metadata?.display_name||user.email?.split('@')[0]);
   const identity=`${user.id}:${role}`;

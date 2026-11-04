@@ -1,0 +1,26 @@
+import assert from 'node:assert/strict'
+import {readFileSync} from 'node:fs'
+import {dirname,resolve} from 'node:path'
+import {fileURLToPath} from 'node:url'
+const root=resolve(dirname(fileURLToPath(import.meta.url)),'..')
+const read=p=>readFileSync(resolve(root,p),'utf8')
+const main=read('src/main.tsx')
+const geo=read('src/components/StreetVerseGeoSpawnBridge.tsx')
+const roster=read('src/runtime/StreetVersePlayableCharactersRuntime.ts')
+const world=read('src/components/StreetVerseMobileWorld.tsx')
+const online=read('src/components/StreetVerseRealtimePresence.tsx')
+const remote=read('src/components/StreetVerseSharedWorldAvatars.tsx')
+assert.match(main,/installStreetVersePlayableCharactersRuntime\(\)/,'roster must mount on game entry')
+assert.match(roster,/id:'bj-stubbs'/,'BJ must be in playable roster')
+assert.match(roster,/tryamm:streetverse-player-asset-select/,'selected character must request a model')
+assert.match(world,/addEventListener\('tryamm:streetverse-player-asset-select',onPlayerAssetSelect\)/,'mobile world must receive character change')
+assert.doesNotMatch(roster,/b\.innerHTML=/,'creator labels must not be injected as HTML')
+assert.match(roster,/character\.id==='bj-stubbs'\)window\.location\.reload\(\)/,'return to BJ must restore base rig')
+assert.match(roster,/does not create or authenticate another human player/,'clarify avatars vs players')
+assert.match(geo,/<StreetVerseRealtimePresence\/>/,'presence adapter must mount')
+assert.match(geo,/<StreetVerseSharedWorldAvatars\/>/,'peer visualizer must mount')
+assert.match(online,/sb\.auth\.getSession\(\)/,'session required for player presence')
+assert.match(online,/record\?\.userId===key/,'identity claim matched to presence key')
+assert.match(online,/if\(!peers\.has\(p\.userId\)\)return/,'unknown broadcast senders excluded')
+assert.match(remote,/tryamm:streetverse-multiplayer-presence/,'peer visuals consume presence events')
+console.log('StreetVerse player roster and presence source contract PASS (not authoritative multiplayer certification)')

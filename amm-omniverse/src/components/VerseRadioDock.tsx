@@ -14,12 +14,22 @@ export default function VerseRadioDock(){
  },[])
  if(!state||(state.open===false&&!state.track))return null
  const toggle=()=>state.playing?dispatchEvent(new Event('tryamm:verse-radio-pause')):dispatchEvent(new Event('tryamm:verse-radio-resume'))
+ const step=(direction:-1|1)=>dispatchEvent(new CustomEvent('tryamm:verse-radio-step-station',{detail:{direction}}))
+ const activeStation=VERSE_RADIO_STATIONS.find(st=>st.id===state.station)
  if(!expanded)return <button aria-label="Open Verse Radio" onClick={()=>setExpanded(true)} style={bubble}>♫</button>
  return <aside aria-label="Verse Radio" style={dock}>
   <div style={{display:'flex',alignItems:'center',gap:8}}>
    <button aria-label={state.playing?'Pause Verse Radio':'Play Verse Radio'} onClick={toggle} style={round}>{state.playing?'Ⅱ':'▶'}</button>
    <div style={{minWidth:0,flex:1}}><div style={{fontSize:8,letterSpacing:1.5,color:'#6cecff',fontWeight:950}}>VERSE RADIO • {state.platform.toUpperCase()}</div><div style={{fontSize:11,fontWeight:950,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{state.track?.title||'Choose music in MusicVerse'}</div><div style={{fontSize:9,color:'#93a7b2',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{state.track?.artist||state.station.replaceAll('-',' ')}</div></div>
    <button aria-label="Collapse Verse Radio" onClick={()=>setExpanded(false)} style={round}>−</button>
+  </div>
+  <div role="group" aria-label="Change internet radio station" style={{display:'flex',alignItems:'center',gap:8,marginTop:8}}>
+    <button aria-label="Previous radio station" title="Previous station" onClick={()=>step(-1)} style={{...round,width:44,height:44,flex:'0 0 44px'}}>◀</button>
+    <div aria-live="polite" style={{flex:1,textAlign:'center',minWidth:0}}>
+      <div style={{fontSize:12,fontWeight:900}}>{activeStation?.label||'Verse Radio'}</div>
+      <div style={{fontSize:9,color:'#a4c8d9'}}>{state.playing?'Playing authorized audio':state.track?'Ready to play':'No authorized program loaded'}</div>
+    </div>
+    <button aria-label="Next radio station" title="Next station" onClick={()=>step(1)} style={{...round,width:44,height:44,flex:'0 0 44px'}}>▶</button>
   </div>
   {state.needsTap&&<div style={{marginTop:7,padding:7,borderRadius:9,background:'#2b1e08',border:'1px solid #f0b64d66',fontSize:9,color:'#ffd78f'}}>Tap ▶ to resume audio after entering this Verse.</div>}
   <div style={{display:'flex',gap:5,overflowX:'auto',marginTop:7,paddingBottom:2}}>{VERSE_RADIO_STATIONS.map(st=><button key={st.id} onClick={()=>dispatchEvent(new CustomEvent('tryamm:verse-radio-station',{detail:{station:st.id}}))} style={{...chip,borderColor:state.station===st.id?'#68edff':'#294355'}}>{st.label}</button>)}</div>

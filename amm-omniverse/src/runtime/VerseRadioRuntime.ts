@@ -49,7 +49,24 @@ export function installVerseRadioRuntime(){
  const resume=async()=>{if(!state.track)return false;try{if(audio.src==='')audio.src=state.track.url;if(state.position>0&&audio.currentTime===0)audio.currentTime=state.position;await audio.play();state.playing=true;state.needsTap=false;publish('resume');return true}catch{state.needsTap=true;state.open=true;publish('tap-required');return false}}
  const open=()=>{state.open=true;publish('open')}
  const close=()=>{state.open=false;publish('close')}
- const setStation=(station:string)=>{state.station=String(station||'musicverse-radio');state.open=true;publish('station')}
+ const setStation=(station:string)=>{
+   const target=VERSE_RADIO_STATIONS.find(x=>x.id===station)
+   if(!target)return
+   if(state.station!==target.id){
+     // A station label must never continue playing content from the previous station.
+     // The new station needs an authorized audio program before listeners can press play.
+     audio.pause()
+     audio.removeAttribute('src')
+     audio.load()
+     state.track=null
+     state.position=0
+     state.duration=0
+     state.playing=false
+     state.needsTap=false
+   }
+   state.station=target.id;state.open=true;publish('station')
+ }
+ const stepStation=(step:-1|1)=>setStation(stepVerseRadioStation(state.station,step).id)
  const setVolume=(volume:number)=>{state.volume=Math.max(0,Math.min(1,Number(volume)||0));audio.volume=state.volume;publish('volume')}
 
  const onPlay=(event:Event)=>{const track=(event as CustomEvent<{track?:VerseRadioTrack}>).detail?.track;if(track)void play(track)}
@@ -58,6 +75,7 @@ export function installVerseRadioRuntime(){
  const onResume=()=>{void resume()}
  const onClose=()=>close()
  const onStation=(event:Event)=>setStation(String((event as CustomEvent<{station?:string}>).detail?.station||''))
+ const onStepStation=(event:Event)=>{const step=(event as CustomEvent<{direction?:number}>).detail?.direction;if(step===-1||step===1)stepStation(step)}
  const onVolume=(event:Event)=>setVolume(Number((event as CustomEvent<{volume?:number}>).detail?.volume??state.volume))
  const onTime=()=>{state.position=audio.currentTime||0;if(Math.floor(state.position)%5===0)save(state)}
  const onLoaded=()=>{if(state.position>0&&audio.duration>state.position)try{audio.currentTime=state.position}catch{};publish('metadata')}
@@ -70,6 +88,7 @@ export function installVerseRadioRuntime(){
  addEventListener('tryamm:verse-radio-resume',onResume)
  addEventListener('tryamm:verse-radio-close',onClose)
  addEventListener('tryamm:verse-radio-station',onStation)
+ addEventListener('tryamm:verse-radio-step-station',onStepStation)
  addEventListener('tryamm:verse-radio-volume',onVolume)
  document.addEventListener('visibilitychange',onVisibility)
  audio.addEventListener('timeupdate',onTime)
@@ -78,7 +97,7 @@ export function installVerseRadioRuntime(){
 
  w.__TRYAMM_VERSE_RADIO__={getState:()=>({...state}),open,play,pause,resume}
  publish(saved?.track?'restored-needs-tap':'startup')
- return()=>{pause();audio.src='';removeEventListener('tryamm:verse-radio-play',onPlay);removeEventListener('tryamm:verse-radio-open',onOpen);removeEventListener('tryamm:verse-radio-pause',onPause);removeEventListener('tryamm:verse-radio-resume',onResume);removeEventListener('tryamm:verse-radio-close',onClose);removeEventListener('tryamm:verse-radio-station',onStation);removeEventListener('tryamm:verse-radio-volume',onVolume);document.removeEventListener('visibilitychange',onVisibility);audio.removeEventListener('timeupdate',onTime);audio.removeEventListener('loadedmetadata',onLoaded);audio.removeEventListener('ended',onEnded);delete w.__TRYAMM_VERSE_RADIO__}
+ return()=>{pause();audio.src='';removeEventListener('tryamm:verse-radio-play',onPlay);removeEventListener('tryamm:verse-radio-open',onOpen);removeEventListener('tryamm:verse-radio-pause',onPause);removeEventListener('tryamm:verse-radio-resume',onResume);removeEventListener('tryamm:verse-radio-close',onClose);removeEventListener('tryamm:verse-radio-station',onStation);removeEventListener('tryamm:verse-radio-step-station',onStepStation);removeEventListener('tryamm:verse-radio-volume',onVolume);document.removeEventListener('visibilitychange',onVisibility);audio.removeEventListener('timeupdate',onTime);audio.removeEventListener('loadedmetadata',onLoaded);audio.removeEventListener('ended',onEnded);delete w.__TRYAMM_VERSE_RADIO__}
 }
 
 export const VERSE_RADIO_STATIONS=[
@@ -89,3 +108,10 @@ export const VERSE_RADIO_STATIONS=[
  {id:'sportverse-energy',label:'SportVerse Energy',genres:['hip-hop','rap','rock','edm','dance']},
  {id:'holoverse-radio',label:'HoloVerse Festival',genres:[]},
 ] as const
+/** Station navigation wraps around the existing internet-radio presets. */
+export function stepVerseRadioStation(current:string,direction:-1|1){
+ const count=VERSE_RADIO_STATIONS.length
+ const index=VERSE_RADIO_STATIONS.findIndex(station=>station.id===current)
+ const currentIndex=index<0?0:index
+ return VERSE_RADIO_STATIONS[(currentIndex+direction+count)%count]
+}
