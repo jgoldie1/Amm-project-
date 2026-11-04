@@ -1,4 +1,5 @@
-import {useEffect,useState} from 'react'
+import {lazy,Suspense,useEffect,useState} from 'react'
+const StreetVerseTransportScreenLab=lazy(()=>import('./StreetVerseTransportScreenLab'))
 import {QUANTUM_TOWER_LAUNCH_MODULES} from '../runtime/StreetVerseQuantumTowerLaunchRuntime'
 
 type Health={configured:boolean;hostAllowlistReady?:boolean;readyForPublic?:boolean;missing?:string[]}
@@ -11,6 +12,7 @@ const TOWER_EVENT='tryamm:quantum-tower-connectivity'
  */
 export default function StreetVerseTowerConnections(){
  const [open,setOpen]=useState(false)
+ const [transportLabOpen,setTransportLabOpen]=useState(false)
  const [live,setLive]=useState<Health|null>(null)
  const [error,setError]=useState('')
  const [modCount,setModCount]=useState<number|null>(null)
@@ -62,6 +64,7 @@ export default function StreetVerseTowerConnections(){
   window.dispatchEvent(new CustomEvent(TOWER_EVENT,{detail:{statuses,verifiedEndToEnd:false,source:'streetverse-tower-connections'}}))
  },[gameReady,vehicleConfirmed,lastMission,live,modCount,broadcastObserved,aiFabricDetected,jarvisDetected,travelStateObserved])
  return <>
+  {transportLabOpen&&<Suspense fallback={null}><StreetVerseTransportScreenLab onClose={()=>setTransportLabOpen(false)}/></Suspense>}
   <button aria-label="Open Quantum Tower connection diagnostics" onClick={()=>setOpen(v=>!v)} style={{position:'fixed',top:76,left:10,zIndex:48001,minHeight:44,padding:'7px 10px',borderRadius:12,border:'1px solid #91eaff88',background:'#071f2aee',color:'#fff',fontWeight:900,fontSize:11,touchAction:'manipulation'}}>🏙️ TOWER {open?'×':'STATUS'}</button>
   {open&&<section role="dialog" aria-label="Quantum Tower integration status" style={{position:'fixed',top:125,left:10,width:'min(92vw,380px)',maxHeight:'70dvh',overflowY:'auto',zIndex:48001,padding:12,borderRadius:14,background:'#05111bf5',border:'1px solid #75d7ed',color:'#fff',fontFamily:'system-ui',boxShadow:'0 12px 38px #000c'}}>
    <h2 style={{margin:'0 0 8px',fontSize:16}}>QUANTUM TOWER CONNECTIONS</h2>
@@ -98,6 +101,7 @@ export default function StreetVerseTowerConnections(){
    {error&&<p role="alert" style={{fontSize:10,color:'#ffb69d'}}>Status error: {error}</p>}
    <div style={{display:'grid',gap:6,marginTop:10}}>
     <button style={btn} onClick={()=>{setOpen(false);const host=window.open('/live?format=gamecast&role=host&from=quantum-tower','_blank');if(host)try{host.opener=null}catch{};if(!host)window.dispatchEvent(new CustomEvent('tryamm:live-center-open',{detail:{source:'quantum-tower',format:'gamecast'}}))}}>📡 OPEN GAMECAST HOST TAB</button>
+    <button style={btn} onClick={()=>{setOpen(false);setTransportLabOpen(true)}}>🚌 CAR • BUS • L TRAIN • AIRPORT DISPLAY LAB</button>
     <button style={btn} onClick={()=>window.dispatchEvent(new Event('tryamm:mod-pass-open'))}>🧩 OPEN MOD PASS</button>
     <button style={btn} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:open-reel-creator',{detail:{source:'quantum-tower'}}))}>🎥 OPEN REEL CREATOR</button>
     <button style={btn} onClick={()=>window.location.assign('/network/broadcast-os')}>📺 BROADCAST NETWORK</button>
