@@ -49,6 +49,14 @@ require('./music-api')({app,auth,clean,id,getStore:()=>store,saveStore,io});
 require('./lib/omniverse-radio-routes')({app,auth,clean,id,getStore:()=>store,saveStore,io});
 require('./lib/daily-business-boost-routes')({app,auth,clean,id,getStore:()=>store,saveStore,io});
 require('./lib/ai-cafe-routes')({app,auth,getStore:()=>store,saveStore});
+const {planIntent}=require('./lib/jarvis-genie-intent');
+app.get('/api/jarvis-genie/health',(_req,res)=>res.json({ok:true,service:'JARVIS Genie',mode:'preview-only',executionEnabled:false}));
+app.post('/api/jarvis-genie/intent',auth,(req,res)=>{
+  const raw=String(req.body?.intent||'');
+  if(raw.length>600)return res.status(413).json({error:'Intent exceeds 600 characters'});
+  const result=planIntent(raw,{locale:String(req.body?.locale||'en').slice(0,5)});
+  res.status(result.ok?200:400).json(result);
+});
 require('./lib/financial-marketplace-routes')({app,getStore:()=>store});
 io.use((socket,next)=>{const user=userFromToken(socket.handshake.auth?.token||'');if(!user)return next(new Error('unauthorized'));socket.user=user;next()});
 io.on('connection',socket=>{socket.on('room:join',({roomId})=>{const room=store.rooms.find(r=>r.id===roomId&&r.status==='live');if(!room)return socket.emit('error:message','Room is unavailable');socket.join(`room:${roomId}`);socket.data.roomId=roomId;socket.to(`room:${roomId}`).emit('peer:joined',{socketId:socket.id,name:socket.user.displayName});io.to(`room:${roomId}`).emit('viewer:count',io.sockets.adapter.rooms.get(`room:${roomId}`)?.size||0)});socket.on('chat',({roomId,message})=>{const text=clean(message,500);if(text)io.to(`room:${roomId}`).emit('chat',{id:id('msg'),from:socket.user.displayName,text,at:Date.now()})});socket.on('webrtc:offer',({to,offer})=>io.to(to).emit('webrtc:offer',{from:socket.id,offer}));socket.on('webrtc:answer',({to,answer})=>io.to(to).emit('webrtc:answer',{from:socket.id,answer}));socket.on('webrtc:ice',({to,candidate})=>io.to(to).emit('webrtc:ice',{from:socket.id,candidate}));socket.on('disconnect',()=>{const roomId=socket.data.roomId;if(roomId)io.to(`room:${roomId}`).emit('viewer:count',io.sockets.adapter.rooms.get(`room:${roomId}`)?.size||0)})});
