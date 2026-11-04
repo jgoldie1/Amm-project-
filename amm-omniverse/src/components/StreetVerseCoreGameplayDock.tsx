@@ -56,7 +56,8 @@ export default function StreetVerseCoreGameplayDock(){
   const liveCast=()=>{
     // The browser screen picker works best when StreetVerse remains in its own
     // visible tab. This direct click opens a separate host tab for Gamecast.
-    const studio=window.open('/live?format=gamecast&role=host&from=streetverse','_blank','noopener,noreferrer')
+    const studio=window.open('/live?format=gamecast&role=host&from=streetverse','_blank')
+    if(studio)try{studio.opener=null}catch{}
     if(!studio){
       dispatchEvent(new CustomEvent('tryamm:streetverse-live-cast-open',{detail:{source:'streetverse-core-dock',missionId:mission?.id||'',mode:'gamecast'}}))
       setMessage('LIVE STUDIO OPENED HERE • ALLOW POPUPS TO CAPTURE THE GAME')
