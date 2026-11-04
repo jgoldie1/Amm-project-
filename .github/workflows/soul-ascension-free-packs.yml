@@ -1,0 +1,67 @@
+name: Soul Ascension CC0 Free Animation Pack Acquisition
+on:
+  push:
+    branches: [streetverse-chromebook-workbench]
+    paths:
+      - '.github/workflows/soul-ascension-free-packs.yml'
+permissions:
+  contents: read
+jobs:
+  fetch-free-cc0-packs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Download both zero-dollar CC0 Standard packs from author's itch.io
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/soul-ascension-ual"
+          cat > "$RUNNER_TEMP/get_ual.py" <<'PY'
+          import json, pathlib, urllib.request, urllib.parse, hashlib, zipfile
+          out=pathlib.Path(__import__('os').environ['RUNNER_TEMP'])/'soul-ascension-ual'
+          for slug,upload,name in [
+             ('universal-animation-library',17958403,'Quaternius_Universal_Animation_Library_Standard.zip'),
+             ('universal-animation-library-2',17958478,'Quaternius_Universal_Animation_Library_2_Standard.zip'),
+          ]:
+              home=f'https://quaternius.itch.io/{slug}'
+              endpoint=f'{home}/file/{upload}?source=game_download&as_props=1'
+              req=urllib.request.Request(endpoint,data=b'',headers={'Accept':'application/json','Referer':home,'User-Agent':'Mozilla/5.0 (compatible; CC0-Asset-Retriever/1.0)'},method='POST')
+              with urllib.request.urlopen(req,timeout=25) as response:
+                  result=json.load(response)
+              url=result.get('url','')
+              host=urllib.parse.urlparse(url).hostname or ''
+              allowed=host.endswith(('.itch.io','.itch.zone','.r2.dev','.cloudflarestorage.com','.amazonaws.com','.googleusercontent.com'))
+              if not url.startswith('https://') or not allowed:
+                  raise RuntimeError(f'Signed download host not validated: {host}')
+              dest=out/name
+              req2=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0'})
+              with urllib.request.urlopen(req2,timeout=120) as download, dest.open('wb') as f:
+                  import shutil
+                  shutil.copyfileobj(download,f)
+              if dest.stat().st_size<100000:
+                  raise RuntimeError('Archive too small to be real source pack')
+              with zipfile.ZipFile(dest) as archive:
+                  bad=archive.testzip()
+                  if bad: raise RuntimeError(f'Archive corrupted at {bad}')
+                  count=len(archive.namelist())
+              sha=hashlib.sha256(dest.read_bytes()).hexdigest()
+              (out/(name+'.sha256')).write_text(f'{sha}  {name}\n')
+              print(f'{name}: bytes={dest.stat().st_size} zip_entries={count} sha256={sha}')
+          PY
+          python "$RUNNER_TEMP/get_ual.py"
+      - name: Upload CC0 Universal Animation Library 1 Standard
+        uses: actions/upload-artifact@v4
+        with:
+          name: soul-ascension-UAL1-Standard
+          path: |
+            ${{ runner.temp }}/soul-ascension-ual/Quaternius_Universal_Animation_Library_Standard.zip
+            ${{ runner.temp }}/soul-ascension-ual/Quaternius_Universal_Animation_Library_Standard.zip.sha256
+          retention-days: 14
+      - name: Upload CC0 Universal Animation Library 2 Standard
+        uses: actions/upload-artifact@v4
+        with:
+          name: soul-ascension-UAL2-Standard
+          path: |
+            ${{ runner.temp }}/soul-ascension-ual/Quaternius_Universal_Animation_Library_2_Standard.zip
+            ${{ runner.temp }}/soul-ascension-ual/Quaternius_Universal_Animation_Library_2_Standard.zip.sha256
+          retention-days: 14
