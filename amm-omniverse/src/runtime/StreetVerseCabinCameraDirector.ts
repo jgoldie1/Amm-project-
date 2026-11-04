@@ -24,7 +24,7 @@ export function createStreetVerseCabinDirector(id:string,profile:keyof typeof CA
  const refresh=()=>{state.participants.forEach(p=>p.speaking=p.actorId===state.speakerId)}
  const board=(actorId:string,displayName:string,playerControlled=false)=>{
   const id=clean(actorId,80);if(!id)return null
-  const seatId=boardTransport(manifest,id)
+  const seatId=boardTransport(manifest,id,playerControlled&&spec.kind!=='plane'?'operator':undefined)
   if(!seatId)return null
   const index=manifest.seats.findIndex(s=>s.id===seatId)
   if(index<0)return null // no standing actors in a six-seat cabin
