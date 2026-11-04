@@ -20,7 +20,7 @@ assert.match(roster,/does not create or authenticate another human player/,'clar
 assert.match(geo,/<StreetVerseRealtimePresence\/>/,'presence adapter must mount')
 assert.match(geo,/<StreetVerseSharedWorldAvatars\/>/,'peer visualizer must mount')
 assert.match(online,/sb\.auth\.getSession\(\)/,'session required for player presence')
-assert.match(online,/p\?\.userId===key/,'identity claim matched to presence key')
+assert.match(online,/record\?\.userId===key/,'identity claim matched to presence key')
 assert.match(online,/if\(!peers\.has\(p\.userId\)\)return/,'unknown broadcast senders excluded')
 assert.match(remote,/tryamm:streetverse-multiplayer-presence/,'peer visuals consume presence events')
 console.log('StreetVerse player roster and presence source contract PASS (not authoritative multiplayer certification)')
