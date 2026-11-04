@@ -102,6 +102,7 @@ jobs:
         run: |
           node tests/streetverse-playable-roster-multiplayer-contract.mjs
           node tests/streetverse-injury-rigging-contract.mjs
+          node tests/streetverse-anatomy-simulation.test.mjs
           node tests/streetverse-height-and-first-journey-regression.mjs
 
       - name: Omniverse typecheck
