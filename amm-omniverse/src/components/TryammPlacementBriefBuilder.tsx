@@ -54,7 +54,7 @@ export default function TryammPlacementBriefBuilder({onQuote}:Props){
    window.addEventListener('tryamm:holo-ads-campaign-draft',onDraft,{once:true})
    window.dispatchEvent(new CustomEvent('tryamm:holo-ads-create-campaign',{detail:{
     productId:brief.surfaces.includes('streetverse-world')?'xr':'boost',
-    market:'Chicago',objective:'review-product-placement',concept:brief.product
+    market:'Chicago',objective:'review-product-placement',advertiserName:brief.brand,productName:brief.product,surfaces:brief.surfaces
    }}))
   }catch{
    setStatus('The Holo Ads preview tool is unavailable. You can still request a quote. No campaign was saved or billed.')
