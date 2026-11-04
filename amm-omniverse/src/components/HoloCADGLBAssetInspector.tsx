@@ -1,5 +1,7 @@
 import {useEffect,useRef,useState,type CSSProperties} from 'react'
 import {HOLOCAD_GLB_MAX_BYTES,inspectHoloCADGLB,type HoloCADGLBInspection} from '../game/holocad/holocadGLBInspector'
+import type {HoloCADSubject} from '../game/holocad/livingSystemsPresets'
+import {createHoloCADResearchResult,publishHoloCADResearchResult} from '../game/holocad/holocadResearchBridge'
 
 const button:CSSProperties={
  minHeight:44,padding:'9px 11px',borderRadius:10,
@@ -8,7 +10,7 @@ const button:CSSProperties={
 }
 const stat=(name:string,value:string|number)=>({name,value})
 
-export default function HoloCADGLBAssetInspector({onClose}:{onClose:()=>void}){
+export default function HoloCADGLBAssetInspector({onClose,subject}:{onClose:()=>void;subject:HoloCADSubject}){
  const [filename,setFilename]=useState('')
  const [report,setReport]=useState<HoloCADGLBInspection|null>(null)
  const [status,setStatus]=useState('Select a .glb file from this device; inspection stays local.')
@@ -33,6 +35,7 @@ export default function HoloCADGLBAssetInspector({onClose}:{onClose:()=>void}){
    const result=inspectHoloCADGLB(await file.arrayBuffer())
    if(request!==requestId.current)return
    setReport(result)
+   publishHoloCADResearchResult(createHoloCADResearchResult({kind:'glb-metadata',subject,experiment:'glb-v2-inspection',summary:'Checked '+result.meshes+' mesh(es), '+result.skins+' skin(s), '+result.animations+' clip(s); no upload.'}))
    setStatus('Local metadata inspection complete. No asset uploaded or installed in StreetVerse.')
   }catch(e){
    if(request!==requestId.current)return
