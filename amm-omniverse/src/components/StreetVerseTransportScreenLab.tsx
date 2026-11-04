@@ -1,6 +1,7 @@
 import {useMemo,useState} from 'react'
 import {createTransitDisplay,transitDisplayText,updateTransitDisplay,type StreetVerseTransitMode,type TransitDisplayPage} from '../runtime/StreetVerseTransitDisplayRuntime'
 import {createStreetVerseCabinDirector} from '../runtime/StreetVerseCabinCameraDirector'
+import {boardWalkway,createAirportWalkway,emergencyStopWalkway,leaveWalkway,resetWalkway,setWalkwayRunning,tickAirportWalkway,type WalkwayState} from '../runtime/StreetVerseAirportWalkwayRuntime'
 const MODES:readonly StreetVerseTransitMode[]=['car','bus','el-train','plane','airport-walkway']
 const PAGES:readonly TransitDisplayPage[]=['route','next-stop','accessibility','cabin','safety']
 const btn:React.CSSProperties={minHeight:44,padding:'8px 10px',borderRadius:10,border:'1px solid #486982',background:'#112a39',color:'#effcff',fontSize:12,touchAction:'manipulation'}
@@ -9,9 +10,10 @@ export default function StreetVerseTransportScreenLab({onClose}:{onClose:()=>voi
  const [display,setDisplay]=useState(()=>createTransitDisplay('car'))
  const [seated,setSeated]=useState<string[]>([])
  const [camera,setCamera]=useState('exterior')
+ const [walkway,setWalkway]=useState<WalkwayState>(()=>createAirportWalkway('airport-demo'))
  const director=useMemo(()=>createStreetVerseCabinDirector('streetverse-transit-lab'),[mode])
  const text=transitDisplayText(display)
- const select=(next:StreetVerseTransitMode)=>{setMode(next);setDisplay(createTransitDisplay(next));setSeated([]);setCamera('exterior')}
+ const select=(next:StreetVerseTransitMode)=>{setMode(next);setDisplay(createTransitDisplay(next));setSeated([]);setCamera('exterior');setWalkway(createAirportWalkway('airport-demo'))}
  const action=(next:Parameters<typeof updateTransitDisplay>[1])=>setDisplay(s=>updateTransitDisplay(s,next))
  const board=()=>{
    if(mode!=='car'){action({type:'board'});return}
@@ -56,7 +58,19 @@ export default function StreetVerseTransportScreenLab({onClose}:{onClose:()=>voi
       <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>{(['driver','passenger','rear-seat','aisle','cinematic','exterior'] as const).map(c=><button key={c} style={btn} onClick={()=>{director.camera(c);setCamera(c)}}>{c}</button>)}</div>
       <div style={{fontSize:11,marginTop:8}}>Selected camera: {camera}. This is a camera-shot specification, not an active 3D camera.</div>
     </div>}
-    {mode==='airport-walkway'&&<p style={{fontSize:12}}>Moving walkways need safe entry/exit transitions, direction controls, collision zones, stop buttons, wheelchair alternatives and a verified airport-scene asset before they can physically move players.</p>}
+    {mode==='airport-walkway'&&<section style={{border:'1px solid #486982',borderRadius:12,padding:12,marginTop:12}}>
+      <strong>Moving walkway • gameplay simulation</strong>
+      <div style={{fontSize:12,margin:'8px 0'}}>Belt: {walkway.enabled?'RUNNING':'STOPPED'} • rider progress: {walkway.riders['demo-rider']?.distanceM.toFixed(1)??'not aboard'} / {walkway.lengthM} m • emergency: {walkway.emergencyStopped?'ON':'OFF'}</div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:6}}>
+       <button style={btn} onClick={()=>setWalkway(s=>boardWalkway(s,'demo-rider'))}>STEP ON</button>
+       <button style={btn} onClick={()=>setWalkway(s=>setWalkwayRunning(s,!s.enabled))}>{walkway.enabled?'STOP BELT':'RUN BELT'}</button>
+       <button style={btn} onClick={()=>setWalkway(s=>tickAirportWalkway(s,.1))}>ADVANCE SIMULATION 0.1s</button>
+       <button style={btn} onClick={()=>setWalkway(s=>leaveWalkway(s,'demo-rider'))}>STEP OFF</button>
+       <button style={btn} onClick={()=>setWalkway(s=>emergencyStopWalkway(s))}>EMERGENCY STOP</button>
+       <button style={btn} onClick={()=>setWalkway(s=>resetWalkway(s))}>RESET EMPTY BELT</button>
+      </div>
+      <p style={{fontSize:11}}>An accessible alternate walking route is preserved. The 3D airport walkway mesh, collisions and actual character transport still require integration.</p>
+     </section>}
     <button style={{...btn,marginTop:16,width:'100%'}} onClick={onClose}>RETURN TO STREETVERSE</button>
    </div>
   </section>
