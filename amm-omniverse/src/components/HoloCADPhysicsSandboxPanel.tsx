@@ -1,5 +1,6 @@
 import {useEffect,useMemo,useState,type CSSProperties} from 'react'
 import type {HoloCADSubject} from '../game/holocad/livingSystemsPresets'
+import {createHoloCADResearchResult,publishHoloCADResearchResult} from '../game/holocad/holocadResearchBridge'
 import {
  HOLOCAD_PHYSICS_LESSONS,suggestedHoloCADPhysicsExperiment,
  simulateHoloCADJointTorque,simulateHoloCADStaticBalance,
@@ -115,6 +116,7 @@ export default function HoloCADPhysicsSandboxPanel({
     }
    }
    setReport(next)
+   publishHoloCADResearchResult(createHoloCADResearchResult({kind:'classical-physics',subject,experiment:lesson,summary:'Calculated '+next.title+' (illustrative, no hardware).'}))
    setStatus('Completed local textbook calculation; see assumptions and omissions below.')
   }catch(e){
    setReport(null)
