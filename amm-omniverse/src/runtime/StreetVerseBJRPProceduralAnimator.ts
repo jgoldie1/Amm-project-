@@ -74,7 +74,7 @@ export function createStreetVerseBJRPProceduralAnimator(root:THREE.Object3D){
     const elapsed=(nowMs-current.start)/1000
     const phase=Math.sin(elapsed*8.4*current.speed+current.phase)*current.strength
     const sway=Math.sin(elapsed*4*current.speed+current.phase)*current.strength
-    const {pose}=active
+    const {pose}=current
     const set=(node:THREE.Object3D|null,x:number,z:number,y=0)=>{
       if(!node)return
       const base=rest.get(node)
