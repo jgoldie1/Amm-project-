@@ -1,11 +1,11 @@
-import type {HoloCADPreset,HoloCADPart} from './livingSystemsPresets'
+import type {HoloCADPreset} from './livingSystemsPresets'
 
 /**
  * Original low-poly aerospace/robotics teaching diagrams.
  * Dimensions are arbitrary 3D scene units; NOT real CAD, airworthiness,
  * robotics control, launch engineering, medical exoskeleton or space hardware.
  */
-export const HOLOCAD_AEROSPACE_ROBOTICS_PRESETS={
+export const HOLOCAD_AEROSPACE_ROBOTICS_PRESETS:Record<string,HoloCADPreset>={
  "aircraft":{
   "title": "AIRCRAFT ENGINEERING",
   "subtitle": "Illustrative fixed-wing aircraft: lift, propulsion, avionics and flight systems",
@@ -3156,7 +3156,7 @@ export const HOLOCAD_AEROSPACE_ROBOTICS_PRESETS={
     }
   ]
 },
-} as const satisfies Record<string,HoloCADPreset>
+}
 
 export const HOLOCAD_AEROSPACE_ROBOTICS_KEYS=[
  'aircraft',
