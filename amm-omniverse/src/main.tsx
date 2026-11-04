@@ -328,6 +328,21 @@ queueMicrotask(() => {
   if (window.location.pathname.startsWith('/streetverse')) {
     // Keep StreetVerse lightweight while still installing only release-critical
     // Circle Park progression and the Chicago Time Machine. Heavy global launchers remain excluded.
+    // Lightweight integration services: queue after playable world mount, not before.
+    // Their events connect StreetVerse to Broadcast OS, operations, JARVIS and travel
+    // while preserving the single-canvas game launch and protected commerce gates.
+    queueOptionalRuntime(() => import('./runtime/TryammBroadcastOSRuntime')
+      .then(m => m.installTryammBroadcastOSRuntime())
+      .catch(error => console.error('[TRYAMM] StreetVerse Broadcast OS bridge failed.',error)))
+    queueOptionalRuntime(() => import('./runtime/StubbsLyonsMiddleverseRuntime')
+      .then(m => m.installStubbsLyonsMiddleverseRuntime())
+      .catch(error => console.error('[TRYAMM] StreetVerse operating fabric bridge failed.',error)))
+    queueOptionalRuntime(() => import('./runtime/JarvisOrchestratorRuntime')
+      .then(m => m.installJarvisOrchestratorRuntime())
+      .catch(error => console.error('[TRYAMM] StreetVerse JARVIS command router failed.',error)))
+    queueOptionalRuntime(() => import('./runtime/GlobalTravelExperienceRuntime')
+      .then(m => m.installGlobalTravelExperienceRuntime())
+      .catch(error => console.error('[TRYAMM] StreetVerse global travel bridge failed.',error)))
     queueOptionalRuntime(() => import('./runtime/TryammModPassRuntime')
       .then(m => m.installTryammModPassRuntime())
       .catch(error => console.error('[TRYAMM] StreetVerse Mod Pass failed after mount.', error)))
