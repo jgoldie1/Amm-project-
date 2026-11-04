@@ -1,5 +1,6 @@
 import {lazy,Suspense,useEffect,useMemo,useState} from 'react'
 const StreetVerseCC0MotionGallery=lazy(()=>import('./StreetVerseCC0MotionGallery'))
+const SoulAscensionDanceLine=lazy(()=>import('./SoulAscensionDanceLine'))
 import {searchStreetVerseRPActions,type RPActionPurpose,type RPActionEntry} from '../data/streetVerseRPActionCatalog'
 
 const PURPOSES:Array<RPActionPurpose|'all'>=['all','greet','celebrate','perform','react','comfort','romance','argue','work','train','serve','pray','pose','record']
@@ -11,6 +12,7 @@ export default function StreetVerseRPActionSearch({compact=false}:{compact?:bool
  const [page,setPage]=useState(0)
  const [previewAction,setPreviewAction]=useState<RPActionEntry|null>(null)
  const [cc0GalleryOpen,setCc0GalleryOpen]=useState(false)
+ const [soulAscensionOpen,setSoulAscensionOpen]=useState(false)
  const [playbackStatus,setPlaybackStatus]=useState('Select PLAY to animate BJ in 3D; missing clips will be reported.')
  const [favorites,setFavorites]=useState<string[]>(()=>{try{return JSON.parse(localStorage.getItem('tryamm.rp-action-favorites.v1')||'[]')}catch{return[]}})
  useEffect(()=>{
@@ -40,6 +42,8 @@ export default function StreetVerseRPActionSearch({compact=false}:{compact?:bool
  return <section aria-label="StreetVerse RP action search" style={{marginTop:7}}>
   <button type="button" aria-label="Open 50 CC0 GLB gesture motion previews" onClick={()=>setCc0GalleryOpen(true)} style={{width:'100%',minHeight:44,borderRadius:11,border:'1px solid #7deaff77',background:'#12314b',color:'#e6f8ff',fontWeight:900,fontSize:11,marginBottom:7}}>🎞 50 CC0 GLB MOTIONS • PREVIEW MANNEQUIN</button>
   {cc0GalleryOpen&&<Suspense fallback={<div role="status">Opening source motion gallery…</div>}><StreetVerseCC0MotionGallery onClose={()=>setCc0GalleryOpen(false)}/></Suspense>}
+  <button type="button" aria-label="Open Soul Ascension 1980s to present dance line" onClick={()=>setSoulAscensionOpen(true)} style={{width:'100%',minHeight:44,borderRadius:11,border:'1px solid #eab5ff77',background:'#3a164e',color:'#fff5ff',fontWeight:900,fontSize:11,marginBottom:7}}>🪩 SOUL ASCENSION • 1980s–PRESENT • DANCE LINE</button>
+  {soulAscensionOpen&&<Suspense fallback={<div role="status">Opening Soul Ascension dance line…</div>}><SoulAscensionDanceLine onClose={()=>setSoulAscensionOpen(false)}/></Suspense>}
   <button onClick={()=>setOpen(v=>!v)} style={{width:'100%',minHeight:38,borderRadius:11,border:'1px solid #f9a8d477',background:'#1a1021',color:'#fff',fontWeight:950,fontSize:10}}>🎭 RP SEARCH • ANIMATION / GIF / PURPOSE</button>
   {open&&<div style={{marginTop:7,padding:8,borderRadius:14,background:'#070c16ee',border:'1px solid #f9a8d455'}}>
    <div style={{display:'grid',gridTemplateColumns:'1fr auto',gap:6}}>
