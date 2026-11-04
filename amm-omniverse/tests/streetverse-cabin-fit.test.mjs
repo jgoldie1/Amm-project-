@@ -6,7 +6,7 @@ import {fileURLToPath} from 'node:url'
 const anchors=[
  {x:-.43,y:.77,z:.48},{x:-.43,y:.77,z:-.48},
  {x:-1.30,y:.79,z:.47},{x:-1.30,y:.79,z:0},
- {x:-1.30,y:.79,z:-.47},{x:-2.12,y:.81,z:0}
+ {x:-1.30,y:.79,z:-.47},{x:-1.90,y:.81,z:0}
 ]
 const occupied=[]
 for (const anchor of anchors){
