@@ -36,6 +36,7 @@ import {chooseQuantumSpeedMode,QUANTUM_SPEED_BUDGETS,type QuantumSpeedMode} from
 import {CIRCLE_PARK_SPAWN} from '../data/StreetVerseChicagoGrid'
 
 const StreetVersePlayableWorld=lazy(()=>import('./StreetVersePlayableWorld'))
+const StreetVerseHoloCADLivingSystemsLab=lazy(()=>import('./StreetVerseHoloCADLivingSystemsLab'))
 const StreetVerseFullWorldOverlays=lazy(()=>import('./StreetVerseFullWorldOverlays'))
 const StreetVerseReelEventBridge=lazy(()=>import('./StreetVerseReelEventBridge'))
 const StreetVerseActionCarousel=lazy(()=>import('./StreetVerseActionCarousel'))
@@ -166,6 +167,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  const mobile=useMemo(()=>typeof navigator!=='undefined'&&/iPhone|iPad|iPod|Android/i.test(navigator.userAgent||''),[])
  const [enhancementsReady,setEnhancementsReady]=useState(false)
  const [nearWestOpen,setNearWestOpen]=useState(false)
+ const [holoCADLivingOpen,setHoloCADLivingOpen]=useState(false)
  const [quantumMode,setQuantumMode]=useState<QuantumSpeedMode>('balanced')
  const setLocationContext=useGameStore(state=>state.setLocationContext)
  const applyCityConsequence=useGameStore(state=>state.applyCityConsequence)
@@ -193,6 +195,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  useLayoutEffect(()=>installStreetVerseAbracadabraGeniiRuntime(),[])
  useLayoutEffect(()=>installStreetVerseSoundBankRuntime(),[])
  useLayoutEffect(()=>{installHoloForgeRuntime()},[])
+ useEffect(()=>{const onOpen=()=>setHoloCADLivingOpen(true);window.addEventListener('tryamm:holocad-living-open',onOpen);return()=>window.removeEventListener('tryamm:holocad-living-open',onOpen)},[])
  useLayoutEffect(()=>installBennyCursorConstructBridge(),[])
  useLayoutEffect(()=>installUniversalLanguageBridge(),[])
  useLayoutEffect(()=>installAccessibleConversationBridge(),[])
@@ -275,7 +278,17 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
   return()=>window.clearTimeout(timer)
  },[safe,quantumMode])
 
+ const holoCADControl=<>
+  <button type="button" aria-label="Open StreetVerse Holographic CAD anatomy and vehicle teardown lab" onClick={()=>setHoloCADLivingOpen(true)}
+   style={{position:'fixed',top:'max(180px,calc(env(safe-area-inset-top) + 180px))',left:8,zIndex:46020,minHeight:44,
+   borderRadius:12,border:'1px solid #7cddff',background:'#092b43e8',color:'#e9faff',font:'900 10px system-ui',
+   padding:'7px 10px',touchAction:'manipulation'}}>🧬 HOLO CAD / TEARDOWN</button>
+  {holoCADLivingOpen&&<Suspense fallback={<div role="status" style={{position:'fixed',inset:0,zIndex:77999,display:'grid',placeItems:'center',background:'#06101def',color:'#fff'}}>Loading HoloCAD lab…</div>}>
+    <StreetVerseHoloCADLivingSystemsLab onClose={()=>setHoloCADLivingOpen(false)}/>
+  </Suspense>}
+ </>
  if(safe)return <>
+  {holoCADControl}
   {!explicitSafe&&<div data-streetverse-render-mode="startup-fallback" style={{position:'fixed',top:75,left:12,zIndex:41000,maxWidth:'min(84vw,300px)',padding:10,borderRadius:14,background:'#071725ef',color:'#eaffff',border:'1px solid #54dcff',boxShadow:'0 8px 22px #0008',fontFamily:'system-ui,sans-serif'}}>
     <div style={{fontWeight:900,fontSize:12,marginBottom:6}}>3D city did not start</div>
     <button aria-label="Retry StreetVerse 3D" onClick={retry3D} style={{minHeight:48,border:'1px solid #8fffe2',borderRadius:9,padding:'8px 15px',background:'#073f38',color:'#fff',fontWeight:900}}>RETRY 3D CHICAGO</button>
@@ -291,6 +304,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  </>
 
  return <>
+  {holoCADControl}
   <BuildSwarmControl/>
   {nearWestOpen&&<div style={{position:'fixed',inset:0,zIndex:14980,background:'#07101d'}}><Suspense fallback={null}><StreetVerseNearWest3D/></Suspense><button aria-label="Return to StreetVerse Chicago" onClick={()=>setNearWestOpen(false)} style={{position:'fixed',top:76,right:12,zIndex:14990,border:'1px solid #6ee7ff',borderRadius:12,background:'#07131f',color:'#fff',padding:'10px 12px',fontWeight:900}}>← CHICAGO</button></div>}
   <button data-streetverse-travel="true" aria-label="Travel to Taylor Street UIC Medical District" onClick={()=>{if(mobile){window.dispatchEvent(new CustomEvent('tryamm:west-side-route-request',{detail:{x:24,z:-8,missionId:'taylor-single-canvas',source:'streetverse-main-travel-shortcut'}}))}else setNearWestOpen(true)}} style={{position:'fixed',top:118,right:12,zIndex:14995,border:'1px solid #6ee7ff',borderRadius:12,background:'#062333e8',color:'#fff',padding:'10px 12px',fontWeight:900}}>TAYLOR / UIC</button>

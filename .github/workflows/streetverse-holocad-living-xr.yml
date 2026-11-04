@@ -1,0 +1,60 @@
+name: StreetVerse HoloCAD Living Systems AR VR
+on:
+  push:
+    branches: [feature/holocad-living-systems-teardown]
+    paths:
+      - 'amm-omniverse/src/components/StreetVerseHoloCADLivingSystemsLab.tsx'
+      - 'amm-omniverse/src/game/holocad/**'
+      - 'amm-omniverse/tests/streetverse-holocad-living-xr-contract.mjs'
+      - 'amm-omniverse/tests/streetverse-holocad-aerospace-robotics-contract.mjs'
+      - 'amm-omniverse/tests/streetverse-holocad-quantum-sandbox.test.mjs'
+      - 'amm-omniverse/tests/streetverse-holocad-physics-sandbox.test.mjs'
+      - 'amm-omniverse/tests/streetverse-holocad-glb-inspector.test.mjs'
+      - 'amm-omniverse/tests/streetverse-holocad-ecosystem-bridge.test.mjs'
+      - 'amm-omniverse/tests/streetverse-holocad-original-glb-archive.test.mjs'
+      - '.github/workflows/streetverse-holocad-living-xr.yml'
+  pull_request:
+    paths:
+      - 'amm-omniverse/src/components/StreetVerseHoloCADLivingSystemsLab.tsx'
+      - 'amm-omniverse/src/game/holocad/**'
+      - 'amm-omniverse/tests/streetverse-holocad-living-xr-contract.mjs'
+      - 'amm-omniverse/tests/streetverse-holocad-aerospace-robotics-contract.mjs'
+      - 'amm-omniverse/tests/streetverse-holocad-quantum-sandbox.test.mjs'
+      - 'amm-omniverse/tests/streetverse-holocad-physics-sandbox.test.mjs'
+      - 'amm-omniverse/tests/streetverse-holocad-glb-inspector.test.mjs'
+      - 'amm-omniverse/tests/streetverse-holocad-ecosystem-bridge.test.mjs'
+      - 'amm-omniverse/tests/streetverse-holocad-original-glb-archive.test.mjs'
+      - '.github/workflows/streetverse-holocad-living-xr.yml'
+permissions:
+  contents: read
+jobs:
+  holocad-living-xr:
+    name: Typecheck and validate HoloCAD AR VR
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: HoloCAD source regression contracts
+        run: |
+          node streetverse/holocad/tests.mjs
+          node amm-omniverse/tests/streetverse-holocad-living-xr-contract.mjs
+          node amm-omniverse/tests/streetverse-holocad-aerospace-robotics-contract.mjs
+          node --test amm-omniverse/tests/streetverse-holocad-quantum-sandbox.test.mjs
+          node --test amm-omniverse/tests/streetverse-holocad-physics-sandbox.test.mjs
+          node --test amm-omniverse/tests/streetverse-holocad-glb-inspector.test.mjs
+          node --test amm-omniverse/tests/streetverse-holocad-ecosystem-bridge.test.mjs
+          node --test amm-omniverse/tests/streetverse-holocad-original-glb-archive.test.mjs
+      - name: Install dependencies
+        working-directory: amm-omniverse
+        run: npm ci --no-audit --no-fund
+      - name: TypeScript check
+        working-directory: amm-omniverse
+        run: npx tsc --noEmit
+      - name: Build the web application
+        working-directory: amm-omniverse
+        run: npm run build
