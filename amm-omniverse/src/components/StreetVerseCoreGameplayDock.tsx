@@ -36,8 +36,16 @@ export default function StreetVerseCoreGameplayDock(){
   },[])
 
   const missionAction=()=>{
-    dispatchEvent(new CustomEvent('tryamm:streetverse-cinematic-mission-open',{detail:{missionId:mission?.id,source:'streetverse-core-dock'}}))
-    setMessage('SCRIPTED MISSION SELECTOR OPENED')
+    if(!mission){
+      // User-initiated first journey start. The mobile world owns repair/drive
+      // state and listens for this specific event; never auto-start on mount.
+      dispatchEvent(new CustomEvent('tryamm:streetverse-first-journey-start',{detail:{missionId:'iphone-first-journey',source:'streetverse-core-dock'}}))
+      setMission({id:'iphone-first-journey',label:'FIRST RIDE • CIRCLE PARK',source:'streetverse-core-dock'})
+      setMessage('FIRST RIDE STARTED • REPAIR THE CAR')
+    }else{
+      dispatchEvent(new CustomEvent('tryamm:streetverse-cinematic-mission-open',{detail:{missionId:mission.id,source:'streetverse-core-dock'}}))
+      setMessage('SCRIPTED MISSION SELECTOR OPENED')
+    }
   }
 
   const repair=()=>{
