@@ -1,0 +1,28 @@
+name: TRYAMM Quantum Server Tests
+on:
+  push:
+    branches:
+      - quantum-server-lab-v1
+    paths:
+      - 'services/quantum-server/**'
+      - '.github/workflows/tryamm-quantum-server.yml'
+  pull_request:
+    paths:
+      - 'services/quantum-server/**'
+      - '.github/workflows/tryamm-quantum-server.yml'
+permissions:
+  contents: read
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: services/quantum-server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check and test (zero npm dependencies)
+        run: npm run check
