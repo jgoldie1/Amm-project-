@@ -29,11 +29,11 @@ for(const actionId of ['wave-friendly','handshake','hug','laugh','argue','sit-re
 for(const token of ['createStreetVerseBJRPProceduralAnimator','const playRPAction:',"mode:'clip'",'proceduralRP.tick(nowMs)'])if(!hero.includes(token))throw new Error('3D BJ GLB/procedural playback bridge missing '+token)
 for(const token of ["addEventListener('tryamm:streetverse-rp-action-play',onRPActionPlay)","removeEventListener('tryamm:streetverse-rp-action-play',onRPActionPlay)",'nativeRPAnimator?.tick(now)',"tryamm:streetverse-rp-action-result"])if(!mobile.includes(token))throw new Error('mobile 3D RP playback missing '+token)
 for(const token of ["BJ RP playback result","tryamm:streetverse-rp-action-result","BJ ACTION UNAVAILABLE"])if(!search.includes(token))throw new Error('user playback proof missing '+token)
-const newIds=[...extra50.matchAll(/\\{id:"([^"]+)",label:"/g)].map(match=>match[1])
+const newIds=extra50.split('\n').filter(line=>line.trim().startsWith('{id:"')).map(line=>line.split('"')[1])
 if(newIds.length!==50||new Set(newIds).size!==50)throw new Error('Expected exactly 50 distinct new gesture recipes')
 if(!catalog.includes('...STREETVERSE_RP_EXTRA50'))throw new Error('New 50 RP actions are not mounted in the carousel catalog')
 if(!boneGestures.includes('STREETVERSE_RP_EXTRA_POSE_MAP'))throw new Error('New 50 gesture recipes are not connected to real BJ bones')
 for(const token of ['Next RP gesture page','Previous RP gesture page','RP ACTIONS • PAGE','allResults.slice('])if(!search.includes(token))throw new Error('RP search cannot page through 67 gestures: '+token)
-if(/['"]shadow-box['"]\\s*:/.test(boneGestures)||newIds.some(id=>id.includes('shadow-box')))throw new Error('boxing-only Shadow Box cannot be an open-world gesture')
+if(boneGestures.includes("'shadow-box':")||newIds.some(id=>id.includes('shadow-box')))throw new Error('boxing-only Shadow Box cannot be an open-world gesture')
 
 console.log('RP animation search + BJ identity regression contract: PASS')
