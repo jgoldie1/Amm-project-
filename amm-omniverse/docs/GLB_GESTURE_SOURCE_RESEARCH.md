@@ -12,13 +12,12 @@ Research date: 2026-11-04. Scope: **BJ animation clips** for the open-world HOLO
 
 This GLB is a small, lawful *test asset for clip discovery, imported 3D playback and retargeting*. It is a distinct robot rig. **Never copy its AnimationClip directly onto BJ without verified bone mapping and a visible movement test.** Punch is an animation in that asset, **not** permission to add combat or boxing to the StreetVerse carousel.
 
-## 1A. Better CC0 source for fifty *real* humanoid motions
-- **Quaternius Universal Animation Library** — 120+ humanoid animations, CC0: https://quaternius.itch.io/universal-animation-library
-- **Quaternius Universal Animation Library 2** — 130+ more humanoid animations, CC0: https://quaternius.itch.io/universal-animation-library-2
-- These are commercially usable free Standard editions, with a common retarget-friendly humanoid rig. Their downloaded assets must still be mapped and tested on BJ before being marked "PLAYED".
-- The **robot model's fourteen clips** and **our fifty original procedural recipes** are separate from these source packs.
-- The browser import is intentionally not automatic: no source ZIP has been downloaded, no fifty retargeted motion clips are stored in the game, and no unpaid/private-source conversion should be presumed.
-- Required integration after authorized asset download: inventory GLB clips, choose fifty non-boxing actions, pin per-file CC0 license evidence, retarget to BJ, verify in Three.js, retain current player walking/driving rig, and publish only tested assets.
+## 1A. Verified CC0 humanoid sources — free Standard versus paid full collections
+- **Quaternius Universal Animation Library**: https://quaternius.itch.io/universal-animation-library. The full Source collection advertises 120+ clips; the *free Standard* ZIP downloaded here has **43 actual clip names** in `UAL1_Standard.glb`, including `Dance_Loop`.
+- **Quaternius Universal Animation Library 2**: https://quaternius.itch.io/universal-animation-library-2. The full Source collection advertises 130+ clips; the *free Standard* ZIP has **43 actual clip names** in `UAL2_Standard.glb`. The included female mannequin GLB has no animation clips.
+- Both downloaded free Standard archives and checksum receipts are saved in Google Drive: https://drive.google.com/drive/folders/1zTy63AkvKJa9OKA8kuS6mqLW76n-T-7c. Source acquisition run https://github.com/jgoldie1/Amm-project-/actions/runs/41879917623 completed successfully.
+- Exact ZIP SHA-256 values: UAL1 `cc73fc4e495b82958207316596317a3f40b9fa38065bde1027937452da537724`; UAL2 `4008ea208a604773a2b2177d965f0f5d3195498b5bf838c3f5785d68e95f2a68`.
+- The **86 free Standard clip names are not 86 dances**. The current 120-decade Soul Ascension reference catalog is not equivalent to 120 individually authored dance animation clips. Release-quality BJ animations require approved retargeting and visual tests; no weapon or boxing clips are imported to open-world gameplay.
 
 ## 2. GitHub transformation tools (tool licenses do not license the source motions)
 - https://github.com/matthewjberger/mixamo-to-gltf — Apache-2.0 code. Combine supplied character and motion files into a GLB, with a preview.
