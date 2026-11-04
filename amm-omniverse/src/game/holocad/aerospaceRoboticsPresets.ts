@@ -5,7 +5,20 @@ import type {HoloCADPreset} from './livingSystemsPresets'
  * Dimensions are arbitrary 3D scene units; NOT real CAD, airworthiness,
  * robotics control, launch engineering, medical exoskeleton or space hardware.
  */
-export const HOLOCAD_AEROSPACE_ROBOTICS_PRESETS:Record<string,HoloCADPreset>={
+export const HOLOCAD_AEROSPACE_ROBOTICS_KEYS=[
+ 'aircraft',
+ 'spacecraft',
+ 'satellite',
+ 'drone',
+ 'humanoid-robot',
+ 'robot-dog',
+ 'rover',
+ 'exoskeleton',
+ 'robotic-arm',
+] as const
+export type HoloCADEngineeringSubject=(typeof HOLOCAD_AEROSPACE_ROBOTICS_KEYS)[number]
+
+export const HOLOCAD_AEROSPACE_ROBOTICS_PRESETS:Record<HoloCADEngineeringSubject,HoloCADPreset>={
  "aircraft":{
   "title": "AIRCRAFT ENGINEERING",
   "subtitle": "Illustrative fixed-wing aircraft: lift, propulsion, avionics and flight systems",
@@ -3158,17 +3171,7 @@ export const HOLOCAD_AEROSPACE_ROBOTICS_PRESETS:Record<string,HoloCADPreset>={
 },
 }
 
-export const HOLOCAD_AEROSPACE_ROBOTICS_KEYS=[
- 'aircraft',
- 'spacecraft',
- 'satellite',
- 'drone',
- 'humanoid-robot',
- 'robot-dog',
- 'rover',
- 'exoskeleton',
- 'robotic-arm',
-] as const
+
 export const HOLOCAD_AEROSPACE_SUBJECTS=['aircraft','spacecraft','satellite','drone'] as const
 export const HOLOCAD_ROBOTICS_SUBJECTS=['humanoid-robot','robot-dog','rover','exoskeleton','robotic-arm'] as const
 export const HOLOCAD_AEROSPACE_ROBOTICS_TOTAL_PARTS=
