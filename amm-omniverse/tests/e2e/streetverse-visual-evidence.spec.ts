@@ -105,12 +105,12 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await quickMenu.click();
     const menu=page.getByRole('menu',{name:'StreetVerse quick navigation'});
     await expect(menu).toBeVisible();
-    const bjView=page.getByRole('menuitem',{name:/BJ V12 VIEW/});
+    const bjView=page.getByRole('menuitem',{name:/BJ CLOSE-UP/});
     await expect(bjView).toBeVisible();
     await bjView.click();
     await page.waitForTimeout(1400);
     await page.screenshot({
-      path:testInfo.outputPath('streetverse-bj-v12-character-view.png'),
+      path:testInfo.outputPath('streetverse-bj-character-view.png'),
       fullPage:false,
     });
     await quickMenu.click();
