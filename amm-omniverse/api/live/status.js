@@ -8,11 +8,16 @@ export default function handler(req,res){
   const apiSecret=process.env.LIVEKIT_API_SECRET||''
   const checks={url:Boolean(url),apiKey:Boolean(apiKey),apiSecret:Boolean(apiSecret)}
   const configured=Object.values(checks).every(Boolean)
+  const hostAllowlistReady=Boolean(String(process.env.LIVE_HOST_USER_IDS||'').trim())
+  const publicVerified=configured&&hostAllowlistReady&&process.env.LIVE_PUBLIC_VERIFIED==='true'
   const missing=Object.entries(checks).filter(([,ok])=>!ok).map(([key])=>key)
   res.setHeader('Cache-Control','no-store')
   return res.status(200).json({
     configured,
-    readyForPublic:configured,
+    readyForPublic:publicVerified,
+    hostAllowlistReady,
+    gamecastCaptureRequiresUserPermission:true,
+    tiktokConnected:false,
     provider:'livekit',
     url:configured?url:undefined,
     tokenEndpoint:'/api/live/token',
@@ -31,8 +36,8 @@ export default function handler(req,res){
       youthViewerMode:true
     },
     activation:configured?{
-      state:'provider-configured',
-      next:['two-device host/viewer verification','PK and panel verification','moderation verification','mobile reconnect/background interruption verification','load test']
+      state:publicVerified?'public-verified':'provider-configured-testing-required',
+      next:['Add LIVE_HOST_USER_IDS server-side allowlist','Run two-device host/viewer and game screen-share verification','Verify moderated events and reconnect','Only after documented checks set LIVE_PUBLIC_VERIFIED=true; TikTok needs separate account authorization']
     }:{
       state:'credentials-required',
       requiredEnvironment:['LIVEKIT_URL','LIVEKIT_API_KEY','LIVEKIT_API_SECRET'],
