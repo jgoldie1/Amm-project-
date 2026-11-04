@@ -857,7 +857,16 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
       rider.userData.actorId=actorId||null
       const local=passengerSeatOffsets[seatId];if(local){rider.position.copy(local);rider.rotation.set(0,-Math.PI/2,0)}
       const head=rider.userData.head as THREE.Object3D|undefined
-      if(head&&actorId){const phase=Number(rider.userData.talkPhase||0);head.rotation.y=Math.sin(now*.0011+phase)*.16;head.rotation.x=Math.sin(now*.0017+phase)*.035}
+      if(head&&actorId){const phase=Number(rider.userData.talkPhase||0);head.rotation.y=Math.sin(now*.0011+phase)*.16;head.rotation.x=Math.sin(now*.0017+phase)*.035
+        // Light bounded body movement synchronized to car travel; never shift
+        // the assigned seat anchor or break the six-person fit envelope.
+        const inMotion=activeCar===car&&Math.abs(driveSpeed)>.05
+        rider.rotation.z=(inMotion?Math.sin(now*.003+phase)*.018:0)
+        rider.rotation.x=(inMotion?Math.sin(now*.004+phase)*.010:0)
+        rider.position.y=(local?.y||1)+(inMotion?Math.sin(now*.009+phase)*.006:0)
+        const lap=rider.children.find(child=>child instanceof THREE.Mesh&&child.geometry instanceof THREE.BoxGeometry)
+        if(lap)lap.rotation.z=inMotion?Math.sin(now*.003+phase)*.015:0
+      }else{rider.rotation.z=0;rider.rotation.x=0}
     }
   }
   const starterCar=makeMobileCar(0x36a9e8);starterCar.position.set(-18,.05,50);starterCar.userData.playerDrivable=true;starterCar.userData.vehicleId='starter-car';starterCar.userData.label='Starter Car';installSixSeatManifest(starterCar,'starter-car');scene.add(starterCar);cars.push(starterCar)
