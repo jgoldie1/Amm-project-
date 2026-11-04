@@ -4,6 +4,7 @@ import {
  type HoloCADQuantumGate,type HoloCADQuantumLessonId,type HoloCADQuantumResult
 } from '../game/holocad/holocadQuantumSandbox'
 import type {HoloCADSubject} from '../game/holocad/livingSystemsPresets'
+import {createHoloCADResearchResult,publishHoloCADResearchResult} from '../game/holocad/holocadResearchBridge'
 
 const ctl:CSSProperties={
  minHeight:44,borderRadius:10,padding:'8px 11px',
@@ -51,6 +52,7 @@ export default function HoloCADQuantumSandboxPanel({
   try{
    const outcome=simulateHoloCADQuantumCircuit({qubits:lesson.qubits,gates,shots})
    setResult(outcome)
+   publishHoloCADResearchResult(createHoloCADResearchResult({kind:'quantum-circuit',subject,experiment:lessonId,summary:'Completed '+outcome.qubits+' simulated qubit(s), '+outcome.shots+' measurement shots.'}))
    setMessage('Local CPU simulation completed. Probabilities are mathematical; sampled counts can vary.')
   }catch(e){setResult(null);setMessage('Circuit rejected: '+(e instanceof Error?e.message:'invalid input'))}
  }
