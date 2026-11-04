@@ -1,7 +1,7 @@
 import {useEffect,useMemo,useState} from 'react'
 import StreetVerseTransitMotionPreview from './StreetVerseTransitMotionPreview'
-import {TRANSIT_MEDIA_DEFAULTS,makeTransitMedia} from '../runtime/StreetVerseTransitMotionAndMedia'
-import {TRYAMM_NETWORK_CHANNELS,type TryammNetworkChannelId} from '../runtime/TryammBroadcastOSRuntime'
+import {TRANSIT_MEDIA_DEFAULTS} from '../runtime/StreetVerseTransitMotionAndMedia'
+import StreetVerseVehicleTelevisionTuner from './StreetVerseVehicleTelevisionTuner'
 import {VERSE_RADIO_STATIONS,type VerseRadioState} from '../runtime/VerseRadioRuntime'
 import {createTransitDisplay,transitDisplayText,updateTransitDisplay,type StreetVerseTransitMode,type TransitDisplayPage} from '../runtime/StreetVerseTransitDisplayRuntime'
 import {createStreetVerseCabinDirector} from '../runtime/StreetVerseCabinCameraDirector'
@@ -14,7 +14,6 @@ export default function StreetVerseTransportScreenLab({onClose}:{onClose:()=>voi
  const [display,setDisplay]=useState(()=>createTransitDisplay('car'))
  const [seated,setSeated]=useState<string[]>([])
  const [camera,setCamera]=useState('exterior')
- const [channelId,setChannelId]=useState<TryammNetworkChannelId>('streetverse-local-tv')
  const [mediaMode,setMediaMode]=useState<'tv'|'radio'>('tv')
  const [radio,setRadio]=useState<VerseRadioState|null>(null)
  const [station,setStation]=useState('streetverse-radio')
@@ -30,8 +29,7 @@ export default function StreetVerseTransportScreenLab({onClose}:{onClose:()=>voi
  const [walkway,setWalkway]=useState<WalkwayState>(()=>createAirportWalkway('airport-demo'))
  const director=useMemo(()=>createStreetVerseCabinDirector('streetverse-transit-lab'),[mode])
  const text=transitDisplayText(display)
- const media=makeTransitMedia(mediaMode==='radio'?'cabin-radio':TRANSIT_MEDIA_DEFAULTS[mode].slot,channelId)
- const select=(next:StreetVerseTransitMode)=>{setMode(next);setDisplay(createTransitDisplay(next));setSeated([]);setCamera('exterior');setWalkway(createAirportWalkway('airport-demo'));setChannelId(TRANSIT_MEDIA_DEFAULTS[next].channelId)}
+ const select=(next:StreetVerseTransitMode)=>{setMode(next);setDisplay(createTransitDisplay(next));setSeated([]);setCamera('exterior');setWalkway(createAirportWalkway('airport-demo'))}
  const action=(next:Parameters<typeof updateTransitDisplay>[1])=>setDisplay(s=>updateTransitDisplay(s,next))
  const board=()=>{
    if(!display.doorsOpen||display.moving)return
@@ -67,14 +65,13 @@ export default function StreetVerseTransportScreenLab({onClose}:{onClose:()=>voi
     <StreetVerseTransitMotionPreview mode={mode} speedMps={mode==='airport-walkway'?(walkway.enabled?walkway.speedMps:0):display.speedMps} occupancy={mode==='car'?seated.length:display.occupancy}/>
     <section style={{marginTop:12,padding:12,border:'1px solid #47758c',borderRadius:12,background:'#102633'}} aria-label="TRYAMM onboard television and radio">
      <b>📺 TRYAMM IN-VEHICLE TV / RADIO</b>
-     <div style={{fontSize:12,margin:'7px 0'}}>Display: {media.slot} • {media.title}</div>
-     <label style={{display:'block',fontSize:11,marginBottom:5}}>Network channel</label>
-     <select value={channelId} onChange={e=>setChannelId(e.target.value as TryammNetworkChannelId)} style={{width:'100%',padding:10,borderRadius:8,background:'#1c3645',color:'#fff',border:'1px solid #52718d'}}>{TRYAMM_NETWORK_CHANNELS.filter(x=>x.familySafe).map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select>
+     <div style={{fontSize:12,margin:'7px 0'}}>Display surface: {mediaMode==='radio'?'cabin-radio':TRANSIT_MEDIA_DEFAULTS[mode].slot}</div>
      <div style={{display:'flex',gap:6,flexWrap:'wrap',marginTop:8}}>
       <button style={btn} onClick={()=>setMediaMode('tv')}>TV CHANNEL</button>
       <button style={btn} onClick={()=>openStation('streetverse-radio')}>TUNE STREETVERSE RADIO</button>
       <button style={btn} onClick={()=>window.dispatchEvent(new Event('tryamm:broadcast-os-request'))}>REFRESH BROADCAST OS</button>
      </div>
+     {mediaMode==='tv'&&<StreetVerseVehicleTelevisionTuner/>}
      {mediaMode==='radio'&&<div aria-live="polite" style={{border:'1px solid #557a8b',borderRadius:9,padding:9,marginTop:8,fontSize:12}}>
        <b>STREETVERSE INTERNET RADIO • {radio?.playing?'ON AIR / PLAYING':radio?.needsTap?'TAP PLAY':'NOT PLAYING'}</b>
        <div style={{margin:'5px 0'}}>Station: {VERSE_RADIO_STATIONS.find(s=>s.id===(radio?.station||station))?.label||station} • {radio?.track?.title||'No authorized track selected'} {radio?.track?.artist?'— '+radio.track.artist:''}</div>
