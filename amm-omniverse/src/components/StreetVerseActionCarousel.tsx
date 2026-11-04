@@ -1,6 +1,7 @@
 import {useEffect,useMemo,useState} from 'react'
 import StreetVerseRPActionSearch from './StreetVerseRPActionSearch'
 import StreetVerseRPOmnibar from './StreetVerseRPOmnibar'
+import {requestOpenWorldTrip,STREETVERSE_DESTINATIONS,STREETVERSE_TRANSIT_MODES,type StreetVerseDestination,type StreetVerseTripMode} from '../runtime/StreetVerseOpenWorldTransitRuntime'
 
 type SortMode='smart'|'nearby'|'mission'|'price'|'owned'
 type ActionId='quick'|'use'|'give'|'buy'|'sell'|'trade'|'pickup'|'drop'|'inspect'|'diagnose'|'repair'|'verify'|'open'|'enter'|'fuel'|'upgrade'|'customize'|'work'|'mission'|'call'|'dance'|'wave'|'tip'|'live'|'reel'
@@ -36,6 +37,11 @@ export default function StreetVerseActionCarousel(){
  const [rpOpen,setRpOpen]=useState(startInRP)
  const [rpgState,setRpgState]=useState<{level?:number;xp?:number;activeQuestIds?:string[]}|null>(null)
  const [entryStatus,setEntryStatus]=useState<'idle'|'requesting'|'entered'|'denied'>('idle')
+ const [travelOpen,setTravelOpen]=useState(false)
+ const [destination,setDestination]=useState<StreetVerseDestination>('Detroit')
+ const [travelMode,setTravelMode]=useState<StreetVerseTripMode>('rideshare')
+ const [partySize,setPartySize]=useState(1)
+ const [travelStatus,setTravelStatus]=useState('')
  useEffect(()=>{
   const onRpg=(event:Event)=>setRpgState((event as CustomEvent<{level?:number;xp?:number;activeQuestIds?:string[]}>).detail||null)
   const onRpOpen=()=>{setOpen(true);setRpOpen(true)}
@@ -86,6 +92,7 @@ export default function StreetVerseActionCarousel(){
    const next=ctx.broken?(ctx.repairKit?'repair':'inspect'):(ctx.drivable?'enter':'mission')
    act(next);return
   }
+  if(id==='call'){setTravelOpen(true);return}
   if(id==='live'){dispatchEvent(new CustomEvent('tryamm:streetverse-live-mission-request',{detail:{...ctx,source:'action-carousel'}}));return}
   if(id==='mission'){dispatchEvent(new CustomEvent('tryamm:streetverse-cinematic-mission-open',{detail:{missionId:ctx.missionId,source:'action-carousel'}}));setOpen(false);return}
    if(id==='reel'){dispatchEvent(new CustomEvent('tryamm:open-reel-creator',{detail:{...ctx,source:'action-carousel',missionId:ctx.missionId||''}}));return}
@@ -117,6 +124,15 @@ export default function StreetVerseActionCarousel(){
    <div><div style={{fontSize:9,fontWeight:950,letterSpacing:1.4,color:'#67e8f9'}}>HOLO ACTIONS</div><div style={{fontSize:11,fontWeight:900}}>{ctx.label||'WORLD INTERACTION'}{ctx.broken?' • REPAIR REQUIRED':''}</div></div>
    {mobile?<div style={{display:'flex',gap:5}}><button aria-label="Return to gameplay" onClick={()=>{setOpen(false);setRpOpen(false)}} style={playBtn}>🎮 PLAY</button><button aria-label="Close actions" onClick={()=>{setOpen(false);setRpOpen(false)}} style={closeBtn}>×</button></div>:<label style={{fontSize:8,fontWeight:900,color:'#cbd5e1'}}>SORT <select aria-label="Sort actions" value={sort} onChange={e=>{setSort(e.target.value as SortMode);setPage(0)}} style={{marginLeft:5,borderRadius:999,padding:'5px 7px',background:'#101827',color:'#fff',border:'1px solid #ffffff33',fontSize:9,fontWeight:900}}><option value="smart">SMART</option><option value="nearby">NEARBY</option><option value="mission">MISSION</option><option value="price">PRICE</option><option value="owned">OWNED</option></select></label>}
   </div>
+  <button aria-label="Open StreetVerse travel and ride share planner" onClick={()=>setTravelOpen(v=>!v)} style={{width:'100%',minHeight:40,marginBottom:7,borderRadius:10,border:'1px solid #86efac88',background:'#0d2b25',color:'#fff',fontWeight:900,touchAction:'manipulation'}}>🚕 RIDE SHARE / BUS / TRAIN / FLY IN {travelOpen?'▲':'▼'}</button>
+  {travelOpen&&<div aria-label="Open world transit planner" style={{display:'grid',gap:7,padding:9,marginBottom:8,borderRadius:12,background:'#0b1d2a',border:'1px solid #5acde466'}}>
+   <div style={{fontSize:10,fontWeight:900}}>TRAVEL FROM CHICAGO • VIRTUAL GAME WORLD</div>
+   <label style={{fontSize:10}}>DESTINATION <select aria-label="Travel destination" value={destination} onChange={e=>setDestination(e.target.value as StreetVerseDestination)} style={travelSelect}>{STREETVERSE_DESTINATIONS.filter(city=>city!=='Chicago').map(city=><option key={city} value={city}>{city}</option>)}</select></label>
+   <label style={{fontSize:10}}>TRANSPORT <select aria-label="Travel mode" value={travelMode} onChange={e=>setTravelMode(e.target.value as StreetVerseTripMode)} style={travelSelect}>{STREETVERSE_TRANSIT_MODES.map(mode=><option key={mode} value={mode}>{mode.toUpperCase()}</option>)}</select></label>
+   <label style={{fontSize:10}}>TRAVELERS <select aria-label="Travel party size" value={partySize} onChange={e=>setPartySize(Number(e.target.value))} style={travelSelect}>{[1,2,3,4,5,6,12,40].map(n=><option key={n} value={n}>{n}</option>)}</select></label>
+   <button onClick={()=>{const plan=requestOpenWorldTrip({from:'Chicago',to:destination,mode:travelMode,partySize});setTravelStatus(plan.waiting? `${plan.boarded} SEATED • ${plan.waiting} WAITING FOR ANOTHER VEHICLE`:`${plan.boarded} SEATED • ITINERARY REQUESTED • WORLD TRANSFER PENDING`)}} style={{minHeight:42,background:'#195b54',border:'1px solid #7cefc5',borderRadius:10,color:'#fff',fontWeight:900}}>PLAN GAME-WORLD TRIP</button>
+   <div role="status" aria-live="polite" style={{fontSize:10,color:'#bdebe8'}}>{travelStatus||'Passengers are planned locally; online multiplayer and city transfer require server confirmation.'}</div>
+  </div>}
   {(ctx.kind==='vehicle'||ctx.vehicleId)&&<button aria-label={ctx.broken?'Repair car before entering':'Get in the car'} disabled={Boolean(ctx.broken)} onClick={()=>act('enter')} style={{width:'100%',minHeight:48,marginBottom:7,borderRadius:12,border:'2px solid #60a5fa',background:ctx.broken?'#374151':'#153c73',color:'#fff',fontWeight:950,touchAction:'manipulation'}}>{ctx.broken?'🔧 REPAIR REQUIRED BEFORE ENTRY':entryStatus==='requesting'?'🚗 ENTER REQUEST SENT • CHECK GAME':entryStatus==='denied'?'🚫 ENTRY DENIED • MOVE CLOSER':'🚗 GET IN CAR'}</button>}
   {mobile&&<div style={{display:'flex',gap:5,marginBottom:7}}><select aria-label="Sort actions" value={sort} onChange={e=>{setSort(e.target.value as SortMode);setPage(0)}} style={{flex:1,borderRadius:10,padding:'7px 8px',background:'#101827',color:'#fff',border:'1px solid #ffffff33',fontSize:9,fontWeight:900}}><option value="smart">SMART</option><option value="nearby">NEARBY</option><option value="mission">MISSION</option><option value="price">PRICE</option><option value="owned">OWNED</option></select><button onClick={()=>setRpOpen(v=>!v)} style={toolBtn}>{rpOpen?'HIDE RP':'🎭 RP / GENII'}</button></div>}
   <div style={{display:'grid',gridTemplateColumns:'28px repeat(5,minmax(0,1fr)) 28px',gap:5,alignItems:'stretch'}}>
@@ -129,6 +145,7 @@ export default function StreetVerseActionCarousel(){
   <div style={{marginTop:6,textAlign:'center',fontSize:8,color:'#94a3b8'}}>{mobile?'TAP PLAY TO CLEAR SCREEN • ':''}SWIPE/ARROWS • {page%pages+1}/{pages} • SORT changes what StreetVerse puts first, not what you own.</div>
  </div>
 }
+const travelSelect:React.CSSProperties={display:'block',width:'100%',minHeight:38,marginTop:4,borderRadius:9,background:'#142638',border:'1px solid #6b8797',color:'#fff',padding:'4px 8px'}
 const nav:React.CSSProperties={border:'1px solid #67e8f944',borderRadius:12,background:'#0b1220dd',color:'#fff',fontSize:22,fontWeight:900}
 
 const playBtn:React.CSSProperties={minHeight:34,padding:'0 9px',borderRadius:9,border:'1px solid #8effb777',background:'#0a2d20',color:'#fff',fontSize:9,fontWeight:950,touchAction:'manipulation'}
