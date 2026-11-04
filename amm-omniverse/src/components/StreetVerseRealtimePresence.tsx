@@ -37,7 +37,15 @@ export default function StreetVerseRealtimePresence(){
     }
     const syncPresence=(presence:PresenceState)=>{
       const activeIds=new Set<string>()
-      Object.values(presence).flat().forEach(p=>{if(p?.userId&&p.userId!==localUserId){activeIds.add(p.userId);peers.set(p.userId,p)}})
+      // Presence key must match the claimed Supabase account. Broadcast payloads
+      // are client-originated and are not sufficient to establish player identity.
+      Object.entries(presence).forEach(([key,records])=>{
+        if(key===localUserId||!Array.isArray(records))return
+        const p=records.find(record=>record?.userId===key)
+        if(p&&Number.isFinite(Number(p.x))&&Number.isFinite(Number(p.z))){
+          activeIds.add(key);peers.set(key,p)
+        }
+      })
       for(const id of peers.keys())if(!activeIds.has(id))peers.delete(id)
       emitPlayers()
     }
@@ -67,7 +75,12 @@ export default function StreetVerseRealtimePresence(){
         .on('broadcast',{event:'player-motion'},(event:MotionEnvelope)=>{
           const p=event?.payload
           if(!p?.userId||p.userId===localUserId)return
-          peers.set(p.userId,p)
+          // Only known presence members may send movement. This prevents an
+          // unjoined broadcast from inventing an arbitrary visible player.
+          // It is not a substitute for server-authoritative anti-spoofing.
+          if(!peers.has(p.userId))return
+          if(!Number.isFinite(Number(p.x))||!Number.isFinite(Number(p.z)))return
+          peers.set(p.userId,{...p,x:clamp(Number(p.x)),z:clamp(Number(p.z))})
           emitPlayers()
         })
         .on('broadcast',{event:'player-action'},(event:ActionEnvelope)=>{
