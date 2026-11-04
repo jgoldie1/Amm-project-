@@ -9,8 +9,8 @@ const normalize=(s:string)=>s.toLowerCase().replace(/_loop$/,'').replace(/[^a-z0
 /** On-demand preview of source CC0 GLBs, NOT a BJ retarget or gameplay import.
  * Two 7-8 MB packs are downloaded only after the user opens the gallery and picks a clip.
  */
-export default function StreetVerseCC0MotionGallery({onClose}:{onClose:()=>void}){
- const [selected,setSelected]=useState('cc0-idle-loop')
+export default function StreetVerseCC0MotionGallery({onClose,initialSelected='cc0-idle-loop'}:{onClose:()=>void;initialSelected?:string}){
+ const [selected,setSelected]=useState(initialSelected)
  const [query,setQuery]=useState('')
  const [status,setStatus]=useState('Select a motion to inspect the original Quaternius GLB.')
  const [clipNames,setClipNames]=useState<string[]>([])
