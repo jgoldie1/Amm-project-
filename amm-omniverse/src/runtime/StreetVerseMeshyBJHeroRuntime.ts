@@ -1,5 +1,7 @@
 import * as THREE from 'three'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js'
+import {STREETVERSE_RP_ACTIONS} from '../data/streetVerseRPActionCatalog'
+import {createStreetVerseBJRPProceduralAnimator} from './StreetVerseBJRPProceduralAnimator'
 import {normalizeStreetVerseHumanHeight} from './StreetVerseHumanScale'
 import {BJ_STUBBS_BODY_PROFILE} from '../data/StreetVerseBJBodyProfile'
 import {resolvePublishedMeshyAsset,resetPublishedMeshyManifest} from './StreetVerseMeshyAssetManifest'
@@ -44,6 +46,8 @@ type BJFacePose={
   eyeSquintLeft?:number;eyeSquintRight?:number;
 }
 
+export type StreetVerseBJRPPlayResult={played:boolean;mode:'clip'|'procedural'|'unavailable';clipName?:string;reason?:string}
+
 export type StreetVerseMeshyBJHeroHandle={
   object:THREE.Object3D
   mixer:THREE.AnimationMixer|null
@@ -52,6 +56,7 @@ export type StreetVerseMeshyBJHeroHandle={
   applyFacePose:(pose:BJFacePose)=>number
   /** Only plays a gesture if the active GLB has the matching animation. */
   playGesture:(gesture:BJGesture)=>boolean
+  playRPAction:(actionId:string,loop?:boolean)=>StreetVerseBJRPPlayResult
   tick:(nowMs:number,state:{moving:boolean;running?:boolean;talking?:boolean;liveTalkLevel?:number;focusYaw?:number;breathing?:number;posture?:string;seated?:boolean})=>void
   dispose:()=>void
 }
@@ -514,6 +519,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
     let activeAction:THREE.AnimationAction|null=null
     let gestureAction:THREE.AnimationAction|null=null
     let gestureUntil=0
+    const proceduralRP=createStreetVerseBJRPProceduralAnimator(object)
     let previousNow=performance.now()
     const gesturePatterns:Record<BJGesture,RegExp>={
       'nod':/BJ_V15_ListenAndNod|BJ_Nod_Yes/i,
@@ -539,6 +545,48 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       activeMotion=null
       gestureUntil=performance.now()+clip.duration*1000+170
       return true
+    }
+    const playRPAction:StreetVerseMeshyBJHeroHandle['playRPAction']=(actionId,loop=false)=>{
+      const entry=STREETVERSE_RP_ACTIONS.find(item=>item.id===actionId)
+      if(!entry||!entry.playerCompatible)return{played:false,mode:'unavailable',reason:'unknown-or-incompatible-action'}
+      // Match only the requested motion, never silently play walk/idle as an RP success.
+      const normalize=(name:string)=>name.toLowerCase().replace(/[^a-z0-9]/g,'')
+      const target=normalize(entry.animationClip)
+      const aliases:Record<string,RegExp>={
+        'wave-friendly':/greet.*wave|wave.*greet|friendly.?wave/i,
+        victory:/victory|celebrat/i,
+        'pray-standing':/standing.?pray|prayer/i,
+        'street-dance':/street.?dance/i,
+        'two-step':/two.?step/i,
+        'security-scan':/security.?scan/i,
+        'police-radio':/radio.?dispatch/i,
+        'mechanic-work':/mechanic.?work/i,
+        'creator-pose':/creator.?pose/i,
+        'mic-performance':/mic.?perform/i,
+      }
+      const clip=clips.find(candidate=>normalize(candidate.name)===target||
+        (aliases[actionId]&&aliases[actionId].test(candidate.name)))
+      if(mixer&&clip){
+        proceduralRP.stop()
+        const action=mixer.clipAction(clip)
+        if(gestureAction&&gestureAction!==action)gestureAction.fadeOut(.14)
+        if(activeAction&&activeAction!==action)activeAction.fadeOut(.14)
+        action.reset()
+        action.setLoop(loop&&entry.loopable?THREE.LoopRepeat:THREE.LoopOnce,loop&&entry.loopable?Infinity:1)
+        action.clampWhenFinished=false
+        action.setEffectiveTimeScale(1)
+        action.setEffectiveWeight(1)
+        action.fadeIn(.14).play()
+        gestureAction=action
+        activeAction=action
+        activeMotion=null
+        gestureUntil=performance.now()+Math.min(9000,Math.max(600,loop?6500:clip.duration*1000+170))
+        return{played:true,mode:'clip',clipName:clip.name}
+      }
+      if(proceduralRP.play(actionId,Boolean(loop&&entry.loopable),entry.durationMs)){
+        return{played:true,mode:'procedural'}
+      }
+      return{played:false,mode:'unavailable',reason:'no-matching-glb-clip-or-usable-arm-rig'}
     }
     const onGesture=(event:Event)=>{
       const detail=(event as CustomEvent<{characterId?:string;gesture?:BJGesture}>).detail||{}
@@ -577,6 +625,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
 
       const t=nowMs*.001
       applyNaturalRig(nowMs,state)
+      proceduralRP.tick(nowMs)
       const blinkClock=(t+Math.sin(t*.071)*.42)%4.6
       const blinkBase=blinkClock>4.34?Math.sin(((blinkClock-4.34)/.26)*Math.PI):0
       const winkDrift=Math.sin(t*.23+1.1)*.035
@@ -667,8 +716,10 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       morphTargetNames:morphs.names,
       applyFacePose,
       playGesture,
+      playRPAction,
       tick,
       dispose:()=>{
+        proceduralRP.dispose()
         window.removeEventListener('tryamm:bj-gesture',onGesture)
         window.removeEventListener('tryamm:character-face-pose',onFacePose)
         mixer?.stopAllAction()
