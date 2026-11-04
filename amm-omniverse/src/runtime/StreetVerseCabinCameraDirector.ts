@@ -1,8 +1,9 @@
 import {boardTransport,createTransportManifest,passengerCount,type TransportKind,type TransportManifest} from './StreetVersePassengerTransportRuntime'
+import {checkSixSeatCabinFit,DEFAULT_SEATED_AVATAR,type CabinAvatarSize} from './StreetVerseCabinFitRuntime'
 
 export type CabinCameraMode='exterior'|'driver'|'passenger'|'rear-seat'|'aisle'|'cinematic'
 export type CabinPose={x:number;y:number;z:number;yaw:number}
-export type CabinParticipant={actorId:string;displayName:string;seatId:string;pose:CabinPose;speaking:boolean;playerControlled:boolean}
+export type CabinParticipant={actorId:string;displayName:string;seatId:string;pose:CabinPose;speaking:boolean;playerControlled:boolean;size:CabinAvatarSize;fittedScale:number}
 export type CabinCameraShot={mode:CabinCameraMode;camera:CabinPose;lookAt:CabinPose;inside:boolean}
 export type CabinDirectorState={manifest:TransportManifest;participants:CabinParticipant[];camera:CabinCameraMode;speakerId:string|null;privateRoom:true;prototype:true}
 export const CABIN_PROFILES:Record<'six-seat-suv'|'cta-bus'|'el-train'|'airliner', {kind:TransportKind;seats:number;standing:number;positions:readonly CabinPose[]}>={
@@ -22,14 +23,21 @@ export function createStreetVerseCabinDirector(id:string,profile:keyof typeof CA
  const manifest=createTransportManifest(id,spec.kind,profile==='six-seat-suv'?5:spec.seats-1,spec.standing)
  const state:CabinDirectorState={manifest,participants:[],camera:'exterior',speakerId:null,privateRoom:true,prototype:true}
  const refresh=()=>{state.participants.forEach(p=>p.speaking=p.actorId===state.speakerId)}
- const board=(actorId:string,displayName:string,playerControlled=false)=>{
+ const board=(actorId:string,displayName:string,playerControlled=false,body:CabinAvatarSize=DEFAULT_SEATED_AVATAR)=>{
   const id=clean(actorId,80);if(!id)return null
-  const seatId=boardTransport(manifest,id,playerControlled&&spec.kind!=='plane'?'operator':undefined)
+  const existing=state.participants.find(p=>p.actorId===id)
+  if(existing)return {...existing,pose:{...existing.pose},size:{...existing.size}}
+  const preferred=playerControlled?'operator':undefined
+  const candidate=manifest.seats.find(seat=>seat.id===preferred&&!manifest.occupants[seat.id])||manifest.seats.find(seat=>seat.role==='passenger'&&!manifest.occupants[seat.id])
+  if(!candidate)return null
+  const index=manifest.seats.findIndex(seat=>seat.id===candidate.id)
+  const pose=spec.positions[index]||fallbackPose(index)
+  const fit=profile==='six-seat-suv'?checkSixSeatCabinFit(pose,body,state.participants.map(p=>({anchor:p.pose,size:p.size}))):{fits:true,scale:1,size:body}
+  if(!fit.fits)return null // do not commit a seat that clips its neighbor or the cabin
+  const seatId=boardTransport(manifest,id,candidate.id)
   if(!seatId)return null
-  const index=manifest.seats.findIndex(s=>s.id===seatId)
-  if(index<0)return null // no standing actors in a six-seat cabin
-  let person=state.participants.find(p=>p.actorId===id)
-  if(!person){person={actorId:id,displayName:clean(displayName),seatId,pose:spec.positions[index]||fallbackPose(index),speaking:false,playerControlled};state.participants.push(person)}
+  const person:CabinParticipant={actorId:id,displayName:clean(displayName),seatId,pose,speaking:false,playerControlled,size:fit.size,fittedScale:fit.scale}
+  state.participants.push(person)
   return {...person,pose:{...person.pose}}
  }
  const speak=(actorId:string|null)=>{
