@@ -192,7 +192,7 @@ export default function TryammConnectedGrowthLanding(){
       </div>
       <p style={{fontSize:11,color:'#b8c9d8',lineHeight:1.5}}>Save your reference. TRYAMM must review scope, artwork, rights and pricing before discussing a payment or publication. No automatic email reply is promised.</p>
       {receiptNotice&&<p role="status" style={{fontSize:12,color:'#91dfc3'}}>{receiptNotice}</p>}
-     </section>
+     </section>}
      <p style={{fontSize:11,color:'#a8b6c8',margin:0}}>If the lead service is not configured, the form will report the error and no order will be claimed. Do not enter payment details or private identity documents.</p>
     </form>
    </section>
