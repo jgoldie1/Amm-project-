@@ -36,6 +36,8 @@ const OmniWorkstation=lazy(()=>import('./components/OmniWorkstation'))
 const AllAmericanNetworkHub=lazy(()=>import('./components/AllAmericanNetworkHub'))
 const AllAmericanNetworkControlRoom=lazy(()=>import('./components/AllAmericanNetworkControlRoom'))
 const TryammBroadcastNetworkCenter=lazy(()=>import('./components/TryammBroadcastNetworkCenter'))
+const TryammConnectedGrowthLanding=lazy(()=>import('./components/TryammConnectedGrowthLanding'))
+const MediaStudioLauncher=lazy(()=>import('./components/MediaStudioLauncher'))
 const ServantsOfChristMinistry=lazy(()=>import('./components/ServantsOfChristMinistry'))
 const OmniCareCashSuite=lazy(()=>import('./components/OmniCareCashSuite'))
 const GlobalTradeWorldHub=lazy(()=>import('./components/GlobalTradeWorldHub'))
@@ -70,6 +72,7 @@ try {
   const standaloneMatch=currentPath.match(/^\/standalone\/([^/]+)\/?$/)
   const standaloneSite=standaloneMatch ? getStandaloneSite(standaloneMatch[1]) : undefined
   const reelMatch=currentPath.match(/^\/reels\/([^/]+)\/?$/)
+  const isDiscover=currentPath==='/discover'||currentPath==='/discover/'
   const isAccessibility=currentPath==='/accessibility'||currentPath==='/accessibility/'
   const isAssetFactory=['/asset-factory','/asset-factory/','/meshy-factory','/meshy-factory/'].includes(currentPath)
   const isWorkstation=currentPath==='/workstation'||currentPath==='/workstation/'
@@ -148,7 +151,8 @@ try {
     <OmniCashLauncher />
   </>
   
-  if(reelMatch)routeContent=<Suspense fallback={routeFallback}><PublicReelPage slug={decodeURIComponent(reelMatch[1])} /></Suspense>
+  if(isDiscover)routeContent=<Suspense fallback={routeFallback}><TryammConnectedGrowthLanding /></Suspense>
+  else if(reelMatch)routeContent=<Suspense fallback={routeFallback}><PublicReelPage slug={decodeURIComponent(reelMatch[1])} /></Suspense>
   else if(isAssetFactory)routeContent=<Suspense fallback={routeFallback}><MeshyFactoryControlPanel /></Suspense>
   else if(isAccessibility)routeContent=<AccessibilityStatement />
   else if(isWorkstation)routeContent=<Suspense fallback={routeFallback}><OmniWorkstation /></Suspense>
@@ -291,6 +295,7 @@ const installOptionalRuntimes = () => {
   queueOptionalRuntime(() => import('./runtime/AICafeMultiAgentRuntime').then(m => m.installAICafeMultiAgentRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installAICafeMultiAgentRuntime failed after core mount.', error)))
   queueOptionalRuntime(() => import('./runtime/MiddleverseRemoteWorkRuntime').then(m => m.installMiddleverseRemoteWorkRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installMiddleverseRemoteWorkRuntime failed after core mount.', error)))
   queueOptionalRuntime(() => import('./runtime/BroadcastStudioRuntime').then(m => m.installBroadcastStudioRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installBroadcastStudioRuntime failed after core mount.', error)))
+  queueOptionalRuntime(() => import('./runtime/HoloAdsRevenueRuntime').then(m => m.installHoloAdsRevenueRuntime()).catch(error => console.error('[TRYAMM] Holo Ads campaign draft runtime failed.', error)))
   queueOptionalRuntime(() => import('./runtime/FreeTvCommercialRuntime').then(m => m.installFreeTvCommercialRuntime()).catch(error => console.error('[TRYAMM] Free TV Commercial Runtime failed after core mount.', error)))
   queueOptionalRuntime(() => import('./runtime/StubbsHarmonyAIRuntime').then(m => m.installStubbsHarmonyAIRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installStubbsHarmonyAIRuntime failed after core mount.', error)))
   queueOptionalRuntime(() => import('./runtime/CreatorExperienceRuntime').then(m => m.installCreatorExperienceRuntime()).catch(error => console.error('[TRYAMM] Optional runtime installCreatorExperienceRuntime failed after core mount.', error)))
@@ -314,6 +319,7 @@ root.render(
     <HolographicVerseTransitOverlay />
     <VerseRadioDock />
     <FreeTvCommercialBreakOverlay />
+    {!window.location.pathname.startsWith('/streetverse')&&<Suspense fallback={null}><MediaStudioLauncher /></Suspense>}
     {entryDiagnostic}
   </StrictMode>
 )
