@@ -201,6 +201,9 @@ jobs:
       - name: Omniverse Vite production build
         run: npx vite build
 
+      - name: Customer journey compiled route HTTP smoke
+        run: node scripts/customer-journey-preview-smoke.mjs
+
       - name: Main synchronization audit
         run: node scripts/main-sync-audit.mjs
 
