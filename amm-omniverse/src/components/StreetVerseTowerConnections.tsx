@@ -17,20 +17,34 @@ export default function StreetVerseTowerConnections(){
  const [gameReady,setGameReady]=useState(false)
  const [vehicleConfirmed,setVehicleConfirmed]=useState(false)
  const [lastMission,setLastMission]=useState('')
+ const [broadcastObserved,setBroadcastObserved]=useState(false)
+ const [aiFabricDetected,setAiFabricDetected]=useState(false)
+ const [jarvisDetected,setJarvisDetected]=useState(false)
+ const [travelStateObserved,setTravelStateObserved]=useState(false)
  useEffect(()=>{
   const onGame=()=>setGameReady(true)
+  const onBroadcast=()=>setBroadcastObserved(true)
+  const onTravel=()=>setTravelStateObserved(true)
+  const onAi=()=>setAiFabricDetected(true)
   const onVehicle=(e:Event)=>{if((e as CustomEvent<{entered?:boolean}>).detail?.entered)setVehicleConfirmed(true)}
   const onMission=(e:Event)=>setLastMission(String((e as CustomEvent<{id?:string;label?:string}>).detail?.label||(e as CustomEvent<{id?:string}>).detail?.id||'Completed mission'))
+  addEventListener('tryamm:broadcast-os-state',onBroadcast)
+  addEventListener('tryamm:global-travel-state',onTravel)
+  addEventListener('tryamm:stubbs-lyons-middleverse-ready',onAi)
   addEventListener('tryamm:streetverse-world-ready',onGame)
   addEventListener('tryamm:streetverse-vehicle-controlled',onVehicle)
   addEventListener('tryamm:streetverse-mission-complete',onMission)
-  return()=>{removeEventListener('tryamm:streetverse-world-ready',onGame);removeEventListener('tryamm:streetverse-vehicle-controlled',onVehicle);removeEventListener('tryamm:streetverse-mission-complete',onMission)}
+  return()=>{removeEventListener('tryamm:broadcast-os-state',onBroadcast);removeEventListener('tryamm:global-travel-state',onTravel);removeEventListener('tryamm:stubbs-lyons-middleverse-ready',onAi);removeEventListener('tryamm:streetverse-world-ready',onGame);removeEventListener('tryamm:streetverse-vehicle-controlled',onVehicle);removeEventListener('tryamm:streetverse-mission-complete',onMission)}
  },[])
  useEffect(()=>{
   if(!open)return
   let cancelled=false
   const mod=(window as typeof window&{__TRYAMM_MOD_PASS__?:ModApi}).__TRYAMM_MOD_PASS__
   try{setModCount(mod?mod.list().length:null)}catch{setModCount(null)}
+  setAiFabricDetected(Boolean((window as typeof window&{__TRYAMM_OPERATING_FABRIC__?:unknown}).__TRYAMM_OPERATING_FABRIC__))
+  setJarvisDetected(Boolean((window as typeof window&{__jarvis?:unknown}).__jarvis))
+  window.dispatchEvent(new Event('tryamm:broadcast-os-request'))
+  window.dispatchEvent(new Event('tryamm:global-travel-request'))
   fetch('/api/live/status',{cache:'no-store'}).then(async response=>{
    if(!response.ok)throw new Error('LIVE status endpoint unavailable')
    return await response.json() as Health
@@ -38,9 +52,9 @@ export default function StreetVerseTowerConnections(){
   return()=>{cancelled=true}
  },[open])
  useEffect(()=>{
-  const statuses={streetverseGameEventSeen:gameReady,vehicleOccupancyEventSeen:vehicleConfirmed,missionCompletionEventSeen:Boolean(lastMission),liveProviderConfigured:Boolean(live?.configured),liveHostAllowlist:Boolean(live?.hostAllowlistReady),livePublicVerified:Boolean(live?.readyForPublic),modRuntimeInstalled:modCount!==null,modPackageCount:modCount}
+  const statuses={streetverseGameEventSeen:gameReady,vehicleOccupancyEventSeen:vehicleConfirmed,missionCompletionEventSeen:Boolean(lastMission),liveProviderConfigured:Boolean(live?.configured),liveHostAllowlist:Boolean(live?.hostAllowlistReady),livePublicVerified:Boolean(live?.readyForPublic),modRuntimeInstalled:modCount!==null,modPackageCount:modCount,broadcastStateObserved:broadcastObserved,aiFabricDetected,jarvisDetected,travelStateObserved}
   window.dispatchEvent(new CustomEvent(TOWER_EVENT,{detail:{statuses,verifiedEndToEnd:false,source:'streetverse-tower-connections'}}))
- },[gameReady,vehicleConfirmed,lastMission,live,modCount])
+ },[gameReady,vehicleConfirmed,lastMission,live,modCount,broadcastObserved,aiFabricDetected,jarvisDetected,travelStateObserved])
  return <>
   <button aria-label="Open Quantum Tower connection diagnostics" onClick={()=>setOpen(v=>!v)} style={{position:'fixed',top:76,left:10,zIndex:48001,minHeight:44,padding:'7px 10px',borderRadius:12,border:'1px solid #91eaff88',background:'#071f2aee',color:'#fff',fontWeight:900,fontSize:11,touchAction:'manipulation'}}>🏙️ TOWER {open?'×':'STATUS'}</button>
   {open&&<section role="dialog" aria-label="Quantum Tower integration status" style={{position:'fixed',top:125,left:10,width:'min(92vw,380px)',maxHeight:'70dvh',overflowY:'auto',zIndex:48001,padding:12,borderRadius:14,background:'#05111bf5',border:'1px solid #75d7ed',color:'#fff',fontFamily:'system-ui',boxShadow:'0 12px 38px #000c'}}>
@@ -55,7 +69,10 @@ export default function StreetVerseTowerConnections(){
     <div>Public LIVE verification: <b>{live?.readyForPublic?'SERVER FLAG ON • RECHECK MEDIA':'PENDING'}</b></div>
     <div>Mod Pass runtime: <b>{modCount===null?'NOT OBSERVED':`INSTALLED • ${modCount} PACKAGES`}</b></div>
     <div>CrossVerse consent: <b>POLICY SOURCE PRESENT • RECORDS NOT AUDITED</b></div>
-    <div>AI operations: <b>MODULES EXIST • ACTIONS NOT VERIFIED</b></div>
+    <div>Broadcast OS event: <b>{broadcastObserved?'OBSERVED':'NOT OBSERVED'}</b></div>
+    <div>Global travel state: <b>{travelStateObserved?'OBSERVED':'NOT OBSERVED'}</b></div>
+    <div>Stubbs / Lyons / MiddleVerse fabric: <b>{aiFabricDetected?'RUNTIME PRESENT • TASKS UNTESTED':'NOT OBSERVED'}</b></div>
+    <div>JARVIS router: <b>{jarvisDetected?'RUNTIME PRESENT • COMMANDS UNTESTED':'NOT OBSERVED'}</b></div>
     <div>Creator earnings: <b>PAYMENT & PAYOUTS NOT VERIFIED</b></div>
     <div>World compilation: <b>SOURCE PRESENT • BUILD NOT VERIFIED</b></div>
    </div>
