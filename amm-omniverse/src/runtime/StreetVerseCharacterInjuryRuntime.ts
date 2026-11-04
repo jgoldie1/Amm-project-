@@ -34,6 +34,8 @@ export function createStreetVerseInjuryRuntime(scene:THREE.Scene,getHero:()=>THR
   if(previous===state)return
   const now=performance.now()
   lastHit=now
+  // Bound visual work on low-memory phones and prevent event-spam particle growth.
+  if(drops.length>24)removeDrops()
   if(state.visuals!=='off'&&getHero()){
    const hero=getHero()!
    const count=state.visuals==='standard'?9:3
