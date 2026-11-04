@@ -1509,7 +1509,7 @@ export const HOLOCAD_AEROSPACE_ROBOTICS_PRESETS:Record<HoloCADEngineeringSubject
         0
       ],
       "opacity": 1,
-      "description": 0.38
+      "description": "Illustrative torso casing protecting power, control and sensor modules."
     },
     {
       "id": "compute",
