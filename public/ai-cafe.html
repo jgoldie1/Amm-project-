@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TRYAMM AI Café — Global Business Services</title>
+<style>
+:root{font:18px/1.55 system-ui,sans-serif;color-scheme:dark;background:#11101b;color:#fff}
+body{max-width:780px;margin:auto;padding:1rem}a{color:#c0a7ff}
+section{background:#201c30;border:1px solid #52426e;border-radius:16px;padding:1.2rem;margin:1.2rem 0}
+label{display:block;margin:1rem 0 .3rem}input,select,textarea,button{font:inherit;box-sizing:border-box;width:100%;padding:.75rem;border:2px solid #9581ac;border-radius:8px;background:#fff;color:#181326}
+textarea{min-height:110px}button{margin-top:1rem;background:#b89dff;border-color:#b89dff;font-weight:700;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:4px solid #fff;outline-offset:3px}
+small{color:#dfd7f0}.check{display:flex;gap:.6rem;align-items:flex-start}.check input{width:1.5rem;height:1.5rem;flex-shrink:0}
+#result{min-height:2rem} 
+</style></head><body>
+<header><a href="/">TRYAMM / StreetVerse</a><h1 id="title">TRYAMM Global AI Café</h1><p id="intro">Build your business with TRYAMM. Request a website, storefront, AI assistant or promotional service.</p></header>
+<section><label for="locale">Language / Idioma / Langue / Idioma</label><select id="locale"><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="pt">Português</option></select>
+<form id="leadForm">
+<label id="emailLabel" for="email">Email</label><input id="email" type="email" maxlength="200" autocomplete="email" required>
+<label id="countryLabel" for="country">Country code (optional)</label><input id="country" maxlength="2" placeholder="US" autocomplete="country">
+<label id="interestLabel" for="interest">What would you like to build or promote?</label><textarea id="interest" maxlength="300" required></textarea>
+<label class="check"><input id="consent" type="checkbox" required><span id="consentLabel">I agree to have TRYAMM use these details to respond to this request.</span></label>
+<label class="check"><input id="marketing" type="checkbox"><span id="marketingLabel">Optional: I would like promotional updates.</span></label>
+<button type="submit" id="submit">Request a quote</button><p id="result" role="status" aria-live="polite"></p></form>
+</section>
+<section><h2 id="whatNext">How it works</h2><p id="steps">Send your request → TRYAMM reviews it → you receive an approved quote → optional secure checkout. No payment is taken on this form.</p><small id="disclaimer">Translation is provided for page content only. Quotes and legal terms require human review. Do not enter sensitive payment information.</small></section>
+<script>
+'use strict';
+const phrases={
+ en:['TRYAMM Global AI Café','Build your business with TRYAMM. Request a website, storefront, AI assistant or promotional service.','Email','Country code (optional)','What would you like to build or promote?','I agree to have TRYAMM use these details to respond to this request.','Optional: I would like promotional updates.','Request a quote','How it works','Send your request → TRYAMM reviews it → you receive an approved quote → optional secure checkout. No payment is taken on this form.','Translation is provided for page content only. Quotes and legal terms require human review. Do not enter sensitive payment information.','Request received. Our team can review it.','Submission failed. Please try again.'],
+ es:['TRYAMM Café de IA Global','Desarrolle su negocio con TRYAMM. Solicite un sitio web, tienda, asistente de IA o promoción.','Correo electrónico','Código de país (opcional)','¿Qué desea crear o promocionar?','Acepto que TRYAMM use estos datos para responder a mi solicitud.','Opcional: deseo recibir novedades promocionales.','Solicitar presupuesto','Cómo funciona','Envíe su solicitud → TRYAMM la revisa → recibe un presupuesto aprobado → pago seguro opcional. Este formulario no cobra nada.','La traducción cubre solo esta página. Los presupuestos y términos legales requieren revisión humana. No introduzca datos de pago.','Solicitud recibida para revisión.','No se pudo enviar. Inténtelo de nuevo.'],
+ fr:['TRYAMM Café IA Mondial','Développez votre entreprise avec TRYAMM. Demandez un site, une boutique, un assistant IA ou une promotion.','E-mail','Code pays (facultatif)','Que souhaitez-vous créer ou promouvoir ?','J’accepte que TRYAMM utilise ces informations pour répondre à ma demande.','Facultatif : recevoir des informations promotionnelles.','Demander un devis','Comment ça marche','Envoyez votre demande → examen par TRYAMM → devis approuvé → paiement sécurisé facultatif. Aucun paiement ici.','Traduction limitée à cette page. Les devis et conditions juridiques nécessitent une validation humaine. Ne saisissez aucune donnée bancaire.','Demande reçue pour examen.','Échec de l’envoi. Veuillez réessayer.'],
+ pt:['TRYAMM Café Global de IA','Desenvolva seu negócio com TRYAMM. Solicite um site, loja, assistente de IA ou promoção.','E-mail','Código do país (opcional)','O que deseja criar ou divulgar?','Concordo que a TRYAMM use estes dados para responder à solicitação.','Opcional: quero receber novidades promocionais.','Solicitar orçamento','Como funciona','Envie o pedido → análise pela TRYAMM → orçamento aprovado → pagamento seguro opcional. Nenhuma cobrança neste formulário.','A tradução cobre apenas esta página. Orçamentos e termos jurídicos exigem revisão humana. Não insira dados de pagamento.','Pedido recebido para análise.','Falha no envio. Tente novamente.']
+};
+const ids=['title','intro','emailLabel','countryLabel','interestLabel','consentLabel','marketingLabel','submit','whatNext','steps','disclaimer'];
+const locale=document.getElementById('locale');
+function translate(){const p=phrases[locale.value];document.documentElement.lang=locale.value;ids.forEach((id,i)=>document.getElementById(id).textContent=p[i]);document.getElementById('result').textContent=''}
+locale.addEventListener('change',translate);
+document.getElementById('leadForm').addEventListener('submit',async event=>{
+ event.preventDefault();const button=document.getElementById('submit');button.disabled=true;const out=document.getElementById('result');
+ const params=new URLSearchParams(location.search);
+ try{
+  const response=await fetch('/api/ai-cafe/leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    email:document.getElementById('email').value,interest:document.getElementById('interest').value,locale:locale.value,country:document.getElementById('country').value,consent:document.getElementById('consent').checked,marketingOptIn:document.getElementById('marketing').checked,campaignId:(params.get('campaign')||'').slice(0,100)
+  })});
+  if(!response.ok)throw Error('Submission failed');
+  out.textContent=phrases[locale.value][11];document.getElementById('leadForm').reset();locale.value=document.documentElement.lang;
+ }catch{out.textContent=phrases[locale.value][12]}finally{button.disabled=false}
+});
+</script></body></html>
