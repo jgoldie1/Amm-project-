@@ -27,7 +27,9 @@ for(const actionId of ['wave-friendly','handshake','hug','laugh','argue','sit-re
   if(!boneGestures.includes(`'${actionId}':`)&&!boneGestures.includes(`${actionId}:`))throw new Error('BJ procedural catalogue action missing '+actionId)
 }
 for(const token of ['createStreetVerseBJRPProceduralAnimator','const playRPAction:',"mode:'clip'",'proceduralRP.tick(nowMs)'])if(!hero.includes(token))throw new Error('3D BJ GLB/procedural playback bridge missing '+token)
-for(const token of ["addEventListener('tryamm:streetverse-rp-action-play',onRPActionPlay)","removeEventListener('tryamm:streetverse-rp-action-play',onRPActionPlay)",'nativeRPAnimator?.tick(now)',"tryamm:streetverse-rp-action-result"])if(!mobile.includes(token))throw new Error('mobile 3D RP playback missing '+token)
+for(const token of ["addEventListener('tryamm:streetverse-rp-action-play',onRPActionPlay)","removeEventListener('tryamm:streetverse-rp-action-play',onRPActionPlay)",'rpFallbackAnimator?.tick(now)',"tryamm:streetverse-rp-action-result"])if(!mobile.includes(token))throw new Error('mobile 3D RP playback missing '+token)
+if(mobile.split("const onRPActionPlay=(event:Event)=>{").length!==2)throw new Error('Duplicate BJ RP action listeners must not be reintroduced')
+if(mobile.split("import {createStreetVerseBJRPProceduralAnimator}").length!==2)throw new Error('Duplicate BJ RP procedural animator imports must not be reintroduced')
 for(const token of ["BJ RP playback result","tryamm:streetverse-rp-action-result","BJ ACTION UNAVAILABLE"])if(!search.includes(token))throw new Error('user playback proof missing '+token)
 const newIds=extra50.split('\n').filter(line=>line.trim().startsWith('{id:"')).map(line=>line.split('"')[1])
 if(newIds.length!==50||new Set(newIds).size!==50)throw new Error('Expected exactly 50 distinct new gesture recipes')
