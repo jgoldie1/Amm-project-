@@ -29,7 +29,7 @@ export const BJ_RP_PROCEDURAL_POSES:Readonly<Record<string,GesturePose>>={
   'mic-performance':'perform',
 }
 
-const findNode=(root:THREE.Object3D,patterns:readonly RegExp[])=>{
+const findNode=(root:THREE.Object3D,patterns:readonly RegExp[]):THREE.Object3D|null=>{
   let found:THREE.Object3D|null=null
   root.traverse(node=>{
     if(!found&&!(node instanceof THREE.Mesh)&&patterns.some(pattern=>pattern.test(node.name)))found=node
@@ -68,17 +68,18 @@ export function createStreetVerseBJRPProceduralAnimator(root:THREE.Object3D){
     return true
   }
   const tick=(nowMs:number)=>{
-    if(!active)return
-    if(nowMs>=active.until){stop();return}
-    const elapsed=(nowMs-active.start)/1000
-    const phase=Math.sin(elapsed*8.4*active.speed+active.phase)*active.strength
-    const sway=Math.sin(elapsed*4*active.speed+active.phase)*active.strength
+    const current=active
+    if(!current)return
+    if(nowMs>=current.until){stop();return}
+    const elapsed=(nowMs-current.start)/1000
+    const phase=Math.sin(elapsed*8.4*current.speed+current.phase)*current.strength
+    const sway=Math.sin(elapsed*4*current.speed+current.phase)*current.strength
     const {pose}=active
     const set=(node:THREE.Object3D|null,x:number,z:number,y=0)=>{
       if(!node)return
       const base=rest.get(node)
       if(!base)return
-      const weight=active.variant?active.strength*(1+Math.sin(elapsed*1.5*active.speed+active.phase)*.045):1
+      const weight=current.variant?current.strength*(1+Math.sin(elapsed*1.5*current.speed+current.phase)*.045):1
       node.rotation.set(base.x+x*weight,base.y+y*weight,base.z+z*weight,base.order)
     }
     switch(pose){
