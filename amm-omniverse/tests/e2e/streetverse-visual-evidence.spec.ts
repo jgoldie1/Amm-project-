@@ -61,8 +61,8 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
 
     type Rect={x:number;y:number;width:number;height:number};
     const travel=page.getByRole('button',{name:'Travel to Taylor Street UIC Medical District'});
-    const stores=page.locator('#sv-retail-open');
-    const enterStore=page.locator('#sv-store-open');
+    const stores=page.locator('#sv-city-retail-open');
+    const enterStore=page.locator('#sv-city-store-open');
     await expect(travel).toBeVisible();
     await expect(stores).toBeVisible();
     await expect(enterStore).toBeVisible();
@@ -82,6 +82,16 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     for(let i=0;i<boxes.length;i++)for(let j=i+1;j<boxes.length;j++){
       expect(overlaps(boxes[i],boxes[j])).toBeLessThan(1);
     }
+
+    // Verify both storefront controls open usable in-world panels rather than
+    // counting missing outer-shell buttons as functional features.
+    await stores.click();
+    await expect(page.getByRole('dialog', { name: 'StreetVerse commerce missions' })).toBeVisible();
+    await page.getByRole('button', { name: 'Close StreetVerse store panel' }).click();
+    await enterStore.click();
+    await expect(page.getByRole('dialog', { name: 'StreetVerse local store preview' })).toBeVisible();
+    await expect(page.getByText('This is an in-game storefront gateway, not a finished 3D shop or active payment checkout.')).toBeVisible();
+    await page.getByRole('button', { name: 'Close StreetVerse store panel' }).click();
 
     await page.waitForTimeout(2200);
     await page.screenshot({
