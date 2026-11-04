@@ -55,4 +55,27 @@ for(const file of fs.readdirSync(componentsDir)){
   }
 }
 
+
+// Car-entry buttons must remain physically discoverable after the carousel is
+// collapsed, and must drive the real vehicle controller instead of a no-op bus.
+const carousel=read('../src/components/StreetVerseActionCarousel.tsx')
+assert.match(carousel,/aria-label="Get in nearby car"/,
+  'mobile car entry must be a named, touch-friendly action')
+assert.match(carousel,/nearbyVehicle&&!inVehicle/,
+  'car entry action must only be advertised when a nearby car is available on foot')
+assert.match(carousel,/id==='enter'[\\s\\S]*?tryamm:streetverse-vehicle-interact/,
+  'carousel ENTER must send a real vehicle-interact command')
+assert.match(carousel,/entered:true,vehicleId,source:'action-carousel'/,
+  'car entry must identify the nearby car and its source')
+assert.match(carousel,/tryamm:streetverse-nearby-vehicle-request/,
+  'carousel must recover proximity state after asynchronous mount')
+assert.match(carousel,/zIndex:46050/,
+  'expanded action carousel must be visible above fixed world controls')
+assert.match(mobile,/const publishNearbyVehicle=/,
+  'the playable 3D world must publish drivable nearby-car state')
+assert.match(mobile,/tryamm:streetverse-nearby-vehicle-request/,
+  'the world must answer a newly mounted action carousel')
+assert.match(mobile,/const nearestCar=/,
+  'the world must verify actual scene-car proximity before entry')
+
 console.log(`StreetVerse vehicle control-loop contract: PASS (${worlds.length} playable worlds + iPhone-safe mission parity)`)
