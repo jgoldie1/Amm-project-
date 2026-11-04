@@ -41,6 +41,7 @@ export async function connectLiveRoom(opts: {
   roomName: string
   role: LiveRole
   displayName?: string
+  cameraEnabled?: boolean
   onParticipants?: (count: number) => void
   onTrack?: (element: HTMLMediaElement, participantIdentity: string) => void
 }) {
@@ -70,7 +71,7 @@ export async function connectLiveRoom(opts: {
     updateCount()
     if (opts.role === 'host') {
       await room.localParticipant.setMicrophoneEnabled(true)
-      await room.localParticipant.setCameraEnabled(true)
+      if(opts.cameraEnabled!==false) await room.localParticipant.setCameraEnabled(true)
 
       let restoreMic = true
       let restoreCamera = true
