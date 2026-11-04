@@ -22,6 +22,7 @@ export default function StreetVerseTowerConnections(){
  const [jarvisDetected,setJarvisDetected]=useState(false)
  const [travelStateObserved,setTravelStateObserved]=useState(false)
  const [injury,setInjury]=useState<{health:number;phase:string;visuals:string;characterId:string}|null>(null)
+ const [organs,setOrgans]=useState<{stamina:number;breathing:number;mobility:number;consciousness:string;needsRescue:boolean;integrity:Record<string,number>}|null>(null)
  useEffect(()=>{
   const onGame=()=>setGameReady(true)
   const onBroadcast=()=>setBroadcastObserved(true)
@@ -30,6 +31,8 @@ export default function StreetVerseTowerConnections(){
   const onVehicle=(e:Event)=>{if((e as CustomEvent<{entered?:boolean}>).detail?.entered)setVehicleConfirmed(true)}
   const onMission=(e:Event)=>setLastMission(String((e as CustomEvent<{id?:string;label?:string}>).detail?.label||(e as CustomEvent<{id?:string}>).detail?.id||'Completed mission'))
   const onInjury=(event:Event)=>{const next=(event as CustomEvent<{health:number;phase:string;visuals:string;characterId:string}>).detail;if(next)setInjury(next)}
+  const onOrgans=(event:Event)=>{const next=(event as CustomEvent<{stamina:number;breathing:number;mobility:number;consciousness:string;needsRescue:boolean;integrity:Record<string,number>}>).detail;if(next)setOrgans(next)}
+  addEventListener('tryamm:streetverse-organ-state',onOrgans)
   addEventListener('tryamm:streetverse-injury-state',onInjury)
   addEventListener('tryamm:broadcast-os-state',onBroadcast)
   addEventListener('tryamm:global-travel-state',onTravel)
@@ -37,7 +40,7 @@ export default function StreetVerseTowerConnections(){
   addEventListener('tryamm:streetverse-world-ready',onGame)
   addEventListener('tryamm:streetverse-vehicle-controlled',onVehicle)
   addEventListener('tryamm:streetverse-mission-complete',onMission)
-  return()=>{removeEventListener('tryamm:streetverse-injury-state',onInjury);removeEventListener('tryamm:broadcast-os-state',onBroadcast);removeEventListener('tryamm:global-travel-state',onTravel);removeEventListener('tryamm:stubbs-lyons-middleverse-ready',onAi);removeEventListener('tryamm:streetverse-world-ready',onGame);removeEventListener('tryamm:streetverse-vehicle-controlled',onVehicle);removeEventListener('tryamm:streetverse-mission-complete',onMission)}
+  return()=>{removeEventListener('tryamm:streetverse-organ-state',onOrgans);removeEventListener('tryamm:streetverse-injury-state',onInjury);removeEventListener('tryamm:broadcast-os-state',onBroadcast);removeEventListener('tryamm:global-travel-state',onTravel);removeEventListener('tryamm:stubbs-lyons-middleverse-ready',onAi);removeEventListener('tryamm:streetverse-world-ready',onGame);removeEventListener('tryamm:streetverse-vehicle-controlled',onVehicle);removeEventListener('tryamm:streetverse-mission-complete',onMission)}
  },[])
  useEffect(()=>{
   if(!open)return
@@ -82,9 +85,11 @@ export default function StreetVerseTowerConnections(){
    <section aria-label="StreetVerse character injury test" style={{border:'1px solid #5d3a46',borderRadius:10,padding:8,marginTop:10,display:'grid',gap:6}}>
     <b style={{fontSize:11}}>CHARACTER INJURY • LOCAL TEST</b>
     <div style={{fontSize:10}}>HP {injury?.health??'—'} • {injury?.phase||'waiting for game'} • {injury?.characterId||'selected player'}</div>
-    <div style={{fontSize:10}}>Effects: {injury?.visuals||'minimal'}. These buttons are cosmetic test events only, not multiplayer damage or real XP.</div>
+    <div style={{fontSize:10}}>Effects: {injury?.visuals||'minimal'}. These buttons are fictional, local tests only—not medical diagnoses, multiplayer damage or real XP.</div>
+    <div style={{fontSize:10}}>BODY SYSTEMS • {organs?.consciousness||'waiting'} • breathing {organs?.breathing??'—'} • stamina {organs?.stamina??'—'} • mobility {organs?.mobility??'—'}</div>
+    {organs&&<div style={{fontSize:10}}>Brain {Math.round(organs.integrity.brain)} • Heart {Math.round(organs.integrity.heart)} • Lungs {Math.round(organs.integrity.lungs)} • Liver {Math.round(organs.integrity.liver)} • Kidneys {Math.round(organs.integrity.kidneys)} {organs.needsRescue?'• RESCUE REQUEST':''}</div>}
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
-     <button style={btn} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-local-damage-demo',{detail:{amount:25,source:'tower-injury-test'}}))}>TEST HIT −25 HP</button>
+     <button style={btn} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-local-damage-demo',{detail:{amount:25,zone:'chest',source:'tower-injury-test'}}))}>TEST CHEST HIT −25 HP</button>
      <button style={btn} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-local-damage-demo',{detail:{amount:100,source:'tower-defeat-test'}}))}>TEST DEFEAT</button>
      <button style={btn} onClick={()=>window.dispatchEvent(new Event('tryamm:streetverse-local-respawn-demo'))}>RESPAWN</button>
      <button style={btn} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-injury-visual-mode',{detail:{mode:injury?.visuals==='standard'?'off':injury?.visuals==='off'?'minimal':'standard'}}))}>FX: {injury?.visuals||'minimal'} • CHANGE</button>
