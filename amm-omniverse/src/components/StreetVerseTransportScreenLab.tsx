@@ -22,6 +22,7 @@ export default function StreetVerseTransportScreenLab({onClose}:{onClose:()=>voi
  const select=(next:StreetVerseTransitMode)=>{setMode(next);setDisplay(createTransitDisplay(next));setSeated([]);setCamera('exterior');setWalkway(createAirportWalkway('airport-demo'));setChannelId(TRANSIT_MEDIA_DEFAULTS[next].channelId)}
  const action=(next:Parameters<typeof updateTransitDisplay>[1])=>setDisplay(s=>updateTransitDisplay(s,next))
  const board=()=>{
+   if(!display.doorsOpen||display.moving)return
    if(mode!=='car'){action({type:'board'});return}
    const id='demo-rider-'+(seated.length+1)
    const passenger=director.board(id,seated.length===0?'BJ Stubbs':'Passenger '+seated.length,seated.length===0)
