@@ -22,7 +22,9 @@
 <label for="mailProvider">Mail provider</label><select id="mailProvider"><option value="keep-existing">Keep my current business email</option><option value="google-workspace">Google Workspace</option><option value="microsoft-365">Microsoft 365 Business</option><option value="zoho-mail">Zoho Mail</option><option value="other">Another provider</option></select>
 <label for="mailAliases">Requested address names (comma separated; max 8)</label><input id="mailAliases" placeholder="info, support, sales" maxlength="240">
 <label class="check"><input id="mailPreserve" type="checkbox"> I understand all existing email addresses and DNS records must be preserved until verified.</label>
-<button type="button" id="prepareEmail">Prepare my Quantum Mail setup</button><p id="mailStatus" role="status" aria-live="polite"></p><ol id="mailSteps"></ol>
+<button type="button" id="prepareEmail">Prepare my Quantum Mail setup</button>
+<label for="mailLocalPart">Request a private business mailbox name</label><input id="mailLocalPart" placeholder="info" maxlength="63">
+<button type="button" id="requestMailbox">Request mailbox — pending verification</button><p id="mailStatus" role="status" aria-live="polite"></p><ol id="mailSteps"></ol>
 <small>Business email service plans are billed by the selected provider unless separately contracted. No credentials, passwords or transfer codes are collected.</small></section>
 <section><h2>Provider setup checklist</h2><ol id="steps"><li>Choose your provider to see a planning checklist.</li></ol><p><small>Do not submit your password, API key or recovery codes. You will complete any hosting subscription in your own provider account, with explicit approval. Hosting fees and domains are separate from TRYAMM website packages.</small></p></section>
 <script>
@@ -61,6 +63,14 @@ $('prepareEmail').onclick=async()=>{try{
  projectRevisions.set(id,result.revision);$('mailSteps').replaceChildren();
  for(const item of result.plan.steps){const li=document.createElement('li');li.textContent=item.label;$('mailSteps').append(li)}
  $('mailStatus').textContent='Business email plan saved. No DNS, existing inbox, or mail subscription was changed.';
+ }catch(e){$('mailStatus').textContent=e.message}
+};
+$('requestMailbox').onclick=async()=>{try{
+ const projectId=$('project').value,domain=$('domain').value.trim();
+ if(!projectId||!domain)throw Error('Save your domain cloud plan and select the correct project first');
+ const localPart=$('mailLocalPart').value.trim().toLowerCase();
+ const result=await api('/api/mail/v2/accounts/request',{method:'POST',body:JSON.stringify({projectId,localPart,domainControlConfirmed:true})});
+ $('mailStatus').textContent=result.account.address+' requested. NOT ACTIVE until independently verified; no email is sent or received.';
  }catch(e){$('mailStatus').textContent=e.message}
 };
 init();
