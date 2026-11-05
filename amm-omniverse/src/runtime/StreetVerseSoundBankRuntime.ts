@@ -25,6 +25,9 @@ let lastQuantumBpm=0
 let radioPlaying=false
 let radioVolume=.65
 let conversationActive=false
+let injuryBreathingEffort=0
+let injuryDowned=false
+let lastInjuryAudioAt=0
 let currentRadioGenre:'gospel'|'hiphop'|'electronic'|'jazz'|'rnb'='hiphop'
 let radioLoop:ReturnType<typeof setInterval>|null=null
 let ambienceStarted=false
@@ -87,6 +90,8 @@ const onQuantumStreetBeat=(event:QuantumBeatEvent)=>{
     else if(moving)play('footstep')
   }
   if(phase===2){
+    const now=performance.now()
+    if(injuryBreathingEffort>.35&&!inVehicle&&now-lastInjuryAudioAt>7000){lastInjuryAudioAt=now;play(injuryDowned?'heartbeat_close':'soft_breathing',injuryDowned?'fictional character downed':'character breathing effort')}
     if(emergencyNow)play('radio_chirp')
     else if(fireActive)play('fire_crackle')
     else if(Math.random()<.58)play('crowd_ambient')
@@ -118,6 +123,15 @@ export function installStreetVerseSoundBankRuntime(){
     if(Number.isFinite(saved.volume)){volume=Math.max(0,Math.min(1,Number(saved.volume)));soundEngine.setVolume(volume)}
   }catch{}
 
+  const onLivingFeedback=(event:Event)=>{
+    const d=(event as CustomEvent<{characterId?:string;breathingEffort?:number;collapse?:boolean}>).detail||{}
+    if(d.characterId!=='bj-stubbs')return
+    const effort=Number(d.breathingEffort)
+    if(!Number.isFinite(effort))return
+    injuryBreathingEffort=Math.max(0,Math.min(1,effort))
+    injuryDowned=d.collapse===true
+  }
+  addEventListener('tryamm:streetverse-living-body-feedback',onLivingFeedback)
   const onPreview=(event:Event)=>{
     const key=(event as CustomEvent<{key?:SoundKey}>).detail?.key
     if(key)play(key,`preview ${key.replaceAll('_',' ')}`)
@@ -287,6 +301,7 @@ export function installStreetVerseSoundBankRuntime(){
     removeEventListener('tryamm:world-day-phase',onDayPhase)
     removeEventListener('tryamm:streetverse-sound-bank-settings',onSettings)
     removeEventListener('tryamm:streetverse-sound-preview',onPreview)
+    removeEventListener('tryamm:streetverse-living-body-feedback',onLivingFeedback)
     removeEventListener('tryamm:streetverse-rescue-incident-start',onRescue)
     removeEventListener('tryamm:streetverse-emergency-response',onEmergency)
     removeEventListener('tryamm:streetverse-structure-fire-state',onFire)
