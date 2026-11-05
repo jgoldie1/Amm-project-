@@ -50,6 +50,7 @@ require('./lib/omniverse-radio-routes')({app,auth,clean,id,getStore:()=>store,sa
 require('./lib/daily-business-boost-routes')({app,auth,clean,id,getStore:()=>store,saveStore,io});
 require('./lib/ai-cafe-routes')({app,auth,getStore:()=>store,saveStore});
 require('./lib/website-os-catalog-routes')({app});
+require('./lib/tryamm-funnel-routes')({app,auth});
 require('./lib/tryamm-launch-readiness-routes')({app,auth});
 require('./lib/website-migration-routes')({app,auth,getStore:()=>store,saveStore});
 require('./lib/website-brand-routes')({app,auth,getStore:()=>store,saveStore});
