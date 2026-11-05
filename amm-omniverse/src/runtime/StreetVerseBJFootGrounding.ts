@@ -45,7 +45,7 @@ export function createStreetVerseBJFootGrounding(scene:THREE.Scene,getHero:()=>T
     const side=streetVerseFootSide(bone.name)
     if(seen.has(bone)||!side)continue
     seen.add(bone)
-    if(side)feet.push({bone,side,baseline:bone.rotation.x,correction:0,lastApplied:bone.rotation.x,contact:false})
+    if(!feet.some(foot=>foot.side===side))feet.push({bone,side,baseline:bone.rotation.x,correction:0,lastApplied:bone.rotation.x,contact:false})
    }
   })
   feet=feet.slice(0,2)
@@ -61,7 +61,7 @@ export function createStreetVerseBJFootGrounding(scene:THREE.Scene,getHero:()=>T
     return {height:hit.point.y,pitch:Math.atan2(surfaceNormal.z,Math.max(.2,surfaceNormal.y))}
    }
   }
-  return {height:0,pitch:0}
+  return null // Never pretend an unverified surface is flat ground.
  }
  return {
   tick:(now:number,moving:boolean)=>{
@@ -80,6 +80,7 @@ export function createStreetVerseBJFootGrounding(scene:THREE.Scene,getHero:()=>T
     foot.bone.getWorldPosition(origin)
     origin.y+=.6
     const ground=getGround(origin)
+    if(!ground){foot.contact=false;continue}
     const heightDelta=origin.y-.6-ground.height
     const planted=!seated&&!moving&&heightDelta>=-.08&&heightDelta<=.22
     // Sample AFTER the character mixer each tick; preserve native animation by
