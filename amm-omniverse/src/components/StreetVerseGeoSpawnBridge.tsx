@@ -171,6 +171,20 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  const [quantumMode,setQuantumMode]=useState<QuantumSpeedMode>('balanced')
  const setLocationContext=useGameStore(state=>state.setLocationContext)
  const applyCityConsequence=useGameStore(state=>state.applyCityConsequence)
+ const pendingTaylorTravelRef=useRef(false)
+ // Safe mode can dispatch a travel event before the 3D world has a mounted listener.
+ // Replay the requested route once when the real canvas world reports ready.
+ useEffect(()=>{
+  let replayFrame=0
+  const onWorldReady=(event:Event)=>{
+   const detail=(event as CustomEvent<{mode?:string;canvas?:boolean}>).detail||{}
+   if(!pendingTaylorTravelRef.current||detail.canvas!==true||detail.mode==='mobile-safe')return
+   pendingTaylorTravelRef.current=false
+   replayFrame=window.requestAnimationFrame(()=>window.dispatchEvent(new CustomEvent('tryamm:west-side-route-request',{detail:{x:24,z:-8,missionId:'taylor-single-canvas',source:'streetverse-safe-ready-replay'}})))
+  }
+  window.addEventListener('tryamm:streetverse-world-ready',onWorldReady)
+  return()=>{window.cancelAnimationFrame(replayFrame);window.removeEventListener('tryamm:streetverse-world-ready',onWorldReady)}
+ },[])
  const closingRef=useRef(false)
  const closeStreetVerse=useCallback(()=>{
   if(closingRef.current)return
@@ -289,6 +303,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
    onClick={()=>{
      window.dispatchEvent(new CustomEvent('tryamm:west-side-route-request',{detail:{x:24,z:-8,missionId:'taylor-single-canvas',source:'streetverse-safe-travel-shortcut'}}))
      if(hasUsableWebGL()){
+      pendingTaylorTravelRef.current=true
       setGraphicsStatus('Opening Taylor Street in 3D…')
       setNearWestOpen(true)
       setRetryGraphics(true)
