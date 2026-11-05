@@ -97,6 +97,30 @@ async function refreshOrders(){try{
     }catch(e){track.disabled=false;const msg=document.createElement('p');msg.textContent=e.message;article.append(msg)}
    };article.append(track)
   }
+  if(['paid-verified','building'].includes(order.status)){
+   const button=document.createElement('button');button.textContent='Submit paid site for customer review';
+   button.onclick=async()=>{const previewUrl=prompt('Enter the tested HTTPS website preview URL');if(!previewUrl)return;
+    if(!confirm('Submit this website preview to the customer for review?'))return;
+    try{const result=await api('/api/website-os/orders/'+encodeURIComponent(order.id)+'/prepare-review',{method:'POST',body:JSON.stringify({confirm:true,previewUrl})});
+    const line=document.createElement('p');line.textContent=result.prepared?'Preview submitted for review. Send the buyer invitation next.':'Review not prepared.';article.append(line)}
+    catch(e){const line=document.createElement('p');line.textContent=e.message;article.append(line)}};
+   article.append(button);
+  }
+  if(order.status==='review-ready'){
+   const invite=document.createElement('button');invite.textContent='Email buyer the website review link';
+   invite.onclick=async()=>{if(!confirm('Email a private preview review link to the original customer?'))return;
+    try{const r=await api('/api/website-os/orders/'+encodeURIComponent(order.id)+'/invite-review',{method:'POST',body:JSON.stringify({confirm:true})});
+    const line=document.createElement('p');line.textContent=r.sent?'Review email accepted by provider; inbox delivery not confirmed.':'Review link not sent.';article.append(line)}
+    catch(e){const line=document.createElement('p');line.textContent=e.message;article.append(line)}};
+   article.append(invite);
+   const finalize=document.createElement('button');finalize.textContent='Finalize approved website delivery';
+   finalize.onclick=async()=>{const reference=prompt('Enter final delivery proof or handoff reference (minimum 12 characters)');if(!reference)return;
+    if(!confirm('Confirm final website handoff? This requires buyer approval and verified payment.'))return;
+    try{const r=await api('/api/website-os/orders/'+encodeURIComponent(order.id)+'/finalize-delivery',{method:'POST',body:JSON.stringify({confirm:true,reference})});
+    const line=document.createElement('p');line.textContent=r.delivered?'Final delivery recorded. Refresh orders to see updated status.':'Delivery not completed.';article.append(line)}
+    catch(e){const line=document.createElement('p');line.textContent=e.message;article.append(line)}};
+   article.append(finalize);
+  }
   if(order.status==='customer-accepted'||order.status==='payment-pending'){
    const verify=document.createElement('button');
    verify.textContent='Check Stripe TEST Checkout status';
