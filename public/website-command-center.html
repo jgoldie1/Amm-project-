@@ -20,7 +20,7 @@
 <button type="submit">Create private campaign draft</button>
 </form><button id="refreshCampaigns">Refresh campaign status</button>
 <div id="campaigns" role="status" aria-live="polite"></div></section>
-<section id="owner" hidden><h2>Owner command center</h2><p>Review all customer requests and approved quotes before payment and fulfillment.</p><button id="refreshOwner">Refresh owner review queue</button><div id="reviewQueue"></div><p><a href="/ai-cafe.html">AI Café sales intake</a> · <a href="/tryamm-brand-studio.html">Website preview editor</a></p></section>
+<section><h2>Website Order Tracker</h2><p>Track the quote and delivery stages for your website projects. No payment is requested through this panel.</p><button id="refreshOrders" type="button">Refresh my orders</button><div id="orderList" role="status" aria-live="polite"></div></section><section id="owner" hidden><h2>Owner command center</h2><p>Review all customer requests and approved quotes before payment and fulfillment.</p><button id="refreshOwner">Refresh owner review queue</button><div id="reviewQueue"></div><p><a href="/ai-cafe.html">AI Café sales intake</a> · <a href="/tryamm-brand-studio.html">Website preview editor</a></p></section>
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
@@ -67,6 +67,21 @@ $('campaignForm').onsubmit=async ev=>{ev.preventDefault();try{
  await refreshCampaigns()
 }catch(e){$('campaigns').textContent=e.message}};
 $('refreshCampaigns').onclick=refreshCampaigns;
+async function refreshOrders(){try{
+ const status=await api('/api/website-os/orders/status');
+ if(!status.durableEnabled){$('orderList').textContent='Order storage awaits secure deployment and verification. No payment or delivery is active.';return}
+ const data=await api('/api/website-os/orders');
+ const root=$('orderList');root.replaceChildren();
+ if(!data.orders.length){root.textContent='No trackable website orders yet.';return}
+ for(const order of data.orders){
+  const article=document.createElement('article'),head=document.createElement('strong'),details=document.createElement('p');
+  head.textContent=order.packageId+' — '+order.status;
+  details.textContent='Quoted: '+new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(order.priceCents/100)+'. '+order.description;
+  article.append(head,details);root.append(article)
+ }
+ }catch(error){$('orderList').textContent=error.message}
+}
+$('refreshOrders').onclick=refreshOrders;
 refresh();
-if(token())refreshCampaigns();
+if(token()){refreshCampaigns();refreshOrders()}
 </script></body></html>
