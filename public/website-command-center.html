@@ -77,7 +77,16 @@ async function refreshOrders(){try{
   const article=document.createElement('article'),head=document.createElement('strong'),details=document.createElement('p');
   head.textContent=order.packageId+' — '+order.status;
   details.textContent='Quoted: '+new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(order.priceCents/100)+'. '+order.description;
-  article.append(head,details);root.append(article)
+  article.append(head,details);
+  if(order.status==='quote-approved'){
+    const invite=document.createElement('button');invite.textContent='Email private quote for customer acceptance';
+    invite.onclick=async()=>{if(!confirm('Send the approved quote to the customer email on the inquiry? This does not charge anyone.'))return;
+      try{invite.disabled=true;const sent=await api('/api/website-os/orders/'+encodeURIComponent(order.id)+'/request-acceptance',{method:'POST',body:JSON.stringify({confirm:true})});
+       const note=document.createElement('p');note.textContent=sent.sent?'Customer invitation sent. Delivery to inbox not yet verified.': 'Invitation not sent.';article.append(note)
+      }catch(error){invite.disabled=false;const note=document.createElement('p');note.textContent=error.message;article.append(note)}
+    };article.append(invite);
+  }
+  root.append(article)
  }
  }catch(error){$('orderList').textContent=error.message}
 }
