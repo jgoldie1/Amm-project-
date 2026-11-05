@@ -74,6 +74,8 @@ export function createStreetVerseInjuryRuntime(scene:THREE.Scene,getHero:()=>THR
   organs=createStreetVerseOrganState(currentCharacterId)
   removeDrops()
   lastHit=-Infinity
+  lastReaction='idle'
+  if(typeof window!=='undefined')window.dispatchEvent(new CustomEvent('tryamm:streetverse-rig-reaction',{detail:{characterId:currentCharacterId,reaction:'idle',authoritative:false,source:'local-injury-demo'}}))
   publish()
  }
  const onCharacterSelect=(event:Event)=>{const id=(event as CustomEvent<{id?:string}>).detail?.id;if(!id||!/^[a-z0-9._-]{2,80}$/i.test(id))return;currentCharacterId=id;state={...state,health:START_HEALTH,phase:'healthy'};organs=createStreetVerseOrganState(id);removeDrops();lastHit=-Infinity;publish()}
