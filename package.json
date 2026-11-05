@@ -35,7 +35,8 @@
     "audit:website-templates": "node scripts/tryamm-template-inventory.mjs",
     "test:business-email": "node test/website-quantum-mail-smoke.js",
     "test:mail": "node test/website-quantum-mail-smoke.js && node test/quantum-mail-v2-smoke.js",
-    "test:funnel": "node test/tryamm-funnel-smoke.js"
+    "test:funnel": "node test/tryamm-funnel-smoke.js",
+    "test:orders": "node test/tryamm-order-lifecycle-smoke.js"
   },
   "dependencies": {
     "express": "^4.21.2",
