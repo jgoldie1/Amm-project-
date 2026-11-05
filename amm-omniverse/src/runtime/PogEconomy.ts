@@ -1,0 +1,3 @@
+export type PogUse='cosmetic-unlock'|'mission-access'|'profile-badge'|'family-rank'|'agency-rank'|'creator-discovery-boost'|'event-entry'
+export const POG_ECONOMY={name:'Play-or-Grow',cash:false,withdrawable:false,purchasable:false,serverEarned:true,uses:['cosmetic-unlock','mission-access','profile-badge','family-rank','agency-rank','creator-discovery-boost','event-entry'] as PogUse[],discoveryBoostCannotOverrideSafetyOrIntegrity:true} as const
+export function pogTier(points:number){if(points>=10000)return'legend';if(points>=5000)return'elite';if(points>=1500)return'pro';if(points>=500)return'rising';return'rookie'}
