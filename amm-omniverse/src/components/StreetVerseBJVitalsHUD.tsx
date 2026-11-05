@@ -9,6 +9,7 @@ export default function StreetVerseBJVitalsHUD(){
  const [injuryView,setInjuryView]=useState<'off'|'minimal'|'standard'>('minimal')
  const [rigInspectMode,setRigInspectMode]=useState<'off'|'overlay'|'exploded'>('off')
  const [bonesDetected,setBonesDetected]=useState<number|null>(null)
+ const [bodyFeedback,setBodyFeedback]=useState<{paceMultiplier:number;breathingEffort:number;canSprint:boolean;collapse:boolean;rescueRecommended:boolean}|null>(null)
  const [expanded,setExpanded]=useState(false)
  const [rig,setRig]=useState<{state:'loading'|'loaded'|'unavailable';version:string;animations:number;source:string}>({state:'loading',version:'unverified',animations:0,source:'unknown'})
  useEffect(()=>{
@@ -64,6 +65,17 @@ export default function StreetVerseBJVitalsHUD(){
   window.addEventListener('tryamm:streetverse-anatomy-inspector-status',onInspector)
   return()=>window.removeEventListener('tryamm:streetverse-anatomy-inspector-status',onInspector)
  },[])
+ useEffect(()=>{
+  const onFeedback=(event:Event)=>{
+   const d=(event as CustomEvent<{characterId?:string;paceMultiplier?:number;breathingEffort?:number;canSprint?:boolean;collapse?:boolean;rescueRecommended?:boolean}>).detail
+   if(d?.characterId!=='bj-stubbs')return
+   const pace=Number(d.paceMultiplier),breathing=Number(d.breathingEffort)
+   if(!Number.isFinite(pace)||!Number.isFinite(breathing))return
+   setBodyFeedback({paceMultiplier:Math.max(0,Math.min(1,pace)),breathingEffort:Math.max(0,Math.min(1,breathing)),canSprint:d.canSprint===true,collapse:d.collapse===true,rescueRecommended:d.rescueRecommended===true})
+  }
+  window.addEventListener('tryamm:streetverse-living-body-feedback',onFeedback)
+  return()=>window.removeEventListener('tryamm:streetverse-living-body-feedback',onFeedback)
+ },[])
  const inspectionAllowed=typeof window!=='undefined'&&new URLSearchParams(window.location.search).get('injuryLab')==='1'
  const demo=(name:string,detail:Record<string,unknown>={})=>window.dispatchEvent(new CustomEvent(name,{detail}))
  const organNames:['brain','heart','lungs','liver','kidneys']=['brain','heart','lungs','liver','kidneys']
@@ -75,6 +87,7 @@ export default function StreetVerseBJVitalsHUD(){
   {expanded&&<div id="streetverse-bj-vitals-details" style={{background:'#06111dec',border:'1px solid #51738a',borderRadius:10,padding:9,marginTop:4,fontSize:11}}>
    <div>Stamina: {Math.round(vitals.stamina)}%</div>
    <div>Mobility: {Math.round(vitals.mobility)}%</div>
+   {bodyFeedback&&<div aria-label="BJ injury-adjusted movement" style={{padding:'5px 0',marginTop:5,borderTop:'1px solid #51738a'}}>Walk speed: {Math.round(bodyFeedback.paceMultiplier*100)}% • Sprint: {bodyFeedback.canSprint?'Allowed':'Restricted'} • Breathing effort: {Math.round(bodyFeedback.breathingEffort*100)}%{bodyFeedback.rescueRecommended&&<div role="status" style={{color:'#ffc4a6'}}>Rescue or recovery recommended (fictional game).</div>}</div>}
    <div>{vitals.knockedOut?'Recover at a safe zone':vitals.limping?'Reduced movement':'Mobility normal'}</div>
    {vitals.hasBleedingStatus&&<div role="status" style={{color:'#ffb7a4'}}>Fictional bleeding status — use a safe-zone recovery action</div>}
    <div style={{marginTop:8,borderTop:'1px solid #51738a',paddingTop:6}}>BJ 3D rig: {rig.state==='loaded'?'Loaded':rig.state==='unavailable'?'Unavailable / fallback':'Not yet verified'}</div>
