@@ -1,8 +1,12 @@
 import {useEffect,useState} from 'react'
 type Vitals={characterId:string;health:number;stamina:number;mobility:number;knockedOut:boolean;hasBleedingStatus:boolean;limping:boolean;injuryCount:number}
+type Organs={characterId:string;integrity:Record<'brain'|'heart'|'lungs'|'liver'|'kidneys',number>;breathing:number;mobility:number;consciousness:string;needsRescue:boolean}
 const healthy:Vitals={characterId:'bj-stubbs',health:100,stamina:100,mobility:100,knockedOut:false,hasBleedingStatus:false,limping:false,injuryCount:0}
 export default function StreetVerseBJVitalsHUD(){
  const [vitals,setVitals]=useState<Vitals>(healthy)
+ const [organs,setOrgans]=useState<Organs|null>(null)
+ const [demoHealth,setDemoHealth]=useState<number|null>(null)
+ const [injuryView,setInjuryView]=useState<'off'|'minimal'|'standard'>('minimal')
  const [expanded,setExpanded]=useState(false)
  const [rig,setRig]=useState<{state:'loading'|'loaded'|'unavailable';version:string;animations:number;source:string}>({state:'loading',version:'unverified',animations:0,source:'unknown'})
  useEffect(()=>{
@@ -34,10 +38,29 @@ export default function StreetVerseBJVitalsHUD(){
   window.addEventListener('tryamm:streetverse-character-vitals',onVitals)
   return()=>window.removeEventListener('tryamm:streetverse-character-vitals',onVitals)
  },[])
+ useEffect(()=>{
+  const onOrgans=(event:Event)=>{
+   const d=(event as CustomEvent<Organs>).detail
+   if(d?.characterId==='bj-stubbs'&&d.integrity)setOrgans(d)
+  }
+  const onDamageState=(event:Event)=>{
+   const d=(event as CustomEvent<{characterId?:string;health?:number}>).detail
+   if(d?.characterId==='bj-stubbs'&&Number.isFinite(Number(d.health)))setDemoHealth(Math.min(100,Math.max(0,Number(d.health))))
+  }
+  window.addEventListener('tryamm:streetverse-organ-state',onOrgans)
+  window.addEventListener('tryamm:streetverse-injury-state',onDamageState)
+  return()=>{
+   window.removeEventListener('tryamm:streetverse-organ-state',onOrgans)
+   window.removeEventListener('tryamm:streetverse-injury-state',onDamageState)
+  }
+ },[])
+ const inspectionAllowed=typeof window!=='undefined'&&new URLSearchParams(window.location.search).get('injuryLab')==='1'
+ const demo=(name:string,detail:Record<string,unknown>={})=>window.dispatchEvent(new CustomEvent(name,{detail}))
+ const organNames:['brain','heart','lungs','liver','kidneys']=['brain','heart','lungs','liver','kidneys']
  const affected=vitals.injuryCount>0||vitals.health<100||vitals.mobility<100
  return <aside aria-label="BJ Stubbs fictional gameplay health" style={{position:'fixed',top:64,left:8,zIndex:24000,pointerEvents:'auto',maxWidth:210,fontFamily:'system-ui',color:'#fff'}}>
   <button type="button" aria-expanded={expanded} aria-controls="streetverse-bj-vitals-details" onClick={()=>setExpanded(v=>!v)} style={{minHeight:44,background:'#0a1825ea',border:'1px solid #60cfff',borderRadius:10,padding:'7px 10px',fontSize:11,fontWeight:850,color:'#fff'}}>
-   BJ • HEALTH {Math.round(vitals.health)}% {affected?'• CONDITION':''}
+   BJ • HEALTH {Math.round(demoHealth??vitals.health)}% {affected?'• CONDITION':''}
   </button>
   {expanded&&<div id="streetverse-bj-vitals-details" style={{background:'#06111dec',border:'1px solid #51738a',borderRadius:10,padding:9,marginTop:4,fontSize:11}}>
    <div>Stamina: {Math.round(vitals.stamina)}%</div>
@@ -46,6 +69,28 @@ export default function StreetVerseBJVitalsHUD(){
    {vitals.hasBleedingStatus&&<div role="status" style={{color:'#ffb7a4'}}>Fictional bleeding status — use a safe-zone recovery action</div>}
    <div style={{marginTop:8,borderTop:'1px solid #51738a',paddingTop:6}}>BJ 3D rig: {rig.state==='loaded'?'Loaded':rig.state==='unavailable'?'Unavailable / fallback':'Not yet verified'}</div>
    {rig.state==='loaded'&&<div>{rig.version} • {rig.animations} available clips</div>}
+   {organs&&<section aria-label="BJ fictional internal organ inspector" style={{marginTop:8,borderTop:'1px solid #51738a',paddingTop:8}}>
+    <strong>ANATOMY • FICTIONAL GAME STATE</strong>
+    <div style={{marginTop:4}}>Consciousness: {organs.consciousness}</div>
+    <div>Breathing: {Math.round(organs.breathing)}%</div>
+    <div>Rescue: {organs.needsRescue?'Needed':'Not needed'}</div>
+    {organNames.map(name=><div key={name} style={{display:'flex',justifyContent:'space-between',gap:8,marginTop:3}}><span>{name.toUpperCase()}</span><span>{Math.round(organs.integrity[name])}%</span></div>)}
+    <small style={{display:'block',marginTop:5,color:'#c4d1e5'}}>These values are fictional gameplay indicators, not rendered organ meshes.</small>
+   </section>}
+   {inspectionAllowed&&<section aria-label="Developer anatomy rig tests" style={{marginTop:7,borderTop:'1px solid #51738a',paddingTop:8}}>
+    <strong>TEARDOWN LAB • LOCAL DEMO</strong>
+    <div style={{display:'flex',flexWrap:'wrap',gap:5,marginTop:6}}>
+     <button onClick={()=>demo('tryamm:streetverse-local-damage-demo',{characterId:'bj-stubbs',amount:25,zone:'chest'})}>TEST HIT −25 HP</button>
+     <button onClick={()=>demo('tryamm:streetverse-local-damage-demo',{characterId:'bj-stubbs',amount:100,zone:'head'})}>TEST DEFEAT</button>
+     <button onClick={()=>demo('tryamm:streetverse-local-respawn-demo')}>RESPAWN</button>
+    </div>
+    <label style={{display:'block',marginTop:6}}>Blood particle setting
+     <select value={injuryView} onChange={event=>{const mode=event.target.value as 'off'|'minimal'|'standard';setInjuryView(mode);demo('tryamm:streetverse-injury-visual-mode',{mode})}} style={{display:'block',minHeight:40,width:'100%',color:'#111'}}>
+      <option value="off">Off</option><option value="minimal">Minimal</option><option value="standard">Standard</option>
+     </select>
+    </label>
+    <small style={{display:'block',marginTop:5}}>Tests are local cosmetic demonstrations, never multiplayer damage authority.</small>
+   </section>}
    <small style={{display:'block',marginTop:6,color:'#c4d1e5'}}>Rig loaded does not certify likeness, bone retargeting or full gameplay.</small>
    <small style={{display:'block',marginTop:6,color:'#c4d1e5'}}>Fictional RPG damage; not medical guidance</small>
   </div>}
