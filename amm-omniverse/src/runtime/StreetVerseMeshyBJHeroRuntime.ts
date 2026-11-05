@@ -510,6 +510,35 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       playGesture(detail.gesture)
     }
     window.addEventListener('tryamm:bj-gesture',onGesture)
+    const injuryClipPatterns:Record<'hit-react'|'hurt'|'downed',RegExp[]>={
+      'hit-react':[/hit.?react/i,/recoil/i,/flinch/i],
+      'hurt':[/hurt/i,/wound/i,/injur/i],
+      'downed':[/downed/i,/collapse/i,/knock.?out/i,/fall.?down/i],
+    }
+    const onRigInjuryReaction=(event:Event)=>{
+      const detail=(event as CustomEvent<{characterId?:string;reaction?:string}>).detail||{}
+      if(detail.characterId&&detail.characterId!==BJ_MESHY_V6_ASSET.characterId)return
+      if(detail.reaction==='idle'){
+        gestureUntil=0
+        if(gestureAction){gestureAction.fadeOut(.15);gestureAction=null}
+        activeAction=null;activeMotion=null
+        return
+      }
+      if(detail.reaction!=='hit-react'&&detail.reaction!=='hurt'&&detail.reaction!=='downed')return
+      const clip=clips.find(item=>injuryClipPatterns[detail.reaction as keyof typeof injuryClipPatterns].some(pattern=>pattern.test(item.name)))
+      if(!mixer||!clip)return
+      const action=mixer.clipAction(clip)
+      if(gestureAction&&gestureAction!==action)gestureAction.fadeOut(.12)
+      if(activeAction&&activeAction!==action)activeAction.fadeOut(.12)
+      action.reset().setLoop(THREE.LoopOnce,1)
+      action.clampWhenFinished=detail.reaction==='downed'
+      action.setEffectiveTimeScale(1);action.setEffectiveWeight(1)
+      action.fadeIn(.12).play()
+      gestureAction=action;activeAction=action;activeMotion=null
+      gestureUntil=detail.reaction==='downed'?Number.POSITIVE_INFINITY:performance.now()+clip.duration*1000+150
+      window.dispatchEvent(new CustomEvent('tryamm:streetverse-rig-reaction-clip',{detail:{characterId:'bj-stubbs',reaction:detail.reaction,clipName:clip.name,source:'actual-glb-clip'}}))
+    }
+    window.addEventListener('tryamm:streetverse-rig-reaction',onRigInjuryReaction)
     let lastLifeStateAt=0
 
     const setMotion=(motion:Motion)=>{
@@ -632,7 +661,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       playGesture,
       tick,
       dispose:()=>{
-        window.removeEventListener('tryamm:bj-gesture',onGesture)
+        window.removeEventListener('tryamm:bj-gesture',onGesture);window.removeEventListener('tryamm:streetverse-rig-reaction',onRigInjuryReaction)
         window.removeEventListener('tryamm:character-face-pose',onFacePose)
         mixer?.stopAllAction()
         shadowGeometry.dispose();shadowMaterial.dispose()

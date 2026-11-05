@@ -13,6 +13,7 @@ const BUILDINGS=[
 ]
 const PEOPLE=[{left:'13%',top:'39%'},{left:'21%',top:'53%'},{left:'77%',top:'45%'},{left:'84%',top:'61%'},{left:'63%',top:'34%'}]
 const SAFE_CAR_ID='safe-starter-car'
+const FIRST_GUIDE={id:'first-journey-guide',x:60,y:68,label:'Chicago Guide'}
 
 type Pos={x:number;y:number}
 type Saved={x?:number;y?:number;vehicle?:boolean;car?:Pos;heading?:number;visited?:string[]}
@@ -40,6 +41,9 @@ export default function StreetVerseMobilePlayableWorld({onClose}:{onClose:()=>vo
  const forwardShift=useMemo(()=>clamp((68-pos.y)*.3,-18,18),[pos.y])
  const carDistance=useMemo(()=>Math.hypot(pos.x-carPos.x,pos.y-carPos.y),[pos,carPos])
  const nearMission=useMemo(()=>MISSIONS.find(m=>Math.hypot(pos.x-m.x,pos.y-m.y)<6)||null,[pos])
+ const guideDistance=useMemo(()=>Math.hypot(pos.x-FIRST_GUIDE.x,pos.y-FIRST_GUIDE.y),[pos])
+ const guideLeft=useMemo(()=>clamp(50+(FIRST_GUIDE.x-pos.x)*1.15,7,93),[pos])
+ const guideTop=useMemo(()=>clamp(61+(FIRST_GUIDE.y-pos.y)*.75,25,82),[pos])
  const parkedLeft=useMemo(()=>clamp(50+(carPos.x-pos.x)*1.15,9,91),[carPos.x,pos.x])
  const parkedTop=useMemo(()=>clamp(61+(carPos.y-pos.y)*.75,28,78),[carPos.y,pos.y])
 
@@ -130,6 +134,23 @@ export default function StreetVerseMobilePlayableWorld({onClose}:{onClose:()=>vo
  },[])
 
  useEffect(()=>{
+  const onNPCRequest=(event:Event)=>{
+   const request=(event as CustomEvent<{missionId?:string}>).detail||{}
+   if(request.missionId!=='iphone-first-journey')return
+   const distance=Math.hypot(posRef.current.x-FIRST_GUIDE.x,posRef.current.y-FIRST_GUIDE.y)
+   if(vehicleRef.current||distance>8){
+    setMessage(vehicleRef.current?'Exit the vehicle before talking to the Chicago Guide.':`Chicago Guide is ${Math.round(distance)} meters away. Walk to the guide marker.`)
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-npc-interaction-denied',{detail:{npcId:FIRST_GUIDE.id,reason:vehicleRef.current?'in-vehicle':'too-far',distance,source:'mobile-safe-world'}}))
+    return
+   }
+   setMessage('Chicago Guide nearby • choose a response in the mission action dock.')
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-context-interaction',{detail:{kind:'talk',action:'TALK',npcId:FIRST_GUIDE.id,missionId:request.missionId,source:'mobile-safe-world',distance}}))
+  }
+  window.addEventListener('tryamm:streetverse-npc-interaction-request',onNPCRequest)
+  return()=>window.removeEventListener('tryamm:streetverse-npc-interaction-request',onNPCRequest)
+ },[])
+
+ useEffect(()=>{
   const onShellInput=(event:Event)=>{const d=(event as CustomEvent<{throttle?:number;brake?:number;steer?:number}>).detail||{};held.current.up=Number(d.throttle||0)>.05;held.current.down=Number(d.brake||0)>.05;held.current.left=Number(d.steer||0)<-.1;held.current.right=Number(d.steer||0)>.1}
   window.addEventListener('tryamm:streetverse-vehicle-input',onShellInput)
   return()=>window.removeEventListener('tryamm:streetverse-vehicle-input',onShellInput)
@@ -162,6 +183,11 @@ export default function StreetVerseMobilePlayableWorld({onClose}:{onClose:()=>vo
     {PEOPLE.map((p,i)=><div key={i} style={{position:'absolute',left:p.left,top:p.top,width:14,height:32,zIndex:8,transform:`translateX(${roadShift*(i%2?.08:-.08)}px)`}}><div style={{width:11,height:11,borderRadius:'50%',background:i%2?'#6f442f':'#b57651',margin:'0 auto'}}/><div style={{width:13,height:16,borderRadius:'5px 5px 2px 2px',background:i%3===0?'#ff7ce8':i%3===1?'#7fe8c7':'#ffd166',margin:'1px auto'}}/><div style={{width:3,height:8,background:'#111',display:'inline-block',marginLeft:3}}/><div style={{width:3,height:8,background:'#111',display:'inline-block',marginLeft:3}}/></div>)}
     <div aria-label="Dog" style={{position:'absolute',right:'15%',top:'58%',zIndex:8,fontSize:22,filter:'drop-shadow(0 3px 3px #0008)'}}>🐕</div>
     <div style={{position:'absolute',left:'4%',top:'11%',padding:'6px 9px',borderRadius:7,background:'#0a3150',border:'2px solid #dceeff',fontSize:9,fontWeight:900}}>WACKER DR</div><div style={{position:'absolute',right:'5%',top:'15%',padding:'6px 9px',borderRadius:7,background:'#123d26',border:'2px solid #e4ffe8',fontSize:9,fontWeight:900}}>ALL AMERICAN MARKETPLACE</div>
+    {!vehicle&&<div aria-label={`Chicago Guide NPC ${Math.round(guideDistance)} meters away`} style={{position:'absolute',left:`${guideLeft}%`,top:`${guideTop}%`,transform:'translate(-50%,-50%)',zIndex:13,textAlign:'center',pointerEvents:'none'}}>
+      <div style={{width:17,height:17,margin:'auto',borderRadius:'50%',background:'#a86643',border:'2px solid #eff'}}/>
+      <div style={{width:22,height:31,margin:'2px auto',borderRadius:7,background:'#f3a6ff',border:'2px solid #fff'}}/>
+      <span style={{display:'block',padding:'3px 6px',borderRadius:6,background:'#040d19de',fontSize:9,color:'#fff'}}>CHICAGO GUIDE • ${Math.round(guideDistance)}m</span>
+    </div>}
     {!vehicle&&<div aria-label={`Parked blue drivable car ${Math.round(carDistance)} meters away`} style={{position:'absolute',left:`${parkedLeft}%`,top:`${parkedTop}%`,width:28,height:44,transform:`translate(-50%,-50%) rotate(${heading}deg)`,zIndex:10,borderRadius:8,background:'#36a9e8',border:'2px solid #dff8ff',boxShadow:'0 0 16px #36a9e888,0 8px 12px #0008'}}><div style={{margin:'5px 4px',height:10,borderRadius:3,background:'#bde8ff'}}/></div>}
     {vehicle?<div aria-label="Player driving blue StreetVerse car" style={{position:'absolute',left:'50%',bottom:'16%',width:48,height:68,transform:`translateX(-50%) rotate(${heading}deg)`,zIndex:12,borderRadius:12,background:'#36a9e8',border:'3px solid #fff',boxShadow:'0 0 24px #36a9e8aa,0 12px 18px #0009'}}><div style={{margin:'7px 6px',height:18,borderRadius:5,background:'#bde8ff'}}/><div style={{position:'absolute',left:-5,top:16,width:7,height:18,borderRadius:4,background:'#111'}}/><div style={{position:'absolute',right:-5,top:16,width:7,height:18,borderRadius:4,background:'#111'}}/><div style={{position:'absolute',left:-5,bottom:10,width:7,height:18,borderRadius:4,background:'#111'}}/><div style={{position:'absolute',right:-5,bottom:10,width:7,height:18,borderRadius:4,background:'#111'}}/></div>:<div aria-label="Player" style={{position:'absolute',left:'50%',bottom:'17%',width:30,height:50,transform:'translateX(-50%)',zIndex:12}}><div style={{position:'absolute',left:8,top:0,width:15,height:15,borderRadius:'50%',background:'#8b5a3c',border:'2px solid #e9c6aa'}}/><div style={{position:'absolute',left:5,top:15,width:21,height:25,borderRadius:'8px 8px 5px 5px',background:'#23d9f4',border:'2px solid #fff',boxShadow:'0 0 20px #23d9f4aa'}}/><div style={{position:'absolute',left:8,top:39,width:6,height:11,background:'#111',borderRadius:3}}/><div style={{position:'absolute',right:7,top:39,width:6,height:11,background:'#111',borderRadius:3}}/></div>}
     {MISSIONS.map((m,i)=>{const done=visited.includes(m.id);return <div key={m.id} title={m.label} style={{position:'absolute',left:`${18+i*21}%`,top:`${28+(i%2)*13}%`,zIndex:9,textAlign:'center',transform:`translateX(${roadShift*(i%2?.15:-.15)}px)`}}><div style={{width:14,height:14,margin:'auto',borderRadius:'50%',background:done?'#55e88a':'#ffd65a',border:'2px solid #fff',boxShadow:done?'0 0 0 8px #55e88a22,0 0 20px #55e88a':'0 0 0 8px #ffd65a33,0 0 25px #ffd65a'}}>{done?<span style={{fontSize:9,color:'#06120b'}}>✓</span>:null}</div><div style={{marginTop:7,padding:'4px 6px',borderRadius:7,background:'#030914d9',fontSize:8,fontWeight:800,whiteSpace:'nowrap'}}>{done?'✓ ':''}{m.label}</div></div>})}

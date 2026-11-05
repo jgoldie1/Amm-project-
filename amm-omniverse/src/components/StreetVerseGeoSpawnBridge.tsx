@@ -12,6 +12,7 @@ import {installStreetVerseFirstRideLoveStoryRuntime} from '../runtime/StreetVers
 import {installStreetVerseCabinLifeRuntime} from '../runtime/StreetVerseCabinLifeRuntime'
 import {installStreetVersePhysicalVehicleRigRuntime} from '../runtime/StreetVersePhysicalVehicleRigRuntime'
 import {installStreetVerseNPCSocialRuntime} from '../runtime/StreetVerseNPCSocialRuntime'
+import {installStreetVerseFictionalInjuryRuntime} from '../runtime/StreetVerseFictionalInjuryRuntime'
 import {chooseAccessMode} from '../runtime/StreetVerseAccessBridge'
 import {installStreetVersePerformanceDirector} from '../runtime/StreetVersePerformanceDirectorRuntime'
 import {installHolographicInternetBridge} from '../runtime/HolographicInternetGoogloplexBridge'
@@ -29,6 +30,7 @@ import {installOmniAccessibilityGlobalRuntime} from '../runtime/OmniAccessibilit
 import StreetVerseSafeWorld from './StreetVerseSafeWorld'
 import StreetVerseWeatherSync from './StreetVerseWeatherSync'
 import StreetVerseAfterDarkAlpha from './StreetVerseAfterDarkAlpha'
+import StreetVerseBJVitalsHUD from './StreetVerseBJVitalsHUD'
 import StreetVerseWestSideWorldBuilder from './StreetVerseWestSideWorldBuilder'
 import BuildSwarmControl from './BuildSwarmControl'
 import {useGameStore} from '../game/state/useGameStore'
@@ -169,6 +171,20 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  const [quantumMode,setQuantumMode]=useState<QuantumSpeedMode>('balanced')
  const setLocationContext=useGameStore(state=>state.setLocationContext)
  const applyCityConsequence=useGameStore(state=>state.applyCityConsequence)
+ const pendingTaylorTravelRef=useRef(false)
+ // Safe mode can dispatch a travel event before the 3D world has a mounted listener.
+ // Replay the requested route once when the real canvas world reports ready.
+ useEffect(()=>{
+  let replayFrame=0
+  const onWorldReady=(event:Event)=>{
+   const detail=(event as CustomEvent<{mode?:string;canvas?:boolean}>).detail||{}
+   if(!pendingTaylorTravelRef.current||detail.canvas!==true||detail.mode==='mobile-safe')return
+   pendingTaylorTravelRef.current=false
+   replayFrame=window.requestAnimationFrame(()=>window.dispatchEvent(new CustomEvent('tryamm:west-side-route-request',{detail:{x:24,z:-8,missionId:'taylor-single-canvas',source:'streetverse-safe-ready-replay'}})))
+  }
+  window.addEventListener('tryamm:streetverse-world-ready',onWorldReady)
+  return()=>{window.cancelAnimationFrame(replayFrame);window.removeEventListener('tryamm:streetverse-world-ready',onWorldReady)}
+ },[])
  const closingRef=useRef(false)
  const closeStreetVerse=useCallback(()=>{
   if(closingRef.current)return
@@ -188,6 +204,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  useLayoutEffect(()=>{installStreetVerseCabinLifeRuntime()},[])
  useLayoutEffect(()=>{installStreetVersePhysicalVehicleRigRuntime()},[])
  useLayoutEffect(()=>{installStreetVerseNPCSocialRuntime()},[])
+ useLayoutEffect(()=>installStreetVerseFictionalInjuryRuntime(),[])
  useLayoutEffect(()=>installStreetVersePerformanceDirector(),[])
  useLayoutEffect(()=>installHolographicInternetBridge(),[])
  useLayoutEffect(()=>installStreetVerseAbracadabraGeniiRuntime(),[])
@@ -282,10 +299,24 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
     {graphicsStatus&&<div role="status" style={{fontSize:11,marginTop:7}}>{graphicsStatus}</div>}
   </div>}
   <StreetVerseWestSideWorldBuilder/>
+  <button data-streetverse-travel="true" aria-label="Travel to Taylor Street UIC Medical District"
+   onClick={()=>{
+     window.dispatchEvent(new CustomEvent('tryamm:west-side-route-request',{detail:{x:24,z:-8,missionId:'taylor-single-canvas',source:'streetverse-safe-travel-shortcut'}}))
+     if(hasUsableWebGL()){
+      pendingTaylorTravelRef.current=true
+      setGraphicsStatus('Opening Taylor Street in 3D…')
+      setNearWestOpen(true)
+      setRetryGraphics(true)
+     }else{
+      setGraphicsStatus('Taylor Street travel requested. 3D is unavailable here; select RETRY 3D CHICAGO once your browser supports WebGL.')
+     }
+   }}
+   style={{position:'fixed',top:118,right:12,zIndex:14970,border:'1px solid #6ee7ff',borderRadius:12,background:'#062333e8',color:'#fff',padding:'10px 12px',fontWeight:900,minHeight:44}}>TAYLOR / UIC</button>
   <BuildSwarmControl/>
   <StreetVerseWeatherSync/>
   <StreetVerseSafeWorld onClose={closeStreetVerse} communityAreaNumber={prepared.destination?.communityAreaNumber}/>
   <StreetVerseAfterDarkAlpha/>
+  <StreetVerseBJVitalsHUD/>
   <Suspense fallback={null}><StreetVerseReelEventBridge/><StreetVerseCreatorEarnDock/><StreetVerseActionCarousel/><StreetVerseTouchDriveControls/><StreetVerseMissionWorldBridge/><HoloMobilityLauncher/><StreetVerseFaithChronoPortal/><StreetVerseCoreGameplayDock/><StreetVerseMobileProofDock/></Suspense>
  </>
 
@@ -297,6 +328,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
    <StreetVersePlayableWorld onClose={closeStreetVerse}/>
   </Suspense>
   <StreetVerseAfterDarkAlpha/>
+  <StreetVerseBJVitalsHUD/>
   <Suspense fallback={null}>{mobile?<><StreetVerseReelEventBridge/><StreetVerseActionCarousel/><StreetVerseCreatorEarnDock/></>:<><StreetVerseReelEventBridge/><StreetVerseActionCarousel/><StreetVerseTouchDriveControls/><StreetVerseMissionWorldBridge/><HoloMobilityLauncher/><StreetVerseFaithChronoPortal/><StreetVerseCoreGameplayDock/><StreetVerseCreatorEarnDock/></>}</Suspense>
   {enhancementsReady&&<Suspense fallback={null}><StreetVerseFullWorldOverlays onClose={closeStreetVerse} mapped={prepared.mapped}/></Suspense>}
  </>

@@ -1,0 +1,78 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TRYAMM Cloud Setup Assistant</title>
+<style>:root{font:17px/1.5 system-ui,sans-serif;color-scheme:dark;background:#101021;color:#f9f7ff}body{max-width:850px;margin:auto;padding:1.2rem}a{color:#ccb6ff}section{background:#211c35;border:1px solid #64547c;border-radius:14px;padding:1.3rem;margin:1rem 0}label{display:block;margin:.8rem 0 .25rem;font-weight:600}input,select,textarea,button{font:inherit;box-sizing:border-box;padding:.65rem;border-radius:8px}input,select,textarea{width:100%;background:white;color:#191126;border:2px solid #a798bb}button{border:0;background:#c3b1fb;color:#170e29;font-weight:bold;cursor:pointer;margin:.5rem .5rem .5rem 0;min-height:46px}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:4px solid white;outline-offset:3px}small{color:#e2dbef}li{margin:.6rem 0}.check{display:flex;gap:.5rem;align-items:flex-start}.check input{width:1.4rem;height:1.4rem;flex:none}#status{min-height:2rem}</style></head><body>
+<a href="/website-command-center.html">Website command center</a> · <a href="/quantum-mail.html">Quantum Mail drafts</a> · <a href="/tryamm-brand-studio.html">Brand studio</a><h1>Choose your cloud hosting</h1><p>Keep control of your domain and hosting account. TRYAMM prepares a personalized plan, checks compatibility and helps you review a safe launch.</p>
+<section><form id="cloud">
+<label for="project">Your saved website project</label><select id="project" required><option value="">Sign in and choose a project</option></select>
+<label for="provider">Preferred cloud provider</label><select id="provider"><option value="customer-existing">Keep my existing hosting</option><option value="wordpress-managed">Managed WordPress hosting</option><option value="vercel">Vercel for compatible sites</option><option value="cloudflare">Cloudflare for compatible sites</option><option value="other">Another cloud provider</option></select>
+<button type="button" id="tryammPilot">Use TRYAMM LLC pilot settings</button><p><small>This selects the existing TRYAMM pilot domain and does not confirm ownership, purchase hosting or change any records.</small></p><label for="domain">Custom domain, if owned (optional)</label><input id="domain" placeholder="mybusiness.com" maxlength="253" autocomplete="off">
+<label for="notes">Special setup requirements (no secrets)</label><textarea id="notes" maxlength="500" rows="3" placeholder="I need email, backups, a store and my existing domain"></textarea>
+<label class="check"><input id="owns" type="checkbox" required> I own or control the hosting account to be used.</label>
+<label class="check"><input id="approve" type="checkbox" required> I authorize a setup plan only; no charges or DNS changes.</label>
+<button type="submit">Save cloud setup plan</button><button type="button" id="preview">Preview provider checklist</button>
+<p id="status" role="status" aria-live="polite"></p></form></section>
+<section><h2>One-click domain and DNS setup preparation</h2>
+<p>Prepare connection instructions or a registrar transfer checklist for the saved provider and domain. This does not make DNS changes or initiate a transfer.</p>
+<label for="domainAction">What do you want to do?</label><select id="domainAction"><option value="connect-existing-domain">Connect my existing domain without transferring registrar</option><option value="transfer-registration">Transfer domain registration to a new registrar</option></select>
+<label class="check"><input id="domainConfirmed" type="checkbox"> I control this domain and can authorize DNS changes</label>
+<label class="check"><input id="emailConfirmed" type="checkbox"> I understand current business email, DNS and subdomains must be preserved</label>
+<button type="button" id="prepareDomain">One-click: prepare domain setup</button>
+<p id="domainStatus" role="status" aria-live="polite"></p><ol id="domainSteps"></ol><small>Domain registrar transfer and connecting a domain to a website are different operations. Transfer fees or locks may apply. Never enter domain transfer codes or passwords here.</small>
+</section>
+<section><h2>Quantum Mail — business email</h2><p>Keep existing mail or select a provider for professional addresses at your business domain. No mailbox or subscription is created here.</p>
+<label for="mailProvider">Mail provider</label><select id="mailProvider"><option value="keep-existing">Keep my current business email</option><option value="google-workspace">Google Workspace</option><option value="microsoft-365">Microsoft 365 Business</option><option value="zoho-mail">Zoho Mail</option><option value="other">Another provider</option></select>
+<label for="mailAliases">Requested address names (comma separated; max 8)</label><input id="mailAliases" placeholder="info, support, sales" maxlength="240">
+<label class="check"><input id="mailPreserve" type="checkbox"> I understand all existing email addresses and DNS records must be preserved until verified.</label>
+<button type="button" id="prepareEmail">Prepare my Quantum Mail setup</button>
+<label for="mailLocalPart">Request a private business mailbox name</label><input id="mailLocalPart" placeholder="info" maxlength="63">
+<button type="button" id="requestMailbox">Request mailbox — pending verification</button><p id="mailStatus" role="status" aria-live="polite"></p><ol id="mailSteps"></ol>
+<small>Business email service plans are billed by the selected provider unless separately contracted. No credentials, passwords or transfer codes are collected.</small></section>
+<section><h2>Provider setup checklist</h2><ol id="steps"><li>Choose your provider to see a planning checklist.</li></ol><p><small>Do not submit your password, API key or recovery codes. You will complete any hosting subscription in your own provider account, with explicit approval. Hosting fees and domains are separate from TRYAMM website packages.</small></p></section>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);let projectRevisions=new Map(),providerData={};
+const token=()=>localStorage.getItem('tryamm_token')||'';
+async function api(path,opt={}){if(!token())throw Error('Sign in through the TRYAMM account before saving cloud preferences.');const res=await fetch(path,{...opt,headers:{Authorization:'Bearer '+token(),'Content-Type':'application/json'}}),data=await res.json().catch(()=>({}));if(!res.ok)throw Error(data.error||'Cloud setup unavailable');return data}
+function draw(){const p=providerData[$('provider').value];$('steps').replaceChildren();for(const step of p?.steps||[]){const li=document.createElement('li');li.textContent=step;$('steps').append(li)}}
+async function init(){try{const results=await Promise.all([fetch('/api/website-os/cloud/providers').then(x=>x.json()),api('/api/website-os/projects')]);providerData=Object.fromEntries((results[0].providers||[]).map(x=>[x.id,x]));$('project').replaceChildren(new Option('Choose a saved draft',''));for(const p of results[1].projects||[]){if(p.status==='draft'){$('project').add(new Option(p.brand.businessName,p.id));projectRevisions.set(p.id,p.revision)}}draw()}catch(e){$('status').textContent=e.message}}
+$('provider').onchange=draw;$('preview').onclick=()=>{draw();$('status').textContent='Preview only. Nothing has been purchased or deployed.'};
+$('cloud').onsubmit=async e=>{e.preventDefault();try{const id=$('project').value;if(!id)throw Error('Choose a saved website draft first');const data=await api('/api/website-os/cloud/'+encodeURIComponent(id),{method:'PUT',body:JSON.stringify({provider:$('provider').value,domain:$('domain').value,notes:$('notes').value,ownsAccount:$('owns').checked,authorizesPlanning:$('approve').checked,revision:projectRevisions.get(id)})});projectRevisions.set(id,data.revision);$('status').textContent='Cloud setup checklist saved. No hosting subscription, DNS change or launch occurred.';}catch(error){$('status').textContent=error.message}};
+$('prepareDomain').onclick=async()=>{
+ try{
+ const id=$('project').value;if(!id)throw Error('Choose your saved project first');
+ const provider=$('provider').value,domain=$('domain').value.trim();
+ if(!domain)throw Error('Enter a domain first');
+ const result=await api('/api/website-os/domain/prepare',{method:'POST',body:JSON.stringify({
+  projectId:id,provider,domain,operation:$('domainAction').value,domainOwnershipConfirmed:$('domainConfirmed').checked,
+  preserveEmailConfirmed:$('emailConfirmed').checked,revision:projectRevisions.get(id),
+  notes:'',ownsAccount:true,authorizesPlanning:true
+ })});
+ projectRevisions.set(id,result.revision);
+ $('domainSteps').replaceChildren();
+ for(const step of result.domainPlan.checklist){const li=document.createElement('li');li.textContent=step;$('domainSteps').append(li)}
+ $('domainStatus').textContent='Plan saved. NO DNS change or registrar transfer was made. Confirm exact provider records and review before cutover.';
+ }catch(error){$('domainStatus').textContent=error.message}
+};
+$('prepareEmail').onclick=async()=>{try{
+ const id=$('project').value;if(!id)throw Error('Choose a saved brand project');
+ const names=$('mailAliases').value.split(',').map(x=>x.trim()).filter(Boolean);
+ const result=await api('/api/website-os/business-email/prepare',{method:'POST',body:JSON.stringify({
+  projectId:id,provider:$('provider').value,domain:$('domain').value.trim(),emailProvider:$('mailProvider').value,
+  aliases:names,confirmExistingMail:$('mailPreserve').checked,revision:projectRevisions.get(id),
+  ownsAccount:true,authorizesPlanning:true
+ })});
+ projectRevisions.set(id,result.revision);$('mailSteps').replaceChildren();
+ for(const item of result.plan.steps){const li=document.createElement('li');li.textContent=item.label;$('mailSteps').append(li)}
+ $('mailStatus').textContent='Business email plan saved. No DNS, existing inbox, or mail subscription was changed.';
+ }catch(e){$('mailStatus').textContent=e.message}
+};
+$('requestMailbox').onclick=async()=>{try{
+ const projectId=$('project').value,domain=$('domain').value.trim();
+ if(!projectId||!domain)throw Error('Save your domain cloud plan and select the correct project first');
+ const localPart=$('mailLocalPart').value.trim().toLowerCase();
+ const result=await api('/api/mail/v2/accounts/request',{method:'POST',body:JSON.stringify({projectId,localPart,domainControlConfirmed:true})});
+ $('mailStatus').textContent=result.account.address+' requested. NOT ACTIVE until independently verified; no email is sent or received.';
+ }catch(e){$('mailStatus').textContent=e.message}
+};
+$('tryammPilot').onclick=()=>{$('provider').value='vercel';$('domain').value='tryamm.online';$('notes').value='TRYAMM LLC existing domain. Preserve current email and use mail.tryamm.online only after authorization.';draw();$('status').textContent='TRYAMM pilot selected. Ownership verification, project linkage and mail DNS approval are still required.'};
+init();
+</script></body></html>

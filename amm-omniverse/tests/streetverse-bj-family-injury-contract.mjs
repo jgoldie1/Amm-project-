@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const root=new URL('../src/',import.meta.url);
+const body=fs.readFileSync(new URL('runtime/StreetVerseFictionalInjurySystem.ts',root),'utf8');
+const bridge=fs.readFileSync(new URL('runtime/StreetVerseFictionalInjuryRuntime.ts',root),'utf8');
+const game=fs.readFileSync(new URL('components/StreetVerseGeoSpawnBridge.tsx',root),'utf8');
+const bj=fs.readFileSync(new URL('runtime/StreetVerseMeshyBJHeroRuntime.ts',root),'utf8');
+const cast=fs.readFileSync(new URL('runtime/StreetVersePlayableCharactersRuntime.ts',root),'utf8');
+for(const word of ['bleeding:boolean','mobility:number','injuryPresentation','applyFictionalFirstAid','nonGraphic:true','allowRealisticGore:false'])assert.ok(body.includes(word),`Missing fictional injury contract: ${word}`);
+assert.ok(bridge.includes("d.safeZone!==true"),'Fictional recovery must require a safe-zone event');
+assert.ok(game.includes('installStreetVerseFictionalInjuryRuntime()'),'StreetVerse must install fictional injury runtime');
+assert.ok(bj.includes('GLTFLoader')&&bj.includes('AnimationMixer')&&bj.includes('morphTargetNames'),'BJ 3D rig and expression loader must remain preserved');
+assert.ok(cast.includes('STREETVERSE_FAMILY_CHARACTER_PRODUCTION'),'Existing family and friend roster must remain connected');
+const hud=fs.readFileSync(new URL('components/StreetVerseBJVitalsHUD.tsx',root),'utf8');
+assert.ok(game.includes('<StreetVerseBJVitalsHUD/>'),'Fictional BJ vitals HUD must render in StreetVerse');
+assert.ok(hud.includes('tryamm:bj-meshy-v6-ready')&&hud.includes('tryamm:bj-meshy-v6-error'),'HUD must report real GLB loading outcome');
+assert.ok(hud.includes('tryamm:streetverse-bj-visible-version'),'HUD must recognize V15 render readiness events');
+console.log('StreetVerse BJ rig, family roster and non-graphic injury framework contract PASS');

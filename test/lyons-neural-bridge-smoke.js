@@ -1,0 +1,15 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {classifyFrame,createSession}=require('../lib/lyons-neural-bridge');
+const frame=(signal,noise,timestamp,control='attention')=>({signal,noise,timestamp,control});
+assert.equal(classifyFrame(frame(.95,.5,1)).state,'REJECTED_NOISY');
+assert.equal(classifyFrame(frame(.87,.1,1)).action,'select');
+assert.equal(classifyFrame(frame(.72,.1,1)).action,'focus');
+assert.equal(classifyFrame(frame(.4,.1,1)).action,null);
+assert.equal(classifyFrame(frame(.8,.1,1,'cancel')).action,'cancel');
+assert.equal(classifyFrame(frame(2,.1,1)).state,'INVALID');
+const session=createSession();
+assert.equal(session.receive(frame(.9,.05,1000)).action,'select');
+assert.equal(session.receive(frame(.9,.05,1200)).state,'DEBOUNCED');
+assert.equal(session.receive(frame(.9,.05,1800)).executed,false);
+console.log('Lyons Phase 1 neural simulator smoke passed');

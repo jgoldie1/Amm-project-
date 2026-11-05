@@ -1,0 +1,155 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TRYAMM Website OS Command Center</title>
+<style>:root{font:17px/1.5 system-ui,sans-serif;color-scheme:dark;background:#100e1d;color:white}body{max-width:970px;margin:auto;padding:1.2rem}a{color:#c9b4ff}section{background:#211c33;padding:1.2rem;border:1px solid #645583;border-radius:14px;margin:1rem 0}label{display:block;margin:.8rem 0 .3rem;font-weight:650}input,select,textarea,button{font:inherit;padding:.75rem;box-sizing:border-box;border-radius:8px}input,select,textarea{width:100%;background:#fff;color:#191027;border:2px solid #9e87c0}button{background:#bca4fc;color:#190f29;border:0;font-weight:bold;min-height:44px;cursor:pointer;margin:.5rem .5rem .5rem 0}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:4px solid white;outline-offset:3px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem}article{border-top:1px solid #6c5988;margin-top:.7rem;padding-top:.7rem}small{color:#dcd2ed}#message{min-height:2rem}</style></head><body>
+<a href="/tryamm-brand-studio.html">Brand Studio</a> · <a href="/quantum-mail.html">Quantum Mail drafts</a> · <a href="/tryamm-cloud-setup.html">Choose Cloud Hosting</a> · <a href="/ai-cafe.html">AI Café</a><h1>TRYAMM Website Command Center</h1><p id="role">Sign in to view your private projects and migration requests.</p>
+<div class="grid"><section><h2>My projects</h2><p><a href="/tryamm-brand-studio.html">Create, customize or reopen a brand project</a></p><div id="projects"></div></section><section><h2>Transfer a website you own</h2><form id="migration">
+<label for="siteUrl">Existing HTTPS website</label><input id="siteUrl" required type="url" placeholder="https://mybusiness.com">
+<label for="platform">Existing platform</label><select id="platform"><option value="wordpress-org">WordPress.org</option><option value="wordpress-com">WordPress.com</option><option value="shopify">Shopify</option><option value="wix">Wix</option><option value="squarespace">Squarespace</option><option value="static-html">Static HTML</option><option value="other">Other</option></select>
+<label for="target">Destination</label><select id="target"><option value="tryamm-paid">TRYAMM paid site</option><option value="streetverse">StreetVerse experience</option><option value="both">Both</option></select>
+<label for="business">Business name</label><input id="business" maxlength="120">
+<label><input type="checkbox" id="owns" required> I own this site or have written migration permission.</label>
+<label><input type="checkbox" id="consent" required> I consent to TRYAMM reviewing my migration request.</label>
+<button type="submit">Submit migration request</button></form></section></div>
+<section><h2>Migration tracking</h2><div id="requests"></div><p id="message" role="status" aria-live="polite"></p><small>No site is copied, purchased or deployed when a request is submitted. Original content, images, licenses, domains and redirects require review.</small></section>
+<section><h2>Holo Reel → Customer Sales Campaign</h2>
+<p>Create an owner-controlled campaign tied to your existing website project. Only approved campaigns can collect inquiries. Payments and sales attribution remain blocked until verified.</p>
+<form id="campaignForm">
+<label for="campaignProject">Website project</label><select id="campaignProject" required><option value="">Choose your owned project</option></select>
+<label for="campaignName">Campaign name</label><input id="campaignName" required maxlength="120" placeholder="TRYAMM Website Launch">
+<label for="campaignOffer">Offer or service</label><textarea id="campaignOffer" required maxlength="200" placeholder="Describe your confirmed service"></textarea>
+<label for="campaignLanding">Verified HTTPS storefront URL</label><input id="campaignLanding" type="url" required maxlength="500" placeholder="https://your-site.example">
+<button type="submit">Create private campaign draft</button>
+</form><button id="refreshCampaigns">Refresh campaign status</button>
+<div id="campaigns" role="status" aria-live="polite"></div></section>
+<section><h2>Website Order Tracker</h2><p>Track the quote and delivery stages for your website projects. No payment is requested through this panel.</p><button id="refreshOrders" type="button">Refresh my orders</button><div id="orderList" role="status" aria-live="polite"></div></section><section id="owner" hidden><h2>Owner command center</h2><p>Review all customer requests and approved quotes before payment and fulfillment.</p><button id="refreshOwner">Refresh owner review queue</button><div id="reviewQueue"></div><p><a href="/ai-cafe.html">AI Café sales intake</a> · <a href="/tryamm-brand-studio.html">Website preview editor</a></p></section>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const token=()=>localStorage.getItem('tryamm_token')||'';
+const escape=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function api(p,opt={}){if(!token())throw Error('Sign in through your TRYAMM account first');const response=await fetch(p,{...opt,headers:{'Content-Type':'application/json',Authorization:'Bearer '+token()}});const data=await response.json().catch(()=>({}));if(!response.ok)throw Error(data.error||'Request failed');return data}
+async function refresh(){
+ try{
+ const [p,m]=await Promise.all([api('/api/website-os/projects'),api('/api/website-os/command-center')]);
+ const campaignSelect=$('campaignProject');campaignSelect.replaceChildren(new Option('Choose your owned project',''));for(const pItem of p.projects){campaignSelect.add(new Option(pItem.brand.businessName,pItem.id))}
+ $('role').textContent=m.role==='owner'?'Owner command center':'Customer command center';
+ $('owner').hidden=m.role!=='owner';
+ $('projects').innerHTML=p.projects.length?p.projects.map(x=>'<article><strong>'+escape(x.brand.businessName)+'</strong><p>'+escape(x.status)+'</p></article>').join(''):'No cloud projects saved yet.';
+ $('requests').innerHTML=m.requests.length?m.requests.map(x=>'<article><strong>'+escape(x.businessName||x.sourceUrl)+'</strong><p>'+escape(x.target)+' · '+escape(x.status)+'</p></article>').join(''):'No migration requests.';
+ }catch(e){$('message').textContent=e.message}
+}
+$('migration').addEventListener('submit',async ev=>{ev.preventDefault();try{
+ const input={sourceUrl:$('siteUrl').value,platform:$('platform').value,target:$('target').value,businessName:$('business').value,ownsSite:$('owns').checked,consent:$('consent').checked};
+ await api('/api/website-os/migrations',{method:'POST',body:JSON.stringify(input)});$('message').textContent='Request received for verification. No site has been imported.';await refresh()
+ }catch(e){$('message').textContent=e.message}
+});
+$('refreshOwner').onclick=async()=>{try{const [r,c]=await Promise.all([api('/api/website-os/owner/review-queue'),api('/api/ai-cafe/dashboard')]);$('reviewQueue').textContent=r.projects.length+' brand projects await review. '+c.leads.length+' leads are currently in the sales records. Approve quotes from the authenticated owner API after validating deliverables.'}catch(e){$('reviewQueue').textContent=e.message}};
+async function refreshCampaigns(){try{
+ const r=await api('/api/website-os/funnel/campaigns'),root=$('campaigns');root.replaceChildren();
+ if(!r.campaigns.length){root.textContent='No campaigns yet.';return}
+ for(const c of r.campaigns){
+ const art=document.createElement('article'),title=document.createElement('strong'),desc=document.createElement('p');
+ title.textContent=c.name+' — '+c.status;desc.textContent=c.offer;art.append(title,desc);
+ if(c.status==='approved'){
+ const link=document.createElement('a');link.href='/tryamm-campaign-landing.html?campaign='+encodeURIComponent(c.id);link.textContent='Open the approved campaign landing page';art.append(link)
+ }
+ const btn=document.createElement('button');btn.textContent='Show measured inquiry report';btn.onclick=async()=>{
+  try{const r=await api('/api/website-os/funnel/campaigns/'+encodeURIComponent(c.id)+'/report');
+  const m=r.metrics;const result=document.createElement('p');
+  result.textContent='Received inquiries: '+m.leads+'. Campaign purchases and impressions are not yet verified in this module.';
+  art.append(result)
+  }catch(error){const result=document.createElement('p');result.textContent=error.message;art.append(result)}
+ };art.append(btn);root.append(art)
+ }
+}catch(e){$('campaigns').textContent=e.message}}
+$('campaignForm').onsubmit=async ev=>{ev.preventDefault();try{
+ const result=await api('/api/website-os/funnel/campaigns',{method:'POST',body:JSON.stringify({projectId:$('campaignProject').value,name:$('campaignName').value,offer:$('campaignOffer').value,landingUrl:$('campaignLanding').value})});
+ $('campaigns').textContent='Draft created: '+result.campaign.id+'. Media-rights and customer approval evidence required before activation.';
+ await refreshCampaigns()
+}catch(e){$('campaigns').textContent=e.message}};
+$('refreshCampaigns').onclick=refreshCampaigns;
+async function refreshOrders(){try{
+ const status=await api('/api/website-os/orders/status');
+ if(!status.durableEnabled){$('orderList').textContent='Order storage awaits secure deployment and verification. No payment or delivery is active.';return}
+ const data=await api('/api/website-os/orders');
+ const root=$('orderList');root.replaceChildren();
+ if(!data.orders.length){root.textContent='No trackable website orders yet.';return}
+ for(const order of data.orders){
+  const article=document.createElement('article'),head=document.createElement('strong'),details=document.createElement('p');
+  head.textContent=order.packageId+' — '+order.status;
+  details.textContent='Quoted: '+new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(order.priceCents/100)+'. '+order.description;
+  article.append(head,details);
+  if(order.status==='quote-approved'){
+    const invite=document.createElement('button');invite.textContent='Email private quote for customer acceptance';
+    invite.onclick=async()=>{if(!confirm('Send the approved quote to the customer email on the inquiry? This does not charge anyone.'))return;
+      try{invite.disabled=true;const sent=await api('/api/website-os/orders/'+encodeURIComponent(order.id)+'/request-acceptance',{method:'POST',body:JSON.stringify({confirm:true})});
+       const note=document.createElement('p');note.textContent=sent.sent?'Customer invitation sent. Delivery to inbox not yet verified.': 'Invitation not sent.';article.append(note)
+      }catch(error){invite.disabled=false;const note=document.createElement('p');note.textContent=error.message;article.append(note)}
+    };article.append(invite);
+  }
+  if(!['quote-pending','cancelled'].includes(order.status)){
+   const track=document.createElement('button');track.textContent='Email buyer a private order status link';
+   track.onclick=async()=>{
+    if(!confirm('Send an expiring, read-only status link to the customer email on this order?'))return;
+    try{
+     track.disabled=true;
+     const r=await api('/api/website-os/orders/'+encodeURIComponent(order.id)+'/send-tracking-link',{method:'POST',body:JSON.stringify({confirm:true})});
+     const msg=document.createElement('p');msg.textContent=r.sent?'Status link accepted by email provider. Inbox delivery is not yet confirmed.':'No tracking link sent.';article.append(msg)
+    }catch(e){track.disabled=false;const msg=document.createElement('p');msg.textContent=e.message;article.append(msg)}
+   };article.append(track)
+  }
+  if(['paid-verified','building'].includes(order.status)){
+   const button=document.createElement('button');button.textContent='Submit paid site for customer review';
+   button.onclick=async()=>{const previewUrl=prompt('Enter the tested HTTPS website preview URL');if(!previewUrl)return;
+    if(!confirm('Submit this website preview to the customer for review?'))return;
+    try{const result=await api('/api/website-os/orders/'+encodeURIComponent(order.id)+'/prepare-review',{method:'POST',body:JSON.stringify({confirm:true,previewUrl})});
+    const line=document.createElement('p');line.textContent=result.prepared?'Preview submitted for review. Send the buyer invitation next.':'Review not prepared.';article.append(line)}
+    catch(e){const line=document.createElement('p');line.textContent=e.message;article.append(line)}};
+   article.append(button);
+  }
+  if(order.status==='review-ready'){
+   const invite=document.createElement('button');invite.textContent='Email buyer the website review link';
+   invite.onclick=async()=>{if(!confirm('Email a private preview review link to the original customer?'))return;
+    try{const r=await api('/api/website-os/orders/'+encodeURIComponent(order.id)+'/invite-review',{method:'POST',body:JSON.stringify({confirm:true})});
+    const line=document.createElement('p');line.textContent=r.sent?'Review email accepted by provider; inbox delivery not confirmed.':'Review link not sent.';article.append(line)}
+    catch(e){const line=document.createElement('p');line.textContent=e.message;article.append(line)}};
+   article.append(invite);
+   const finalize=document.createElement('button');finalize.textContent='Finalize approved website delivery';
+   finalize.onclick=async()=>{const reference=prompt('Enter final delivery proof or handoff reference (minimum 12 characters)');if(!reference)return;
+    if(!confirm('Confirm final website handoff? This requires buyer approval and verified payment.'))return;
+    try{const r=await api('/api/website-os/orders/'+encodeURIComponent(order.id)+'/finalize-delivery',{method:'POST',body:JSON.stringify({confirm:true,reference})});
+    const line=document.createElement('p');line.textContent=r.delivered?'Final delivery recorded. Refresh orders to see updated status.':'Delivery not completed.';article.append(line)}
+    catch(e){const line=document.createElement('p');line.textContent=e.message;article.append(line)}};
+   article.append(finalize);
+  }
+  if(order.status==='customer-accepted'||order.status==='payment-pending'){
+   const verify=document.createElement('button');
+   verify.textContent='Check Stripe TEST Checkout status';
+   verify.onclick=async()=>{try{
+    const result=await api('/api/website-os/orders/'+encodeURIComponent(order.id)+'/test-checkout-status');
+    const line=document.createElement('p');line.textContent=
+      'Stripe: '+(result.checkoutStatus||result.status||'not available')+
+      '; payment: '+(result.paymentStatus||'unverified')+
+      '; database verified: '+(result.paymentVerifiedInDatabase?'yes':'no');
+    article.append(line)
+   }catch(error){const line=document.createElement('p');line.textContent=error.message;article.append(line)}};
+   article.append(verify);
+  }
+  if(order.status==='payment-pending'){
+   const email=document.createElement('button');email.textContent='Email customer the TEST payment link';
+   email.onclick=async()=>{if(!confirm('Send an explicitly labeled Stripe TEST checkout link to the customer email? No real payment may be collected.'))return;
+    try{
+     email.disabled=true;
+     const result=await api('/api/website-os/orders/'+encodeURIComponent(order.id)+'/email-test-checkout',{method:'POST',body:JSON.stringify({confirm:true})});
+     const note=document.createElement('p');note.textContent=result.sent?'Test invitation accepted by mail provider; delivery to inbox not yet verified.':'Email was not sent.';article.append(note);
+    }catch(error){email.disabled=false;const note=document.createElement('p');note.textContent=error.message;article.append(note)}
+   };
+   article.append(email)
+  }
+  root.append(article)
+ }
+ }catch(error){$('orderList').textContent=error.message}
+}
+$('refreshOrders').onclick=refreshOrders;
+refresh();
+if(token()){refreshCampaigns();refreshOrders()}
+</script></body></html>

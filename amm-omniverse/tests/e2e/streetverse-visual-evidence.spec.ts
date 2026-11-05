@@ -95,12 +95,12 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await quickMenu.click();
     const menu=page.getByRole('menu',{name:'StreetVerse quick navigation'});
     await expect(menu).toBeVisible();
-    const bjView=page.getByRole('menuitem',{name:/BJ V12 VIEW/});
+    const bjView=page.getByRole('menuitem',{name:/BJ V15 (LOADED|LOAD)|LOAD BJ V15/});
     await expect(bjView).toBeVisible();
     await bjView.click();
     await page.waitForTimeout(1400);
     await page.screenshot({
-      path:testInfo.outputPath('streetverse-bj-v12-character-view.png'),
+      path:testInfo.outputPath('streetverse-bj-v15-character-view.png'),
       fullPage:false,
     });
     await quickMenu.click();
@@ -161,5 +161,29 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await expect(ticketPanel).toBeVisible();
     await expect(page.getByText('No authoritative ticket records loaded. The panel will not invent approvals or access.')).toBeVisible();
     await ticketPanel.screenshot({path:testInfo.outputPath('streetverse-ticket-panel-iphone.png')});
+    await page.getByRole('button',{name:'Close StreetVerse panel'}).click();
+    // A button existing in the DOM is not a playable mission. Verify a real touch
+    // dispatches the single-canvas travel request on the active mobile world.
+    await page.evaluate(()=>{
+      (window as typeof window & {__streetverseTaylorTravel?:string}).__streetverseTaylorTravel='';
+      window.addEventListener('tryamm:west-side-route-request',(e)=>{
+        const detail=(e as CustomEvent<{missionId?:string}>).detail;
+        (window as typeof window & {__streetverseTaylorTravel?:string}).__streetverseTaylorTravel=detail?.missionId||'';
+      },{once:true});
+    });
+    await travel.click();
+    await expect.poll(()=>page.evaluate(()=>(window as typeof window & {__streetverseTaylorTravel?:string}).__streetverseTaylorTravel||''),{timeout:5000}).toBe('taylor-single-canvas');
+    // Verify the real First Ride control starts a mission, not merely opens a menu.
+    await page.evaluate(()=>{
+      (window as typeof window & {__streetverseFirstRideStarted?:boolean}).__streetverseFirstRideStarted=false;
+      window.addEventListener('tryamm:streetverse-first-journey-start',()=>{
+        (window as typeof window & {__streetverseFirstRideStarted?:boolean}).__streetverseFirstRideStarted=true;
+      },{once:true});
+    });
+    await quickMenu.click();
+    await page.getByRole('menuitem',{name:/START FIRST RIDE/}).click();
+    await expect.poll(()=>page.evaluate(()=>(window as typeof window & {__streetverseFirstRideStarted?:boolean}).__streetverseFirstRideStarted===true),{timeout:5000}).toBe(true);
+    await expect(page.getByRole('button',{name:/Start or focus mission REPAIR CAR/i})).toBeVisible({timeout:10000});
+
   });
 });

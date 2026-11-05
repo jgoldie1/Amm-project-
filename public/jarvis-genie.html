@@ -1,0 +1,28 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JARVIS 40 — Genie in the Bottle</title><style>
+:root{font:18px/1.55 system-ui,sans-serif;color-scheme:dark;background:#100d1c;color:white}
+body{max-width:760px;margin:auto;padding:1.2rem}a{color:#c5acff}section{padding:1.25rem;border:1px solid #594787;border-radius:16px;background:#211932}
+textarea,button{font:inherit;min-height:55px;border-radius:10px;padding:.8rem}textarea{display:block;width:100%;box-sizing:border-box;background:white;color:#131020;min-height:110px}button{margin:.5rem .5rem .5rem 0;background:#bca6ff;color:#130d20;font-weight:bold;border:0;cursor:pointer}button:focus-visible,textarea:focus-visible{outline:4px solid white;outline-offset:4px}
+#result{white-space:pre-wrap;word-break:break-word;min-height:5rem}
+</style></head><body><a href="/ai-cafe.html">AI Café</a><h1>JARVIS 40</h1><p>Genie in the Bottle · Mind Over Matter · Owner-controlled command preview</p><section><label for="intent">Tell Jarvis what you want to accomplish</label><textarea id="intent" maxlength="600" placeholder="Show my AI Café leads"></textarea><div><button id="preview">Preview intention</button><button id="voice" type="button">Speak (if available)</button><button id="stop" type="button">Stop listening</button></div><p role="status" aria-live="polite" id="result">Nothing has been sent or executed.</p><small>Preview only. Signing in is required for the server endpoint. No purchases, posting, device control or account changes happen here.</small></section><script>
+const out=document.getElementById('result');let recognition=null;
+document.getElementById('preview').onclick=async()=>{
+  out.textContent='Checking intent…';
+  try{
+    const token=sessionStorage.getItem('tryamm_token')||'';
+    if(!token){out.textContent='Sign in through the main TRYAMM account first. This page does not collect credentials.';return}
+    const response=await fetch('/api/jarvis-genie/intent',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({intent:document.getElementById('intent').value})});
+    if(!response.ok)throw Error('Jarvis preview unavailable ('+response.status+')');
+    const data=await response.json();
+    out.textContent=[data.service||'No target selected',data.message,data.requiresOwnerApproval?'Owner approval required':'Read-only preview',data.status].join('\n');
+  }catch(e){out.textContent='Could not preview intention: '+e.message}
+};
+document.getElementById('voice').onclick=()=>{
+ const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!Speech){out.textContent='Voice input is unavailable in this browser. Use the text box.';return}
+ if(recognition)recognition.abort();recognition=new Speech();recognition.lang=document.documentElement.lang||'en-US';recognition.interimResults=false;
+ recognition.onresult=e=>{document.getElementById('intent').value=e.results[0][0].transcript;out.textContent='Captured. Select Preview intention to review it.'};
+ recognition.onerror=()=>{out.textContent='Voice capture failed. Use the text box.'};recognition.start();
+};
+document.getElementById('stop').onclick=()=>{if(recognition)recognition.abort();out.textContent='Listening stopped.'};
+</script></body></html>

@@ -1,0 +1,30 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="strict-origin-when-cross-origin"><title>TRYAMM — Business Campaign</title>
+<style>:root{font:18px/1.5 system-ui,sans-serif;color-scheme:dark;background:#121126;color:#fcf9ff}body{max-width:800px;margin:auto;padding:1rem}header,section{margin:1rem 0;padding:1.4rem;background:#241c43;border:1px solid #74629c;border-radius:18px}h1{font-size:clamp(2rem,6vw,3.5rem);line-height:1.15}a{color:#cfbcff}label{display:block;margin:.85rem 0 .25rem;font-weight:650}input,textarea,button{font:inherit;padding:.75rem;box-sizing:border-box;border-radius:10px}input,textarea{width:100%;background:white;color:#140e23;border:2px solid #a798cc}textarea{min-height:110px}button{width:100%;min-height:52px;background:#c6afff;color:#170b27;border:0;font-weight:750;cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:4px solid white;outline-offset:3px}.check{display:flex;align-items:start;gap:.7rem;font-weight:400}.check input{width:1.5rem;height:1.5rem;flex:none}small{color:#dcd5f1}.hidden{position:absolute;left:-10000px}</style></head>
+<body><header><a href="/tryamm-website-os.html">TRYAMM Website OS</a><h1 id="brand">Business Campaign</h1><p id="offer">Loading business information…</p><p id="notice" role="status" aria-live="polite"></p></header>
+<section><h2>Request information</h2><form id="lead"><label for="email">Your email</label><input id="email" type="email" required maxlength="200" autocomplete="email">
+<label for="interest">What can this business help you with?</label><textarea id="interest" required maxlength="500"></textarea>
+<div class="hidden" aria-hidden="true"><label for="website">Leave this blank</label><input id="website" tabindex="-1" autocomplete="off"></div>
+<label class="check"><input id="consent" type="checkbox" required> I agree to send this inquiry to the business owner and understand they may contact me about it.</label>
+<label class="check"><input id="marketing" type="checkbox"> I separately agree to receive promotional messages (optional).</label>
+<button type="submit" id="submit" disabled>Send my inquiry</button><p id="result" role="status" aria-live="polite"></p></form><small>No payment is taken here. Never enter passwords, banking details or private medical records.</small></section>
+<script>
+'use strict';
+const $=id=>document.getElementById(id),id=new URLSearchParams(location.search).get('campaign')||'';
+let active=false;
+async function init(){
+ if(!/^[0-9a-f-]{36}$/i.test(id)){$('notice').textContent='Invalid campaign link.';return}
+ try{const r=await fetch('/api/website-os/funnel/public/'+encodeURIComponent(id),{cache:'no-store'}),data=await r.json();
+ if(!r.ok)throw Error(data.error||'Campaign unavailable');
+ const c=data.campaign;$('brand').textContent=c.name;$('offer').textContent=c.offer;document.title=c.name+' — TRYAMM';
+ active=true;$('submit').disabled=false;$('notice').textContent='Contact this business through TRYAMM. The business must review your request before quoting.';
+ }catch(e){$('notice').textContent=e.message}
+}
+$('lead').onsubmit=async ev=>{ev.preventDefault();if(!active||!$('lead').reportValidity())return;
+ $('submit').disabled=true;$('result').textContent='Sending inquiry…';
+ try{const r=await fetch('/api/website-os/funnel/campaigns/'+encodeURIComponent(id)+'/inquire',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+ email:$('email').value,interest:$('interest').value,website:$('website').value,consent:$('consent').checked,marketingOptIn:$('marketing').checked
+ })}),data=await r.json();if(!r.ok)throw Error(data.error||'Inquiry could not be delivered');
+ $('result').textContent='Your request was received. Reference: '+data.leadId+'. No payment has been taken.';$('lead').reset();
+ }catch(e){$('result').textContent=e.message;$('submit').disabled=false}
+};init();
+</script></body></html>

@@ -1,0 +1,43 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TRYAMM Free Starter Website Builder</title>
+<style>
+:root{font:17px/1.55 system-ui,sans-serif;color-scheme:dark;background:#0e1020;color:#f5f2ff}body{max-width:1020px;margin:auto;padding:1.2rem}
+a{color:#cbb8ff}.layout{display:grid;grid-template-columns:1fr 1fr;gap:1rem}@media(max-width:750px){.layout{grid-template-columns:1fr}}
+section{background:#211e36;border:1px solid #60557b;border-radius:14px;padding:1.3rem}
+label{display:block;margin:1rem 0 .25rem;font-weight:600}input,textarea,button{font:inherit;padding:.7rem;border-radius:8px;box-sizing:border-box}input,textarea{width:100%;color:#171325;background:#fff;border:2px solid #a394c5}
+textarea{min-height:85px}button{background:#beacf9;border:0;color:#161021;font-weight:700;cursor:pointer;margin:.5rem .5rem .5rem 0}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:4px solid white;outline-offset:3px}iframe{width:100%;height:420px;background:#fff;border:1px solid #9b8db5;border-radius:12px}
+small{color:#ded8f1}
+</style></head><body><header><a href="/ai-cafe.html">TRYAMM AI Café</a><h1>Free Starter Website Builder</h1><p>Create and download a single-page business website in your browser. No payment or AI subscription is required.</p></header>
+<div class="layout"><section><h2>Business details</h2><form id="builder">
+<label for="business">Business name</label><input id="business" maxlength="80" value="My Business" required>
+<label for="tagline">Headline</label><input id="tagline" maxlength="120" value="Welcome to our business" required>
+<label for="service">What do you offer?</label><textarea id="service" maxlength="500">We help our community with reliable services.</textarea>
+<label for="email">Public business contact email</label><input id="email" type="email" maxlength="200" placeholder="hello@example.com">
+<label for="phone">Public business phone (optional)</label><input id="phone" type="tel" maxlength="40" placeholder="">
+<div><button type="button" id="previewButton">Refresh preview</button><button type="button" id="downloadButton">Download free HTML website</button></div>
+<p role="status" aria-live="polite" id="status"></p></form><small>Your details stay in your browser while editing. The HTML file is free; a public domain, ongoing hosting, ecommerce, bookings, custom branding and ongoing support are not included.</small>
+</section><section><h2>Live preview</h2><iframe id="preview" title="Your website preview" sandbox=""></iframe><p><a href="/ai-cafe.html">Request paid setup, QR, Reel, translations or StreetVerse integration</a></p></section></div>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const escapeHTML=value=>String(value||'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+function website(){
+ const business=escapeHTML($('business').value.trim()),headline=escapeHTML($('tagline').value.trim()),service=escapeHTML($('service').value.trim());
+ const email=$('email').value.trim(),phone=$('phone').value.trim();
+ if(!business||!headline)throw Error('Business name and headline are required.');
+ if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))throw Error('Enter a valid email address.');
+ const emailLink=email?'<a href="mailto:'+encodeURIComponent(email)+'">Email us</a>':'';
+ const tel=phone.replace(/[^+0-9]/g,'');
+ const phoneLink=tel?'<a href="tel:'+escapeHTML(tel)+'">Call us</a>':'';
+ return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="'+headline+'"><title>'+business+'</title><style>body{font:18px/1.6 system-ui,sans-serif;max-width:850px;margin:auto;padding:2rem;color:#171728;background:#faf9ff}header{padding:2rem;background:#241344;color:white;border-radius:18px}h1{margin:0;font-size:clamp(2rem,5vw,3.5rem)}main{padding:1.2rem 0}a{color:#6836ad;padding-right:1.2rem}a:focus-visible{outline:3px solid #6836ad}footer{border-top:1px solid #ddd;padding-top:1rem;color:#555}</style></head><body><header><h1>'+business+'</h1><p>'+headline+'</p></header><main><h2>What we offer</h2><p>'+service+'</p><h2>Contact</h2><p>'+emailLink+' '+phoneLink+'</p></main><footer>Thanks for visiting '+business+'.</footer></body></html>';
+}
+function render(){try{$('preview').srcdoc=website();$('status').textContent='Preview updated.'}catch(e){$('status').textContent=e.message}}
+$('previewButton').onclick=render;
+$('downloadButton').onclick=()=>{
+ try{
+  const file=website(),blob=new Blob([file],{type:'text/html;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='my-free-website.html';a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);$('status').textContent='Free HTML website generated. Open the file in your browser.';
+ }catch(e){$('status').textContent=e.message}
+};
+render();
+</script></body></html>
