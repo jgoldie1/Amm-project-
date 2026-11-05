@@ -86,6 +86,30 @@ async function refreshOrders(){try{
       }catch(error){invite.disabled=false;const note=document.createElement('p');note.textContent=error.message;article.append(note)}
     };article.append(invite);
   }
+  if(order.status==='customer-accepted'||order.status==='payment-pending'){
+   const verify=document.createElement('button');
+   verify.textContent='Check Stripe TEST Checkout status';
+   verify.onclick=async()=>{try{
+    const result=await api('/api/website-os/orders/'+encodeURIComponent(order.id)+'/test-checkout-status');
+    const line=document.createElement('p');line.textContent=
+      'Stripe: '+(result.checkoutStatus||result.status||'not available')+
+      '; payment: '+(result.paymentStatus||'unverified')+
+      '; database verified: '+(result.paymentVerifiedInDatabase?'yes':'no');
+    article.append(line)
+   }catch(error){const line=document.createElement('p');line.textContent=error.message;article.append(line)}};
+   article.append(verify);
+  }
+  if(order.status==='payment-pending'){
+   const email=document.createElement('button');email.textContent='Email customer the TEST payment link';
+   email.onclick=async()=>{if(!confirm('Send an explicitly labeled Stripe TEST checkout link to the customer email? No real payment may be collected.'))return;
+    try{
+     email.disabled=true;
+     const result=await api('/api/website-os/orders/'+encodeURIComponent(order.id)+'/email-test-checkout',{method:'POST',body:JSON.stringify({confirm:true})});
+     const note=document.createElement('p');note.textContent=result.sent?'Test invitation accepted by mail provider; delivery to inbox not yet verified.':'Email was not sent.';article.append(note);
+    }catch(error){email.disabled=false;const note=document.createElement('p');note.textContent=error.message;article.append(note)}
+   };
+   article.append(email)
+  }
   root.append(article)
  }
  }catch(error){$('orderList').textContent=error.message}
