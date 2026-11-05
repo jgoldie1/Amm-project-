@@ -1,0 +1,36 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>TRYAMM — Review Your Website</title>
+<style>:root{font:18px/1.5 system-ui,sans-serif;color-scheme:dark;background:#161027;color:#fff}body{max-width:850px;margin:auto;padding:1.25rem}section{background:#292040;border:1px solid #786297;border-radius:14px;padding:1.3rem;margin:1rem 0}a{color:#d7c4ff;overflow-wrap:anywhere}h1{font-size:clamp(2rem,5vw,3rem)}textarea{width:100%;min-height:100px;border-radius:8px;padding:.8rem;box-sizing:border-box;font:inherit;background:#fff;color:#140d28}button{font:inherit;min-height:48px;padding:.8rem;border-radius:9px;border:0;color:#241337;background:#cfbafc;font-weight:700;margin:.5rem .5rem .5rem 0;cursor:pointer}button:focus-visible,textarea:focus-visible{outline:3px solid white;outline-offset:3px}#status{min-height:2rem}</style></head><body>
+<header><a href="/tryamm-website-os.html">TRYAMM Website OS</a><h1>Review your website preview</h1><p>Inspect the completed work before accepting it. Approval does not create a payment or publish a website.</p></header>
+<section><h2>Website preview</h2><p id="preview">Verifying your private review link…</p><p id="status" role="status" aria-live="polite"></p></section>
+<section><h2>Your decision</h2><label for="notes">Notes for the website owner</label><textarea id="notes" maxlength="1000" placeholder="Describe requested changes or leave an approval note"></textarea>
+<p><button id="approve" disabled>Approve this website preview</button><button id="changes" disabled>Request changes</button></p>
+<p><small>This review is linked to a specific version of the website. The owner still must complete the final delivery handoff.</small></p></section>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);let valid=false;
+const token=(new URLSearchParams(location.hash.replace(/^#/,''))).get('token')||'';
+if(token)history.replaceState(null,'',location.pathname);
+async function api(endpoint,data){
+ const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data),cache:'no-store',referrerPolicy:'no-referrer'});
+ const result=await response.json().catch(()=>({}));if(!response.ok)throw Error(result.error||'Review unavailable');return result;
+}
+async function init(){if(!/^[a-f0-9]{64}$/.test(token)){$('status').textContent='Invalid review link. Request a new one.';return}
+ try{
+ const r=await api('/api/website-os/website-review/preview',{token});
+ const url=new URL(r.review.previewUrl);
+ if(url.protocol!=='https:')throw Error('Preview URL must be HTTPS');
+ const link=document.createElement('a');link.href=url.href;link.target='_blank';link.rel='noopener noreferrer';link.textContent='Open the verified website preview in a new tab';
+ $('preview').replaceChildren(link);valid=true;$('approve').disabled=false;$('changes').disabled=false;
+ $('status').textContent='Preview is available. Check the entire website, including mobile layout and contact forms.';
+ }catch(e){$('status').textContent=e.message}
+}
+async function decide(approve){if(!valid)return;
+ const notes=$('notes').value.trim();if(!approve&&notes.length<10){$('status').textContent='Please describe the requested changes.';return}
+ if(!confirm(approve?'Approve this exact preview version?':'Send change requests to the business?'))return;
+ $('approve').disabled=true;$('changes').disabled=true;
+ try{const result=await api('/api/website-os/website-review/decision',{token,approve,notes});
+ $('status').textContent=result.approved?'Preview approved. The owner must now complete your delivery handoff.':'Changes requested. The site returns to the build stage.';valid=false;
+ }catch(e){$('status').textContent=e.message;$('approve').disabled=false;$('changes').disabled=false}
+}
+$('approve').onclick=()=>decide(true);$('changes').onclick=()=>decide(false);init();
+</script></body></html>
