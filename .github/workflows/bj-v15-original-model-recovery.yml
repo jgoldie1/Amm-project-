@@ -40,3 +40,39 @@ jobs:
           path: bj-v15-original/
           if-no-files-found: error
           retention-days: 14
+      - name: Checkout BJ V15 offline viewer source
+        uses: actions/checkout@v5
+      - name: Install Node 24
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Install Three.js and local viewer bundler
+        working-directory: amm-omniverse
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Bundle Three.js and embed the original BJ GLB for file-open Chrome playback
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p bj-v15-playable
+          cd amm-omniverse
+          ./node_modules/.bin/esbuild tools/bj-v15-offline/viewer.js --bundle --minify --format=iife --platform=browser --target=es2020 --outfile=../bj-v15-playable/viewer.bundle.js
+          cd ..
+          python3 - <<'PY'
+          import base64,pathlib
+          source=pathlib.Path('bj-v15-original/BJ_STUBBS_V15_ACTING_FACE_LOOK_NOD.glb').read_bytes()
+          template=pathlib.Path('amm-omniverse/tools/bj-v15-offline/index.template.html').read_text()
+          assert template.count('__BJ_ORIGINAL_BASE64__')==1
+          page=template.replace('__BJ_ORIGINAL_BASE64__',base64.b64encode(source).decode('ascii'))
+          pathlib.Path('bj-v15-playable/index.html').write_text(page)
+          print('BJ V15 OFFLINE PLAYABLE PACKAGE:',len(page),'HTML characters, with embedded original GLB')
+          PY
+          test -s bj-v15-playable/viewer.bundle.js
+          test -s bj-v15-playable/index.html
+      - name: Provide offline BJ V15 playable ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: bj-stubbs-v15-offline-playable
+          path: bj-v15-playable/
+          if-no-files-found: error
+          retention-days: 14
