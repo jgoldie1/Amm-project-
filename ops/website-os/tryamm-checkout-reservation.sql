@@ -21,7 +21,7 @@ begin
   return jsonb_build_object('attemptId',o.checkout_attempt_id,'sessionId',o.stripe_session_id,'reserved',false);
  end if;
  update public.tryamm_website_orders
- set checkout_attempt_id=extensions.gen_random_uuid(),checkout_reserved_at=now(),updated_at=now()
+ set checkout_attempt_id=pg_catalog.gen_random_uuid(),checkout_reserved_at=now(),updated_at=now()
  where id=o.id returning * into o;
  return jsonb_build_object('attemptId',o.checkout_attempt_id,'sessionId',o.stripe_session_id,'reserved',true);
 end $$;
