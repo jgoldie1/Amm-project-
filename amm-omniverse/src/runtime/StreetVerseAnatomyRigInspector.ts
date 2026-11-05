@@ -79,6 +79,7 @@ export function createStreetVerseAnatomyRigInspector(scene:THREE.Scene,getHero:(
    overlay.position.copy(center)
    overlay.rotation.y=hero.rotation.y
    overlay.scale.setScalar(1)
+   overlay.updateMatrixWorld(true)
    organMeshes.forEach(({mesh,spec})=>{
     const [x,y,z]=spec.offset
     mesh.position.set(x+(mode==='exploded'?Math.sign(x||1)*.48:0),y,z+(mode==='exploded'?.32:0))
