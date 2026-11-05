@@ -23,7 +23,7 @@ export const BJ_MESHY_V6_ASSET={
   certifiedLikeness:false,
 } as const
 
-type Motion='idle'|'walk'|'run'
+type Motion='idle'|'walk'|'run'|'sit'
 export type BJGesture='nod'|'look-around'|'acknowledge'|'converse'|'greet'
 
 type BJFacePose={
@@ -93,6 +93,7 @@ function materializeAnimationMap(clips:readonly THREE.AnimationClip[]){
     idle:find([/idle/i,/stand/i,/breath/i]),
     walk:find([/walk/i,/locomotion/i]),
     run:find([/run/i,/jog/i,/sprint/i]),
+    sit:find([/\b(sit|seated|driver.?seat|driving.?idle)\b/i,/sit.?idle/i]),
   }
 }
 
@@ -514,7 +515,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
 
     const setMotion=(motion:Motion)=>{
       if(!mixer||activeMotion===motion)return
-      const clip=animations[motion]||animations.walk||animations.idle||clips[0]
+      const clip=motion==='sit'?(animations.sit||animations.idle||null):(animations[motion]||animations.walk||animations.idle||clips[0])
       if(!clip)return
       const next=mixer.clipAction(clip)
       next.enabled=true
@@ -535,7 +536,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
         activeAction=null
         activeMotion=null
       }
-      if(!gestureAction)setMotion(state.running?'run':state.moving?'walk':'idle')
+      if(!gestureAction)setMotion(state.seated?'sit':state.running?'run':state.moving?'walk':'idle')
       mixer?.update(dt)
 
       const t=nowMs*.001
@@ -586,6 +587,8 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
           lipSync:true,
           microGesture:true,
           seated:Boolean(state.seated),
+          seatedAnimationAvailable:Boolean(animations.sit),
+          actualAnimationClip:activeAction?.getClip().name||null,
           source:'bj-production-v12-life-layer',
           legacySource:'bj-production-v7-life-layer',
           visualUpgradeSource:'bj-production-v8-life-layer',
