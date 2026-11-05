@@ -36,6 +36,11 @@ export default function StreetVerseCoreGameplayDock(){
   },[])
 
   const missionAction=()=>{
+    if(!mission){
+      dispatchEvent(new CustomEvent('tryamm:streetverse-first-journey-start',{detail:{missionId:'iphone-first-journey',source:'streetverse-core-dock'}}))
+      setMessage('FIRST RIDE • REPAIR THE MISSION CAR')
+      return
+    }
     dispatchEvent(new CustomEvent('tryamm:streetverse-cinematic-mission-open',{detail:{missionId:mission?.id,source:'streetverse-core-dock'}}))
     setMessage('SCRIPTED MISSION SELECTOR OPENED')
   }
