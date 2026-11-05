@@ -18,4 +18,8 @@ assert.ok(world.includes('createStreetVerseBJFootGrounding(scene,()=>nativeHero|
 assert.ok(world.includes('bjFootGrounding.tick(now,Boolean(moving&&!activeCar))'),'Grounding must run after BJ animation updates')
 assert.ok(world.includes('bjFootGrounding.dispose()'),'Grounding must clean up')
 assert.ok(rig.includes('AnimationMixer'),'Preserve original BJ GLB skeleton animation')
+assert.ok(grounding.includes('!feet.some(foot=>foot.side===side)'),'Duplicate skin bindings must not select two feet from one side')
+assert.ok(grounding.includes('return null // Never pretend an unverified surface is flat ground.'),'Missing terrain must not invent foot contacts')
+assert.ok(grounding.includes('if(!ground){foot.contact=false;continue}'),'Missing raycast hit must suppress planting')
+assert.ok(grounding.includes('streetVerseFootSide(bone.name)'),'Loaded GLB foot aliases must pass through shared parser')
 console.log('StreetVerse BJ animation-safe ground contact contracts PASS')
