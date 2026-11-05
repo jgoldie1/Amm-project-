@@ -20,7 +20,7 @@ create table if not exists public.quantum_mail_messages (
  owner_id text not null,
  account_id uuid references public.quantum_mail_accounts(id),
  direction text not null check(direction in ('draft','outbound','inbound')),
- status text not null check(status in ('draft','sending','sent','received','failed','quarantined')),
+ status text not null check(status in ('draft','sending','sent','delivered','bounced','complained','received','failed','quarantined')),
  from_address text,
  to_addresses text[] not null default '{}',
  subject text not null default '',
@@ -44,3 +44,17 @@ grant select,insert,update on public.quantum_mail_messages to service_role;
 -- must be separately verified. A database table is not itself a backup.
 -- Provider inbound webhook must use signature verification, deduplication, spam
 -- triage and tenant/account mapping before inserting received messages.
+
+create table if not exists public.quantum_mail_suppressions (
+ id uuid primary key default gen_random_uuid(),
+ owner_id text not null,
+ account_id uuid not null references public.quantum_mail_accounts(id),
+ recipient text not null,
+ reason text not null check (reason in ('hard-bounce','complaint','abuse-review')),
+ created_at timestamptz not null default now(),
+ unique (account_id,recipient)
+);
+create index if not exists quantum_mail_suppressions_owner_idx on public.quantum_mail_suppressions(owner_id,account_id);
+alter table public.quantum_mail_suppressions enable row level security;
+revoke all on public.quantum_mail_suppressions from public,anon,authenticated;
+grant select,insert on public.quantum_mail_suppressions to service_role;
