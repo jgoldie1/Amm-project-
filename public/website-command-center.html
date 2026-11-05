@@ -10,6 +10,16 @@
 <label><input type="checkbox" id="consent" required> I consent to TRYAMM reviewing my migration request.</label>
 <button type="submit">Submit migration request</button></form></section></div>
 <section><h2>Migration tracking</h2><div id="requests"></div><p id="message" role="status" aria-live="polite"></p><small>No site is copied, purchased or deployed when a request is submitted. Original content, images, licenses, domains and redirects require review.</small></section>
+<section><h2>Holo Reel → Customer Sales Campaign</h2>
+<p>Create an owner-controlled campaign tied to your existing website project. Only approved campaigns can collect inquiries. Payments and sales attribution remain blocked until verified.</p>
+<form id="campaignForm">
+<label for="campaignProject">Website project</label><select id="campaignProject" required><option value="">Choose your owned project</option></select>
+<label for="campaignName">Campaign name</label><input id="campaignName" required maxlength="120" placeholder="TRYAMM Website Launch">
+<label for="campaignOffer">Offer or service</label><textarea id="campaignOffer" required maxlength="200" placeholder="Describe your confirmed service"></textarea>
+<label for="campaignLanding">Verified HTTPS storefront URL</label><input id="campaignLanding" type="url" required maxlength="500" placeholder="https://your-site.example">
+<button type="submit">Create private campaign draft</button>
+</form><button id="refreshCampaigns">Refresh campaign status</button>
+<div id="campaigns" role="status" aria-live="polite"></div></section>
 <section id="owner" hidden><h2>Owner command center</h2><p>Review all customer requests and approved quotes before payment and fulfillment.</p><button id="refreshOwner">Refresh owner review queue</button><div id="reviewQueue"></div><p><a href="/ai-cafe.html">AI Café sales intake</a> · <a href="/tryamm-brand-studio.html">Website preview editor</a></p></section>
 <script>
 'use strict';
@@ -20,6 +30,7 @@ async function api(p,opt={}){if(!token())throw Error('Sign in through your TRYAM
 async function refresh(){
  try{
  const [p,m]=await Promise.all([api('/api/website-os/projects'),api('/api/website-os/command-center')]);
+ const campaignSelect=$('campaignProject');campaignSelect.replaceChildren(new Option('Choose your owned project',''));for(const pItem of p.projects){campaignSelect.add(new Option(pItem.brand.businessName,pItem.id))}
  $('role').textContent=m.role==='owner'?'Owner command center':'Customer command center';
  $('owner').hidden=m.role!=='owner';
  $('projects').innerHTML=p.projects.length?p.projects.map(x=>'<article><strong>'+escape(x.brand.businessName)+'</strong><p>'+escape(x.status)+'</p></article>').join(''):'No cloud projects saved yet.';
@@ -32,5 +43,30 @@ $('migration').addEventListener('submit',async ev=>{ev.preventDefault();try{
  }catch(e){$('message').textContent=e.message}
 });
 $('refreshOwner').onclick=async()=>{try{const [r,c]=await Promise.all([api('/api/website-os/owner/review-queue'),api('/api/ai-cafe/dashboard')]);$('reviewQueue').textContent=r.projects.length+' brand projects await review. '+c.leads.length+' leads are currently in the sales records. Approve quotes from the authenticated owner API after validating deliverables.'}catch(e){$('reviewQueue').textContent=e.message}};
+async function refreshCampaigns(){try{
+ const r=await api('/api/website-os/funnel/campaigns'),root=$('campaigns');root.replaceChildren();
+ if(!r.campaigns.length){root.textContent='No campaigns yet.';return}
+ for(const c of r.campaigns){
+ const art=document.createElement('article'),title=document.createElement('strong'),desc=document.createElement('p');
+ title.textContent=c.name+' — '+c.status;desc.textContent=c.offer;art.append(title,desc);
+ if(c.status==='approved'){
+ const link=document.createElement('a');link.href='/tryamm-campaign-landing.html?campaign='+encodeURIComponent(c.id);link.textContent='Open the approved campaign landing page';art.append(link)
+ }
+ const btn=document.createElement('button');btn.textContent='Show measured inquiry report';btn.onclick=async()=>{
+  try{const r=await api('/api/website-os/funnel/campaigns/'+encodeURIComponent(c.id)+'/report');
+  const m=r.metrics;const result=document.createElement('p');
+  result.textContent='Received inquiries: '+m.leads+'. Campaign purchases and impressions are not yet verified in this module.';
+  art.append(result)
+  }catch(error){const result=document.createElement('p');result.textContent=error.message;art.append(result)}
+ };art.append(btn);root.append(art)
+ }
+}catch(e){$('campaigns').textContent=e.message}}
+$('campaignForm').onsubmit=async ev=>{ev.preventDefault();try{
+ const result=await api('/api/website-os/funnel/campaigns',{method:'POST',body:JSON.stringify({projectId:$('campaignProject').value,name:$('campaignName').value,offer:$('campaignOffer').value,landingUrl:$('campaignLanding').value})});
+ $('campaigns').textContent='Draft created: '+result.campaign.id+'. Media-rights and customer approval evidence required before activation.';
+ await refreshCampaigns()
+}catch(e){$('campaigns').textContent=e.message}};
+$('refreshCampaigns').onclick=refreshCampaigns;
 refresh();
+if(token())refreshCampaigns();
 </script></body></html>
