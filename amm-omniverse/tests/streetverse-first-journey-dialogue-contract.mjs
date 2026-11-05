@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const dock=fs.readFileSync(new URL('../src/components/StreetVerseMobileProofDock.tsx',import.meta.url),'utf8');
+assert.ok(dock.includes('Chicago NPC conversation'),'NPC dialogue must visibly render');
+assert.ok(dock.includes('tryamm:streetverse-npc-dialogue-choice'),'NPC choices must issue an event');
+assert.ok(dock.includes('tryamm:streetverse-npc-interaction-request'),'NPC interaction must request real world context');
+assert.ok(dock.includes("setNpcDialogueOpen(true)"),'World TALK context must unlock the conversation');
+assert.ok(dock.includes("if(!npcDialogueOpen||!exitedOnce)return"),'Conversation cannot complete before context and vehicle exit');
+assert.ok(dock.includes("setNpcInteracted(true);setPhase('ready')"),'Player choice completes the dialogue gate');
+console.log('StreetVerse mobile NPC dialogue selection contract: PASS');
