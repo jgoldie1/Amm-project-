@@ -4,6 +4,26 @@ const healthy:Vitals={characterId:'bj-stubbs',health:100,stamina:100,mobility:10
 export default function StreetVerseBJVitalsHUD(){
  const [vitals,setVitals]=useState<Vitals>(healthy)
  const [expanded,setExpanded]=useState(false)
+ const [rig,setRig]=useState<{state:'loading'|'loaded'|'unavailable';version:string;animations:number;source:string}>({state:'loading',version:'unverified',animations:0,source:'unknown'})
+ useEffect(()=>{
+  const onReady=(event:Event)=>{
+   const d=(event as CustomEvent<{url?:string;clipNames?:string[];assetId?:string}>).detail||{}
+   setRig({state:'loaded',version:String(d.assetId||'BJ rig'),animations:Array.isArray(d.clipNames)?d.clipNames.length:0,source:String(d.url||'provider-managed')})
+  }
+  const onV15=(event:Event)=>{
+   const d=(event as CustomEvent<{version?:string;animationCount?:number;sourceUrl?:string}>).detail||{}
+   setRig({state:'loaded',version:String(d.version||'V15'),animations:Number(d.animationCount||0),source:String(d.sourceUrl||'provider-managed')})
+  }
+  const onError=()=>setRig(current=>({...current,state:'unavailable'}))
+  window.addEventListener('tryamm:bj-meshy-v6-ready',onReady)
+  window.addEventListener('tryamm:streetverse-bj-visible-version',onV15)
+  window.addEventListener('tryamm:bj-meshy-v6-error',onError)
+  return()=>{
+   window.removeEventListener('tryamm:bj-meshy-v6-ready',onReady)
+   window.removeEventListener('tryamm:streetverse-bj-visible-version',onV15)
+   window.removeEventListener('tryamm:bj-meshy-v6-error',onError)
+  }
+ },[])
  useEffect(()=>{
   const onVitals=(event:Event)=>{
    const d=(event as CustomEvent<Partial<Vitals>>).detail
@@ -24,6 +44,9 @@ export default function StreetVerseBJVitalsHUD(){
    <div>Mobility: {Math.round(vitals.mobility)}%</div>
    <div>{vitals.knockedOut?'Recover at a safe zone':vitals.limping?'Reduced movement':'Mobility normal'}</div>
    {vitals.hasBleedingStatus&&<div role="status" style={{color:'#ffb7a4'}}>Fictional bleeding status — use a safe-zone recovery action</div>}
+   <div style={{marginTop:8,borderTop:'1px solid #51738a',paddingTop:6}}>BJ 3D rig: {rig.state==='loaded'?'Loaded':rig.state==='unavailable'?'Unavailable / fallback':'Not yet verified'}</div>
+   {rig.state==='loaded'&&<div>{rig.version} • {rig.animations} available clips</div>}
+   <small style={{display:'block',marginTop:6,color:'#c4d1e5'}}>Rig loaded does not certify likeness, bone retargeting or full gameplay.</small>
    <small style={{display:'block',marginTop:6,color:'#c4d1e5'}}>Fictional RPG damage; not medical guidance</small>
   </div>}
  </aside>
