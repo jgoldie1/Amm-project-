@@ -173,5 +173,17 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     });
     await travel.click();
     await expect.poll(()=>page.evaluate(()=>(window as typeof window & {__streetverseTaylorTravel?:string}).__streetverseTaylorTravel||''),{timeout:5000}).toBe('taylor-single-canvas');
+    // Verify the real First Ride control starts a mission, not merely opens a menu.
+    await page.evaluate(()=>{
+      (window as typeof window & {__streetverseFirstRideStarted?:boolean}).__streetverseFirstRideStarted=false;
+      window.addEventListener('tryamm:streetverse-first-journey-start',()=>{
+        (window as typeof window & {__streetverseFirstRideStarted?:boolean}).__streetverseFirstRideStarted=true;
+      },{once:true});
+    });
+    await quickMenu.click();
+    await page.getByRole('menuitem',{name:/START FIRST RIDE/}).click();
+    await expect.poll(()=>page.evaluate(()=>(window as typeof window & {__streetverseFirstRideStarted?:boolean}).__streetverseFirstRideStarted===true),{timeout:5000}).toBe(true);
+    await expect(page.getByRole('button',{name:/Start or focus mission REPAIR CAR/i})).toBeVisible({timeout:10000});
+
   });
 });
