@@ -1,0 +1,59 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TRYAMM Brand Studio · Preview Before You Buy</title>
+<style>:root{font:17px/1.5 system-ui,sans-serif;color-scheme:dark;background:#100c20;color:white}body{max-width:1220px;margin:auto;padding:1rem}a{color:#cebbff}.grid{display:grid;grid-template-columns:minmax(280px,380px) 1fr;gap:1rem}@media(max-width:800px){.grid{grid-template-columns:1fr}}section{background:#211b36;border:1px solid #594b77;border-radius:16px;padding:1rem}label{display:block;font-weight:650;margin:.7rem 0 .25rem}input,select,textarea,button{font:inherit;padding:.65rem;border-radius:9px;box-sizing:border-box}input,select,textarea{width:100%;border:2px solid #a69bbc;background:white;color:#170d2d}textarea{min-height:86px}button{border:0;background:#c3afff;color:#190f31;font-weight:700;cursor:pointer;margin:.4rem .4rem .4rem 0;min-height:44px}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:4px solid white;outline-offset:3px}canvas{width:100%;height:auto;background:#fff;border-radius:12px;max-height:340px;object-fit:contain}iframe{width:100%;height:400px;background:white;border:0;border-radius:12px}.previews{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:.8rem}.preview{background:#312a49;border-radius:12px;padding:.7rem}small,.muted{color:#ded7ee}#notice{min-height:2rem}table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{text-align:left;border-bottom:1px solid #665780;padding:.45rem}h1{font-size:clamp(2rem,5vw,3.1rem)}h2{font-size:1.35rem}</style>
+</head><body><header><a href="/ai-cafe.html">AI Café</a> · <a href="/free-website.html">Free website</a> · <a href="/website-command-center.html">Command center</a><h1>TRYAMM Brand Studio</h1><p>Design your website, logo, banner, splash screen and flyer in one place. Preview first; choose a package only when you're ready.</p></header>
+<div class="grid"><section><h2>Customize your brand</h2><label for="templates">Business template</label><select id="templates"><option value="accessible-tech">Accessible technology starter</option></select><small id="templateStatus">Loading verified catalog labels…</small>
+<label for="businessName">Business name</label><input id="businessName" value="Stubb's Mobility" maxlength="120">
+<label for="logoText">Logo initials / short label</label><input id="logoText" value="SM" maxlength="35">
+<label for="color">Brand color</label><input id="color" type="color" value="#6635a5">
+<label for="headline">Website headline</label><input id="headline" value="Technology for greater independence" maxlength="180">
+<label for="description">Business description</label><textarea id="description" maxlength="800">Accessible technology, adaptive computer devices and personal setup support.</textarea>
+<label for="contactEmail">Customer contact email</label><input id="contactEmail" type="email" maxlength="200" placeholder="owner@example.com">
+<label for="packageId">Choose website package</label><select id="packageId"><option value="free">Free HTML file — $0</option><option value="preview">Preview — $499</option><option value="experience">Experience — $1,250</option><option value="digital-twin">Digital Twin — $2,500 (scoped)</option></select>
+<div><button id="downloadSite">Download free site HTML</button><button id="saveProject">Save secure draft</button><button id="submitQuote">Request owner's quote</button></div>
+<label for="savedProjects">Reopen saved project</label><select id="savedProjects"><option value="">Choose a saved design</option></select><button id="loadProject">Load selected project</button>
+<p id="notice" role="status" aria-live="polite"></p><small>Cloud save requires signing in and configured private storage. No charge, WordPress import, live publishing or StreetVerse deployment happens from this page.</small>
+</section><div><section><h2>Live website preview</h2><iframe id="website" title="Customized website preview" sandbox=""></iframe></section><section><h2>Matching brand assets</h2><div class="previews">
+<div class="preview"><h3>Logo</h3><canvas id="logo" width="512" height="512"></canvas><button data-export="logo">Download PNG</button></div>
+<div class="preview"><h3>Banner</h3><canvas id="banner" width="1200" height="450"></canvas><button data-export="banner">Download PNG</button></div>
+<div class="preview"><h3>Splash</h3><canvas id="splash" width="1080" height="1920"></canvas><button data-export="splash">Download PNG</button></div>
+<div class="preview"><h3>Flyer</h3><canvas id="flyer" width="1080" height="1350"></canvas><button data-export="flyer">Download PNG</button></div>
+</div></section><section><h2>See what is included before you buy</h2><table><thead><tr><th>Package</th><th>Scope</th></tr></thead><tbody><tr><td>Free — $0</td><td>Downloadable one-page HTML file; no public hosting or domain</td></tr><tr><td>Preview — $499</td><td>Scoped preview, QR design and 1 Reel</td></tr><tr><td>Experience — $1,250</td><td>Landing experience and 3 Reels</td></tr><tr><td>Digital Twin — $2,500</td><td>Landing experience, 5 Reels and StreetVerse subject to technical acceptance</td></tr></tbody></table><p class="muted">Paid plans require a written approved quote, verified checkout and explicit delivery terms. No plan is automatically purchased.</p></section></div></div>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const fields=['businessName','logoText','color','headline','description','contactEmail','packageId'];
+let projectId=null,revision=0;
+function getState(){const s={};for(const f of fields)s[f]=$(f).value;s.templateId=$('templates').value; s.revision=revision;return s}
+function setState(s){for(const f of fields)if(s[f]!==undefined)$(f).value=s[f];if(s.templateId)$('templates').value=s.templateId;revision=s.revision||0;drawAll()}
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function wrap(c,text,maxWidth,y,lineHeight,maxLines=4){const words=String(text).split(/\s+/);let line='',count=0;for(const word of words){const proposal=line?line+' '+word:word;if(c.measureText(proposal).width>maxWidth&&line){c.fillText(line,0,y);y+=lineHeight;count++;if(count>=maxLines)return;line=word}else line=proposal}if(line)c.fillText(line,0,y)}
+function drawAsset(id){const canvas=$(id),c=canvas.getContext('2d'),s=getState(),w=canvas.width,h=canvas.height;
+ c.fillStyle=s.color;c.fillRect(0,0,w,h);c.fillStyle='#ffffff';
+ const isLogo=id==='logo',large=id==='splash'||id==='flyer';
+ c.save();
+ if(isLogo){c.textAlign='center';c.textBaseline='middle';c.font='bold 188px system-ui';c.fillText((s.logoText||s.businessName.slice(0,2)).slice(0,6),w/2,h/2,450)}
+ else{
+ c.translate(w*.08,h*(large?.20:.30));c.font='bold '+(large?70:65)+'px system-ui';wrap(c,s.businessName,w*.82,0,large?87:75,3);
+ c.translate(0,large?250:125);c.font=(large?45:41)+'px system-ui';wrap(c,s.headline,w*.82,0,large?65:58,4);
+ if(large){c.translate(0,340);c.font='36px system-ui';wrap(c,s.description,w*.82,0,48,6)}
+ }
+ c.restore();
+}
+function websiteHTML(s){
+const style='body{font:18px/1.6 system-ui,sans-serif;margin:0;background:#fcfaff;color:#20172a}header{background:'+s.color+';color:white;padding:clamp(2rem,7vw,5rem)}h1{font-size:clamp(2rem,6vw,4rem)}main{max-width:900px;margin:auto;padding:2rem}a{color:'+s.color+'}footer{padding:2rem;border-top:1px solid #ddd}';
+const email=s.contactEmail&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.contactEmail)?'<a href="mailto:'+esc(s.contactEmail)+'">Contact this business</a>':'Contact information not configured';
+return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(s.businessName)+'</title><style>'+style+'</style></head><body><header><h1>'+esc(s.businessName)+'</h1><p>'+esc(s.headline)+'</p></header><main><h2>Our services</h2><p>'+esc(s.description)+'</p><h2>Contact</h2><p>'+email+'</p></main><footer>Customized TRYAMM starter preview</footer></body></html>';
+}
+function drawAll(){for(const id of ['logo','banner','splash','flyer'])drawAsset(id);$('website').srcdoc=websiteHTML(getState())}
+for(const f of fields)$(f).addEventListener('input',drawAll);$('templates').addEventListener('change',drawAll);
+document.querySelectorAll('[data-export]').forEach(button=>button.onclick=()=>{const id=button.dataset.export;const a=document.createElement('a');a.href=$(id).toDataURL('image/png');a.download='tryamm-'+id+'.png';a.click()});
+$('downloadSite').onclick=()=>{const blob=new Blob([websiteHTML(getState())],{type:'text/html;charset=utf-8'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='my-tryamm-website.html';a.click();setTimeout(()=>URL.revokeObjectURL(u),2500);$('notice').textContent='Website file prepared for download.'};
+function token(){return localStorage.getItem('tryamm_token')||''}
+async function api(path,opt={}){if(!token())throw Error('Sign in to your TRYAMM account before using secure project saving.');const response=await fetch(path,{...opt,headers:{Authorization:'Bearer '+token(),'Content-Type':'application/json',...(opt.headers||{})}});const data=await response.json().catch(()=>({}));if(!response.ok)throw Error(data.error||'Request failed ('+response.status+')');return data}
+async function loadList(){const data=await api('/api/website-os/projects');const sel=$('savedProjects');sel.replaceChildren(new Option('Choose a saved design',''));for(const p of data.projects)sel.add(new Option(p.brand.businessName+' — '+p.status,p.id))}
+$('saveProject').onclick=async()=>{try{$('notice').textContent='Saving securely…';const data=await api(projectId?'/api/website-os/projects/'+encodeURIComponent(projectId):'/api/website-os/projects',{method:projectId?'PUT':'POST',body:JSON.stringify(getState())});projectId=data.project.id;revision=data.project.revision;$('notice').textContent='Saved securely to your private project account.';await loadList()}catch(e){$('notice').textContent=e.message}};
+$('loadProject').onclick=async()=>{try{const id=$('savedProjects').value;if(!id)return;const data=await api('/api/website-os/projects/'+encodeURIComponent(id));projectId=data.project.id;setState({...data.project.brand,revision:data.project.revision});$('notice').textContent='Saved project reopened.'}catch(e){$('notice').textContent=e.message}};
+$('submitQuote').onclick=async()=>{try{if(!projectId)throw Error('Save the project before submitting.');if(!confirm('Request a written quote? No payment will be charged.'))return;const data=await api('/api/website-os/projects/'+encodeURIComponent(projectId)+'/request-quote',{method:'POST',body:JSON.stringify({consent:true})});$('notice').textContent='Request submitted for owner review. Lead reference: '+data.leadId}catch(e){$('notice').textContent=e.message}};
+async function gallery(){try{const response=await fetch('/api/website-os/templates');if(!response.ok)throw Error('Catalog endpoint unavailable');const data=await response.json();$('templates').replaceChildren();for(const item of data.templates||[])$('templates').add(new Option(item.name+' — '+item.state,item.id));$('templateStatus').textContent=(data.templates||[]).length+' recovered starter previews. 500 finished templates have not been verified.';drawAll()}catch(e){$('templateStatus').textContent='The recovered catalog is not connected on this deployment; default preview only.'}}
+drawAll();gallery();if(token())loadList().catch(()=>{});
+</script></body></html>
