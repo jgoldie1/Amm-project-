@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07121f">
+<title>StreetVerse • BJ Stubbs Original V15 Playable Rig</title>
+<style>
+:root{font-family:system-ui,Arial,sans-serif;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:#07121f;color:#eff8ff}
+header{padding:14px clamp(12px,3vw,32px);background:#10273f;border-bottom:1px solid #43829b}
+h1{font-size:clamp(19px,3vw,28px);margin:0}
+p{margin:8px 0;line-height:1.5}
+#status{font-weight:750;padding:9px 13px;border:1px solid #76b2bc;border-radius:12px;background:#13344a}
+#status[data-kind="error"]{color:#ffd6d6;border-color:#fa8585}
+#status[data-kind="warn"]{color:#ffdc92;border-color:#b98e3f}
+main{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,330px);gap:14px;max-width:1450px;margin:auto;padding:14px}
+#stage{position:relative;min-height:460px;height:75vh;max-height:850px;background:#182537;border:1px solid #477b96;border-radius:16px;overflow:hidden}
+#stage canvas{width:100%;height:100%;touch-action:none;display:block}
+#stage-tag{position:absolute;top:12px;left:12px;background:#041523dd;color:#d0f6ff;padding:7px 11px;border:1px solid #4d9bc0;border-radius:10px;font-weight:800;font-size:12px;pointer-events:none}
+#touch{position:absolute;bottom:16px;left:16px;display:grid;grid-template-columns:repeat(3,62px);grid-template-rows:repeat(2,55px);gap:5px}
+#touch button{padding:4px;font-size:20px;opacity:.95}
+#forward{grid-column:2;grid-row:1}
+#left{grid-column:1;grid-row:2}
+#back{grid-column:2;grid-row:2}
+#right{grid-column:3;grid-row:2}
+aside{background:#102237;border:1px solid #456f87;border-radius:16px;padding:16px;align-self:start}
+h2{font-size:17px;margin:10px 0}
+button{background:#164960;color:white;cursor:pointer;border:1px solid #77c5dd;border-radius:11px;font-size:14px;font-weight:750;padding:10px;min-height:44px;touch-action:none}
+button:focus-visible{outline:3px solid #ffe281;outline-offset:2px}
+button:hover{background:#1f607d}
+.actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+small{color:#b4d2df}
+code{font-size:12px;overflow-wrap:anywhere}
+.metadata{font-size:12px;line-height:1.5;overflow-wrap:anywhere;color:#c6e5ee;padding:12px;background:#0b1928;border-radius:8px}
+footer{max-width:1450px;margin:auto;padding:8px 16px 30px;color:#bed7e7;font-size:12px}
+@media(max-width:750px){main{grid-template-columns:1fr}#stage{height:65vh;min-height:390px;max-height:620px}#touch{left:9px;bottom:9px;grid-template-columns:repeat(3,52px);grid-template-rows:repeat(2,51px)}}
+</style>
+</head>
+<body>
+<header>
+  <h1>StreetVerse • BJ Stubbs V15 Original 3D Rig</h1>
+  <p>This offline preview embeds the recovered V15 GLB. No online model download, CloudFront request, login, or Vercel subscription is required.</p>
+  <div id="status" role="status" aria-live="polite" data-kind="good">Opening the original BJ V15 character...</div>
+</header>
+<main>
+  <section id="stage" aria-label="Playable BJ Stubbs character in 3D">
+    <div id="stage-tag">ORIGINAL BJ V15 • Loading...</div>
+    <div id="touch">
+      <button id="forward" aria-label="Walk forward">▲</button>
+      <button id="left" aria-label="Walk left">◀</button>
+      <button id="back" aria-label="Walk backward">▼</button>
+      <button id="right" aria-label="Walk right">▶</button>
+    </div>
+  </section>
+  <aside>
+    <h2>Move and inspect BJ</h2>
+    <p>Use <strong>W A S D</strong> or arrow keys. On touch screens, hold the arrow buttons. Drag on the 3D view to turn the camera and scroll to zoom.</p>
+    <div class="actions">
+      <button id="idle">Breathe / Idle</button>
+      <button id="wave">Wave</button>
+      <button id="nod">Listen / Nod</button>
+      <button id="look">Look Around</button>
+      <button id="talk">Talk / Gesture</button>
+      <button id="turn">Turn BJ</button>
+      <button id="closeup">Face Close-Up</button>
+      <button id="reset">Reset Position</button>
+    </div>
+    <h2>Real model inspection</h2>
+    <div class="metadata">Current clip: <strong id="animation">None yet</strong></div>
+    <p class="metadata" id="metadata">Waiting for GLB decode...</p>
+    <p class="metadata" id="clip-list">Animation names appear after loading.</p>
+    <p><small>Only the recovered V15 model is drawn. If it fails, the viewer reports the error rather than showing a random male rig.</small></p>
+  </aside>
+</main>
+<footer>
+  This is a BJ V15 rig and movement preview, not the full StreetVerse mission game. Likeness and realism require your visual approval. The original GLB does not yet establish a detachable organ mesh or medical anatomy simulation.
+</footer>
+<script type="application/octet-stream" id="bj-original-binary">__BJ_ORIGINAL_BASE64__</script>
+<script defer src="viewer.bundle.js"></script>
+</body></html>

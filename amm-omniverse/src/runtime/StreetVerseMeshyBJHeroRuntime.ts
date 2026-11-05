@@ -23,7 +23,7 @@ export const BJ_MESHY_V6_ASSET={
   certifiedLikeness:false,
 } as const
 
-type Motion='idle'|'walk'|'run'
+type Motion='idle'|'walk'|'run'|'sit'
 export type BJGesture='nod'|'look-around'|'acknowledge'|'converse'|'greet'
 
 type BJFacePose={
@@ -45,6 +45,7 @@ export type StreetVerseMeshyBJHeroHandle={
   applyFacePose:(pose:BJFacePose)=>number
   /** Only plays a gesture if the active GLB has the matching animation. */
   playGesture:(gesture:BJGesture)=>boolean
+  playVehicleTransition:(phase:'enter'|'exit')=>boolean
   tick:(nowMs:number,state:{moving:boolean;running?:boolean;talking?:boolean;liveTalkLevel?:number;focusYaw?:number;breathing?:number;posture?:string;seated?:boolean})=>void
   dispose:()=>void
 }
@@ -62,10 +63,12 @@ export const BJ_V15_PREVIEW={
   certifiedLikeness:false,
 } as const
 
+export const BJ_V15_SAME_ORIGIN_URL='/api/streetverse/bj-v15-model'
+
 export function getBJPreviewV15Url():string|null{
   if(typeof window==='undefined')return null
   if(new URLSearchParams(window.location.search).get('bj')==='published')return null
-  return new URLSearchParams(window.location.search).get('bj')==='legacy' ? null : BJ_V15_PREVIEW.url
+  return new URLSearchParams(window.location.search).get('bj')==='legacy' ? null : BJ_V15_SAME_ORIGIN_URL
 }
 
 const loader=new GLTFLoader()
@@ -93,6 +96,7 @@ function materializeAnimationMap(clips:readonly THREE.AnimationClip[]){
     idle:find([/idle/i,/stand/i,/breath/i]),
     walk:find([/walk/i,/locomotion/i]),
     run:find([/run/i,/jog/i,/sprint/i]),
+    sit:find([/\b(sit|seated|driver.?seat|driving.?idle)\b/i,/sit.?idle/i]),
   }
 }
 
@@ -230,7 +234,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   // Never load a MetaHuman candidate by default; preview is explicitly opted-in.
   const metaHumanPreviewUrl=getPreviewBJMetaHumanUrl()
   // Default to the actual V15 hero; ?bj=legacy preserves a manual fallback.
-  const candidates=[v15PreviewUrl,metaHumanPreviewUrl,published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
+  const candidates=[v15PreviewUrl,v15PreviewUrl?BJ_V15_PREVIEW.url:null,metaHumanPreviewUrl,published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
   let sourceUrl=''
   let publishedGlb:Awaited<ReturnType<typeof loader.loadAsync>>|null=null
   let usingMetaHumanPreview=false
@@ -259,7 +263,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
         window.dispatchEvent(new CustomEvent('tryamm:bj-model-progress',{detail:{
           stage:'decoding',sizeBytes:bytes.byteLength,source:candidate===v15PreviewUrl?'v15':'fallback',
         }}))
-        const basePath=new URL('.',new URL(candidate,window.location.href)).href
+        const basePath=new URL('.',new URL(candidate===v15PreviewUrl?BJ_V15_PREVIEW.url:candidate,window.location.href)).href
         let decodeTimer=0
         try{
           candidateGlb=await Promise.race([
@@ -282,7 +286,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
         if(!audit.ok){disposeObject(candidateGlb.scene);continue}
         usingMetaHumanPreview=true
       }
-      if(candidate===v15PreviewUrl){
+      if(candidate===v15PreviewUrl||candidate===BJ_V15_PREVIEW.url){
         const faceNames=new Set<string>()
         candidateGlb.scene.traverse(n=>{
           if(n instanceof THREE.Mesh)for(const name of Object.keys(n.morphTargetDictionary||{}))faceNames.add(name)
@@ -300,7 +304,14 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       publishedGlb=candidateGlb
       sourceUrl=candidate
       break
-    }catch{
+    }catch(error){
+      if(candidate===v15PreviewUrl||candidate===BJ_V15_PREVIEW.url){
+        window.dispatchEvent(new CustomEvent('tryamm:bj-v15-load-error',{detail:{
+          characterId:'bj-stubbs',method:candidate===v15PreviewUrl?'same-origin':'direct-cdn',
+          reason:error instanceof Error?error.message:String(error),
+          source:'BJ V15 GLB (not the generic replacement)',
+        }}))
+      }
       // Try the next owned compatibility GLB; native hero stays visible meanwhile.
     }
   }
@@ -317,7 +328,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   try{
     const gltf=publishedGlb
     const object=gltf.scene
-    object.name=usingV15Preview?'bj-stubbs-v15-actual-glb':usingMetaHumanPreview?'bj-stubbs-metahuman-web-preview':'bj-stubbs-production-v12'
+    object.name=usingV15Preview?'bj-stubbs-v15-actual-glb':usingMetaHumanPreview?'bj-stubbs-metahuman-web-preview':'generic-bj-compatible-stand-in-v12'
     // V15 includes 50 zero-scaled legacy SkinnedMeshes that are invisible but
     // cause Three.Box3 to produce NaN bounds and an invalid contact shadow.
     // Detach only genuinely invisible zero-scale mesh nodes; do not touch
@@ -355,11 +366,13 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
     object.userData={
       ...object.userData,
       characterId:BJ_MESHY_V6_ASSET.characterId,
-      displayName:'BJ Stubbs',
-      namedCharacter:true,
+      displayName:usingV15Preview?'BJ Stubbs (V15)':'Character stand-in (BJ V15 unavailable)',
+      namedCharacter:usingV15Preview,
       identityContinuityKey:BJ_MESHY_V6_ASSET.characterId,
       visualAuthority:usingV15Preview?'bj-actual-v15-remote-preview':usingMetaHumanPreview?'metahuman-web-opt-in-unapproved':BJ_MESHY_V6_ASSET.authority,
       bjV15RealGlbPreview:usingV15Preview,
+      verifiedBJVisualSource:usingV15Preview,
+      standInOnly:!usingV15Preview,
       prunedInvisibleV15Meshes,
       metahumanWebPreview:usingMetaHumanPreview,
       metaHumanLikenessApproved:false,
@@ -503,6 +516,29 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       gestureUntil=performance.now()+clip.duration*1000+170
       return true
     }
+    const playVehicleTransition=(phase:'enter'|'exit'):boolean=>{
+      // Only use an authored GLB clip; existing world behavior remains the fallback.
+      const patterns=phase==='enter'
+        ? [/enter.?car/i,/get.?in/i,/vehicle.?entry/i,/car.?door.?enter/i]
+        : [/exit.?car/i,/get.?out/i,/vehicle.?exit/i,/car.?door.?exit/i]
+      const clip=clips.find(item=>patterns.some(pattern=>pattern.test(item.name)))
+      if(!mixer||!clip)return false
+      const action=mixer.clipAction(clip)
+      if(gestureAction&&gestureAction!==action)gestureAction.fadeOut(.12)
+      if(activeAction&&activeAction!==action)activeAction.fadeOut(.12)
+      action.reset()
+      action.setLoop(THREE.LoopOnce,1)
+      action.clampWhenFinished=false
+      action.setEffectiveTimeScale(1)
+      action.setEffectiveWeight(1)
+      action.fadeIn(.12).play()
+      gestureAction=action
+      activeAction=action
+      activeMotion=null
+      gestureUntil=performance.now()+Math.max(0,clip.duration)*1000+120
+      window.dispatchEvent(new CustomEvent('tryamm:bj-vehicle-animation',{detail:{characterId:BJ_MESHY_V6_ASSET.characterId,phase,clip:clip.name,played:true}}))
+      return true
+    }
     const onGesture=(event:Event)=>{
       const detail=(event as CustomEvent<{characterId?:string;gesture?:BJGesture}>).detail||{}
       if(detail.characterId&&detail.characterId!==BJ_MESHY_V6_ASSET.characterId)return
@@ -514,8 +550,12 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
 
     const setMotion=(motion:Motion)=>{
       if(!mixer||activeMotion===motion)return
-      const clip=animations[motion]||animations.walk||animations.idle||clips[0]
-      if(!clip)return
+      const clip=motion==='sit'?(animations.sit||animations.idle||null):(animations[motion]||animations.walk||animations.idle||clips[0])
+      if(!clip){
+        // A rig without seated/idle clips must not keep walking while driving.
+        if(motion==='sit'){activeAction?.fadeOut(.12);activeAction=null;activeMotion='sit'}
+        return
+      }
       const next=mixer.clipAction(clip)
       next.enabled=true
       next.setEffectiveWeight(1)
@@ -535,7 +575,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
         activeAction=null
         activeMotion=null
       }
-      if(!gestureAction)setMotion(state.running?'run':state.moving?'walk':'idle')
+      if(!gestureAction)setMotion(state.seated?'sit':state.running?'run':state.moving?'walk':'idle')
       mixer?.update(dt)
 
       const t=nowMs*.001
@@ -586,6 +626,8 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
           lipSync:true,
           microGesture:true,
           seated:Boolean(state.seated),
+          seatedAnimationAvailable:Boolean(animations.sit),
+          actualAnimationClip:activeAction?.getClip().name||null,
           source:'bj-production-v12-life-layer',
           legacySource:'bj-production-v7-life-layer',
           visualUpgradeSource:'bj-production-v8-life-layer',
@@ -630,6 +672,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       morphTargetNames:morphs.names,
       applyFacePose,
       playGesture,
+      playVehicleTransition,
       tick,
       dispose:()=>{
         window.removeEventListener('tryamm:bj-gesture',onGesture)

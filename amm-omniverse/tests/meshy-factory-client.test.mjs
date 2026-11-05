@@ -44,8 +44,8 @@ test('published-model preview skips V15 while ordinary entry retains it',()=>{
  const source=fs.readFileSync(new URL('../src/runtime/StreetVerseMeshyBJHeroRuntime.ts',import.meta.url),'utf8')
  const fn=source.match(/export function getBJPreviewV15Url\(\):string\|null\{[\s\S]*?\n\}/)[0]
  const js=ts.transpileModule(fn,{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText
- for(const [search,expected] of [['','v15'],['?bj=published',null],['?bj=legacy',null]]){
-  const out={};vm.runInNewContext(js,{exports:out,window:{location:{search}},URLSearchParams,BJ_V15_PREVIEW:{url:'v15'}})
+ for(const [search,expected] of [['','/api/streetverse/bj-v15-model'],['?bj=published',null],['?bj=legacy',null]]){
+  const out={};vm.runInNewContext(js,{exports:out,window:{location:{search}},URLSearchParams,BJ_V15_PREVIEW:{url:'v15'},BJ_V15_SAME_ORIGIN_URL:'/api/streetverse/bj-v15-model'})
   assert.equal(out.getBJPreviewV15Url(),expected)
  }
 })
