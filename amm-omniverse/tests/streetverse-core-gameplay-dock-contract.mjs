@@ -7,6 +7,8 @@ for(const token of ['StreetVerseCoreGameplayDock','StreetVerseMissionWorldBridge
 for(const label of ['MISSION','REPAIR','RIDE','REEL','FAITH','EXIT'])must(dock.includes(label),'dock missing '+label)
 must((geo.match(/aria-label="Travel to Taylor Street UIC Medical District"/g)||[]).length>=2,'Taylor UIC travel must be available in both safe-mode and full 3D branches')
 must(geo.includes('streetverse-safe-travel-shortcut')&&geo.includes('streetverse-main-travel-shortcut'),'Safe and 3D travel routes must both dispatch mission requests')
+must(geo.includes('pendingTaylorTravelRef.current=true')&&geo.includes("detail.canvas!==true")&&geo.includes('streetverse-safe-ready-replay'),'Safe-to-3D Taylor travel must replay only after real 3D canvas world is ready')
+must(geo.includes("removeEventListener('tryamm:streetverse-world-ready',onWorldReady)"),'Ready-event listener must clean up on unmount')
 must(dock.includes("tryamm:streetverse-first-journey-start"),'mission quick-start event missing')
 must(dock.includes("tryamm:holo-mobility-open"),'rideshare launcher event missing')
 must(dock.includes("tryamm:open-reel-creator"),'reel launcher event missing')
