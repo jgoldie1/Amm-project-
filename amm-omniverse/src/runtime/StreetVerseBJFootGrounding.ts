@@ -12,8 +12,8 @@ export type FootGroundingStatus={enabled:boolean;rigDetected:boolean;surfaceCoun
  */
 export function streetVerseFootSide(name:string):'left'|'right'|null{
  const normalized=String(name||'').replace(/[^a-z0-9]/gi,'').toLowerCase()
- if(/(?:leftfoot|lfoot|leftankle|lankle)$/.test(normalized))return 'left'
- if(/(?:rightfoot|rfoot|rightankle|rankle)$/.test(normalized))return 'right'
+ if(/(?:leftfoot|lfoot|footl|leftankle|lankle|anklel)$/.test(normalized))return 'left'
+ if(/(?:rightfoot|rfoot|footr|rightankle|rankle|ankler)$/.test(normalized))return 'right'
  return null
 }
 const GROUND=/(?:^|[-_\s])(ground|sidewalk|pavement|walkway|road|ramp|stair|floor)(?:$|[-_\s\d])/i
