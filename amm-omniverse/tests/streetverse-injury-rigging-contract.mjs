@@ -25,6 +25,7 @@ const checks=[
  ['opt-in visual toggle',panel.includes('tryamm:streetverse-injury-visual-mode')],
  ['rig reaction event',injury.includes('tryamm:streetverse-rig-reaction')],
  ['seated driving pose protected',injury.includes('const target=seated?0')],
+ ['no NaN rig rotation before first hit',injury.includes('hitPulse>0?hitPulse*Math.sin')],
  ['GLB rotation restored on cleanup',injury.includes('animatedHero.rotation.z=baselineRoll')],
  ['rescue stays fictional',injury.includes('tryamm:streetverse-local-rescue-needed')],
  ['BJ remains in selected roster',roster.includes("id:'bj-stubbs'")]
