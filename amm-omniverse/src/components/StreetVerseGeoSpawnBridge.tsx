@@ -284,12 +284,12 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
   <StreetVerseWestSideWorldBuilder/>
   <button data-streetverse-travel="true" aria-label="Travel to Taylor Street UIC Medical District"
    onClick={()=>{
+     window.dispatchEvent(new CustomEvent('tryamm:west-side-route-request',{detail:{x:24,z:-8,missionId:'taylor-single-canvas',source:'streetverse-safe-travel-shortcut'}}))
      if(hasUsableWebGL()){
       setGraphicsStatus('Opening Taylor Street in 3D…')
       setNearWestOpen(true)
       setRetryGraphics(true)
      }else{
-      window.dispatchEvent(new CustomEvent('tryamm:west-side-route-request',{detail:{x:24,z:-8,missionId:'taylor-single-canvas',source:'streetverse-safe-travel-shortcut'}}))
       setGraphicsStatus('Taylor Street travel requested. 3D is unavailable here; select RETRY 3D CHICAGO once your browser supports WebGL.')
      }
    }}
