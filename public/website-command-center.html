@@ -86,6 +86,17 @@ async function refreshOrders(){try{
       }catch(error){invite.disabled=false;const note=document.createElement('p');note.textContent=error.message;article.append(note)}
     };article.append(invite);
   }
+  if(!['quote-pending','cancelled'].includes(order.status)){
+   const track=document.createElement('button');track.textContent='Email buyer a private order status link';
+   track.onclick=async()=>{
+    if(!confirm('Send an expiring, read-only status link to the customer email on this order?'))return;
+    try{
+     track.disabled=true;
+     const r=await api('/api/website-os/orders/'+encodeURIComponent(order.id)+'/send-tracking-link',{method:'POST',body:JSON.stringify({confirm:true})});
+     const msg=document.createElement('p');msg.textContent=r.sent?'Status link accepted by email provider. Inbox delivery is not yet confirmed.':'No tracking link sent.';article.append(msg)
+    }catch(e){track.disabled=false;const msg=document.createElement('p');msg.textContent=e.message;article.append(msg)}
+   };article.append(track)
+  }
   if(order.status==='customer-accepted'||order.status==='payment-pending'){
    const verify=document.createElement('button');
    verify.textContent='Check Stripe TEST Checkout status';
