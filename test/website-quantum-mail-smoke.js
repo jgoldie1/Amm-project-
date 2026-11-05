@@ -1,0 +1,17 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {mailPlan}=require('../lib/website-quantum-mail-plan');
+const {validateDraft}=require('../lib/tryamm-mail-routes');
+const base={projectId:'11111111-2222-4333-8444-555555555555',provider:'vercel',domain:'tryammexample.com',confirmExistingMail:true,aliases:['info','support']};
+const ready=mailPlan(base);
+assert.equal(ready.status,'PREPARED_NOT_PROVISIONED');
+assert.deepEqual(ready.requestedAddresses,['info@tryammexample.com','support@tryammexample.com']);
+assert.equal(ready.dnsChangesApplied,false);
+assert.equal(ready.mailboxesCreated,false);
+assert.throws(()=>mailPlan({...base,aliases:['../../secret']}),/alias/);
+assert.throws(()=>mailPlan({...base,confirmExistingMail:false}),/preserved/);
+assert.throws(()=>mailPlan({...base,emailProvider:'unknown'}),/Unsupported/);
+const draft=validateDraft({to:'customer@example.com',subject:'Service quote',body:'Hello'});
+assert.equal(draft.to,'customer@example.com');
+assert.throws(()=>validateDraft({to:'invalid',subject:'Hi',body:'Body'}),/recipient/);
+console.log('Quantum Mail account planning and safe draft regression: PASS');
