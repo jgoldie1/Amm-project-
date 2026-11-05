@@ -161,5 +161,17 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await expect(ticketPanel).toBeVisible();
     await expect(page.getByText('No authoritative ticket records loaded. The panel will not invent approvals or access.')).toBeVisible();
     await ticketPanel.screenshot({path:testInfo.outputPath('streetverse-ticket-panel-iphone.png')});
+    await page.getByRole('button',{name:'Close StreetVerse panel'}).click();
+    // A button existing in the DOM is not a playable mission. Verify a real touch
+    // dispatches the single-canvas travel request on the active mobile world.
+    await page.evaluate(()=>{
+      (window as typeof window & {__streetverseTaylorTravel?:string}).__streetverseTaylorTravel='';
+      window.addEventListener('tryamm:west-side-route-request',(e)=>{
+        const detail=(e as CustomEvent<{missionId?:string}>).detail;
+        (window as typeof window & {__streetverseTaylorTravel?:string}).__streetverseTaylorTravel=detail?.missionId||'';
+      },{once:true});
+    });
+    await travel.click();
+    await expect.poll(()=>page.evaluate(()=>(window as typeof window & {__streetverseTaylorTravel?:string}).__streetverseTaylorTravel||''),{timeout:5000}).toBe('taylor-single-canvas');
   });
 });
