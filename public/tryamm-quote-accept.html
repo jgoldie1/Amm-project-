@@ -1,0 +1,35 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer"><meta http-equiv="Cache-Control" content="no-store">
+<title>TRYAMM — Review your website quote</title>
+<style>:root{font:18px/1.55 system-ui,sans-serif;color-scheme:dark;background:#131023;color:#faf9ff}body{max-width:740px;margin:auto;padding:1.2rem}section{background:#28203c;border:1px solid #76608f;padding:1.5rem;border-radius:15px;margin:1rem 0}h1{font-size:clamp(2rem,5vw,3rem)}button{font:inherit;padding:.9rem 1.2rem;background:#d3baff;color:#201032;border:0;border-radius:10px;min-height:48px;font-weight:700;cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}button:focus-visible,input:focus-visible{outline:4px solid white;outline-offset:3px}a{color:#d9c5ff}label{display:flex;gap:.8rem;align-items:flex-start}input{width:1.5rem;height:1.5rem;flex:none}p{overflow-wrap:anywhere}#price{font-size:1.8rem;font-weight:800}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit}</style>
+</head><body><header><a href="/tryamm-website-os.html">TRYAMM Website OS</a><h1>Review your website quote</h1><p>Only accept after reviewing the full scope, pricing and terms. Accepting does not charge you.</p></header>
+<section><h2 id="name">Loading your private quote…</h2><p id="price"></p><h3>Included work</h3><pre id="description"></pre><h3>Delivery, revisions and support terms</h3><pre id="terms"></pre></section>
+<section><label><input type="checkbox" id="confirm"> I have reviewed the listed price, deliverables and terms, and I agree to this website quote.</label>
+<p><button type="button" id="accept" disabled>Accept quote — no payment now</button></p>
+<p id="status" role="status" aria-live="polite"></p><small>This private link expires and can only be used once. Please do not share it.</small></section>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);let ready=false;
+const token=new URLSearchParams(location.search).get('token')||'';
+async function init(){
+ if(!/^[0-9a-f]{64}$/.test(token)){$('status').textContent='This link is invalid.';return}
+ try{
+ const res=await fetch('/api/website-os/quote/'+encodeURIComponent(token),{cache:'no-store',referrerPolicy:'no-referrer'});
+ const data=await res.json();if(!res.ok)throw Error(data.error||'Quote unavailable');
+ const q=data.quote;$('name').textContent=q.packageId+' website package';
+ $('price').textContent=new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(q.priceCents/100);
+ $('description').textContent=q.description;$('terms').textContent=q.terms;
+ ready=true;$('accept').disabled=false;
+ }catch(error){$('status').textContent=error.message}
+}
+$('accept').onclick=async()=>{
+ if(!ready||!$('confirm').checked){$('status').textContent='Read and accept the quote terms first.';return}
+ $('accept').disabled=true;
+ try{const response=await fetch('/api/website-os/quote/'+encodeURIComponent(token)+'/accept',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({confirm:true}),cache:'no-store',referrerPolicy:'no-referrer'});
+ const result=await response.json();if(!response.ok)throw Error(result.error||'Quote acceptance failed');
+ $('status').textContent='Quote accepted successfully. No payment has been taken. The business will contact you about the next stage.';
+ ready=false;
+ }catch(error){$('status').textContent=error.message;$('accept').disabled=false}
+};
+init();
+</script></body></html>
