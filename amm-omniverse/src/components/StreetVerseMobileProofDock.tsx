@@ -33,8 +33,8 @@ export default function StreetVerseMobileProofDock(){
       if(String(d.vehicleId||'')==='first-repair-car'){setRepaired(true);setRepairStep(3);setPhase('drive')}
     }
     const onContext=(event:Event)=>{
-      const d=(event as CustomEvent<{kind?:string;action?:string}>).detail||{}
-      if((d.kind==='talk'||String(d.action||'').toUpperCase()==='TALK')&&exitedOnce){setNpcDialogueOpen(true);setPhase('npc')}
+      const d=(event as CustomEvent<{kind?:string;action?:string;npcId?:string;source?:string}>).detail||{}
+      if(d.npcId==='first-journey-guide'&&d.source==='mobile-safe-world'&&(d.kind==='talk'||String(d.action||'').toUpperCase()==='TALK')&&droveOnce&&exitedOnce&&!inVehicle){setNpcDialogueOpen(true);setPhase('npc')}
     }
     const onDrive=(event:Event)=>{
       const d=(event as CustomEvent<{speed?:number;entered?:boolean;vehicle?:boolean}>).detail||{}
@@ -56,7 +56,7 @@ export default function StreetVerseMobileProofDock(){
       window.removeEventListener('tryamm:streetverse-mobile-reward-recorded',onReward)
       window.removeEventListener('tryamm:streetverse-drive-telemetry',onDrive)
     }
-  },[exitedOnce])
+  },[droveOnce,exitedOnce,inVehicle])
 
   const ready=repaired&&doorOpenedOnce&&enteredOnce&&droveOnce&&exitedOnce&&npcInteracted
   const status=useMemo(()=>{
