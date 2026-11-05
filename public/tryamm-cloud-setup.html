@@ -18,6 +18,12 @@
 <button type="button" id="prepareDomain">One-click: prepare domain setup</button>
 <p id="domainStatus" role="status" aria-live="polite"></p><ol id="domainSteps"></ol><small>Domain registrar transfer and connecting a domain to a website are different operations. Transfer fees or locks may apply. Never enter domain transfer codes or passwords here.</small>
 </section>
+<section><h2>Quantum Mail — business email</h2><p>Keep existing mail or select a provider for professional addresses at your business domain. No mailbox or subscription is created here.</p>
+<label for="mailProvider">Mail provider</label><select id="mailProvider"><option value="keep-existing">Keep my current business email</option><option value="google-workspace">Google Workspace</option><option value="microsoft-365">Microsoft 365 Business</option><option value="zoho-mail">Zoho Mail</option><option value="other">Another provider</option></select>
+<label for="mailAliases">Requested address names (comma separated; max 8)</label><input id="mailAliases" placeholder="info, support, sales" maxlength="240">
+<label class="check"><input id="mailPreserve" type="checkbox"> I understand all existing email addresses and DNS records must be preserved until verified.</label>
+<button type="button" id="prepareEmail">Prepare my Quantum Mail setup</button><p id="mailStatus" role="status" aria-live="polite"></p><ol id="mailSteps"></ol>
+<small>Business email service plans are billed by the selected provider unless separately contracted. No credentials, passwords or transfer codes are collected.</small></section>
 <section><h2>Provider setup checklist</h2><ol id="steps"><li>Choose your provider to see a planning checklist.</li></ol><p><small>Do not submit your password, API key or recovery codes. You will complete any hosting subscription in your own provider account, with explicit approval. Hosting fees and domains are separate from TRYAMM website packages.</small></p></section>
 <script>
 'use strict';
@@ -43,6 +49,19 @@ $('prepareDomain').onclick=async()=>{
  for(const step of result.domainPlan.checklist){const li=document.createElement('li');li.textContent=step;$('domainSteps').append(li)}
  $('domainStatus').textContent='Plan saved. NO DNS change or registrar transfer was made. Confirm exact provider records and review before cutover.';
  }catch(error){$('domainStatus').textContent=error.message}
+};
+$('prepareEmail').onclick=async()=>{try{
+ const id=$('project').value;if(!id)throw Error('Choose a saved brand project');
+ const names=$('mailAliases').value.split(',').map(x=>x.trim()).filter(Boolean);
+ const result=await api('/api/website-os/business-email/prepare',{method:'POST',body:JSON.stringify({
+  projectId:id,provider:$('provider').value,domain:$('domain').value.trim(),emailProvider:$('mailProvider').value,
+  aliases:names,confirmExistingMail:$('mailPreserve').checked,revision:projectRevisions.get(id),
+  ownsAccount:true,authorizesPlanning:true
+ })});
+ projectRevisions.set(id,result.revision);$('mailSteps').replaceChildren();
+ for(const item of result.plan.steps){const li=document.createElement('li');li.textContent=item.label;$('mailSteps').append(li)}
+ $('mailStatus').textContent='Business email plan saved. No DNS, existing inbox, or mail subscription was changed.';
+ }catch(e){$('mailStatus').textContent=e.message}
 };
 init();
 </script></body></html>
