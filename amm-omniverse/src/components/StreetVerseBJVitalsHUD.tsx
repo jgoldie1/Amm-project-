@@ -7,6 +7,8 @@ export default function StreetVerseBJVitalsHUD(){
  const [organs,setOrgans]=useState<Organs|null>(null)
  const [demoHealth,setDemoHealth]=useState<number|null>(null)
  const [injuryView,setInjuryView]=useState<'off'|'minimal'|'standard'>('minimal')
+ const [rigInspectMode,setRigInspectMode]=useState<'off'|'overlay'|'exploded'>('off')
+ const [bonesDetected,setBonesDetected]=useState<number|null>(null)
  const [expanded,setExpanded]=useState(false)
  const [rig,setRig]=useState<{state:'loading'|'loaded'|'unavailable';version:string;animations:number;source:string}>({state:'loading',version:'unverified',animations:0,source:'unknown'})
  useEffect(()=>{
@@ -54,6 +56,14 @@ export default function StreetVerseBJVitalsHUD(){
    window.removeEventListener('tryamm:streetverse-injury-state',onDamageState)
   }
  },[])
+ useEffect(()=>{
+  const onInspector=(event:Event)=>{
+   const d=(event as CustomEvent<{rigBoneCount?:number;mode?:string}>).detail
+   if(Number.isInteger(d?.rigBoneCount))setBonesDetected(Number(d!.rigBoneCount))
+  }
+  window.addEventListener('tryamm:streetverse-anatomy-inspector-status',onInspector)
+  return()=>window.removeEventListener('tryamm:streetverse-anatomy-inspector-status',onInspector)
+ },[])
  const inspectionAllowed=typeof window!=='undefined'&&new URLSearchParams(window.location.search).get('injuryLab')==='1'
  const demo=(name:string,detail:Record<string,unknown>={})=>window.dispatchEvent(new CustomEvent(name,{detail}))
  const organNames:['brain','heart','lungs','liver','kidneys']=['brain','heart','lungs','liver','kidneys']
@@ -75,10 +85,15 @@ export default function StreetVerseBJVitalsHUD(){
     <div>Breathing: {Math.round(organs.breathing)}%</div>
     <div>Rescue: {organs.needsRescue?'Needed':'Not needed'}</div>
     {organNames.map(name=><div key={name} style={{display:'flex',justifyContent:'space-between',gap:8,marginTop:3}}><span>{name.toUpperCase()}</span><span>{Math.round(organs.integrity[name])}%</span></div>)}
-    <small style={{display:'block',marginTop:5,color:'#c4d1e5'}}>These values are fictional gameplay indicators, not rendered organ meshes.</small>
+    <small style={{display:'block',marginTop:5,color:'#c4d1e5'}}>These values are fictional gameplay indicators. Optional 3D overlays are schematic, not realistic organ meshes.</small>
    </section>}
    {inspectionAllowed&&<section aria-label="Developer anatomy rig tests" style={{marginTop:7,borderTop:'1px solid #51738a',paddingTop:8}}>
     <strong>TEARDOWN LAB • LOCAL DEMO</strong>
+    <div style={{marginTop:7}}>Non-destructive GLB rig / organ inspector</div>
+    <div role="group" aria-label="Rig and organ visualization mode" style={{display:'flex',flexWrap:'wrap',gap:5,marginTop:5}}>
+     {(['off','overlay','exploded'] as const).map(mode=><button type="button" key={mode} aria-pressed={rigInspectMode===mode} onClick={()=>{setRigInspectMode(mode);demo('tryamm:streetverse-anatomy-inspect-toggle',{mode})}} style={{minHeight:42}}>{mode.toUpperCase()}</button>)}
+    </div>
+    <small style={{display:'block',marginTop:5}}>Real rig joints detected: {bonesDetected===null?'Not inspected':bonesDetected}. Exploded view moves visual markers only; the source rig remains intact.</small>
     <div style={{display:'flex',flexWrap:'wrap',gap:5,marginTop:6}}>
      <button onClick={()=>demo('tryamm:streetverse-local-damage-demo',{characterId:'bj-stubbs',amount:25,zone:'chest'})}>TEST HIT −25 HP</button>
      <button onClick={()=>demo('tryamm:streetverse-local-damage-demo',{characterId:'bj-stubbs',amount:100,zone:'head'})}>TEST DEFEAT</button>
