@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import {applyStreetVerseOrganImpact,createStreetVerseOrganState,type StreetVerseBodyZone} from './StreetVerseAnatomySimulation'
+import {calculateLivingBodyFeedback} from './StreetVerseLivingBodyFeedback'
 
 export type StreetVerseInjuryPhase='healthy'|'wounded'|'defeated'
 export type StreetVerseRigReaction='idle'|'hit-react'|'hurt'|'downed'|'seated'
@@ -32,6 +33,7 @@ export function createStreetVerseInjuryRuntime(scene:THREE.Scene,getHero:()=>THR
   if(typeof window!=='undefined'){
    window.dispatchEvent(new CustomEvent('tryamm:streetverse-injury-state',{detail:{...state,characterId:currentCharacterId,authoritative:false,source:'local-cosmetic-demo'}}))
    window.dispatchEvent(new CustomEvent('tryamm:streetverse-organ-state',{detail:{...organs,authoritative:false,source:'fictional-anatomy-demo'}}))
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-living-body-feedback',{detail:{characterId:currentCharacterId,...calculateLivingBodyFeedback(organs),authoritative:false,source:'fictional-anatomy-demo'}}))
    window.dispatchEvent(new CustomEvent('tryamm:streetverse-character-vitals',{detail:{characterId:currentCharacterId,health:state.health,stamina:organs.stamina,mobility:organs.mobility,knockedOut:state.phase==='defeated',hasBleedingStatus:state.phase==='wounded'&&state.visuals!=='off',limping:organs.mobility<75,injuryCount:state.phase==='healthy'?0:1,source:'streetverse-original-anatomy-runtime',fictional:true}}))
   }
  }
@@ -105,7 +107,9 @@ export function createStreetVerseInjuryRuntime(scene:THREE.Scene,getHero:()=>THR
    if(hero){
     const seated=isSeated()
     const hitPulse=clamp(1-(now-lastHit)/480,0,1)
-    const target=seated?0:state.phase==='defeated'?.48:hitPulse>0?hitPulse*Math.sin((now-lastHit)*.05)*.18:0
+    const response=calculateLivingBodyFeedback(organs)
+    const limpPulse=response.limpStrength>0?Math.sin(now*.006)*response.limpStrength*.035:0
+    const target=seated?0:state.phase==='defeated'?.48:hitPulse>0?hitPulse*Math.sin((now-lastHit)*.05)*.18:limpPulse
     lean=THREE.MathUtils.lerp(lean,target,.16)
     hero.rotation.z=baselineRoll+lean
     const reaction:StreetVerseRigReaction=seated?'seated':state.phase==='defeated'?'downed':hitPulse>0?'hit-react':state.phase==='wounded'?'hurt':'idle'
