@@ -51,6 +51,13 @@ require('./lib/daily-business-boost-routes')({app,auth,clean,id,getStore:()=>sto
 require('./lib/ai-cafe-routes')({app,auth,getStore:()=>store,saveStore});
 const {planIntent}=require('./lib/jarvis-genie-intent');
 app.get('/api/jarvis-genie/health',(_req,res)=>res.json({ok:true,service:'JARVIS Genie',mode:'preview-only',executionEnabled:false}));
+const {classifyFrame}=require('./lib/lyons-neural-bridge');
+app.post('/api/lyons-neural/preview',auth,(req,res)=>{
+  // Safe demonstration only: signals are simulated. Nothing is executed.
+  const result=classifyFrame(req.body?.frame||{});
+  const plan=req.body?.intent?planIntent(String(req.body.intent).slice(0,600)):{status:'NO_ACTION'};
+  res.json({ok:true,source:'synthetic-signal',...result,plan,authorized:false,executed:false});
+});
 app.post('/api/jarvis-genie/intent',auth,(req,res)=>{
   const raw=String(req.body?.intent||'');
   if(raw.length>600)return res.status(413).json({error:'Intent exceeds 600 characters'});
