@@ -3,7 +3,7 @@ import * as THREE from 'three'
 /**
  * Conservative BJ GLB foot-ground contact. An additive ankle orientation pass,
  * NOT a full two-bone IK solver. It never repositions/skews the source skeleton.
- * Foot ray tests use a small, vetted surface set; flat-ground fallback is 0m.
+ * Foot ray tests use a small, vetted surface set; missing terrain yields no contact.
  */
 export type FootGroundingStatus={enabled:boolean;rigDetected:boolean;surfaceCount:number;leftContact:boolean;rightContact:boolean;correctionRadians:number}
 /** GLB naming is inconsistent across Meshy, Mixamo, Blender and MetaHuman exports.
@@ -58,6 +58,8 @@ export function createStreetVerseBJFootGrounding(scene:THREE.Scene,getHero:()=>T
   for(const hit of hits){
    if(hit.face){
     surfaceNormal.copy(hit.face.normal).transformDirection(hit.object.matrixWorld)
+    // Reject walls, ceilings, steep faces and inverted surfaces as foot supports.
+    if(!Number.isFinite(surfaceNormal.y)||surfaceNormal.y<.65)continue
     return {height:hit.point.y,pitch:Math.atan2(surfaceNormal.z,Math.max(.2,surfaceNormal.y))}
    }
   }
@@ -80,7 +82,16 @@ export function createStreetVerseBJFootGrounding(scene:THREE.Scene,getHero:()=>T
     foot.bone.getWorldPosition(origin)
     origin.y+=.6
     const ground=getGround(origin)
-    if(!ground){foot.contact=false;continue}
+    if(!ground){
+     // A lost floor contact must not leave a stale ankle pitch on the original rig.
+     const sampled=foot.bone.rotation.x
+     const uncorrected=Math.abs(sampled-foot.lastApplied)<.003?sampled-foot.correction:sampled
+     foot.correction=THREE.MathUtils.lerp(foot.correction,0,.28)
+     foot.bone.rotation.x=uncorrected+foot.correction
+     foot.lastApplied=foot.bone.rotation.x
+     foot.contact=false
+     continue
+    }
     const heightDelta=origin.y-.6-ground.height
     const planted=!seated&&!moving&&heightDelta>=-.08&&heightDelta<=.22
     // Sample AFTER the character mixer each tick; preserve native animation by
