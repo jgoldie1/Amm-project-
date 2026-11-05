@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 4
     steps:
+      - name: Checkout BJ V15 offline viewer source
+        uses: actions/checkout@v5
       - name: Fetch exact owner-approved V15 GLB from stored source
         shell: bash
         run: |
@@ -40,8 +42,6 @@ jobs:
           path: bj-v15-original/
           if-no-files-found: error
           retention-days: 14
-      - name: Checkout BJ V15 offline viewer source
-        uses: actions/checkout@v5
       - name: Install Node 24
         uses: actions/setup-node@v5
         with:
