@@ -1,0 +1,31 @@
+{
+  "pilotId": "tryamm-business-mail-001",
+  "organization": "TRYAMM LLC",
+  "businessDomain": "tryamm.online",
+  "proposedMailSubdomain": "mail.tryamm.online",
+  "proposedPilotAddress": "info@mail.tryamm.online",
+  "websitePlatform": "Vercel (existing project under review)",
+  "dnsAuthorityObserved": "Cloudflare nameservers (marty and annabel)",
+  "providerCandidate": "Resend adapter for a test subdomain; not an independent mailbox host",
+  "originalBusinessMail": ["theammonmiverse@gmail.com", "theallamericanmarketplace@gmail.com"],
+  "domainOwnershipAccessVerified": false,
+  "siteAttachedToInspectedVercelProject": false,
+  "cloudDatabaseMailTablesPresent": false,
+  "spamReviewAvailable": false,
+  "backupRestoreVerified": false,
+  "emailProviderVerified": false,
+  "liveMailSendAllowed": false,
+  "liveMailReceiveAllowed": false,
+  "domainDnsUpdateAuthorized": false,
+  "status": "PREFLIGHT_ONLY",
+  "nextGates": [
+    "Verify ownership and Cloudflare zone edit authorization",
+    "Verify intended Vercel project and customer website preview",
+    "Confirm no existing mailbox uses the test subdomain",
+    "Create and review encrypted database backups and stage schema",
+    "Verify selected provider domain and obtain provider-specific DNS records",
+    "Add DNS only after review and customer confirmation",
+    "Run signed inbound, spam scanning and real deliverability tests",
+    "Verify backup restore and access recovery before charging customers"
+  ]
+}
