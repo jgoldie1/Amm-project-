@@ -18,7 +18,11 @@
 <div class="preview"><h3>Banner</h3><canvas id="banner" width="1200" height="450"></canvas><button data-export="banner">Download PNG</button></div>
 <div class="preview"><h3>Splash</h3><canvas id="splash" width="1080" height="1920"></canvas><button data-export="splash">Download PNG</button></div>
 <div class="preview"><h3>Flyer</h3><canvas id="flyer" width="1080" height="1350"></canvas><button data-export="flyer">Download PNG</button></div>
-</div></section><section><h2>See what is included before you buy</h2><table><thead><tr><th>Package</th><th>Scope</th></tr></thead><tbody><tr><td>Free — $0</td><td>Downloadable one-page HTML file; no public hosting or domain</td></tr><tr><td>Preview — $499</td><td>Scoped preview, QR design and 1 Reel</td></tr><tr><td>Experience — $1,250</td><td>Landing experience and 3 Reels</td></tr><tr><td>Digital Twin — $2,500</td><td>Landing experience, 5 Reels and StreetVerse subject to technical acceptance</td></tr></tbody></table><p class="muted">Paid plans require a written approved quote, verified checkout and explicit delivery terms. No plan is automatically purchased.</p></section></div></div>
+</div></section><section><h2>TRYAMM Reel Campaign Planner</h2><p>Turn your website branding into a 25-second Reel storyboard with a hook, demonstration and call to action. This is an editable plan, not a finished video.</p>
+<label for="campaignBenefit">Customer benefit</label><input id="campaignBenefit" maxlength="180" value="easy access to technology" placeholder="e.g. simpler online booking">
+<label for="campaignHook">Opening hook style</label><select id="campaignHook"><option value="question">Ask a question</option><option value="benefit">State the benefit</option><option value="demonstration">Start with a demonstration</option></select>
+<button type="button" id="createCampaign">Create Reel storyboard</button><button type="button" id="downloadCampaign">Download storyboard JSON</button>
+<div id="campaignResult" role="status" aria-live="polite"></div><small>Always review claims, image rights, captions and music licenses before rendering or publishing.</small></section><section><h2>See what is included before you buy</h2><table><thead><tr><th>Package</th><th>Scope</th></tr></thead><tbody><tr><td>Free — $0</td><td>Downloadable one-page HTML file; no public hosting or domain</td></tr><tr><td>Preview — $499</td><td>Scoped preview, QR design and 1 Reel</td></tr><tr><td>Experience — $1,250</td><td>Landing experience and 3 Reels</td></tr><tr><td>Digital Twin — $2,500</td><td>Landing experience, 5 Reels and StreetVerse subject to technical acceptance</td></tr></tbody></table><p class="muted">Paid plans require a written approved quote, verified checkout and explicit delivery terms. No plan is automatically purchased.</p></section></div></div>
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
@@ -58,5 +62,21 @@ $('saveProject').onclick=async()=>{try{$('notice').textContent='Saving securely�
 $('loadProject').onclick=async()=>{try{const id=$('savedProjects').value;if(!id)return;const data=await api('/api/website-os/projects/'+encodeURIComponent(id));projectId=data.project.id;setState({...data.project.brand,revision:data.project.revision});$('notice').textContent='Saved project reopened.'}catch(e){$('notice').textContent=e.message}};
 $('submitQuote').onclick=async()=>{try{if(!projectId)throw Error('Save the project before submitting.');if(!confirm('Request a written quote? No payment will be charged.'))return;const data=await api('/api/website-os/projects/'+encodeURIComponent(projectId)+'/request-quote',{method:'POST',body:JSON.stringify({consent:true})});$('notice').textContent='Request submitted for owner review. Lead reference: '+data.leadId}catch(e){$('notice').textContent=e.message}};
 async function gallery(){try{const response=await fetch('/api/website-os/templates');if(!response.ok)throw Error('Catalog endpoint unavailable');const data=await response.json();$('templates').replaceChildren();for(const item of data.templates||[])$('templates').add(new Option(item.name+' — '+item.state,item.id));$('templateStatus').textContent=(data.templates||[]).length+' recovered starter previews. 500 finished templates have not been verified.';drawAll()}catch(e){$('templateStatus').textContent='The recovered catalog is not connected on this deployment; default preview only.'}}
+let lastCampaign=null;
+$('createCampaign').onclick=async()=>{
+ try{
+ const b=getState();
+ const response=await fetch('/api/website-os/campaign/storyboard',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({businessName:b.businessName,offer:b.description,benefit:$('campaignBenefit').value,hookMode:$('campaignHook').value})});
+ const data=await response.json().catch(()=>({}));if(!response.ok)throw Error(data.error||'Campaign generation unavailable');
+ lastCampaign=data.campaign;
+ const root=$('campaignResult');root.replaceChildren();
+ for(const scene of lastCampaign.scenes){const article=document.createElement('article'),heading=document.createElement('strong'),p=document.createElement('p');heading.textContent=scene.seconds.join('–')+' seconds · '+scene.role;p.textContent=scene.caption+' — '+scene.visual;article.append(heading,p);root.append(article)}
+ }catch(error){$('campaignResult').textContent=error.message}
+};
+$('downloadCampaign').onclick=()=>{
+ if(!lastCampaign){$('campaignResult').textContent='Generate and review a campaign first.';return}
+ const url=URL.createObjectURL(new Blob([JSON.stringify(lastCampaign,null,2)],{type:'application/json'})),a=document.createElement('a');
+ a.href=url;a.download='tryamm-reel-storyboard.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1200);
+};
 drawAll();gallery();if(token())loadList().catch(()=>{});
 </script></body></html>
