@@ -9,6 +9,7 @@ export default function StreetVerseBJVitalsHUD(){
  const [injuryView,setInjuryView]=useState<'off'|'minimal'|'standard'>('minimal')
  const [rigInspectMode,setRigInspectMode]=useState<'off'|'overlay'|'exploded'>('off')
  const [bonesDetected,setBonesDetected]=useState<number|null>(null)
+ const [footGrounding,setFootGrounding]=useState<{rigDetected:boolean;surfaceCount:number;leftContact:boolean;rightContact:boolean;correctionRadians:number}|null>(null)
  const [bodyFeedback,setBodyFeedback]=useState<{paceMultiplier:number;breathingEffort:number;canSprint:boolean;collapse:boolean;rescueRecommended:boolean}|null>(null)
  const [expanded,setExpanded]=useState(false)
  const [rig,setRig]=useState<{state:'loading'|'loaded'|'unavailable';version:string;animations:number;source:string}>({state:'loading',version:'unverified',animations:0,source:'unknown'})
@@ -76,6 +77,14 @@ export default function StreetVerseBJVitalsHUD(){
   window.addEventListener('tryamm:streetverse-living-body-feedback',onFeedback)
   return()=>window.removeEventListener('tryamm:streetverse-living-body-feedback',onFeedback)
  },[])
+ useEffect(()=>{
+  const onGrounding=(event:Event)=>{
+   const d=(event as CustomEvent<{rigDetected?:boolean;surfaceCount?:number;leftContact?:boolean;rightContact?:boolean;correctionRadians?:number}>).detail||{}
+   setFootGrounding({rigDetected:d.rigDetected===true,surfaceCount:Number(d.surfaceCount||0),leftContact:d.leftContact===true,rightContact:d.rightContact===true,correctionRadians:Number(d.correctionRadians||0)})
+  }
+  window.addEventListener('tryamm:streetverse-bj-foot-grounding-status',onGrounding)
+  return()=>window.removeEventListener('tryamm:streetverse-bj-foot-grounding-status',onGrounding)
+ },[])
  const inspectionAllowed=typeof window!=='undefined'&&new URLSearchParams(window.location.search).get('injuryLab')==='1'
  const demo=(name:string,detail:Record<string,unknown>={})=>window.dispatchEvent(new CustomEvent(name,{detail}))
  const organNames:['brain','heart','lungs','liver','kidneys']=['brain','heart','lungs','liver','kidneys']
@@ -102,6 +111,8 @@ export default function StreetVerseBJVitalsHUD(){
    </section>}
    {inspectionAllowed&&<section aria-label="Developer anatomy rig tests" style={{marginTop:7,borderTop:'1px solid #51738a',paddingTop:8}}>
     <strong>TEARDOWN LAB • LOCAL DEMO</strong>
+    <div style={{marginTop:7,fontSize:11}}>BJ foot contact: {footGrounding===null?'Awaiting 3D inspection':footGrounding.rigDetected?`GLB ankle bones found • L ${footGrounding.leftContact?'grounded':'free'} / R ${footGrounding.rightContact?'grounded':'free'}`:'No compatible GLB foot bones detected'}</div>
+    {footGrounding&&<small style={{display:'block',marginTop:3}}>Tagged ground surfaces: {footGrounding.surfaceCount}. Small ankle adjustment only; full two-bone IK not yet certified.</small>}
     <div style={{marginTop:7}}>Non-destructive GLB rig / organ inspector</div>
     <div role="group" aria-label="Rig and organ visualization mode" style={{display:'flex',flexWrap:'wrap',gap:5,marginTop:5}}>
      {(['off','overlay','exploded'] as const).map(mode=><button type="button" key={mode} aria-pressed={rigInspectMode===mode} onClick={()=>{setRigInspectMode(mode);demo('tryamm:streetverse-anatomy-inspect-toggle',{mode})}} style={{minHeight:42}}>{mode.toUpperCase()}</button>)}
