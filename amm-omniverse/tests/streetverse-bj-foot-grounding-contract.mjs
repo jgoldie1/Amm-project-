@@ -22,4 +22,7 @@ assert.ok(grounding.includes('!feet.some(foot=>foot.side===side)'),'Duplicate sk
 assert.ok(grounding.includes('return null // Never pretend an unverified surface is flat ground.'),'Missing terrain must not invent foot contacts')
 assert.ok(grounding.includes('if(!ground){foot.contact=false;continue}'),'Missing raycast hit must suppress planting')
 assert.ok(grounding.includes('streetVerseFootSide(bone.name)'),'Loaded GLB foot aliases must pass through shared parser')
+assert.ok(grounding.includes("surfaceNormal.y<.65"),'Steep walls, ceilings and underside faces cannot be used as foot support')
+assert.ok(grounding.includes('foot.correction=THREE.MathUtils.lerp(foot.correction,0,.28)'),'A lost ground ray must smoothly reset ankle pitch')
+assert.ok(grounding.includes('if(!ground){') || grounding.includes('if(!ground){\n'),'A missing raycast surface must not be treated as walkable')
 console.log('StreetVerse BJ animation-safe ground contact contracts PASS')
