@@ -36,5 +36,18 @@ assert.equal(incoming.safeInbound(event).recipients[0],'info@example.com');
  assert.equal(first.accepted,1);assert.equal(records[0].status,'quarantined');assert.equal(records[0].owner_id,'customer_1');
  const duplicate=await incoming.processInbound({event,deliveryId:id,db:fakeDb,fetcher:fakeFetch,apiKey:'test'});
  assert.equal(duplicate.accepted,0);assert.equal(records.length,1);
- console.log('Quantum Mail v2 webhook, isolation, draft, spam-quarantine and replay regression: PASS');
+ const sent={id:'22222222-2222-4222-8222-222222222222',owner_id:'customer_1',account_id:accounts[0].id,direction:'outbound',status:'sent',to_addresses:['contact@example.com'],provider_message_id:'provided_email_12345'};
+ const held=[];
+ const eventDb={
+  select:async(table,query)=>table==='quantum_mail_messages'?[sent]:table==='quantum_mail_suppressions'?held.filter(r=>query.includes(encodeURIComponent(r.recipient))):[],
+  update:async(_table,_query,patch)=>{Object.assign(sent,patch);return [sent]},
+  insert:async(_table,row)=>{held.push(row);return [row]}
+ };
+ const handled=await incoming.processDeliveryEvent({event:{type:'email.bounced',data:{email_id:sent.provider_message_id}},db:eventDb});
+ assert.equal(handled.status,'bounced');
+ assert.equal(held[0].recipient,'contact@example.com');
+ const replay=await incoming.processDeliveryEvent({event:{type:'email.bounced',data:{email_id:sent.provider_message_id}},db:eventDb});
+ assert.equal(replay.idempotent,true);
+ assert.equal(held.length,1);
+ console.log('Quantum Mail v2 webhook, isolation, draft, bounce suppression and replay regression: PASS');
 })().catch(e=>{console.error(e);process.exitCode=1});
