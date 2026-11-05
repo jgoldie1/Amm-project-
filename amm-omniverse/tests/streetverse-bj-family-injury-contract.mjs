@@ -11,4 +11,8 @@ assert.ok(bridge.includes("d.safeZone!==true"),'Fictional recovery must require 
 assert.ok(game.includes('installStreetVerseFictionalInjuryRuntime()'),'StreetVerse must install fictional injury runtime');
 assert.ok(bj.includes('GLTFLoader')&&bj.includes('AnimationMixer')&&bj.includes('morphTargetNames'),'BJ 3D rig and expression loader must remain preserved');
 assert.ok(cast.includes('STREETVERSE_FAMILY_CHARACTER_PRODUCTION'),'Existing family and friend roster must remain connected');
+const hud=fs.readFileSync(new URL('components/StreetVerseBJVitalsHUD.tsx',root),'utf8');
+assert.ok(game.includes('<StreetVerseBJVitalsHUD/>'),'Fictional BJ vitals HUD must render in StreetVerse');
+assert.ok(hud.includes('tryamm:bj-meshy-v6-ready')&&hud.includes('tryamm:bj-meshy-v6-error'),'HUD must report real GLB loading outcome');
+assert.ok(hud.includes('tryamm:streetverse-bj-visible-version'),'HUD must recognize V15 render readiness events');
 console.log('StreetVerse BJ rig, family roster and non-graphic injury framework contract PASS');
