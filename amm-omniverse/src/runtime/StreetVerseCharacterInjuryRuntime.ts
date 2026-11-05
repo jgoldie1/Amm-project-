@@ -6,7 +6,7 @@ export type StreetVerseInjuryPhase='healthy'|'wounded'|'defeated'
 export type StreetVerseRigReaction='idle'|'hit-react'|'hurt'|'downed'|'seated'
 export type StreetVerseInjuryView='off'|'minimal'|'standard'
 export type StreetVerseInjuryState={health:number;phase:StreetVerseInjuryPhase;visuals:StreetVerseInjuryView;demoOnly:true}
-export type StreetVerseDamageRequest={amount:number;characterId?:string;source?:string;zone?:StreetVerseBodyZone}
+export type StreetVerseDamageRequest={amount:number;characterId?:string;source?:string;zone?:StreetVerseBodyZone;bleeding?:boolean}
 const START_HEALTH=100
 const clamp=(v:number,min:number,max:number)=>Math.max(min,Math.min(max,v))
 export function applyStreetVerseDemoDamage(state:StreetVerseInjuryState,request:StreetVerseDamageRequest):StreetVerseInjuryState{
@@ -23,6 +23,7 @@ export function createStreetVerseInjuryRuntime(scene:THREE.Scene,getHero:()=>THR
  let animatedHero:THREE.Object3D|null=null
  let baselineRoll=0
  let lastReaction:StreetVerseRigReaction='idle'
+ let bleedingStatus=false
  const effectRoot=new THREE.Group()
  effectRoot.name='streetverse-demo-injury-fx'
  scene.add(effectRoot)
@@ -34,7 +35,7 @@ export function createStreetVerseInjuryRuntime(scene:THREE.Scene,getHero:()=>THR
    window.dispatchEvent(new CustomEvent('tryamm:streetverse-injury-state',{detail:{...state,characterId:currentCharacterId,authoritative:false,source:'local-cosmetic-demo'}}))
    window.dispatchEvent(new CustomEvent('tryamm:streetverse-organ-state',{detail:{...organs,authoritative:false,source:'fictional-anatomy-demo'}}))
    window.dispatchEvent(new CustomEvent('tryamm:streetverse-living-body-feedback',{detail:{characterId:currentCharacterId,...calculateLivingBodyFeedback(organs),authoritative:false,source:'fictional-anatomy-demo'}}))
-   window.dispatchEvent(new CustomEvent('tryamm:streetverse-character-vitals',{detail:{characterId:currentCharacterId,health:state.health,stamina:organs.stamina,mobility:organs.mobility,knockedOut:state.phase==='defeated',hasBleedingStatus:state.phase==='wounded'&&state.visuals!=='off',limping:organs.mobility<75,injuryCount:state.phase==='healthy'?0:1,source:'streetverse-original-anatomy-runtime',fictional:true}}))
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-character-vitals',{detail:{characterId:currentCharacterId,health:state.health,stamina:organs.stamina,mobility:organs.mobility,knockedOut:state.phase==='defeated',hasBleedingStatus:bleedingStatus,limping:organs.mobility<75,injuryCount:state.phase==='healthy'?0:1,source:'streetverse-original-anatomy-runtime',fictional:true}}))
   }
  }
  const removeDrops=()=>{for(const item of drops)effectRoot.remove(item.mesh);drops.length=0}
@@ -44,6 +45,7 @@ export function createStreetVerseInjuryRuntime(scene:THREE.Scene,getHero:()=>THR
   const previous=state
   state=applyStreetVerseDemoDamage(state,req)
   if(previous!==state){
+   bleedingStatus=bleedingStatus||req.bleeding===true
    organs=applyStreetVerseOrganImpact(organs,{amount:req.amount,zone:req.zone})
    // Health defeat and body-system incapacitation must not disagree.
    if(state.phase==='defeated'||organs.consciousness==='downed'){
@@ -74,13 +76,14 @@ export function createStreetVerseInjuryRuntime(scene:THREE.Scene,getHero:()=>THR
  const onRecover=()=>{
   state={...state,health:START_HEALTH,phase:'healthy'}
   organs=createStreetVerseOrganState(currentCharacterId)
+  bleedingStatus=false
   removeDrops()
   lastHit=-Infinity
   lastReaction='idle'
   if(typeof window!=='undefined')window.dispatchEvent(new CustomEvent('tryamm:streetverse-rig-reaction',{detail:{characterId:currentCharacterId,reaction:'idle',authoritative:false,source:'local-injury-demo'}}))
   publish()
  }
- const onCharacterSelect=(event:Event)=>{const id=(event as CustomEvent<{id?:string}>).detail?.id;if(!id||!/^[a-z0-9._-]{2,80}$/i.test(id))return;currentCharacterId=id;state={...state,health:START_HEALTH,phase:'healthy'};organs=createStreetVerseOrganState(id);removeDrops();lastHit=-Infinity;publish()}
+ const onCharacterSelect=(event:Event)=>{const id=(event as CustomEvent<{id?:string}>).detail?.id;if(!id||!/^[a-z0-9._-]{2,80}$/i.test(id))return;currentCharacterId=id;state={...state,health:START_HEALTH,phase:'healthy'};organs=createStreetVerseOrganState(id);bleedingStatus=false;removeDrops();lastHit=-Infinity;publish()}
  const onVisual=(event:Event)=>{
   const value=(event as CustomEvent<{mode?:StreetVerseInjuryView}>).detail?.mode
   if(value!=='off'&&value!=='minimal'&&value!=='standard')return
