@@ -12,6 +12,7 @@ import {installStreetVerseFirstRideLoveStoryRuntime} from '../runtime/StreetVers
 import {installStreetVerseCabinLifeRuntime} from '../runtime/StreetVerseCabinLifeRuntime'
 import {installStreetVersePhysicalVehicleRigRuntime} from '../runtime/StreetVersePhysicalVehicleRigRuntime'
 import {installStreetVerseNPCSocialRuntime} from '../runtime/StreetVerseNPCSocialRuntime'
+import {installStreetVerseFictionalInjuryRuntime} from '../runtime/StreetVerseFictionalInjuryRuntime'
 import {chooseAccessMode} from '../runtime/StreetVerseAccessBridge'
 import {installStreetVersePerformanceDirector} from '../runtime/StreetVersePerformanceDirectorRuntime'
 import {installHolographicInternetBridge} from '../runtime/HolographicInternetGoogloplexBridge'
@@ -188,6 +189,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  useLayoutEffect(()=>{installStreetVerseCabinLifeRuntime()},[])
  useLayoutEffect(()=>{installStreetVersePhysicalVehicleRigRuntime()},[])
  useLayoutEffect(()=>{installStreetVerseNPCSocialRuntime()},[])
+ useLayoutEffect(()=>installStreetVerseFictionalInjuryRuntime(),[])
  useLayoutEffect(()=>installStreetVersePerformanceDirector(),[])
  useLayoutEffect(()=>installHolographicInternetBridge(),[])
  useLayoutEffect(()=>installStreetVerseAbracadabraGeniiRuntime(),[])
