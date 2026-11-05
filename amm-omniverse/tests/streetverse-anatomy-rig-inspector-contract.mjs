@@ -21,4 +21,8 @@ assert.ok(bj.includes('tryamm:streetverse-rig-reaction')&&bj.includes('injuryCli
 assert.ok(bj.includes('if(!mixer||!clip)return'),'Missing BJ injury clips must never be simulated as loaded animations');
 assert.ok(injury.includes("reaction:'idle'"),'Recovering BJ must reset the rig to idle');
 assert.ok(inspector.includes('tryamm:streetverse-organ-state'),'Organs must react to the original fictional state');
+assert.ok(inspector.includes("bone.parent instanceof THREE.Bone")&&inspector.includes('bones.indexOf(bone.parent)'),'Skeleton connections must follow actual GLB hierarchy')
+assert.ok(inspector.includes('new Float32Array(96*2*3)')&&inspector.includes('boneLinkGeometry.setDrawRange(0,segments*2)'),'Bone line count must remain bounded and dynamic')
+assert.ok(inspector.includes("new THREE.LineSegments(boneLinkGeometry,boneLinkMaterial)"),'Original skeleton should be visible as line network in teardown')
+assert.ok(inspector.includes('boneLinkGeometry.dispose();boneLinkMaterial.dispose()'),'Skeleton overlay must be disposed on world exit')
 console.log('StreetVerse original BJ organ + reversible skeleton teardown inspection contracts PASS')
