@@ -32,6 +32,7 @@ export function createStreetVerseInjuryRuntime(scene:THREE.Scene,getHero:()=>THR
   if(typeof window!=='undefined'){
    window.dispatchEvent(new CustomEvent('tryamm:streetverse-injury-state',{detail:{...state,characterId:currentCharacterId,authoritative:false,source:'local-cosmetic-demo'}}))
    window.dispatchEvent(new CustomEvent('tryamm:streetverse-organ-state',{detail:{...organs,authoritative:false,source:'fictional-anatomy-demo'}}))
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-character-vitals',{detail:{characterId:currentCharacterId,health:state.health,stamina:organs.stamina,mobility:organs.mobility,knockedOut:state.phase==='defeated',hasBleedingStatus:state.phase==='wounded'&&state.visuals!=='off',limping:organs.mobility<75,injuryCount:state.phase==='healthy'?0:1,source:'streetverse-original-anatomy-runtime',fictional:true}}))
   }
  }
  const removeDrops=()=>{for(const item of drops)effectRoot.remove(item.mesh);drops.length=0}
