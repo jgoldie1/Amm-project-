@@ -54,6 +54,7 @@ require('./lib/tryamm-funnel-routes')({app,auth});
 require('./lib/tryamm-order-routes')({app,auth});
 require('./lib/tryamm-quote-acceptance-routes')({app,auth});
 require('./lib/tryamm-customer-order-routes')({app,auth});
+require('./lib/tryamm-website-delivery-routes')({app,auth});
 require('./lib/tryamm-launch-readiness-routes')({app,auth});
 require('./lib/website-migration-routes')({app,auth,getStore:()=>store,saveStore});
 require('./lib/website-brand-routes')({app,auth,getStore:()=>store,saveStore});
