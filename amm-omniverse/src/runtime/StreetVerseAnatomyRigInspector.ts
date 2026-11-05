@@ -45,6 +45,19 @@ export function createStreetVerseAnatomyRigInspector(scene:THREE.Scene,getHero:(
  }
  window.addEventListener('tryamm:streetverse-organ-state',onOrgans)
  const markers:THREE.Mesh[]=[]
+ // A lightweight skeletal graph follows the ORIGINAL GLB parent-child joints.
+ // All lines are overlays; no change is made to skinning or bone transforms.
+ const boneLinkVertices=new Float32Array(96*2*3)
+ const boneLinkGeometry=new THREE.BufferGeometry()
+ const boneLinkAttribute=new THREE.BufferAttribute(boneLinkVertices,3)
+ boneLinkGeometry.setAttribute('position',boneLinkAttribute)
+ boneLinkGeometry.setDrawRange(0,0)
+ const boneLinkMaterial=new THREE.LineBasicMaterial({color:0xffe4b3,transparent:true,opacity:.70,depthTest:false})
+ const boneLinks=new THREE.LineSegments(boneLinkGeometry,boneLinkMaterial)
+ boneLinks.name='bj-original-glb-skeleton-connection-overlay'
+ boneLinks.frustumCulled=false
+ overlay.add(boneLinks)
+ let boneParentIndices:number[]=[]
  let bones:THREE.Bone[]=[]
  const temp=new THREE.Vector3()
  const center=new THREE.Vector3()
@@ -63,6 +76,7 @@ export function createStreetVerseAnatomyRigInspector(scene:THREE.Scene,getHero:(
    }
   })
   bones=bones.slice(0,96) // phone-safe visual budget
+  boneParentIndices=bones.map(bone=>bone.parent instanceof THREE.Bone?bones.indexOf(bone.parent):-1)
   bones.forEach((_,index)=>{
    const marker=new THREE.Mesh(boneGeometry,boneMaterial)
    marker.name='rig-joint-'+index
@@ -105,6 +119,22 @@ export function createStreetVerseAnatomyRigInspector(scene:THREE.Scene,getHero:(
     }
     marker.position.copy(bonePosition)
    })
+   let segments=0
+   markers.forEach((marker,i)=>{
+    const parentIndex=boneParentIndices[i]
+    if(parentIndex<0)return
+    const parent=markers[parentIndex]
+    const start=segments*6
+    boneLinkVertices[start]=marker.position.x
+    boneLinkVertices[start+1]=marker.position.y
+    boneLinkVertices[start+2]=marker.position.z
+    boneLinkVertices[start+3]=parent.position.x
+    boneLinkVertices[start+4]=parent.position.y
+    boneLinkVertices[start+5]=parent.position.z
+    segments++
+   })
+   boneLinkGeometry.setDrawRange(0,segments*2)
+   boneLinkAttribute.needsUpdate=true
    if(lastEmitted!==bones.length){
     lastEmitted=bones.length
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-anatomy-inspector-status',{detail:{
@@ -119,6 +149,7 @@ export function createStreetVerseAnatomyRigInspector(scene:THREE.Scene,getHero:(
    markers.forEach(mesh=>overlay.remove(mesh))
    overlay.removeFromParent()
    geometry.dispose();boneGeometry.dispose();boneMaterial.dispose()
+   boneLinkGeometry.dispose();boneLinkMaterial.dispose()
    organMeshes.forEach(x=>x.material.dispose())
   }
  }
