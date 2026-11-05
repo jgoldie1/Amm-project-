@@ -10,6 +10,14 @@
 <label class="check"><input id="approve" type="checkbox" required> I authorize a setup plan only; no charges or DNS changes.</label>
 <button type="submit">Save cloud setup plan</button><button type="button" id="preview">Preview provider checklist</button>
 <p id="status" role="status" aria-live="polite"></p></form></section>
+<section><h2>One-click domain and DNS setup preparation</h2>
+<p>Prepare connection instructions or a registrar transfer checklist for the saved provider and domain. This does not make DNS changes or initiate a transfer.</p>
+<label for="domainAction">What do you want to do?</label><select id="domainAction"><option value="connect-existing-domain">Connect my existing domain without transferring registrar</option><option value="transfer-registration">Transfer domain registration to a new registrar</option></select>
+<label class="check"><input id="domainConfirmed" type="checkbox"> I control this domain and can authorize DNS changes</label>
+<label class="check"><input id="emailConfirmed" type="checkbox"> I understand current business email, DNS and subdomains must be preserved</label>
+<button type="button" id="prepareDomain">One-click: prepare domain setup</button>
+<p id="domainStatus" role="status" aria-live="polite"></p><ol id="domainSteps"></ol><small>Domain registrar transfer and connecting a domain to a website are different operations. Transfer fees or locks may apply. Never enter domain transfer codes or passwords here.</small>
+</section>
 <section><h2>Provider setup checklist</h2><ol id="steps"><li>Choose your provider to see a planning checklist.</li></ol><p><small>Do not submit your password, API key or recovery codes. You will complete any hosting subscription in your own provider account, with explicit approval. Hosting fees and domains are separate from TRYAMM website packages.</small></p></section>
 <script>
 'use strict';
@@ -20,5 +28,21 @@ function draw(){const p=providerData[$('provider').value];$('steps').replaceChil
 async function init(){try{const results=await Promise.all([fetch('/api/website-os/cloud/providers').then(x=>x.json()),api('/api/website-os/projects')]);providerData=Object.fromEntries((results[0].providers||[]).map(x=>[x.id,x]));$('project').replaceChildren(new Option('Choose a saved draft',''));for(const p of results[1].projects||[]){if(p.status==='draft'){$('project').add(new Option(p.brand.businessName,p.id));projectRevisions.set(p.id,p.revision)}}draw()}catch(e){$('status').textContent=e.message}}
 $('provider').onchange=draw;$('preview').onclick=()=>{draw();$('status').textContent='Preview only. Nothing has been purchased or deployed.'};
 $('cloud').onsubmit=async e=>{e.preventDefault();try{const id=$('project').value;if(!id)throw Error('Choose a saved website draft first');const data=await api('/api/website-os/cloud/'+encodeURIComponent(id),{method:'PUT',body:JSON.stringify({provider:$('provider').value,domain:$('domain').value,notes:$('notes').value,ownsAccount:$('owns').checked,authorizesPlanning:$('approve').checked,revision:projectRevisions.get(id)})});projectRevisions.set(id,data.revision);$('status').textContent='Cloud setup checklist saved. No hosting subscription, DNS change or launch occurred.';}catch(error){$('status').textContent=error.message}};
+$('prepareDomain').onclick=async()=>{
+ try{
+ const id=$('project').value;if(!id)throw Error('Choose your saved project first');
+ const provider=$('provider').value,domain=$('domain').value.trim();
+ if(!domain)throw Error('Enter a domain first');
+ const result=await api('/api/website-os/domain/prepare',{method:'POST',body:JSON.stringify({
+  projectId:id,provider,domain,operation:$('domainAction').value,domainOwnershipConfirmed:$('domainConfirmed').checked,
+  preserveEmailConfirmed:$('emailConfirmed').checked,revision:projectRevisions.get(id),
+  notes:'',ownsAccount:true,authorizesPlanning:true
+ })});
+ projectRevisions.set(id,result.revision);
+ $('domainSteps').replaceChildren();
+ for(const step of result.domainPlan.checklist){const li=document.createElement('li');li.textContent=step;$('domainSteps').append(li)}
+ $('domainStatus').textContent='Plan saved. NO DNS change or registrar transfer was made. Confirm exact provider records and review before cutover.';
+ }catch(error){$('domainStatus').textContent=error.message}
+};
 init();
 </script></body></html>
