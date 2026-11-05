@@ -32,6 +32,18 @@ export function createStreetVerseAnatomyRigInspector(scene:THREE.Scene,getHero:(
   overlay.add(mesh)
   return {mesh,spec,material}
  })
+ const onOrgans=(event:Event)=>{
+  const detail=(event as CustomEvent<{characterId?:string;integrity?:Partial<Record<StreetVerseOrgan,number>>}>).detail
+  if(detail?.characterId!=='bj-stubbs'||!detail.integrity)return
+  organMeshes.forEach(({spec,material})=>{
+   const integrity=Number(detail.integrity?.[spec.id])
+   if(!Number.isFinite(integrity))return
+   const intensity=THREE.MathUtils.clamp(integrity,0,100)/100
+   material.color.setHex(spec.color).lerp(new THREE.Color(0xffa347),1-intensity)
+   material.opacity=.50+intensity*.28
+  })
+ }
+ window.addEventListener('tryamm:streetverse-organ-state',onOrgans)
  const markers:THREE.Mesh[]=[]
  let bones:THREE.Bone[]=[]
  const temp=new THREE.Vector3()
@@ -103,6 +115,7 @@ export function createStreetVerseAnatomyRigInspector(scene:THREE.Scene,getHero:(
   },
   dispose:()=>{
    window.removeEventListener('tryamm:streetverse-anatomy-inspect-toggle',onMode)
+   window.removeEventListener('tryamm:streetverse-organ-state',onOrgans)
    markers.forEach(mesh=>overlay.remove(mesh))
    overlay.removeFromParent()
    geometry.dispose();boneGeometry.dispose();boneMaterial.dispose()
