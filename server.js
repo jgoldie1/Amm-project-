@@ -51,6 +51,7 @@ require('./lib/daily-business-boost-routes')({app,auth,clean,id,getStore:()=>sto
 require('./lib/ai-cafe-routes')({app,auth,getStore:()=>store,saveStore});
 require('./lib/website-os-catalog-routes')({app});
 require('./lib/tryamm-launch-readiness-routes')({app,auth});
+require('./lib/website-migration-routes')({app,auth,getStore:()=>store,saveStore});
 const {planIntent}=require('./lib/jarvis-genie-intent');
 app.get('/api/jarvis-genie/health',(_req,res)=>res.json({ok:true,service:'JARVIS Genie',mode:'preview-only',executionEnabled:false}));
 const {classifyFrame}=require('./lib/lyons-neural-bridge');
