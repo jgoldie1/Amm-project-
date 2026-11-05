@@ -4,6 +4,18 @@ import {assertSafePublicEnv} from './scripts/public-env-guard.mjs'
 import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
+  // Same-origin BJ V15 model path for Chromebook Vite development. Browser
+  // requests do not contact the remote CloudFront origin directly (CORS).
+  server: {
+    proxy: {
+      '/api/streetverse/bj-v15-model': {
+        target: 'https://d2ol7oe51mr4n9.cloudfront.net',
+        changeOrigin: true,
+        secure: true,
+        rewrite: () => '/user_3HqgexuZuGoTDUJ2Hxg2e6x5Hzm/daa5234c-5fbf-4b52-9c45-e82e36156153.glb',
+      },
+    },
+  },
   plugins: [react(), {name:'safe-public-environment',configResolved(config){assertSafePublicEnv({...process.env,...config.env})}}],
   resolve: {
     alias: [
