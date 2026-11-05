@@ -516,7 +516,11 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
     const setMotion=(motion:Motion)=>{
       if(!mixer||activeMotion===motion)return
       const clip=motion==='sit'?(animations.sit||animations.idle||null):(animations[motion]||animations.walk||animations.idle||clips[0])
-      if(!clip)return
+      if(!clip){
+        // A rig without seated/idle clips must not keep walking while driving.
+        if(motion==='sit'){activeAction?.fadeOut(.12);activeAction=null;activeMotion='sit'}
+        return
+      }
       const next=mixer.clipAction(clip)
       next.enabled=true
       next.setEffectiveWeight(1)
