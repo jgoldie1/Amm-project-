@@ -36,6 +36,8 @@ export default function StreetVerseCoreGameplayDock(){
   },[])
 
   const missionAction=()=>{
+    // Restore the established one-tap mission quick-start signal while retaining the cinematic selector.
+    dispatchEvent(new CustomEvent('tryamm:streetverse-first-journey-start',{detail:{missionId:mission?.id||'taylor-single-canvas',source:'streetverse-core-dock',input:'one-hand-mission-button'}}))
     dispatchEvent(new CustomEvent('tryamm:streetverse-cinematic-mission-open',{detail:{missionId:mission?.id,source:'streetverse-core-dock'}}))
     setMessage('SCRIPTED MISSION SELECTOR OPENED')
   }
