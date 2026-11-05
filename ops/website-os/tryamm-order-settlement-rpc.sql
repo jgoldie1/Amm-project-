@@ -50,7 +50,7 @@ begin
  or v_order.price_cents <> p_amount_cents
  or v_order.currency <> lower(p_currency)
  then raise exception 'Session or amount does not match approved order'; end if;
- if v_order.status='paid-verified' then
+ if v_order.status in ('paid-verified','building','review-ready','delivered','refunded') then
   return jsonb_build_object('applied',false,'reason','ALREADY_SETTLED','orderId',p_order_id);
  end if;
  if v_order.status <> 'payment-pending' or v_order.customer_accepted_at is null then
