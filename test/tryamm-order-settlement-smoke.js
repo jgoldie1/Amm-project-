@@ -2,9 +2,10 @@
 const assert=require('node:assert/strict');
 const {settlementInput,settleVerifiedOrder}=require('../lib/tryamm-order-settlement');
 const orderId='11111111-2222-4333-8444-555555555555';
-const session={id:'cs_test_123abc',mode:'payment',payment_status:'paid',amount_total:49900,currency:'usd',metadata:{kind:'tryamm-website-order',orderId}};
-const event={id:'evt_12345abcdef',type:'checkout.session.completed'};
+const session={livemode:false,id:'cs_test_123abc',mode:'payment',payment_status:'paid',amount_total:49900,currency:'usd',metadata:{kind:'tryamm-website-order',orderId}};
+const event={livemode:false,id:'evt_12345abcdef',type:'checkout.session.completed'};
 assert.equal(settlementInput(session,event).amountCents,49900);
+assert.throws(()=>settlementInput({...session,livemode:true},event),/test-mode/);
 assert.equal(settlementInput({...session,metadata:{kind:'creator'}},event),null);
 assert.equal(settlementInput({...session,payment_status:'unpaid'},event).reason,'PAYMENT_NOT_CONFIRMED');
 assert.equal(settlementInput(session,{...event,type:'invoice.paid'}),null);
