@@ -1,6 +1,7 @@
 -- STAGING ONLY. Apply after backup and tenant-isolation review.
 -- A review is never proof of a deployed site; customer approval precedes final delivery.
 alter table public.tryamm_website_orders add column if not exists review_url text;
+alter table public.tryamm_website_orders add column if not exists review_nonce uuid;
 alter table public.tryamm_website_orders add column if not exists review_submitted_at timestamptz;
 alter table public.tryamm_website_orders add column if not exists customer_review_approved_at timestamptz;
 alter table public.tryamm_website_orders add column if not exists customer_review_notes text;
@@ -38,7 +39,7 @@ begin
   return jsonb_build_object('prepared',true,'alreadyPrepared',true);
  end if;
  update public.tryamm_website_orders
- set status='review-ready',review_url=p_review_url,review_submitted_at=now(),customer_review_approved_at=null,updated_at=now()
+ set status='review-ready',review_url=p_review_url,review_nonce=pg_catalog.gen_random_uuid(),review_submitted_at=now(),customer_review_approved_at=null,updated_at=now()
  where id=p_order_id;
  return jsonb_build_object('prepared',true,'alreadyPrepared',false);
 end $$;
@@ -57,7 +58,7 @@ begin
  select * into o from public.tryamm_website_orders where id=t.order_id for update;
  if not found or o.status<>'review-ready' or o.verified_paid_at is null or o.review_url is null
  then raise exception 'Order is not reviewable'; end if;
- if encode(extensions.digest((o.id::text || E'\n' || o.review_url || E'\n' || o.review_submitted_at::text)::bytea,'sha256'),'hex')<>t.review_fingerprint
+ if o.review_nonce is distinct from t.review_nonce
  then raise exception 'Website preview has changed since invitation'; end if;
  if not exists(select 1 from public.tryamm_campaign_leads l where l.id=o.lead_id and lower(l.email)=t.customer_email)
  then raise exception 'Review recipient no longer matches customer'; end if;
