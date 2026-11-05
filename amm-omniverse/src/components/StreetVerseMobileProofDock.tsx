@@ -36,11 +36,11 @@ export default function StreetVerseMobileProofDock(){
     }
     const onContext=(event:Event)=>{
       const d=(event as CustomEvent<{kind?:string;action?:string;npcId?:string;source?:string}>).detail||{}
-      if(d.npcId==='first-journey-guide'&&d.source==='mobile-safe-world'&&(d.kind==='talk'||String(d.action||'').toUpperCase()==='TALK')&&droveOnce&&exitedOnce&&!inVehicle){setNpcDialogueOpen(true);setPhase('npc')}
+      if(d.npcId==='first-journey-guide'&&(d.source==='mobile-safe-world'||d.source==='streetverse-mobile-world')&&(d.kind==='talk'||String(d.action||'').toUpperCase()==='TALK')&&droveOnce&&exitedOnce&&!inVehicle){setNpcDialogueOpen(true);setPhase('npc')}
     }
     const onDrive=(event:Event)=>{
-      const d=(event as CustomEvent<{speed?:number;entered?:boolean;vehicle?:boolean;mobileSafeMode?:boolean;controlledVehicleId?:string;x?:number;z?:number}>).detail||{}
-      if(d.mobileSafeMode!==true||d.controlledVehicleId!=='safe-starter-car'||d.entered!==true)return
+      const d=(event as CustomEvent<{speed?:number;entered?:boolean;vehicle?:boolean;mobileSafeMode?:boolean;controlledVehicleId?:string;source?:string;x?:number;z?:number}>).detail||{}
+      if(!((d.mobileSafeMode===true&&d.controlledVehicleId==='safe-starter-car')||(d.mobileSafeMode===false&&d.controlledVehicleId==='first-repair-car'&&d.source==='streetverse-mobile-world'))||d.entered!==true)return
       const x=Number(d.x),z=Number(d.z)
       if(!Number.isFinite(x)||!Number.isFinite(z))return
       const last=lastDrivePositionRef.current
