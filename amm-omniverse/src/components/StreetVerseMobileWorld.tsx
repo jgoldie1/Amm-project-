@@ -323,6 +323,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
             referenceMatchedPreview:isV15,photoMatched:false,certifiedLikeness:false,
             authoritative3DMesh:true,actual3DModelMounted:true,facialMorphNames:handle.morphTargetNames,
             skeletonAnimationCount:handle.clips.length,proceduralFallbackSuppressed:true,modelPreview:isV15,
+            standInOnly:!isV15,visualMatchVerified:false,
           }
           announceStreetVerseCharacterReady({id:STREETVERSE_HERO_CHARACTER_ID,assetId:detail.assetId,era:'current',photoMatched:false,source:detail.source})
           window.dispatchEvent(new CustomEvent('tryamm:streetverse-hero-visual-authority',{detail}))
@@ -330,8 +331,9 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
           if(isV15){
             setMessage('BJ V15 LOADED • animated 3D model active')
             window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-showcase',{detail:{source:'bj-v15-mounted'}}))
-          }else if(new URLSearchParams(window.location.search).get('bj')==='v15'){
-            setMessage('BJ V15 DID NOT LOAD • previous model restored')
+          }else{
+            setMessage('BJ V15 DID NOT LOAD • DEMO RIG ONLY. This stand-in is NOT your BJ Stubbs likeness. Tap RETRY V15.')
+            window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-source-warning',{detail:{characterId:'bj-stubbs',standInOnly:true,reason:'v15-load-failed'}}))
           }
         }).catch(error=>{window.clearTimeout(guard);if(!nativeCancelled&&request===bjHeroLoadEpoch){console.warn('[BJ V15] loader error',error);setBJLoadStatus('error');setMessage('BJ V15 FAILED • tap RETRY BJ')}})
       }
