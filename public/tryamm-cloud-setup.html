@@ -4,7 +4,7 @@
 <section><form id="cloud">
 <label for="project">Your saved website project</label><select id="project" required><option value="">Sign in and choose a project</option></select>
 <label for="provider">Preferred cloud provider</label><select id="provider"><option value="customer-existing">Keep my existing hosting</option><option value="wordpress-managed">Managed WordPress hosting</option><option value="vercel">Vercel for compatible sites</option><option value="cloudflare">Cloudflare for compatible sites</option><option value="other">Another cloud provider</option></select>
-<label for="domain">Custom domain, if owned (optional)</label><input id="domain" placeholder="mybusiness.com" maxlength="253" autocomplete="off">
+<button type="button" id="tryammPilot">Use TRYAMM LLC pilot settings</button><p><small>This selects the existing TRYAMM pilot domain and does not confirm ownership, purchase hosting or change any records.</small></p><label for="domain">Custom domain, if owned (optional)</label><input id="domain" placeholder="mybusiness.com" maxlength="253" autocomplete="off">
 <label for="notes">Special setup requirements (no secrets)</label><textarea id="notes" maxlength="500" rows="3" placeholder="I need email, backups, a store and my existing domain"></textarea>
 <label class="check"><input id="owns" type="checkbox" required> I own or control the hosting account to be used.</label>
 <label class="check"><input id="approve" type="checkbox" required> I authorize a setup plan only; no charges or DNS changes.</label>
@@ -73,5 +73,6 @@ $('requestMailbox').onclick=async()=>{try{
  $('mailStatus').textContent=result.account.address+' requested. NOT ACTIVE until independently verified; no email is sent or received.';
  }catch(e){$('mailStatus').textContent=e.message}
 };
+$('tryammPilot').onclick=()=>{$('provider').value='vercel';$('domain').value='tryamm.online';$('notes').value='TRYAMM LLC existing domain. Preserve current email and use mail.tryamm.online only after authorization.';draw();$('status').textContent='TRYAMM pilot selected. Ownership verification, project linkage and mail DNS approval are still required.'};
 init();
 </script></body></html>
