@@ -1,0 +1,18 @@
+'use strict';
+const assert=require('node:assert/strict');
+const brand=require('../lib/website-brand-projects');
+const valid={businessName:'Stubb\'s Mobility',templateId:'accessible-tech',color:'#6635a5',packageId:'free',headline:'Accessible technology',description:'Adaptive devices',contactEmail:'customer@example.com',logoText:'SM',revision:0};
+const result=brand.validateProject(valid);
+assert.equal(result.businessName,valid.businessName);
+assert.equal(result.packageId,'free');
+assert.equal(result.logoText,'SM');
+assert.throws(()=>brand.validateProject({...valid,color:'url(javascript:evil)'}),/Color/);
+assert.throws(()=>brand.validateProject({...valid,templateId:'../sensitive'}),/template/);
+assert.throws(()=>brand.validateProject({...valid,businessName:''}),/name/);
+assert.throws(()=>brand.validateProject({...valid,packageId:'admin'}),/package/);
+assert.throws(()=>brand.validateProject({...valid,revision:-1}),/revision/);
+const row={id:'11111111-2222-4333-8444-555555555555',revision:2,owner_id:'customer_1',brand:valid,status:'draft',created_at:'2026-11-04',updated_at:'2026-11-04'};
+const shown=brand.publicProject(row);
+assert.equal(shown.brand.businessName,valid.businessName);
+assert.equal(shown.owner_id,undefined);
+console.log('TRYAMM brand project validation PASS');
