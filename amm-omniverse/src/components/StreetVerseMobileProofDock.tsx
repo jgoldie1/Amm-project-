@@ -1,4 +1,4 @@
-import {useEffect,useMemo,useState} from 'react'
+import {useEffect,useMemo,useRef,useState} from 'react'
 import StreetVerseReelRecorder from './StreetVerseReelRecorder'
 import HoloMobilityLauncher from './HoloMobilityLauncher'
 
@@ -15,6 +15,8 @@ export default function StreetVerseMobileProofDock(){
   const [doorOpenedOnce,setDoorOpenedOnce]=useState(false)
   const [enteredOnce,setEnteredOnce]=useState(false)
   const [droveOnce,setDroveOnce]=useState(false)
+  const distanceDrivenRef=useRef(0)
+  const lastDrivePositionRef=useRef<{x:number;z:number}|null>(null)
   const [exitedOnce,setExitedOnce]=useState(false)
   const [npcInteracted,setNpcInteracted]=useState(false)
   const [npcDialogueOpen,setNpcDialogueOpen]=useState(false)
@@ -25,7 +27,7 @@ export default function StreetVerseMobileProofDock(){
   useEffect(()=>{
     const onVehicle=(event:Event)=>{
       const d=(event as CustomEvent<{entered?:boolean}>).detail||{}
-      if(d.entered===true){setInVehicle(true);setEnteredOnce(true);setPhase('drive')}
+      if(d.entered===true){lastDrivePositionRef.current=null;setInVehicle(true);setEnteredOnce(true);setPhase('drive')}
       if(d.entered===false){setInVehicle(false);setExitedOnce(true);setPhase('npc')}
     }
     const onRepair=(event:Event)=>{
@@ -37,8 +39,19 @@ export default function StreetVerseMobileProofDock(){
       if(d.npcId==='first-journey-guide'&&d.source==='mobile-safe-world'&&(d.kind==='talk'||String(d.action||'').toUpperCase()==='TALK')&&droveOnce&&exitedOnce&&!inVehicle){setNpcDialogueOpen(true);setPhase('npc')}
     }
     const onDrive=(event:Event)=>{
-      const d=(event as CustomEvent<{speed?:number;entered?:boolean;vehicle?:boolean}>).detail||{}
-      if(Number(d.speed||0)>0&&(d.entered===true||d.vehicle===true))setDroveOnce(true)
+      const d=(event as CustomEvent<{speed?:number;entered?:boolean;vehicle?:boolean;mobileSafeMode?:boolean;controlledVehicleId?:string;x?:number;z?:number}>).detail||{}
+      if(d.mobileSafeMode!==true||d.controlledVehicleId!=='safe-starter-car'||d.entered!==true)return
+      const x=Number(d.x),z=Number(d.z)
+      if(!Number.isFinite(x)||!Number.isFinite(z))return
+      const last=lastDrivePositionRef.current
+      if(last&&Number(d.speed||0)>0){
+        const delta=Math.hypot(x-last.x,z-last.z)
+        if(delta>0&&delta<10){
+          distanceDrivenRef.current+=delta
+          if(distanceDrivenRef.current>=8)setDroveOnce(true)
+        }
+      }
+      lastDrivePositionRef.current={x,z}
     }
     const onReward=(event:Event)=>{
       const d=(event as CustomEvent<{id?:string;amountCredits?:number;balance?:number}>).detail||{}
@@ -64,7 +77,7 @@ export default function StreetVerseMobileProofDock(){
     if(!repaired)return`REPAIR • ${repairLabels[Math.min(repairStep,2)]}`
     if(!doorOpenedOnce)return'OPEN THE CAR DOOR'
     if(!enteredOnce)return'ENTER THE REPAIRED CAR'
-    if(inVehicle)return droveOnce?'DRIVE RECORDED • EXIT VEHICLE':'DRIVE THE CAR BEFORE EXITING'
+    if(inVehicle)return droveOnce?'DRIVE RECORDED • EXIT VEHICLE':'DRIVE AT LEAST 8 METERS BEFORE EXITING'
     if(!droveOnce)return'DRIVE THE CAR TO COUNT THE JOURNEY'
     if(!exitedOnce)return'EXIT VEHICLE'
     if(!npcInteracted)return'WALK TO A PERSON / GUIDE • TAP INTERACT NPC'
@@ -73,7 +86,7 @@ export default function StreetVerseMobileProofDock(){
   },[phase,repaired,doorOpenedOnce,enteredOnce,droveOnce,inVehicle,exitedOnce,npcInteracted,repairStep])
 
   const startMission=()=>{
-    setPhase('repair');setRepairStep(0);setRepaired(false);setInVehicle(false);setDoorsOpen(false);setDoorOpenedOnce(false);setEnteredOnce(false);setDroveOnce(false);setExitedOnce(false);setNpcInteracted(false);setNpcDialogueOpen(false);setReward('');setOpen(true)
+    setPhase('repair');setRepairStep(0);setRepaired(false);setInVehicle(false);setDoorsOpen(false);setDoorOpenedOnce(false);setEnteredOnce(false);setDroveOnce(false);distanceDrivenRef.current=0;lastDrivePositionRef.current=null;setExitedOnce(false);setNpcInteracted(false);setNpcDialogueOpen(false);setReward('');setOpen(true)
     const detail={id:missionId,missionId,title:'FIRST RIDE • REPAIR & DRIVE',objective:'Follow the gold beacon to the orange Repair Mission Car. Repair it, enter, drive, exit, interact with a Chicago NPC, then complete the mission.',source:'iphone-proof-dock',waypoint:{x:-8,z:50,label:'Repair Mission Car'}}
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-start',{detail}))
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-first-journey-start',{detail}))
