@@ -11,7 +11,7 @@ const LEFT=/leftfoot|foot_l|l_foot/i
 const RIGHT=/rightfoot|foot_r|r_foot/i
 const GROUND=/(?:^|[-_\s])(ground|sidewalk|pavement|walkway|road|ramp|stair|floor)(?:$|[-_\s\d])/i
 const clamp=(x:number,min:number,max:number)=>Math.max(min,Math.min(max,x))
-type Foot={bone:THREE.Bone;side:'left'|'right';baseline:number;correction:number;contact:boolean}
+type Foot={bone:THREE.Bone;side:'left'|'right';baseline:number;correction:number;lastApplied:number;contact:boolean}
 export function createStreetVerseBJFootGrounding(scene:THREE.Scene,getHero:()=>THREE.Object3D|null,isSeated:()=>boolean=()=>false){
  const ray=new THREE.Raycaster()
  const down=new THREE.Vector3(0,-1,0),origin=new THREE.Vector3(),surfaceNormal=new THREE.Vector3(0,1,0)
@@ -38,7 +38,7 @@ export function createStreetVerseBJFootGrounding(scene:THREE.Scene,getHero:()=>T
     if(seen.has(bone)||!FOOT.test(bone.name))continue
     seen.add(bone)
     const side=LEFT.test(bone.name)?'left':RIGHT.test(bone.name)?'right':null
-    if(side)feet.push({bone,side,baseline:bone.rotation.x,correction:0,contact:false})
+    if(side)feet.push({bone,side,baseline:bone.rotation.x,correction:0,lastApplied:bone.rotation.x,contact:false})
    }
   })
   feet=feet.slice(0,2)
@@ -61,7 +61,7 @@ export function createStreetVerseBJFootGrounding(scene:THREE.Scene,getHero:()=>T
    if(disposed)return
    const current=getHero()
    if(current!==hero){
-    for(const foot of feet)foot.bone.rotation.x-=foot.correction
+    for(const foot of feet){if(Math.abs(foot.bone.rotation.x-foot.lastApplied)<.003)foot.bone.rotation.x-=foot.correction}
     hero=current;feet=[]
     if(current)findFeet(current)
    }
@@ -79,8 +79,10 @@ export function createStreetVerseBJFootGrounding(scene:THREE.Scene,getHero:()=>T
     // applying only small additive ankle pitch adjustments when foot is planted.
     const desired=planted?clamp(ground.pitch,-.12,.12):0
     const correction=THREE.MathUtils.lerp(foot.correction,desired,.22)
-    foot.bone.rotation.x+=correction-foot.correction
-    foot.correction=correction;foot.contact=planted
+    const sampledRotation=foot.bone.rotation.x
+    const uncorrected=Math.abs(sampledRotation-foot.lastApplied)<.003?sampledRotation-foot.correction:sampledRotation
+    foot.bone.rotation.x=uncorrected+correction
+    foot.correction=correction;foot.lastApplied=foot.bone.rotation.x;foot.contact=planted
    }
    if(now-lastReport>1300){lastReport=now
     const status:FootGroundingStatus={enabled:true,rigDetected:feet.length>0,surfaceCount:surfaces.length,
