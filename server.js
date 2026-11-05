@@ -57,6 +57,7 @@ require('./lib/website-cloud-routes')({app,auth});
 require('./lib/website-domain-routes')({app,auth});
 require('./lib/website-quantum-mail-routes')({app,auth});
 require('./lib/tryamm-mail-routes')({app,auth,getStore:()=>store,saveStore});
+require('./lib/quantum-mail-v2-routes')({app,auth});
 const {planIntent}=require('./lib/jarvis-genie-intent');
 app.get('/api/jarvis-genie/health',(_req,res)=>res.json({ok:true,service:'JARVIS Genie',mode:'preview-only',executionEnabled:false}));
 const {classifyFrame}=require('./lib/lyons-neural-bridge');
