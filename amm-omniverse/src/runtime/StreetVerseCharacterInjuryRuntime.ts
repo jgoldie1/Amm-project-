@@ -103,7 +103,7 @@ export function createStreetVerseInjuryRuntime(scene:THREE.Scene,getHero:()=>THR
    if(hero){
     const seated=isSeated()
     const hitPulse=clamp(1-(now-lastHit)/480,0,1)
-    const target=seated?0:state.phase==='defeated'?.48:hitPulse*Math.sin((now-lastHit)*.05)*.18
+    const target=seated?0:state.phase==='defeated'?.48:hitPulse>0?hitPulse*Math.sin((now-lastHit)*.05)*.18:0
     lean=THREE.MathUtils.lerp(lean,target,.16)
     hero.rotation.z=baselineRoll+lean
     const reaction:StreetVerseRigReaction=seated?'seated':state.phase==='defeated'?'downed':hitPulse>0?'hit-react':state.phase==='wounded'?'hurt':'idle'
