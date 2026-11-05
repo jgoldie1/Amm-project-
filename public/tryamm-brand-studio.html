@@ -8,6 +8,7 @@
 <label for="headline">Website headline</label><input id="headline" value="Technology for greater independence" maxlength="180">
 <label for="description">Business description</label><textarea id="description" maxlength="800">Accessible technology, adaptive computer devices and personal setup support.</textarea>
 <label for="contactEmail">Customer contact email</label><input id="contactEmail" type="email" maxlength="200" placeholder="owner@example.com">
+<label for="hookStyle">Reel-style opening effect</label><select id="hookStyle"><option value="none">None — accessible static headline</option><option value="caption">Bold caption entrance</option><option value="reveal">Animated headline reveal</option><option value="underline">Highlighted moving underline</option></select><small>Original TRYAMM CSS effects inspired by common short-form editing techniques. Motion automatically reduces when requested by your device. No audio plays automatically.</small>
 <label for="packageId">Choose website package</label><select id="packageId"><option value="free">Free HTML file — $0</option><option value="preview">Preview — $499</option><option value="experience">Experience — $1,250</option><option value="digital-twin">Digital Twin — $2,500 (scoped)</option></select>
 <div><button id="downloadSite">Download free site HTML</button><button id="saveProject">Save secure draft</button><button id="submitQuote">Request owner's quote</button></div>
 <label for="savedProjects">Reopen saved project</label><select id="savedProjects"><option value="">Choose a saved design</option></select><button id="loadProject">Load selected project</button>
@@ -23,7 +24,7 @@
 const $=id=>document.getElementById(id);
 const fields=['businessName','logoText','color','headline','description','contactEmail','packageId'];
 let projectId=null,revision=0;
-function getState(){const s={};for(const f of fields)s[f]=$(f).value;s.templateId=$('templates').value; s.revision=revision;return s}
+function getState(){const s={};for(const f of fields)s[f]=$(f).value;s.hookStyle=$('hookStyle').value;s.templateId=$('templates').value; s.revision=revision;return s}
 function setState(s){for(const f of fields)if(s[f]!==undefined)$(f).value=s[f];if(s.templateId)$('templates').value=s.templateId;revision=s.revision||0;drawAll()}
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function wrap(c,text,maxWidth,y,lineHeight,maxLines=4){const words=String(text).split(/\s+/);let line='',count=0;for(const word of words){const proposal=line?line+' '+word:word;if(c.measureText(proposal).width>maxWidth&&line){c.fillText(line,0,y);y+=lineHeight;count++;if(count>=maxLines)return;line=word}else line=proposal}if(line)c.fillText(line,0,y)}
@@ -40,12 +41,14 @@ function drawAsset(id){const canvas=$(id),c=canvas.getContext('2d'),s=getState()
  c.restore();
 }
 function websiteHTML(s){
-const style='body{font:18px/1.6 system-ui,sans-serif;margin:0;background:#fcfaff;color:#20172a}header{background:'+s.color+';color:white;padding:clamp(2rem,7vw,5rem)}h1{font-size:clamp(2rem,6vw,4rem)}main{max-width:900px;margin:auto;padding:2rem}a{color:'+s.color+'}footer{padding:2rem;border-top:1px solid #ddd}';
-const email=s.contactEmail&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.contactEmail)?'<a href="mailto:'+esc(s.contactEmail)+'">Contact this business</a>':'Contact information not configured';
-return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(s.businessName)+'</title><style>'+style+'</style></head><body><header><h1>'+esc(s.businessName)+'</h1><p>'+esc(s.headline)+'</p></header><main><h2>Our services</h2><p>'+esc(s.description)+'</p><h2>Contact</h2><p>'+email+'</p></main><footer>Customized TRYAMM starter preview</footer></body></html>';
+ const modes=new Set(['caption','reveal','underline']),mode=modes.has(s.hookStyle)?s.hookStyle:'none';
+ const style='body{font:18px/1.6 system-ui,sans-serif;margin:0;background:#fcfaff;color:#20172a}header{background:'+s.color+';color:white;padding:clamp(2rem,7vw,5rem)}h1{font-size:clamp(2rem,6vw,4rem)}main{max-width:900px;margin:auto;padding:2rem}a{color:'+s.color+'}footer{padding:2rem;border-top:1px solid #ddd} .hook{display:inline-block;position:relative;max-width:100%} .hook.caption{padding:.18em .35em;background:#fff;color:#18112a;border-radius:.18em;animation:arrive .65s ease-out both} .hook.reveal{animation:arrive .8s cubic-bezier(.22,1,.36,1) both} .hook.underline:after{content:"";display:block;height:5px;background:#fff;transform-origin:left;animation:lineIn .75s ease-out both}@keyframes arrive{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}@keyframes lineIn{from{transform:scaleX(0)}to{transform:scaleX(1)}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}';
+ const email=s.contactEmail&&/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(s.contactEmail)?'<a href="mailto:'+esc(s.contactEmail)+'">Contact this business</a>':'Contact information not configured';
+ return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(s.businessName)+'</title><style>'+style+'</style></head><body><header><h1>'+esc(s.businessName)+'</h1><p><span class="hook '+mode+'">'+esc(s.headline)+'</span></p></header><main><h2>Our services</h2><p>'+esc(s.description)+'</p><h2>Contact</h2><p>'+email+'</p></main><footer>Customized TRYAMM starter preview</footer></body></html>';
 }
+
 function drawAll(){for(const id of ['logo','banner','splash','flyer'])drawAsset(id);$('website').srcdoc=websiteHTML(getState())}
-for(const f of fields)$(f).addEventListener('input',drawAll);$('templates').addEventListener('change',drawAll);
+for(const f of fields)$(f).addEventListener('input',drawAll);$('hookStyle').addEventListener('change',drawAll);$('templates').addEventListener('change',drawAll);
 document.querySelectorAll('[data-export]').forEach(button=>button.onclick=()=>{const id=button.dataset.export;const a=document.createElement('a');a.href=$(id).toDataURL('image/png');a.download='tryamm-'+id+'.png';a.click()});
 $('downloadSite').onclick=()=>{const blob=new Blob([websiteHTML(getState())],{type:'text/html;charset=utf-8'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='my-tryamm-website.html';a.click();setTimeout(()=>URL.revokeObjectURL(u),2500);$('notice').textContent='Website file prepared for download.'};
 function token(){return localStorage.getItem('tryamm_token')||''}
