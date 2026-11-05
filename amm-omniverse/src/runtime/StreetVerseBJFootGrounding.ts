@@ -64,7 +64,7 @@ export function createStreetVerseBJFootGrounding(scene:THREE.Scene,getHero:()=>T
   return {height:0,pitch:0}
  }
  return {
-  tick(now:number,moving:boolean)=>{
+  tick:(now:number,moving:boolean)=>{
    if(disposed)return
    const current=getHero()
    if(current!==hero){
