@@ -18,6 +18,8 @@ async function refresh(){
   add(root,'Website package',order.packageId+' — '+new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(order.priceCents/100));
   add(root,'Agreed work',order.description);
   add(root,'Payment',data.paymentVerified?'Verified by TRYAMM database':'Not verified by TRYAMM database');
+  add(root,'Website review',data.previewApproved?'Customer approved preview':'Preview approval pending or changes requested');
+  if(data.reviewNotes)add(root,'Latest review notes',data.reviewNotes);
   add(root,'Delivery',data.deliveryVerified?'Recorded as delivered':'Not yet recorded as delivered');
   $('refresh').disabled=false;
  }catch(error){$('status').textContent=error.message;$('refresh').disabled=true}
