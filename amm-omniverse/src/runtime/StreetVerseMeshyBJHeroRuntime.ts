@@ -63,10 +63,12 @@ export const BJ_V15_PREVIEW={
   certifiedLikeness:false,
 } as const
 
+export const BJ_V15_SAME_ORIGIN_URL='/api/streetverse/bj-v15-model'
+
 export function getBJPreviewV15Url():string|null{
   if(typeof window==='undefined')return null
   if(new URLSearchParams(window.location.search).get('bj')==='published')return null
-  return new URLSearchParams(window.location.search).get('bj')==='legacy' ? null : BJ_V15_PREVIEW.url
+  return new URLSearchParams(window.location.search).get('bj')==='legacy' ? null : BJ_V15_SAME_ORIGIN_URL
 }
 
 const loader=new GLTFLoader()
@@ -232,7 +234,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   // Never load a MetaHuman candidate by default; preview is explicitly opted-in.
   const metaHumanPreviewUrl=getPreviewBJMetaHumanUrl()
   // Default to the actual V15 hero; ?bj=legacy preserves a manual fallback.
-  const candidates=[v15PreviewUrl,metaHumanPreviewUrl,published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
+  const candidates=[v15PreviewUrl,v15PreviewUrl?BJ_V15_PREVIEW.url:null,metaHumanPreviewUrl,published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
   let sourceUrl=''
   let publishedGlb:Awaited<ReturnType<typeof loader.loadAsync>>|null=null
   let usingMetaHumanPreview=false
@@ -261,7 +263,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
         window.dispatchEvent(new CustomEvent('tryamm:bj-model-progress',{detail:{
           stage:'decoding',sizeBytes:bytes.byteLength,source:candidate===v15PreviewUrl?'v15':'fallback',
         }}))
-        const basePath=new URL('.',new URL(candidate,window.location.href)).href
+        const basePath=new URL('.',new URL(candidate===v15PreviewUrl?BJ_V15_PREVIEW.url:candidate,window.location.href)).href
         let decodeTimer=0
         try{
           candidateGlb=await Promise.race([
@@ -284,7 +286,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
         if(!audit.ok){disposeObject(candidateGlb.scene);continue}
         usingMetaHumanPreview=true
       }
-      if(candidate===v15PreviewUrl){
+      if(candidate===v15PreviewUrl||candidate===BJ_V15_PREVIEW.url){
         const faceNames=new Set<string>()
         candidateGlb.scene.traverse(n=>{
           if(n instanceof THREE.Mesh)for(const name of Object.keys(n.morphTargetDictionary||{}))faceNames.add(name)
@@ -302,7 +304,14 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       publishedGlb=candidateGlb
       sourceUrl=candidate
       break
-    }catch{
+    }catch(error){
+      if(candidate===v15PreviewUrl||candidate===BJ_V15_PREVIEW.url){
+        window.dispatchEvent(new CustomEvent('tryamm:bj-v15-load-error',{detail:{
+          characterId:'bj-stubbs',method:candidate===v15PreviewUrl?'same-origin':'direct-cdn',
+          reason:error instanceof Error?error.message:String(error),
+          source:'BJ V15 GLB (not the generic replacement)',
+        }}))
+      }
       // Try the next owned compatibility GLB; native hero stays visible meanwhile.
     }
   }
@@ -319,7 +328,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   try{
     const gltf=publishedGlb
     const object=gltf.scene
-    object.name=usingV15Preview?'bj-stubbs-v15-actual-glb':usingMetaHumanPreview?'bj-stubbs-metahuman-web-preview':'bj-stubbs-production-v12'
+    object.name=usingV15Preview?'bj-stubbs-v15-actual-glb':usingMetaHumanPreview?'bj-stubbs-metahuman-web-preview':'generic-bj-compatible-stand-in-v12'
     // V15 includes 50 zero-scaled legacy SkinnedMeshes that are invisible but
     // cause Three.Box3 to produce NaN bounds and an invalid contact shadow.
     // Detach only genuinely invisible zero-scale mesh nodes; do not touch
@@ -357,11 +366,13 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
     object.userData={
       ...object.userData,
       characterId:BJ_MESHY_V6_ASSET.characterId,
-      displayName:'BJ Stubbs',
-      namedCharacter:true,
+      displayName:usingV15Preview?'BJ Stubbs (V15)':'Character stand-in (BJ V15 unavailable)',
+      namedCharacter:usingV15Preview,
       identityContinuityKey:BJ_MESHY_V6_ASSET.characterId,
       visualAuthority:usingV15Preview?'bj-actual-v15-remote-preview':usingMetaHumanPreview?'metahuman-web-opt-in-unapproved':BJ_MESHY_V6_ASSET.authority,
       bjV15RealGlbPreview:usingV15Preview,
+      verifiedBJVisualSource:usingV15Preview,
+      standInOnly:!usingV15Preview,
       prunedInvisibleV15Meshes,
       metahumanWebPreview:usingMetaHumanPreview,
       metaHumanLikenessApproved:false,
