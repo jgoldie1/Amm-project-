@@ -45,6 +45,7 @@ export type StreetVerseMeshyBJHeroHandle={
   applyFacePose:(pose:BJFacePose)=>number
   /** Only plays a gesture if the active GLB has the matching animation. */
   playGesture:(gesture:BJGesture)=>boolean
+  playVehicleTransition:(phase:'enter'|'exit')=>boolean
   tick:(nowMs:number,state:{moving:boolean;running?:boolean;talking?:boolean;liveTalkLevel?:number;focusYaw?:number;breathing?:number;posture?:string;seated?:boolean})=>void
   dispose:()=>void
 }
@@ -504,6 +505,29 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       gestureUntil=performance.now()+clip.duration*1000+170
       return true
     }
+    const playVehicleTransition=(phase:'enter'|'exit'):boolean=>{
+      // Only use an authored GLB clip; existing world behavior remains the fallback.
+      const patterns=phase==='enter'
+        ? [/enter.?car/i,/get.?in/i,/vehicle.?entry/i,/car.?door.?enter/i]
+        : [/exit.?car/i,/get.?out/i,/vehicle.?exit/i,/car.?door.?exit/i]
+      const clip=clips.find(item=>patterns.some(pattern=>pattern.test(item.name)))
+      if(!mixer||!clip)return false
+      const action=mixer.clipAction(clip)
+      if(gestureAction&&gestureAction!==action)gestureAction.fadeOut(.12)
+      if(activeAction&&activeAction!==action)activeAction.fadeOut(.12)
+      action.reset()
+      action.setLoop(THREE.LoopOnce,1)
+      action.clampWhenFinished=false
+      action.setEffectiveTimeScale(1)
+      action.setEffectiveWeight(1)
+      action.fadeIn(.12).play()
+      gestureAction=action
+      activeAction=action
+      activeMotion=null
+      gestureUntil=performance.now()+Math.max(0,clip.duration)*1000+120
+      window.dispatchEvent(new CustomEvent('tryamm:bj-vehicle-animation',{detail:{characterId:BJ_MESHY_V6_ASSET.characterId,phase,clip:clip.name,played:true}}))
+      return true
+    }
     const onGesture=(event:Event)=>{
       const detail=(event as CustomEvent<{characterId?:string;gesture?:BJGesture}>).detail||{}
       if(detail.characterId&&detail.characterId!==BJ_MESHY_V6_ASSET.characterId)return
@@ -637,6 +661,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       morphTargetNames:morphs.names,
       applyFacePose,
       playGesture,
+      playVehicleTransition,
       tick,
       dispose:()=>{
         window.removeEventListener('tryamm:bj-gesture',onGesture)
