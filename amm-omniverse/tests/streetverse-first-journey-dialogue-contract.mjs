@@ -5,6 +5,14 @@ assert.ok(dock.includes('Chicago NPC conversation'),'NPC dialogue must visibly r
 assert.ok(dock.includes('tryamm:streetverse-npc-dialogue-choice'),'NPC choices must issue an event');
 assert.ok(dock.includes('tryamm:streetverse-npc-interaction-request'),'NPC interaction must request real world context');
 assert.ok(dock.includes("setNpcDialogueOpen(true)"),'World TALK context must unlock the conversation');
-assert.ok(dock.includes("if(!npcDialogueOpen||!exitedOnce)return"),'Conversation cannot complete before context and vehicle exit');
+assert.ok(dock.includes("if(!npcDialogueOpen||!droveOnce||!exitedOnce)return"),'Conversation cannot complete before drive, nearby NPC context and exit');
 assert.ok(dock.includes("setNpcInteracted(true);setPhase('ready')"),'Player choice completes the dialogue gate');
-console.log('StreetVerse mobile NPC dialogue selection contract: PASS');
+const safeWorld=fs.readFileSync(new URL('../src/components/StreetVerseMobilePlayableWorld.tsx',import.meta.url),'utf8');
+assert.ok(dock.includes('setDroveOnce(true)') && dock.includes('tryamm:streetverse-drive-telemetry'),'Actual driving telemetry must gate completion');
+assert.ok(dock.includes('droveOnce&&exitedOnce&&npcInteracted'),'A completed mission requires driving, exit, NPC dialogue');
+assert.ok(dock.includes("d.npcId==='first-journey-guide'&&d.source==='mobile-safe-world'"),'NPC interaction must match the actual guide');
+assert.ok(safeWorld.includes('Chicago Guide NPC') && safeWorld.includes('const FIRST_GUIDE='),'Guide must be visible in safe world');
+assert.ok(safeWorld.includes('Math.hypot(posRef.current.x-FIRST_GUIDE.x,posRef.current.y-FIRST_GUIDE.y)'),'NPC requests must measure actual player distance');
+assert.ok(safeWorld.includes("vehicleRef.current||distance>8"),'Conversation must reject driving and distant players');
+assert.ok(safeWorld.includes('tryamm:streetverse-context-interaction'),'Nearby world NPC must send dialogue context');
+console.log('StreetVerse mobile first-journey driving and nearby guide dialogue contract: PASS');
