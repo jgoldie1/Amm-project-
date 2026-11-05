@@ -9,6 +9,7 @@ assert.ok(dock.includes("if(!npcDialogueOpen||!droveOnce||!exitedOnce)return"),'
 assert.ok(dock.includes("setNpcInteracted(true);setPhase('ready')"),'Player choice completes the dialogue gate');
 const safeWorld=fs.readFileSync(new URL('../src/components/StreetVerseMobilePlayableWorld.tsx',import.meta.url),'utf8');
 assert.ok(dock.includes('setDroveOnce(true)') && dock.includes('tryamm:streetverse-drive-telemetry'),'Actual driving telemetry must gate completion');
+assert.ok(dock.includes('distanceDrivenRef.current>=8') && dock.includes('d.controlledVehicleId!==\'safe-starter-car\''),'Driving must be eight measured meters in the assigned car, not an unrelated motion event');
 assert.ok(dock.includes('droveOnce&&exitedOnce&&npcInteracted'),'A completed mission requires driving, exit, NPC dialogue');
 assert.ok(dock.includes("d.npcId==='first-journey-guide'&&d.source==='mobile-safe-world'"),'NPC interaction must match the actual guide');
 assert.ok(safeWorld.includes('Chicago Guide NPC') && safeWorld.includes('const FIRST_GUIDE='),'Guide must be visible in safe world');
