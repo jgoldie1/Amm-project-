@@ -1,0 +1,21 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TRYAMM Website OS — Original Templates</title>
+<style>:root{font:17px/1.5 system-ui,sans-serif;color-scheme:dark;background:#121327;color:#fff}body{max-width:1080px;margin:auto;padding:1.2rem}a{color:#d5c5ff}header,.card,section{border:1px solid #555777;border-radius:14px;padding:1rem;background:#20213b;margin:1rem 0}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:1rem}input,button{font:inherit;padding:.7rem;border:2px solid #b5a9e2;border-radius:9px}input{width:100%;box-sizing:border-box;background:#fff;color:#161529}button{background:#c8b5ff;color:#110e22;cursor:pointer}a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #fff;outline-offset:3px}iframe{height:480px;width:100%;border:1px solid #8984bb;background:white}small{color:#dbd7f0}.actions{display:flex;flex-wrap:wrap;gap:1rem}h2{font-size:1.4rem}
+</style></head><body><header><a href="/">TRYAMM Home</a><h1>Website OS — Original Template Library</h1><p>Browse our existing industry starter previews. The long-term target is 500 verified business templates; previews here are not automatically published customer websites.</p><div class="actions"><a href="/free-website.html">Build a free one-page website</a><a href="/tryamm-website-os-order.html">Request paid website services</a><a href="/ai-cafe.html">AI Café</a></div></header>
+<main><label for="query">Search available previews</label><input id="query" type="search" placeholder="Salon, logistics, music studio, accessible technology…" autocomplete="off"><p role="status" aria-live="polite" id="status">Loading original templates…</p><section class="grid" id="items" aria-label="Available templates"></section><section id="detail" hidden><h2 id="detailTitle">Preview</h2><p>Preview only. No visitor data is collected by the template and no booking or checkout is active.</p><iframe title="Selected original TRYAMM template" id="preview" sandbox=""></iframe><p><a href="/ai-cafe.html">Request an approved business quote</a></p></section></main>
+<script>
+'use strict';
+const items=document.getElementById('items'),status=document.getElementById('status'),query=document.getElementById('query');
+let templates=[];
+const card=t=>{
+ const el=document.createElement('article');el.className='card';
+ const title=document.createElement('h2');title.textContent=t.name;
+ const description=document.createElement('p');description.textContent=t.description;
+ const note=document.createElement('small');note.textContent='Original demo preview · not a published site';
+ const button=document.createElement('button');button.type='button';button.textContent='View preview';
+ button.addEventListener('click',()=>{document.getElementById('detail').hidden=false;document.getElementById('detailTitle').textContent=t.name+' preview';document.getElementById('preview').src=t.previewUrl;document.getElementById('detail').scrollIntoView({block:'start',behavior:'smooth'})});
+ el.append(title,description,note,document.createElement('br'),button);return el;
+};
+function render(){const q=query.value.trim().toLowerCase();const filtered=templates.filter(t=>(t.name+' '+t.description).toLowerCase().includes(q));items.replaceChildren(...filtered.map(card));status.textContent=filtered.length+' original industry previews available'+(q?' for this search':'')+'. The 500-template target has not yet been certified.'}
+query.addEventListener('input',render);
+fetch('/api/website-os/templates').then(async r=>{if(!r.ok)throw Error('Catalog API is unavailable');return r.json()}).then(d=>{templates=d.templates||[];render()}).catch(()=>{status.textContent='The original template catalog could not be loaded. Try again after the service is available.'});
+</script></body></html>
