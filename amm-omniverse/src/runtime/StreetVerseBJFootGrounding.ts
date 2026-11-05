@@ -6,9 +6,16 @@ import * as THREE from 'three'
  * Foot ray tests use a small, vetted surface set; flat-ground fallback is 0m.
  */
 export type FootGroundingStatus={enabled:boolean;rigDetected:boolean;surfaceCount:number;leftContact:boolean;rightContact:boolean;correctionRadians:number}
-const FOOT=/^(?:mixamorig[:_])?(?:leftfoot|rightfoot|foot_l|foot_r|l_foot|r_foot)$/i
-const LEFT=/leftfoot|foot_l|l_foot/i
-const RIGHT=/rightfoot|foot_r|r_foot/i
+/** GLB naming is inconsistent across Meshy, Mixamo, Blender and MetaHuman exports.
+ * Compare normalized endings, never assume a `mixamorig:` separator.
+ * Toe and hand bones are intentionally not interpreted as contact feet.
+ */
+export function streetVerseFootSide(name:string):'left'|'right'|null{
+ const normalized=String(name||'').replace(/[^a-z0-9]/gi,'').toLowerCase()
+ if(/(?:leftfoot|lfoot|leftankle|lankle)$/.test(normalized))return 'left'
+ if(/(?:rightfoot|rfoot|rightankle|rankle)$/.test(normalized))return 'right'
+ return null
+}
 const GROUND=/(?:^|[-_\s])(ground|sidewalk|pavement|walkway|road|ramp|stair|floor)(?:$|[-_\s\d])/i
 const clamp=(x:number,min:number,max:number)=>Math.max(min,Math.min(max,x))
 type Foot={bone:THREE.Bone;side:'left'|'right';baseline:number;correction:number;lastApplied:number;contact:boolean}
@@ -35,9 +42,9 @@ export function createStreetVerseBJFootGrounding(scene:THREE.Scene,getHero:()=>T
   target.traverse(obj=>{
    if(!(obj instanceof THREE.SkinnedMesh))return
    for(const bone of obj.skeleton.bones){
-    if(seen.has(bone)||!FOOT.test(bone.name))continue
+    const side=streetVerseFootSide(bone.name)
+    if(seen.has(bone)||!side)continue
     seen.add(bone)
-    const side=LEFT.test(bone.name)?'left':RIGHT.test(bone.name)?'right':null
     if(side)feet.push({bone,side,baseline:bone.rotation.x,correction:0,lastApplied:bone.rotation.x,contact:false})
    }
   })
