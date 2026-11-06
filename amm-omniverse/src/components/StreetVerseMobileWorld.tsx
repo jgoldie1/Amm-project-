@@ -1,3 +1,4 @@
+import {canOccupyStore,storefrontBounds} from '../runtime/StreetVerseStoreNavigation'
 import StreetVerseLivingCityDirectorHUD from './StreetVerseLivingCityDirectorHUD'
 import StreetVerseChronoShopHUD from './StreetVerseChronoShopHUD'
 import {mountLivingStoreScene} from '../runtime/StreetVerseLivingStoreScene'
@@ -1135,6 +1136,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
    if(wardrobeCoat.visible)wardrobeMaterial.color.setHex(colors[d.outfit!])
   }
   window.addEventListener('tryamm:streetverse-avatar-outfit',onShopOutfit)
+  const storefrontNavigation=[storefrontBounds(-12,12),storefrontBounds(18,20),storefrontBounds(32,-12)]
   const livingStores3D=mountLivingStoreScene(scene)
   const warehouseShelves=new THREE.Group()
   warehouseShelves.name='streetverse-roosevelt-virtual-warehouse'
