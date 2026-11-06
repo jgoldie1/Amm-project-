@@ -25,6 +25,7 @@ export default function StreetVerseHoloDeliveryMissionHUD(){
   }
  }
  const replay=()=>{const next=initialHoloMission();setMission(next);setNote('Replay practice started. Completed mission IDs, credits and inventory remain unchanged; no duplicate reward will be issued.');window.dispatchEvent(new CustomEvent('tryamm:streetverse-package-stage',{detail:{stage:next.stage,fictional:true}}))}
+ const replay=()=>{const fresh=initialHoloMission();setMission(fresh);setNote('REPLAY MODE • fictional mission reset; completed ledger history and earned credits remain unchanged. No second reward for this mission ID.');window.dispatchEvent(new CustomEvent('tryamm:streetverse-package-stage',{detail:{stage:fresh.stage,fictional:true}}))}
  const btn={minHeight:46,padding:'8px 12px',border:'1px solid #70d8ee',borderRadius:8,background:'#164d62',color:'white'}
  return <aside data-streetverse-holo-delivery-mission="demo" style={{position:'fixed',left:8,bottom:90,zIndex:43989,maxWidth:'min(330px,calc(100vw - 16px))',maxHeight:'55dvh',overflow:'auto',padding:8,borderRadius:12,background:'rgba(4,25,37,.96)',color:'white',font:'12px system-ui'}}>
   <button style={btn} onClick={()=>setOpen(v=>!v)} aria-expanded={open}>🚚 HOLO DELIVERY MISSION • {mission.stage.toUpperCase()}</button>
@@ -36,6 +37,7 @@ export default function StreetVerseHoloDeliveryMissionHUD(){
    {mission.stage==='drive'&&<button style={btn} onClick={()=>act({type:'enter-van',vehicleId:position?.vehicleId})}>VERIFY HOLO VAN ENTRY</button>}
    {mission.stage==='handoff'&&<><button style={btn} onClick={()=>act({type:'arrive',nearStore:near(store),vehicleId:position?.vehicleId})}>CHECK STOREFRONT ARRIVAL</button><button style={btn} disabled={!mission.arrived||Boolean(position?.vehicleId)} onClick={()=>act({type:'handoff',nearStore:near(store),npcId:'npc-creator-vendor',onFoot:!position?.vehicleId})}>HAND PACKAGE TO NPC VENDOR</button></>}
    {mission.stage==='complete'&&<button style={btn} onClick={replay}>REPLAY CHICAGO DELIVERY • PRACTICE</button>}
+   {mission.stage==='complete'&&<button style={btn} onClick={replay}>↻ REPLAY CHICAGO DELIVERY • NO DUPLICATE REWARD</button>}
    <div aria-live="polite">{note}</div>
    <small>Location and vehicle must be supplied by the 3D game controller. This mission cannot certify real-world delivery.</small>
   </div>}
