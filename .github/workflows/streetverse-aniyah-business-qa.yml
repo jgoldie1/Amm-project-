@@ -4,12 +4,14 @@ on:
     paths:
       - 'amm-omniverse/src/components/Aniyah*'
       - 'amm-omniverse/src/components/StreetVersePhotoCamera.tsx'
+      - 'amm-omniverse/src/components/StreetVerseWhitelistRequest.tsx'
       - 'amm-omniverse/src/components/StreetVerseBusinessPilot.tsx'
       - 'amm-omniverse/src/components/StreetVerse3D.tsx'
       - 'amm-omniverse/src/runtime/StreetVerseHoloMissionDirector.ts'
       - 'amm-omniverse/src/data/streetverseBusinessVerseRegistry.ts'
       - 'amm-omniverse/tests/aniyah-*.mjs'
       - 'amm-omniverse/tests/streetverse-aniyah-camera-contract.mjs'
+      - 'amm-omniverse/tests/streetverse-whitelist-request-contract.mjs'
       - 'amm-omniverse/tests/streetverse-businessverse-chicago-contract.mjs'
       - '.github/workflows/streetverse-aniyah-business-qa.yml'
   pull_request:
@@ -46,3 +48,5 @@ jobs:
         run: node tests/aniyah-cross-border-literacy-contract.mjs
       - name: Aniyah combined mission contract
         run: node tests/aniyah-combined-missions-contract.mjs
+      - name: StreetVerse whitelist request safety contract
+        run: node tests/streetverse-whitelist-request-contract.mjs
