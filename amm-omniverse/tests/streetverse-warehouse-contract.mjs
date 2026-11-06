@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+const root=new URL('../src/',import.meta.url)
+const runtime=fs.readFileSync(new URL('runtime/StreetVerseVirtualWarehouseRuntime.ts',root),'utf8')
+const hud=fs.readFileSync(new URL('components/StreetVerseVirtualWarehouseHUD.tsx',root),'utf8')
+const world=fs.readFileSync(new URL('components/StreetVerseMobileWorld.tsx',root),'utf8')
+assert.match(runtime,/warehouseNear/)
+assert.match(runtime,/inVehicle/)
+assert.match(runtime,/reserveWarehouseItem/)
+assert.match(runtime,/fulfillWarehouseItem/)
+assert.match(hud,/PICK ORDER/)
+assert.match(hud,/DISPATCH/)
+assert.match(world,/tryamm:streetverse-warehouse-order/)
+assert.match(world,/<StreetVerseVirtualWarehouseHUD\/>/)
+console.log('Virtual warehouse source contract PASS')
