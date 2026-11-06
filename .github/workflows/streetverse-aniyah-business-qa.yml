@@ -1,0 +1,48 @@
+name: StreetVerse Aniyah + Business QA
+on:
+  push:
+    paths:
+      - 'amm-omniverse/src/components/Aniyah*'
+      - 'amm-omniverse/src/components/StreetVersePhotoCamera.tsx'
+      - 'amm-omniverse/src/components/StreetVerseBusinessPilot.tsx'
+      - 'amm-omniverse/src/components/StreetVerse3D.tsx'
+      - 'amm-omniverse/src/runtime/StreetVerseHoloMissionDirector.ts'
+      - 'amm-omniverse/src/data/streetverseBusinessVerseRegistry.ts'
+      - 'amm-omniverse/tests/aniyah-*.mjs'
+      - 'amm-omniverse/tests/streetverse-aniyah-camera-contract.mjs'
+      - 'amm-omniverse/tests/streetverse-businessverse-chicago-contract.mjs'
+      - '.github/workflows/streetverse-aniyah-business-qa.yml'
+  pull_request:
+    paths:
+      - 'amm-omniverse/src/components/**'
+      - 'amm-omniverse/tests/aniyah-*.mjs'
+      - '.github/workflows/streetverse-aniyah-business-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+      - name: TypeScript compilation check
+        run: npm run typecheck
+      - name: StreetVerse business portal contract
+        run: node tests/streetverse-businessverse-chicago-contract.mjs
+      - name: Aniyah camera contract
+        run: node tests/streetverse-aniyah-camera-contract.mjs
+      - name: Aniyah literacy contract
+        run: node tests/aniyah-cross-border-literacy-contract.mjs
+      - name: Aniyah combined mission contract
+        run: node tests/aniyah-combined-missions-contract.mjs
