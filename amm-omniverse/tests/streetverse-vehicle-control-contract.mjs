@@ -19,6 +19,12 @@ assert.doesNotMatch(mobile,/if\(firstJourneyActive\)\{firstJourneyDrove=false;/,
   'Re-entering a vehicle must not erase completed first-journey driving progress')
 assert.match(mobile,/if\(firstJourneyActive&&!firstJourneyDrove\)\{firstJourneyBeacon\.position\.set/,
   'Only an unfinished drive leg may show the initial driving beacon on entry')
+assert.match(mobile,/setMessage\(firstJourneyNeedsGuide\?'NEXT • walk to the glowing guide and tap TALK\.'\:'Exited vehicle • walking controls restored\. Your car stays parked for re-entry\.'\)/,
+  'Vehicle exit must preserve a parked car and explain the next interaction')
+assert.match(mobile,/showPrompt\(\{id:'vehicle-enter',label:String\(nearest\.car\.userData\.label\|\|'Nearby Vehicle'\),action:'ENTER VEHICLE'/,
+  'Returning to a nearby parked car must expose an ENTER VEHICLE prompt')
+assert.match(mobile,/if\(prompt\.id==='vehicle-enter'\)\{window\.dispatchEvent\(new CustomEvent\('tryamm:streetverse-vehicle-interact'/,
+  'The visible ENTER VEHICLE prompt must dispatch the actual vehicle interaction')
 assert.match(mobile,/const nearestCar=/,
   'StreetVerseMobileWorld: ENTER VEHICLE must resolve a nearby scene vehicle')
 assert.match(mobile,/activeCar\.position\.(?:x|z)/,
