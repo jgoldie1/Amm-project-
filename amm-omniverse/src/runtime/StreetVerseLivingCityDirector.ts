@@ -14,3 +14,18 @@ export function citySnapshot(tick:number,era='present'):CitySnapshot{
  return {hour,day,actors,footTraffic,deliveryDemand,era}
 }
 export function nextCityTick(tick:number):number{return Number.isSafeInteger(tick)&&tick>=0&&tick<10000000?tick+1:0}
+
+/** City commerce simulation: NPC demand never creates a real payment or shipment. */
+export type CityCommerceEvent={id:string;tick:number;storeId:string;kind:'browse'|'purchase-intent'|'restock-request'|'shift-change';quantity:number;fictional:true}
+export function cityCommerceEvents(tick:number,stockByStore:Record<string,number>):CityCommerceEvent[]{
+ const snap=citySnapshot(tick)
+ const events:CityCommerceEvent[]=[]
+ for(const actor of snap.actors){
+  if(actor.activity==='browse'||actor.activity==='shop')events.push({id:tick+':'+actor.id,storeId:actor.storeId,tick,kind:actor.activity==='shop'?'purchase-intent':'browse',quantity:1,fictional:true})
+ }
+ for(const store of stores){
+  if((stockByStore[store.id]??store.stock)<=3)events.push({id:tick+':restock:'+store.id,storeId:store.id,tick,kind:'restock-request',quantity:5,fictional:true})
+  if(snap.hour===8||snap.hour===18)events.push({id:tick+':shift:'+store.id,storeId:store.id,tick,kind:'shift-change',quantity:0,fictional:true})
+ }
+ return events
+}
