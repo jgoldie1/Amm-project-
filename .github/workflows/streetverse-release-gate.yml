@@ -42,6 +42,8 @@ jobs:
           cache-dependency-path: amm-omniverse/package-lock.json
       - name: Install dependencies without lifecycle scripts
         run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Chicago integrated storefront and delivery contract
+        run: node tests/streetverse-chicago-integrated-contract.mjs
       - name: TypeScript check
         run: npm run typecheck
       - name: Verify vehicle interaction
