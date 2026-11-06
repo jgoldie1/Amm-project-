@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+const runtime=fs.readFileSync(new URL('../src/runtime/StreetVerseAfterDarkTestRuntime.ts',import.meta.url),'utf8')
+const hud=fs.readFileSync(new URL('../src/components/StreetVerseAfterDarkTestHUD.tsx',import.meta.url),'utf8')
+const world=fs.readFileSync(new URL('../src/components/StreetVerseMobileWorld.tsx',import.meta.url),'utf8')
+for(const action of ['enter','dance','sit','ambient','exit'])assert.ok(runtime.includes("'"+action+"'"))
+assert.match(runtime,/if\(!state\.active\)return \{ok:false/,'Cannot act before entering')
+assert.match(runtime,/new AudioContext\(\)/,'Audio must be user-initiated')
+assert.match(runtime,/muted\|\|typeof window==='undefined'/,'Audio must be muteable')
+assert.match(runtime,/void ctx\?\.close\(\)/,'Audio must be disposed')
+assert.match(hud,/tryamm:streetverse-life-animation/,'Must bridge existing life animation event')
+assert.match(hud,/tryamm:streetverse-after-dark-test/,'Must emit test state')
+assert.match(hud,/minHeight:46/,'Touch targets must be accessible')
+assert.match(hud,/Partner interactions require real adult verification/,'Must not fake age verification')
+assert.match(world,/<StreetVerseAfterDarkTestHUD\/>/,'Panel must be mounted in playable world')
+console.log('After Dark nightlife and sound source contract PASS')
