@@ -52,6 +52,8 @@ jobs:
         run: node tests/streetverse-iphone-player-journey-contract.mjs
       - name: Verify whitelist authorization boundaries
         run: node tests/streetverse-whitelist-request-contract.mjs
+      - name: Verify continuous Chicago session and restaurant checkout
+        run: node tests/streetverse-chicago-session-contract.mjs
       - name: Verify After Dark nightlife and sound integration
         run: node tests/streetverse-after-dark-test-contract.mjs
       - name: Execute life mission state-machine regression
