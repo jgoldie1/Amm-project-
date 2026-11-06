@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import StreetVerseBusinessPilot from './StreetVerseBusinessPilot'
 import StreetVersePhotoCamera from './StreetVersePhotoCamera'
+import AniyahStreetVerseMissions from './AniyahStreetVerseMissions'
 import {BUSINESSVERSE_VENUES} from '../data/streetverseBusinessVerseRegistry'
 import {normalizeStreetVerseHumanHeight,STREETVERSE_HUMAN_HEIGHT_METERS,residentHeight} from '../runtime/StreetVerseHumanScale'
 import {
@@ -55,6 +56,7 @@ export default function StreetVerse3D({onClose}:{onClose:()=>void}){
   const [insideBusiness,setInsideBusiness]=useState<string|null>(null)
   const insideBusinessRef=useRef(false)
   const [photoCameraOpen,setPhotoCameraOpen]=useState(false)
+  const [aniyahMissionsOpen,setAniyahMissionsOpen]=useState(false)
   const [nearbyPortal,setNearbyPortal]=useState<(typeof businessPortals)[number]|null>(null)
   const portalRef=useRef<(typeof businessPortals)[number]|null>(null)
   const startedRef=useRef(started)
@@ -526,6 +528,7 @@ export default function StreetVerse3D({onClose}:{onClose:()=>void}){
         </div>)}
         <div style={{fontSize:8,color:'#7890a3',marginTop:8}}>Demo credits only. This proves game/asset/ledger attribution flow; it does not represent real cash receipts or a public cryptocurrency.</div>
       </aside>
+      {aniyahMissionsOpen&&<AniyahStreetVerseMissions onClose={()=>setAniyahMissionsOpen(false)}/>}
       {photoCameraOpen&&<StreetVersePhotoCamera onClose={()=>setPhotoCameraOpen(false)} onPhotoCaptured={()=>setMessage('Aniyah photo captured and download requested. Show Aniyah your saved photo to continue; no mission reward was issued.')}/>}
       {insideBusiness&&<div role="dialog" aria-label="Business interior" style={{position:'absolute',inset:0,zIndex:10,background:'#070d19',overflow:'auto',padding:12}}>
         <button onClick={exitBusiness} style={{...actionBtn,maxWidth:220}}>EXIT BUSINESS • RETURN TO CHICAGO</button>
@@ -538,7 +541,7 @@ export default function StreetVerse3D({onClose}:{onClose:()=>void}){
         <span/><Pad label="▲" down={()=>press('up',true)} up={()=>press('up',false)}/><span/>
         <Pad label="◀" down={()=>press('left',true)} up={()=>press('left',false)}/><Pad label="▼" down={()=>press('down',true)} up={()=>press('down',false)}/><Pad label="▶" down={()=>press('right',true)} up={()=>press('right',false)}/>
       </div>
-      <div style={{display:'flex',justifyContent:'flex-end',gap:8}}><button onClick={()=>setPhotoCameraOpen(true)} style={smallBtn} aria-label="Open camera for Aniyah photo mission">📷 PHOTO</button><button onClick={()=>{localStorage.removeItem(SAVE_KEY);resetOmniverseEconomy();location.reload()}} style={smallBtn}>RESET</button><button onClick={()=>setStarted(v=>!v)} style={smallBtn}>{started?'PAUSE':'PLAY'}</button></div>
+      <div style={{display:'flex',justifyContent:'flex-end',gap:8}}><button onClick={()=>setAniyahMissionsOpen(true)} style={smallBtn}>ANIYAH MISSIONS</button><button onClick={()=>setPhotoCameraOpen(true)} style={smallBtn} aria-label="Open camera for Aniyah photo mission">📷 PHOTO</button><button onClick={()=>{localStorage.removeItem(SAVE_KEY);resetOmniverseEconomy();location.reload()}} style={smallBtn}>RESET</button><button onClick={()=>setStarted(v=>!v)} style={smallBtn}>{started?'PAUSE':'PLAY'}</button></div>
     </footer>
   </div>
 }
