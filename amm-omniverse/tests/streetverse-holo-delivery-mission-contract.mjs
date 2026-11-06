@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+const read=p=>fs.readFileSync(new URL('../'+p,import.meta.url),'utf8')
+const runtime=read('src/runtime/StreetVerseHoloDeliveryMissionRuntime.ts')
+const hud=read('src/components/StreetVerseHoloDeliveryMissionHUD.tsx')
+const world=read('src/components/StreetVerseMobileWorld.tsx')
+assert.match(runtime,/mission.stage==='dispatch'&&action.type==='accept'/)
+assert.match(runtime,/!action.nearWarehouse\|\|!action.packageAvailable/)
+assert.match(runtime,/action.vehicleId!==mission.vanId/)
+assert.match(runtime,/action.npcId!=='npc-creator-vendor'/)
+assert.match(runtime,/mission.stage==='complete'/)
+assert.match(hud,/tryamm:streetverse-holo-delivery-mission-complete/)
+assert.match(hud,/tryamm:streetverse-player-location/)
+assert.match(world,/tryamm:streetverse-player-location/)
+assert.match(world,/<StreetVerseHoloDeliveryMissionHUD\/>/)
+console.log('Holo Delivery warehouse-to-store mission source contract PASS')
