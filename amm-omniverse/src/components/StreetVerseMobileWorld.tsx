@@ -1067,7 +1067,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   let bjInjury=initialBJInjuryState()
   const onBJInjury=(event:Event)=>{
     const kind=(event as CustomEvent<{kind?:BJInjuryKind}>).detail?.kind
-    if(!kind||!['shot','stab','blunt','fall','recovery'].includes(kind))return
+    if(!kind||!['shot','stab','blunt','fall','recovery','hospital-discharge'].includes(kind))return
     const outcome=applyBJInjury(bjInjury,kind)
     bjInjury=outcome.state
     bjReaction.onInjury(kind,performance.now())
@@ -1088,7 +1088,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     const now=performance.now()
     const next=stage==='requested'?bjRescue.dispatch(now):stage==='dispatched'?bjRescue.arrive(now):stage==='arrived'?bjRescue.treat(now):stage==='treatment'?bjRescue.recover(now):bjRescue.getState()
     updateRescue(next.stage)
-    if(next.stage==='recovered')window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-injury',{detail:{kind:'recovery'}}))
+    if(next.stage==='recovered'){window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-injury',{detail:{kind:'hospital-discharge'}}));setMessage('BJ DISCHARGED • health restored • return to your mission')}
   }
   addEventListener('tryamm:streetverse-bj-rescue-request',onRescueRequest)
   addEventListener('tryamm:streetverse-bj-rescue-advance',onRescueAdvance)
