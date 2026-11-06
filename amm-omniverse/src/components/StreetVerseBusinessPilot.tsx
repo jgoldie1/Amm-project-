@@ -12,13 +12,16 @@ const INTERACTIONS:Record<string,{name:string;color:number;step:string}[]>={
  'michael-fine-dining-catering':[{name:'Order Desk',color:0x32a6b3,step:'accept_order'},{name:'Prep Station',color:0xaaaaaa,step:'prepare'},{name:'Oven',color:0xff8b33,step:'bake'},{name:'Packing Table',color:0x52bc79,step:'package'}],
  'kevon-capital-nights':[{name:'Staff Desk',color:0x32a6b3,step:'check_in'},{name:'DJ Booth',color:0xb17dff,step:'perform'},{name:'Bar Counter',color:0xff8b33,step:'serve'}]
 }
-export default function StreetVerseBusinessPilot(){
+export default function StreetVerseBusinessPilot({initialVenueId}:{initialVenueId?:string}={}){
  const mount=useRef<HTMLDivElement>(null)
- const [venue,setVenue]=useState<Pilot>(PILOTS[0])
- const [done,setDone]=useState<string[]>([])
+ const [venue,setVenue]=useState<Pilot>(()=>PILOTS.find(v=>v.id===initialVenueId)||PILOTS[0])
+ const [done,setDone]=useState<string[]>(()=>{
+  try{const id=initialVenueId||PILOTS[0].id;const value=JSON.parse(localStorage.getItem('streetverse.business.pilot.'+id)||'[]');return Array.isArray(value)?value.filter((v:unknown)=>typeof v==='string'):[]}catch{return []}
+ })
  const [message,setMessage]=useState('Select a station to begin a demo job.')
  const [available,setAvailable]=useState(true)
  const stations=INTERACTIONS[venue.id]||[]
+ useEffect(()=>{try{localStorage.setItem('streetverse.business.pilot.'+venue.id,JSON.stringify(done))}catch{/* demo persistence unavailable */}},[venue.id,done])
  useEffect(()=>{
   const host=mount.current;if(!host)return
   const scene=new THREE.Scene();scene.background=new THREE.Color(0x141827)
@@ -66,7 +69,7 @@ export default function StreetVerseBusinessPilot(){
  return <section aria-label="StreetVerse BusinessVerse 3D pilot" style={{maxWidth:920}}>
   <h2>StreetVerse BusinessVerse — 3D Pilot</h2>
   <label htmlFor="business-pilot-venue">Choose business</label>{' '}
-  <select id="business-pilot-venue" value={venue.id} onChange={e=>{const next=PILOTS.find(v=>v.id===e.target.value);if(next){setVenue(next);setDone([]);setMessage('New demo shift started.')}}}>
+  <select id="business-pilot-venue" value={venue.id} onChange={e=>{const next=PILOTS.find(v=>v.id===e.target.value);if(next){setVenue(next);try{const saved=JSON.parse(localStorage.getItem('streetverse.business.pilot.'+next.id)||'[]');setDone(Array.isArray(saved)?saved.filter((v:unknown)=>typeof v==='string'):[])}catch{setDone([])}setMessage('Business selected.')}}}>
    {PILOTS.map(v=><option key={v.id} value={v.id}>{v.name}</option>)}
   </select>
   <div ref={mount} style={{height:350,width:'100%',touchAction:'manipulation',borderRadius:12,overflow:'hidden'}} role="img" aria-label="3D room with interactive workstations"/>
@@ -74,6 +77,6 @@ export default function StreetVerseBusinessPilot(){
   <div style={{display:'flex',flexWrap:'wrap',gap:8}}>
    {stations.map(s=><button key={s.step} type="button" disabled={done.includes(s.step)} onClick={()=>finish(s.step)} style={{padding:12,minHeight:44}}>{done.includes(s.step)?'✓ ':''}{s.name}: {s.step.replaceAll('_',' ')}</button>)}
   </div>
-  <p>Prototype only: no player wallet credit, server mission verification, real-money charge or XR session. Existing WebXR runtime remains separate.</p>
+  <p>Local demo progress is saved in this browser. No player wallet credit, server mission verification, real-money charge or XR session. Existing WebXR runtime remains separate.</p>
  </section>
 }
