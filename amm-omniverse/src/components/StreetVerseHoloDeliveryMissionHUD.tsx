@@ -19,6 +19,7 @@ export default function StreetVerseHoloDeliveryMissionHUD(){
   setNote(result.message)
   if(!result.ok)return
   setMission(result.mission)
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-package-stage',{detail:{stage:result.mission.stage,fictional:true}}))
   if(result.reward>0){
    window.dispatchEvent(new CustomEvent('tryamm:streetverse-holo-delivery-mission-complete',{detail:{missionId:mission.id,storeId:mission.storeId,sku:mission.sku,quantity:mission.quantity,rewardCredits:result.reward,demo:true,fictional:true}}))
   }
