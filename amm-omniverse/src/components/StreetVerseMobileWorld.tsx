@@ -16,7 +16,7 @@ import StreetVerseChicagoSessionHUD from './StreetVerseChicagoSessionHUD'
 import StreetVerseHoloFonHUD from './StreetVerseHoloFonHUD'
 import StreetVerseUICPackageHUD from './StreetVerseUICPackageHUD'
 import StreetVerseVirtualWarehouseHUD from './StreetVerseVirtualWarehouseHUD'
-import {initialWarehouseState,reserveWarehouseItem,fulfillWarehouseItem,warehouseNear,WAREHOUSE_LOCATION,type WarehouseItem} from '../runtime/StreetVerseVirtualWarehouseRuntime'
+import {initialWarehouseState,reserveWarehouseItem,fulfillWarehouseItem,warehouseNear,WAREHOUSE_LOCATION,WAREHOUSE_SAVE_KEY,readWarehouseSave,writeWarehouseSave,type WarehouseItem} from '../runtime/StreetVerseVirtualWarehouseRuntime'
 import {canInteractWithUICPackage,UIC_PACKAGE_ID,type UICPackageStage} from '../runtime/StreetVerseUICPackageRuntime'
 import {playStreetVerseLifeClip} from '../runtime/StreetVerseLifeClipBridgeRuntime'
 import {createStreetVerseSpatialSound} from '../runtime/StreetVerseSpatialSoundRuntime'
@@ -1107,7 +1107,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   let holoFonHandVisible=false
   const onHoloFonHandPose=(e:Event)=>{holoFonHandVisible=(e as CustomEvent<{visible?:boolean}>).detail?.visible===true;holoFonHandProp.visible=holoFonHandVisible}
   addEventListener('tryamm:streetverse-holofon-hand-pose',onHoloFonHandPose)
-  let warehouseState=initialWarehouseState()
+  let warehouseState=(()=>{try{return readWarehouseSave(localStorage.getItem(WAREHOUSE_SAVE_KEY))}catch{return initialWarehouseState()}})()
   let warehouseLastStatus=0
   const warehouseMarker=new THREE.Mesh(new THREE.BoxGeometry(3,3,3),new THREE.MeshStandardMaterial({color:0x3389aa,emissive:0x082b40}))
   warehouseMarker.position.set(WAREHOUSE_LOCATION.x,1.5,WAREHOUSE_LOCATION.z);scene.add(warehouseMarker)
@@ -1118,7 +1118,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
    if(!item||(action!=='reserve'&&action!=='fulfill'))return
    if(!warehouseNear(avatar.position.x,avatar.position.z,Boolean(activeCar))){window.dispatchEvent(new CustomEvent('tryamm:streetverse-warehouse-result',{detail:{ok:false,reason:'Exit the car and approach the Roosevelt warehouse.'}}));return}
    const result=action==='reserve'?reserveWarehouseItem(warehouseState,item):fulfillWarehouseItem(warehouseState,item)
-   if(result.ok){warehouseState=result.state;window.dispatchEvent(new CustomEvent('tryamm:streetverse-warehouse-order',{detail:{action,item,fictional:true}}))}
+   if(result.ok){warehouseState=result.state;try{localStorage.setItem(WAREHOUSE_SAVE_KEY,writeWarehouseSave(warehouseState))}catch{}window.dispatchEvent(new CustomEvent('tryamm:streetverse-warehouse-order',{detail:{action,item,fictional:true}}))}
    window.dispatchEvent(new CustomEvent('tryamm:streetverse-warehouse-result',{detail:{ok:result.ok,reason:result.ok?undefined:'No stock or reserved orders available.'}}))
   }
   addEventListener('tryamm:streetverse-warehouse-interact',onWarehouseInteract)
