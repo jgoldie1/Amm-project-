@@ -8,6 +8,12 @@ export default function StreetVerseChicagoSessionHUD(){
  const advance=(event:ChicagoEvent)=>setStage(current=>{const result=advanceChicagoSession(current,event);if(result.advanced)window.dispatchEvent(new CustomEvent('tryamm:streetverse-chicago-session-progress',{detail:{stage:result.stage,event}}));return result.stage})
  useEffect(()=>{try{localStorage.setItem(CHICAGO_SESSION_SAVE_KEY,serializeChicagoSessionSave(stage))}catch{/* private browsing */}},[stage])
  useEffect(()=>{
+  if(stage==='delivery'){
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-holofon-incoming-mission',{detail:{missionId:'uic-delivery',source:'chicago-session'}}))
+  }
+ },[stage])
+
+ useEffect(()=>{
   const names=['tryamm:streetverse-vehicle-distance','tryamm:streetverse-uic-package-delivered','tryamm:streetverse-next-mission-started']
   const onWorld=(event:Event)=>{const e=event as CustomEvent<Record<string,unknown>>;const signal=verifiedChicagoWorldEvent(e.type,e.detail);if(signal)advance(signal)}
   names.forEach(name=>window.addEventListener(name,onWorld))
