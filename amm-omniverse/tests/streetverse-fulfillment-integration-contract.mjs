@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+const read=p=>fs.readFileSync(new URL('../'+p,import.meta.url),'utf8')
+const world=read('src/components/StreetVerseMobileWorld.tsx')
+const dashboard=read('src/components/StreetVerseWarehouseOperationsHUD.tsx')
+const server=read('server/tryamm-fulfillment-pilot.mjs')
+const policy=read('src/runtime/StreetVerseFulfillmentProductionGate.ts')
+assert.match(world,/holoDeliveryVan=makeMobileCar/,'Van uses existing vehicle constructor')
+assert.match(world,/vehicleId:'holo-delivery-van'/)
+assert.match(world,/cars.push\(holoDeliveryVan\)/,'Van is included in drivable car list')
+assert.match(world,/<StreetVerseWarehouseOperationsHUD\/>/)
+assert.match(dashboard,/data-tryamm-ops-dashboard="restricted-pilot"/)
+assert.match(server,/createHmac/)
+assert.match(server,/timingSafeEqual/)
+assert.match(server,/Request too large/)
+assert.match(server,/No endpoint approves an identity\/contract or releases a real shipment/)
+assert.match(policy,/order.demo!==true/)
+console.log('TRYAMM restricted operations and Holo Delivery integration source contract PASS')
