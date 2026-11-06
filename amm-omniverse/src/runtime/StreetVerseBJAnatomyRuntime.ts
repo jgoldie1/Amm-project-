@@ -6,6 +6,9 @@ export interface BJAnatomyHandle {
   root:THREE.Group
   setVisible:(visible:boolean)=>void
   setCondition:(condition:'healthy'|'injured')=>void
+  setExploded:(enabled:boolean)=>void
+  setXRay:(enabled:boolean)=>void
+  tick:(elapsedSeconds:number)=>void
   dispose:()=>void
 }
 const ORGAN_LAYOUT:{name:BJOrganName;position:[number,number,number];size:[number,number,number];color:number}[]=[
@@ -19,12 +22,14 @@ const ORGAN_LAYOUT:{name:BJOrganName;position:[number,number,number];size:[numbe
 ]
 export function installStreetVerseBJAnatomy(hero:THREE.Object3D):BJAnatomyHandle{
   const existing=hero.getObjectByName('bj-anatomy-overlay')
-  if(existing)existing.parent?.remove(existing)
+  if(existing){existing.traverse(object=>{if(object instanceof THREE.Mesh){object.geometry.dispose();if(Array.isArray(object.material))object.material.forEach(material=>material.dispose());else object.material.dispose()}});existing.parent?.remove(existing)}
   const root=new THREE.Group()
   root.name='bj-anatomy-overlay'
   root.visible=false
   root.userData={fictional:true,medicalAccuracy:false,renderMode:'hidden-by-default'}
   const materials:THREE.MeshStandardMaterial[]=[]
+  const organs:{mesh:THREE.Mesh;origin:THREE.Vector3;direction:THREE.Vector3}[]=[]
+  let exploded=false,xray=false,injured=false
   for(const organ of ORGAN_LAYOUT){
     const material=new THREE.MeshStandardMaterial({color:organ.color,roughness:.75,transparent:true,opacity:.86,depthWrite:false})
     const mesh=new THREE.Mesh(new THREE.SphereGeometry(1,16,12),material)
@@ -33,13 +38,17 @@ export function installStreetVerseBJAnatomy(hero:THREE.Object3D):BJAnatomyHandle
     mesh.scale.set(...organ.size)
     mesh.userData={organ:organ.name,fictional:true}
     materials.push(material)
+    organs.push({mesh,origin:mesh.position.clone(),direction:new THREE.Vector3(Math.sign(mesh.position.x||1)*.3,(mesh.position.y-1.18)*.45,.20)})
     root.add(mesh)
   }
   hero.add(root)
   return {
     root,
     setVisible:visible=>{root.visible=visible},
-    setCondition:condition=>{root.userData.condition=condition;materials.forEach(m=>{m.opacity=condition==='injured'?.7:.86})},
+    setCondition:condition=>{injured=condition==='injured';root.userData.condition=condition;materials.forEach(m=>{m.opacity=injured?.7:.86;m.emissive.setHex(injured?0x330008:0x000000)})},
+    setExploded:enabled=>{exploded=enabled;root.userData.exploded=enabled;root.visible=enabled||xray},
+    setXRay:enabled=>{xray=enabled;root.userData.xray=enabled;root.visible=enabled||exploded;materials.forEach(m=>{m.depthTest=!enabled})},
+    tick:elapsedSeconds=>{for(const organ of organs){const target=organ.origin.clone().addScaledVector(organ.direction,exploded?1:0);organ.mesh.position.lerp(target,.16);if(organ.mesh.name==='bj-organ-heart')organ.mesh.scale.setScalar(1+.035*Math.sin(elapsedSeconds*5))}},
     dispose:()=>{root.parent?.remove(root);root.traverse(o=>{if(o instanceof THREE.Mesh)o.geometry.dispose()});materials.forEach(m=>m.dispose())},
   }
 }
