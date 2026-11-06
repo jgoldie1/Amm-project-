@@ -41,3 +41,22 @@ export function mountLivingStoreScene(scene:THREE.Scene){
  scene.add(root)
  return {root,update:(elapsed:number)=>{vendors.forEach((v,i)=>{v.rotation.y=Math.sin(elapsed*.001+i)*.2;v.position.y=Math.sin(elapsed*.002+i)*.035})},dispose:()=>{scene.remove(root);root.traverse(o=>{if(o instanceof THREE.Sprite){o.material.map?.dispose();o.material.dispose()}});meshes.forEach(m=>{m.geometry.dispose();(m.material as THREE.Material).dispose()})}}
 }
+
+/** Capsule-footprint approximation for small shops, preserving a central front doorway. */
+export function storeInteriorCollision(x:number,z:number,radius=.28):{inside:boolean;blocked:boolean;storeId:string|null}{
+ for(const store of initialLivingWorldState().stores){
+  const dx=x-store.x,dz=z-store.z
+  if(Math.abs(dx)>3.2||Math.abs(dz)>3.2)continue
+  const inside=Math.abs(dx)<2.4&&Math.abs(dz)<2.4
+  const sideWall=Math.abs(dx)>2.15&&Math.abs(dx)<2.7&&Math.abs(dz)<2.7
+  const rearWall=dz< -2.15&&dz> -2.7&&Math.abs(dx)<2.7
+  const frontWall=dz>2.15&&dz<2.7&&Math.abs(dx)>1.02
+  const shelves=Math.abs(dx)>1.03&&Math.abs(dx)<2.12&&dz> -1.48&&dz<.18
+  const counter=Math.abs(dx)<1.55&&dz< -1.1&&dz> -2.18
+  const blocked=sideWall||rearWall||frontWall||shelves||counter
+  // Radius expansion keeps the avatar from clipping walls and fixtures.
+  const nearWall=Math.abs(dx)+radius>2.28&&Math.abs(dz)<2.6
+  return {inside,blocked:blocked||nearWall,storeId:store.id}
+ }
+ return {inside:false,blocked:false,storeId:null}
+}
