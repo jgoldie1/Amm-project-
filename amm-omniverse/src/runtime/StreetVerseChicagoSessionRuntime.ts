@@ -15,3 +15,19 @@ export function createChicagoSession(initial:ChicagoStage='drive'){
  let stage=initial
  return {current:()=>stage,signal:(event:ChicagoEvent)=>{const result=advanceChicagoSession(stage,event);stage=result.stage;return result},reset:()=>{stage='drive'}}
 }
+
+/** Local save is versioned and accepts only known stages. */
+export const CHICAGO_SESSION_SAVE_KEY='tryamm.streetverse.chicago-session.v1'
+export function parseChicagoSessionSave(raw:string|null):ChicagoStage{
+ if(!raw)return 'drive'
+ try{const value=JSON.parse(raw) as {version?:number;stage?:string};return value.version===1&&CHICAGO_STAGES.includes(value.stage as ChicagoStage)?value.stage as ChicagoStage:'drive'}catch{return 'drive'}
+}
+export function serializeChicagoSessionSave(stage:ChicagoStage):string{return JSON.stringify({version:1,stage})}
+/** Only trusted world signals qualify; entering a car is not the same as driving. */
+export function verifiedChicagoWorldEvent(type:string,detail:Record<string,unknown>|null):ChicagoEvent|null{
+ if(!detail)return null
+ if(type==='tryamm:streetverse-vehicle-distance'&&typeof detail.meters==='number'&&detail.meters>=20)return 'vehicle-driven'
+ if(type==='tryamm:streetverse-uic-package-delivered'&&detail.delivered===true&&detail.packageId)return 'package-delivered'
+ if(type==='tryamm:streetverse-next-mission-started'&&detail.started===true&&detail.missionId)return 'next-mission-started'
+ return null
+}
