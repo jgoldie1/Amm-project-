@@ -11,7 +11,7 @@ export default function StreetVerseChicagoCertificationHUD(){
  useEffect(()=>{
   const mark=(step:CertStep,detail:string)=>setCert(c=>markCert(c,step,detail))
   let driving=false,lastDrive:{x:number;z:number}|null=null
-  const onShop=(e:Event)=>{const d=(e as CustomEvent<{storeId?:string;demo?:boolean}>).detail;if(d?.demo&&d.storeId)mark('shop-entry','Entered '+d.storeId+' storefront and opened merchandise')}
+  const onShop=(e:Event)=>{const d=(e as CustomEvent<{storeId?:string;demo?:boolean}>).detail;if(d?.demo&&d.storeId)mark('shop-entry','Entered '+d.storeId+' storefront')}
   const onTalk=(e:Event)=>{const d=(e as CustomEvent<{storeId?:string}>).detail;if(d?.storeId)mark('npc-dialogue','Merchant conversation at '+d.storeId)}
   const onOutfit=(e:Event)=>{const d=(e as CustomEvent<{outfit?:string;demo?:boolean}>).detail;if(d?.demo&&d.outfit&&d.outfit!=='default')mark('wardrobe','Visible outfit selected: '+d.outfit)}
   const onPurchase=(e:Event)=>{const d=(e as CustomEvent<{storeId?:string;demo?:boolean}>).detail;if(d?.demo&&d.storeId)mark('checkout','Fictional purchase completed at '+d.storeId)}
@@ -20,7 +20,7 @@ export default function StreetVerseChicagoCertificationHUD(){
    driving=true;lastDrive={x:d.x!,z:d.z!}
   }else{driving=false;lastDrive=null}}
   const onDelivery=(e:Event)=>{const d=(e as CustomEvent<{missionId?:string;demo?:boolean}>).detail;if(d?.demo&&d.missionId)mark('delivery','NPC handoff completed: '+d.missionId)}
-  const handlers:[string,EventListener][]=[['tryamm:streetverse-open-shopping',onShop],['tryamm:streetverse-npc-conversation',onTalk],['tryamm:streetverse-avatar-outfit',onOutfit],['tryamm:streetverse-store-demo-purchase',onPurchase],['tryamm:streetverse-player-location',onPosition],['tryamm:streetverse-holo-delivery-mission-complete',onDelivery]]
+  const handlers:[string,EventListener][]=[['tryamm:streetverse-shop-entered',onShop],['tryamm:streetverse-npc-conversation',onTalk],['tryamm:streetverse-avatar-outfit',onOutfit],['tryamm:streetverse-store-demo-purchase',onPurchase],['tryamm:streetverse-player-location',onPosition],['tryamm:streetverse-holo-delivery-mission-complete',onDelivery]]
   handlers.forEach(([name,fn])=>window.addEventListener(name,fn))
   try{const token=sessionStorage.getItem(CERT_RELOAD_KEY);if(token){sessionStorage.removeItem(CERT_RELOAD_KEY);const ledger=readShoppingLedger(localStorage.getItem(SHOPPING_SAVE_KEY));const mission=JSON.parse(localStorage.getItem('tryamm.streetverse.holo-mission.v1')||'null')
    if(ledger.receipts.length>0&&ledger.completedMissionIds.length>0&&mission?.stage==='complete'){mark('reload','Saved receipts, delivery reward and completed mission restored after reload');setNotice('Reload verified: local saved mission and shopping ledger restored.')}else setNotice('Reload check failed: missing completed mission, receipt or ledger.')}}catch{setNotice('Reload check could not read local storage.')}
