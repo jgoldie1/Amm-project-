@@ -92,6 +92,8 @@ jobs:
         run: node tests/streetverse-chicago-physical-certification-contract.mjs
       - name: Test branded 3D parcel handoff regression
         run: node tests/streetverse-branded-parcel-contract.mjs
+      - name: Verify Chicago delivery replay and duplicate reward guard
+        run: node tests/streetverse-delivery-replay-contract.mjs
       - name: Verify continuous Chicago session and restaurant checkout
         run: node tests/streetverse-chicago-session-contract.mjs
       - name: Verify After Dark nightlife and sound integration
