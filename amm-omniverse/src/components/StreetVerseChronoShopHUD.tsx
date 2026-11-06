@@ -8,6 +8,7 @@ export default function StreetVerseChronoShopHUD(){
  useEffect(()=>{const onPos=(e:Event)=>{const d=(e as CustomEvent<{x?:number;z?:number;vehicleId?:string}>).detail;if(Number.isFinite(d?.x)&&Number.isFinite(d?.z))setLocation({x:d!.x!,z:d!.z!,vehicleId:d?.vehicleId})};window.addEventListener('tryamm:streetverse-player-location',onPos);return()=>window.removeEventListener('tryamm:streetverse-player-location',onPos)},[])
  const near=(x:number,z:number)=>Boolean(location&&Math.hypot(location.x-x,location.z-z)<10)
  const shop=shops.find(s=>s.id===state.insideStoreId)
+ const wear=(outfit:ShopRoleplay['outfit'])=>{setState(current=>tryOutfit(current,outfit));window.dispatchEvent(new CustomEvent('tryamm:streetverse-avatar-outfit',{detail:{outfit,demo:true}}))}
  return <aside data-streetverse-chrono-shop="fictional" style={{position:'fixed',right:8,top:'calc(env(safe-area-inset-top) + 145px)',zIndex:43990,maxWidth:'min(350px,calc(100vw - 16px))',maxHeight:'65dvh',overflow:'auto',background:'rgba(10,18,39,.96)',color:'#fff',border:'1px solid #5b9eb9',borderRadius:12,padding:10,font:'13px system-ui'}}>
   <button style={b} onClick={()=>setOpen(v=>!v)} aria-expanded={open}>🌀 CHRONOVERSE + ENTER STORES</button>
   {open&&<div style={{display:'grid',gap:9,marginTop:10}}>
@@ -18,13 +19,13 @@ export default function StreetVerseChronoShopHUD(){
     <strong>Inside {shop.name}</strong>
     <button style={b} onClick={()=>setState(s=>talkToMerchant(s,shop.id))}>TALK TO {shop.merchant.toUpperCase()}</button>
     <button style={b} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-open-shopping',{detail:{storeId:shop.id,demo:true}}))}>BROWSE MERCHANDISE / CHECKOUT</button>
-    <button style={b} onClick={()=>setState(s=>tryOutfit(s,'creator-jacket'))}>TRY CREATOR JACKET</button>
-    <button style={b} onClick={()=>setState(s=>tryOutfit(s,'vintage-suit'))}>TRY VINTAGE SUIT</button>
-    <button style={b} onClick={()=>setState(s=>tryOutfit(s,'future-coat'))}>TRY FUTURE COAT</button>
+    <button style={b} onClick={()=>wear('creator-jacket')}>TRY CREATOR JACKET</button>
+    <button style={b} onClick={()=>wear('vintage-suit')}>TRY VINTAGE SUIT</button>
+    <button style={b} onClick={()=>wear('future-coat')}>TRY FUTURE COAT</button>
     <button style={b} onClick={()=>setState(leaveShop)}>EXIT SHOP</button>
    </>}
    <div aria-live="polite">{state.dialogue}</div><div>Outfit preview: {state.outfit}</div>
-   <small>Accessible one-touch interactions. Store entry, clothing and eras are currently UI simulations; no rig clothing mesh swap, physical time travel, real payment or goods.</small>
+   <small>Accessible one-touch interactions. Store entry, clothing and eras are currently UI simulations; cosmetic 3D overlay only (not fitted GLB clothing), no physical time travel, real payment or goods.</small>
   </div>}
  </aside>
 }
