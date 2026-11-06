@@ -15,6 +15,8 @@ export default function StreetVerseHoloFonHUD(){
   const next=advanceHoloFon(call,action,contact);if(next===call)return
   setCall(next)
   if(action==='dial')tone()
+  if(action==='answer'||action==='dial')window.dispatchEvent(new CustomEvent('tryamm:streetverse-holofon-hand-pose',{detail:{visible:true,pose:'phone'}}))
+  if(action==='end'||action==='reject')window.dispatchEvent(new CustomEvent('tryamm:streetverse-holofon-hand-pose',{detail:{visible:false,pose:'idle'}}))
   if(action==='end'||action==='reject'){stopHoloFonSpeech();setSubtitle('');setMissionId(null)}
   if(action==='dial'&&contact)setMissionId(null)
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-holofon-call',{detail:{action,status:next.status,contact:next.contact,fictional:true}}))
