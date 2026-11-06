@@ -7,6 +7,7 @@ export default function StreetVerseLivingStoresHUD(){
  const [ledger,setLedger]=useState<ShoppingLedger>(()=>{try{return readShoppingLedger(localStorage.getItem(SHOPPING_SAVE_KEY))}catch{return initialShoppingLedger()}})
  const [message,setMessage]=useState('Welcome to StreetVerse Shopping. Game credits only.')
  const [quantities,setQuantities]=useState<Record<string,number>>({})
+ useEffect(()=>{const onOpen=(e:Event)=>{const id=(e as CustomEvent<{storeId?:string}>).detail?.storeId;if(!id||!ledger.world.stores.some(s=>s.id===id))return;setOpen(true);setMessage('Browsing '+ledger.world.stores.find(s=>s.id===id)?.name+' — game credits only.')};window.addEventListener('tryamm:streetverse-open-shopping',onOpen);return()=>window.removeEventListener('tryamm:streetverse-open-shopping',onOpen)},[ledger.world.stores])
  useEffect(()=>{try{localStorage.setItem(SHOPPING_SAVE_KEY,serializeShoppingLedger(ledger))}catch{}},[ledger])
  useEffect(()=>{
   const onComplete=(event:Event)=>{
