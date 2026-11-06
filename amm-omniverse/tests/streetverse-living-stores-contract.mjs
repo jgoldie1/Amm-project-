@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+const read=p=>fs.readFileSync(new URL('../'+p,import.meta.url),'utf8')
+const runtime=read('src/runtime/StreetVerseLivingStoreRuntime.ts')
+const hud=read('src/components/StreetVerseLivingStoresHUD.tsx')
+const world=read('src/components/StreetVerseMobileWorld.tsx')
+assert.match(runtime,/export function applyStoreAction/)
+assert.match(runtime,/state.credits<cost/)
+assert.match(runtime,/store.stock<quantity/)
+assert.match(runtime,/action.sku!==store.sku/)
+assert.match(runtime,/Number.isSafeInteger\(quantity\)/)
+assert.match(runtime,/advanceLivingWorld/)
+assert.match(hud,/TALK TO NPC/)
+assert.match(hud,/BUY DEMO ITEM/)
+assert.match(hud,/tryamm:streetverse-fulfillment-demo-order/)
+assert.match(world,/<StreetVerseLivingStoresHUD\/>/)
+assert.match(hud,/No real stores, seller approvals, payments or deliveries are connected/)
+console.log('StreetVerse living NPC stores source contract PASS')
