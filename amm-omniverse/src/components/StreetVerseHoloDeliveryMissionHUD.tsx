@@ -31,7 +31,7 @@ export default function StreetVerseHoloDeliveryMissionHUD(){
    {mission.stage==='dispatch'&&<button style={btn} onClick={()=>act({type:'accept'})}>ACCEPT HOLO FON DISPATCH</button>}
    {mission.stage==='pickup'&&<button style={btn} onClick={()=>act({type:'pickup',nearWarehouse:near(warehouse),packageAvailable:true})}>PICK UP PACKAGE AT WAREHOUSE</button>}
    {mission.stage==='drive'&&<button style={btn} onClick={()=>act({type:'enter-van',vehicleId:position?.vehicleId})}>VERIFY HOLO VAN ENTRY</button>}
-   {mission.stage==='handoff'&&<><button style={btn} onClick={()=>act({type:'arrive',nearStore:near(store)})}>CHECK STOREFRONT ARRIVAL</button><button style={btn} onClick={()=>act({type:'handoff',nearStore:near(store),npcId:'npc-creator-vendor'})}>HAND PACKAGE TO NPC VENDOR</button></>}
+   {mission.stage==='handoff'&&<><button style={btn} onClick={()=>act({type:'arrive',nearStore:near(store)})}>CHECK STOREFRONT ARRIVAL</button><button style={btn} onClick={()=>act({type:'handoff',nearStore:near(store),npcId:'npc-creator-vendor',onFoot:!position?.vehicleId})}>HAND PACKAGE TO NPC VENDOR</button></>}
    <div aria-live="polite">{note}</div>
    <small>Location and vehicle must be supplied by the 3D game controller. This mission cannot certify real-world delivery.</small>
   </div>}
