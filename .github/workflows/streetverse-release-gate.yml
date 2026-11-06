@@ -78,6 +78,8 @@ jobs:
         run: node tests/streetverse-living-city-commerce-contract.mjs
       - name: Test living city and ChronoVerse director
         run: node tests/streetverse-living-city-director-contract.mjs
+      - name: Test BJ avatar wardrobe bridge
+        run: node tests/streetverse-wardrobe-bridge-contract.mjs
       - name: Verify continuous Chicago session and restaurant checkout
         run: node tests/streetverse-chicago-session-contract.mjs
       - name: Verify After Dark nightlife and sound integration
