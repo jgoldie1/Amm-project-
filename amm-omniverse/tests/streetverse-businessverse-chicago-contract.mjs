@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+const read=p=>fs.readFileSync(new URL(p,import.meta.url),'utf8')
+const city=read('../src/components/StreetVerse3D.tsx')
+const pilot=read('../src/components/StreetVerseBusinessPilot.tsx')
+const catalog=read('../src/data/streetverseBusinessVerseRegistry.ts')
+const holo=read('../src/components/HoloLabGateway.tsx')
+const services=read('../src/components/HoloServicesHub.tsx')
+for(const token of ['StreetVerseBusinessPilot','businessPortals','nearbyPortal','ENTER •','EXIT BUSINESS • RETURN TO CHICAGO','initialVenueId={insideBusiness}'])assert.ok(city.includes(token),'Chicago integration missing '+token)
+for(const token of ['initialVenueId','localStorage.setItem','streetverse.business.pilot.','accept_order','prepare','cook','bake','perform'])assert.ok(pilot.includes(token),'Business pilot missing '+token)
+for(const token of ['sculptify-nightlife-dining','kevon-capital-nights','michael-fine-dining-catering','provider_verified_only'])assert.ok(catalog.includes(token),'Business catalog missing '+token)
+assert.ok(holo.includes('AR · VR · Mixed Reality Lab'))
+assert.ok(holo.includes('Holo Services Lab'))
+assert.ok(services.includes('holoSearch'))
+assert.ok(!pilot.includes('recordPurchase('),'Demo pilot must not settle real purchases')
+assert.ok(!pilot.includes('recordMissionReward('),'Demo pilot must not mint mission rewards')
+console.log('StreetVerse BusinessVerse Chicago portal source contract: PASS')
