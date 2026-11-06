@@ -58,3 +58,5 @@ jobs:
           node tests/bj-mobile-visual-acceptance-contract.mjs
       - name: Build frontend
         run: npm run build
+      - name: Inspect published BJ V12 skeletal rig
+        run: node scripts/inspect-bj-glb-rig.mjs
