@@ -1,6 +1,7 @@
 import {useEffect,useRef,useState} from 'react'
 import * as THREE from 'three'
-import {BUSINESSVERSE_VENUES} from '../data/streetverseBusinessVerseRegistry'
+import {BUSINESSVERSE_VENUES,type JobStep} from '../data/streetverseBusinessVerseRegistry'
+import {guideBusinessStep} from '../runtime/StreetVerseHoloMissionDirector'
 
 /** Standalone 3D BusinessVerse pilot. Not yet mounted in StreetVerse routing.
  *  Missions are demo-only; rewards and purchases are NOT settled here.
@@ -52,7 +53,7 @@ export default function StreetVerseBusinessPilot({initialVenueId}:{initialVenueI
    pointer.set(((event.clientX-rect.left)/rect.width)*2-1,-((event.clientY-rect.top)/rect.height)*2+1)
    ray.setFromCamera(pointer,camera)
    const hit=ray.intersectObjects(objects)[0]
-   if(hit){const i=hit.object.userData.station as number;const item=stationData[i];setMessage('Selected '+item.name+'. Use the action button below to complete the step.')}
+   if(hit){const i=hit.object.userData.station as number;const item=stationData[i];setMessage('HoloGPT training: '+guideBusinessStep(venue.id,item.step as JobStep).instruction)}
   }
   renderer.domElement.addEventListener('pointerdown',click)
   const resize=()=>{const w=Math.max(host.clientWidth,1),h=Math.max(host.clientHeight,1);renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix()}
@@ -74,6 +75,7 @@ export default function StreetVerseBusinessPilot({initialVenueId}:{initialVenueI
   </select>
   <div ref={mount} style={{height:350,width:'100%',touchAction:'manipulation',borderRadius:12,overflow:'hidden'}} role="img" aria-label="3D room with interactive workstations"/>
   <p role="status">{available?message:'3D renderer unavailable'}</p>
+  <p>HoloGPT Director: training guidance is offline and deterministic. Open Holo Lab or Holo Search separately for extended tools.</p>
   <div style={{display:'flex',flexWrap:'wrap',gap:8}}>
    {stations.map(s=><button key={s.step} type="button" disabled={done.includes(s.step)} onClick={()=>finish(s.step)} style={{padding:12,minHeight:44}}>{done.includes(s.step)?'✓ ':''}{s.name}: {s.step.replaceAll('_',' ')}</button>)}
   </div>
