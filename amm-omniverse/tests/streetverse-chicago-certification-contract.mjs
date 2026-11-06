@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+const read=p=>fs.readFileSync(new URL('../'+p,import.meta.url),'utf8')
+const cert=read('src/runtime/StreetVerseChicagoCertification.ts')
+const hud=read('src/components/StreetVerseChicagoCertificationHUD.tsx')
+const shop=read('src/components/StreetVerseChronoShopHUD.tsx')
+const world=read('src/components/StreetVerseMobileWorld.tsx')
+for(const step of ['shop-entry','npc-dialogue','wardrobe','checkout','van-drive','delivery','reload'])assert.ok(cert.includes("'"+step+"'"))
+for(const event of ['tryamm:streetverse-shop-entered','tryamm:streetverse-npc-conversation','tryamm:streetverse-avatar-outfit','tryamm:streetverse-store-demo-purchase','tryamm:streetverse-player-location','tryamm:streetverse-holo-delivery-mission-complete'])assert.ok(hud.includes(event),event)
+assert.match(hud,/sessionStorage\.setItem\(CERT_RELOAD_KEY/)
+assert.match(hud,/completedMissionIds\.length>0/)
+assert.match(hud,/mission\?\.stage==='complete'/)
+assert.match(shop,/tryamm:streetverse-shop-entered/)
+assert.match(shop,/tryamm:streetverse-npc-conversation/)
+assert.match(world,/<StreetVerseChicagoCertificationHUD\/>/)
+console.log('Chicago mission certification event and reload regression contract PASS')
