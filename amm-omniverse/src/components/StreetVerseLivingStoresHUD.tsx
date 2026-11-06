@@ -1,3 +1,4 @@
+import {citySnapshot,cityCommerceEvents,nextCityTick} from '../runtime/StreetVerseLivingCityDirector'
 import {useEffect,useState} from 'react'
 import {applyStoreAction,advanceLivingWorld,type StoreAction} from '../runtime/StreetVerseLivingStoreRuntime'
 import {awardDeliveryOnce,buyGameProduct,initialShoppingLedger,readShoppingLedger,serializeShoppingLedger,SHOPPING_SAVE_KEY,type ShoppingLedger} from '../runtime/StreetVerseShoppingLedger'
@@ -7,6 +8,9 @@ export default function StreetVerseLivingStoresHUD(){
  const [ledger,setLedger]=useState<ShoppingLedger>(()=>{try{return readShoppingLedger(localStorage.getItem(SHOPPING_SAVE_KEY))}catch{return initialShoppingLedger()}})
  const [message,setMessage]=useState('Welcome to StreetVerse Shopping. Game credits only.')
  const [quantities,setQuantities]=useState<Record<string,number>>({})
+ const [cityTick,setCityTick]=useState(0)
+ const city=citySnapshot(cityTick)
+ const commerce=cityCommerceEvents(cityTick,Object.fromEntries(ledger.world.stores.map(s=>[s.id,s.stock])))
  useEffect(()=>{const onOpen=(e:Event)=>{const id=(e as CustomEvent<{storeId?:string}>).detail?.storeId;if(!id||!ledger.world.stores.some(s=>s.id===id))return;setOpen(true);setMessage('Browsing '+ledger.world.stores.find(s=>s.id===id)?.name+' — game credits only.')};window.addEventListener('tryamm:streetverse-open-shopping',onOpen);return()=>window.removeEventListener('tryamm:streetverse-open-shopping',onOpen)},[ledger.world.stores])
  useEffect(()=>{try{localStorage.setItem(SHOPPING_SAVE_KEY,serializeShoppingLedger(ledger))}catch{}},[ledger])
  useEffect(()=>{
@@ -42,7 +46,7 @@ export default function StreetVerseLivingStoresHUD(){
     <label>Quantity <input aria-label={'Quantity for '+store.name} type="number" min={1} max={25} value={quantities[store.id]??1} onChange={e=>setQuantities(q=>({...q,[store.id]:Number(e.target.value)}))} style={{width:70,minHeight:44,margin:5}}/></label>
     <div style={{display:'flex',gap:6,flexWrap:'wrap'}}><button style={button} onClick={()=>act({kind:'npc-visit',storeId:store.id})}>TALK TO VENDOR</button><button style={button} onClick={()=>act({kind:'purchase',storeId:store.id,sku:store.sku,quantity:quantities[store.id]??1})}>BUY WITH GAME CREDITS</button></div>
    </section>)}
-   <button style={button} onClick={()=>setLedger(l=>({...l,world:advanceLivingWorld(l.world)}))}>ADVANCE LIVING WORLD</button>
+   <section aria-label="Living city director" style={{border:'1px solid #426e87',padding:8,borderRadius:9}}><strong>🌆 LIVING CITY • Day {city.day+1} • {String(city.hour).padStart(2,'0')}:00</strong><div>{city.actors.length} simulated NPCs • {city.deliveryDemand.length} delivery requests</div><div>NPC actions: {commerce.length} • Restock alerts: {commerce.filter(e=>e.kind==='restock-request').length}</div><button style={button} onClick={()=>{setCityTick(nextCityTick);setLedger(l=>({...l,world:advanceLivingWorld(l.world)}))}}>ADVANCE CITY TIME + NPC ACTIVITY</button><div aria-live="polite">{commerce.slice(0,3).map(e=><div key={e.id}>{e.kind} — {e.storeId}</div>)}</div></section>
    <strong>YOUR GAME RECEIPTS</strong>
    {ledger.receipts.slice(-5).reverse().map(r=><div key={r.id}>{r.id} • {r.quantity} × {r.sku} • 🪙 {r.credits}</div>)}
    <div role="status" aria-live="polite">{message}</div>
