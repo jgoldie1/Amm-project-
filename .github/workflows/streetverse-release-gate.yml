@@ -56,6 +56,7 @@ jobs:
         run: node tests/streetverse-warehouse-contract.mjs
       - name: Verify Holo FON NPC phone interactions
         run: node tests/streetverse-holofon-contract.mjs
+          node tests/streetverse-warehouse-partner-contract.mjs
       - name: Verify continuous Chicago session and restaurant checkout
         run: node tests/streetverse-chicago-session-contract.mjs
       - name: Verify After Dark nightlife and sound integration
