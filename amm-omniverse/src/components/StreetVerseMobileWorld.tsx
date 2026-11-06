@@ -1127,6 +1127,30 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   }
   warehouseShelves.position.set(WAREHOUSE_LOCATION.x+11,0,WAREHOUSE_LOCATION.z)
   scene.add(warehouseShelves)
+  // Low-cost visible dock vehicles: static scenery until vehicle controllers are verified.
+  const warehouseDockVehicles=new THREE.Group()
+  warehouseDockVehicles.name='streetverse-warehouse-loading-dock'
+  const dockParts:THREE.Mesh[]=[]
+  const dockBox=(w:number,h:number,d:number,x:number,y:number,z:number,color:number)=>{
+   const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color,roughness:.65}))
+   m.position.set(x,y,z);warehouseDockVehicles.add(m);dockParts.push(m);return m
+  }
+  // Raised loading dock, trailer, cab and tires.
+  dockBox(13,1.2,4,0,.6,0,0x526477)
+  dockBox(6,3,2.8,1,3.3,0,0xe8e9ed)
+  dockBox(2.4,2.2,2.8,-3.2,2.7,0,0x2162a3)
+  for(const x of [-3.6,-2.7,2,3.3])for(const z of [-1.35,1.35]){
+   const wheel=new THREE.Mesh(new THREE.CylinderGeometry(.58,.58,.28,12),new THREE.MeshStandardMaterial({color:0x171b21}))
+   wheel.rotation.x=Math.PI/2;wheel.position.set(x,1.25,z);warehouseDockVehicles.add(wheel);dockParts.push(wheel)
+  }
+  // Forklift with mast, pallet forks and a protective overhead frame.
+  dockBox(1.8,.75,1.35,8,.6,0,0xf5ae25)
+  dockBox(.18,2.4,.18,7,1.5,-.45,0x252d36)
+  dockBox(.18,2.4,.18,7,1.5,.45,0x252d36)
+  dockBox(1.4,.18,1.4,8,2.7,0,0x333c46)
+  for(const z of [-.45,.45])dockBox(1.8,.12,.18,6.3,.22,z,0x909da8)
+  warehouseDockVehicles.position.set(WAREHOUSE_LOCATION.x+12,0,WAREHOUSE_LOCATION.z+14)
+  scene.add(warehouseDockVehicles)
   const onDemoFulfillment=(event:Event)=>{
    const detail=(event as CustomEvent<{status?:string;orderId?:string;demo?:boolean}>).detail
    if(detail?.demo!==true||detail.status!=='accepted')return
