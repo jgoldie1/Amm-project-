@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+const life=fs.readFileSync(new URL('../src/runtime/StreetVerseLifeActionsRuntime.ts',import.meta.url),'utf8')
+const world=fs.readFileSync(new URL('../src/components/StreetVerseMobileWorld.tsx',import.meta.url),'utf8')
+for(const action of ['eat','drink','sleep','sit','cook','limp','recover','partner-intimacy','birth','animal-feed','animal-rest','insect-forage','insect-rest'])assert.ok(life.includes("'"+action+"'"),'Missing action '+action)
+assert.match(life,/needsEnabled:false,fatigueEnabled:false/,'Survival needs must default to off')
+assert.match(life,/partner\.id===actor\.id/,'Partner must be distinct')
+assert.match(life,/!actor\.adultVerified\|\|!partner\.adultVerified/,'Adult-only interactions require verification')
+assert.match(life,/!actor\.consents\|\|!partner\.consents/,'Both participants must consent')
+assert.match(life,/!actor\.pregnancyStoryEligible/,'Family hospital event requires story eligibility')
+assert.match(life,/LIFE_MISSION_ROUTE:LifeMission\[\]/,'Life mission route must be ordered')
+assert.match(world,/data-streetverse-life-missions="true"/,'Life mission UI must exist')
+assert.match(world,/runLifeMission/,'Mission runner must exist')
+assert.match(world,/tryamm:streetverse-life-mission-complete/,'Mission progression must emit event')
+assert.match(world,/setLifeMissionIndex\(i=>i\+1\)/,'Mission must advance')
+assert.match(world,/setLifeMissionIndex\(0\)/,'Mission must be restartable')
+console.log('StreetVerse life actions source contract PASS')
