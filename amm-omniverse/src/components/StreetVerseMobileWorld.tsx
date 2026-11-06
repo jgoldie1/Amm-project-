@@ -6,6 +6,7 @@ import {createStreetVerseWestSideVisibleWorld} from '../runtime/StreetVerseWestS
 import {installStreetVerseVisibleForgeBridge} from '../runtime/StreetVerseVisibleForgeBridge'
 import * as THREE from 'three'
 import {installStreetVerseBJAnatomy} from '../runtime/StreetVerseBJAnatomyRuntime'
+import {createBJHapticRuntime,type BJHapticCue} from '../runtime/StreetVerseBJHapticRuntime'
 import {createMobileResidentPopulation,disposeMobileResidentPopulation,tickMobileResidentPopulation} from '../runtime/StreetVerseMobileLivingCityRuntime'
 import {createStreetVerseWeatherRenderer,weatherBadge,type StreetVerseWeatherState} from '../runtime/StreetVerseWeatherRuntime'
 import {normalizeStreetVerseHumanHeight,STREETVERSE_HUMAN_HEIGHT_METERS,residentHeight} from '../runtime/StreetVerseHumanScale'
@@ -108,6 +109,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
  const [message,setMessage]=useState('StreetVerse Mobile Mode • lightweight Chicago renderer')
  const [weatherStatus,setWeatherStatus]=useState('WEATHER • CONNECTING')
  const [menuOpen,setMenuOpen]=useState(false)
+ const [hapticsEnabled,setHapticsEnabled]=useState(false)
  // Screenshot-driven iPhone clear view: all functionality stays in the quick menu.
  const [focusView,setFocusView]=useState(true)
  const [bjRenderedVersion,setBJRenderedVersion]=useState<string|null>(null)
@@ -131,6 +133,13 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
  const [cameraUiMode,setCameraUiMode]=useState<'first-person'|'third-person'>('third-person')
  const [vehicleCameraUiMode,setVehicleCameraUiMode]=useState('chase')
  const joystickLastMoveAt=useRef(0)
+ useEffect(()=>{
+  const haptics=createBJHapticRuntime({vibrate:pattern=>typeof navigator.vibrate==='function'?navigator.vibrate(pattern):false})
+  haptics.setEnabled(hapticsEnabled)
+  const onHapticCue=(event:Event)=>{const cue=(event as CustomEvent<{cue?:BJHapticCue}>).detail?.cue;if(cue&&['minor-hit','major-hit','heartbeat','medical-scan','recovery'].includes(cue))haptics.cue(cue)}
+  addEventListener('tryamm:streetverse-bj-haptic-cue',onHapticCue)
+  return()=>{removeEventListener('tryamm:streetverse-bj-haptic-cue',onHapticCue);haptics.dispose()}
+ },[hapticsEnabled])
  useEffect(()=>{const onFuture=(e:Event)=>setFutureMode(Boolean((e as CustomEvent<{enabled?:boolean}>).detail?.enabled));addEventListener('tryamm:neon-future-state',onFuture);return()=>removeEventListener('tryamm:neon-future-state',onFuture)},[])
  useEffect(()=>{const onVehicle=(e:Event)=>setVehicleOccupied(Boolean((e as CustomEvent<{entered?:boolean}>).detail?.entered));const onPlayerCamera=(e:Event)=>setCameraUiMode((e as CustomEvent<{mode?:'first-person'|'third-person'}>).detail?.mode==='first-person'?'first-person':'third-person');const onCarCamera=(e:Event)=>setVehicleCameraUiMode(String((e as CustomEvent<{mode?:string}>).detail?.mode||'chase'));addEventListener('tryamm:streetverse-vehicle-controlled',onVehicle);addEventListener('tryamm:streetverse-player-camera-changed',onPlayerCamera);addEventListener('tryamm:streetverse-vehicle-camera-changed',onCarCamera);return()=>{removeEventListener('tryamm:streetverse-vehicle-controlled',onVehicle);removeEventListener('tryamm:streetverse-player-camera-changed',onPlayerCamera);removeEventListener('tryamm:streetverse-vehicle-camera-changed',onCarCamera)}},[])
  useEffect(()=>{
