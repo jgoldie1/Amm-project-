@@ -1,4 +1,5 @@
 import {useEffect,useState} from 'react'
+import {assignDelivery,advanceDelivery,initialDeliveryState,compareFulfillmentQuotes,estimateSellerPlan,type SellerTier} from '../runtime/StreetVerseHoloDeliveryRuntime'
 import {addPartner,approvePartner,addSeller,approveSeller,createDemoOrder,advanceDemoOrder,initialFulfillmentState,readFulfillmentState,serializeFulfillmentState,FULFILLMENT_SAVE_KEY,type FulfillmentState} from '../runtime/StreetVerseWarehousePartnerRuntime'
 /** A sandbox pilot inside StreetVerse, not a live commercial order processing portal. */
 export default function StreetVerseWarehousePartnerPortal(){
@@ -8,6 +9,9 @@ export default function StreetVerseWarehousePartnerPortal(){
  const [sku,setSku]=useState('restaurant-supplies'),[qty,setQty]=useState(1)
  const [sellerId,setSellerId]=useState(''),[partnerId,setPartnerId]=useState('')
  const [carrier,setCarrier]=useState('Demo Carrier'),[tracking,setTracking]=useState('DEMO-TRACK-001')
+ const [delivery,setDelivery]=useState(initialDeliveryState)
+ const [driver,setDriver]=useState('BJ Stubbs'),[proof,setProof]=useState('')
+ const [tier,setTier]=useState<SellerTier>('starter'),[monthlyOrders,setMonthlyOrders]=useState(100)
  const [note,setNote]=useState('Local sandbox: no real orders, warehouse contracts, or shipments.')
  useEffect(()=>{try{localStorage.setItem(FULFILLMENT_SAVE_KEY,serializeFulfillmentState(state))}catch{}},[state])
  const update=(next:FulfillmentState)=>{if(next===state){setNote('Action blocked: check approvals and required fields.');return}setState(next);setNote('Demo record updated locally.')}
@@ -35,6 +39,18 @@ export default function StreetVerseWarehousePartnerPortal(){
    <input aria-label="Demo carrier" style={input} value={carrier} onChange={e=>setCarrier(e.target.value)}/>
    <input aria-label="Demo tracking reference" style={input} value={tracking} onChange={e=>setTracking(e.target.value)}/>
    {state.orders.map(o=><div key={o.id} style={{border:'1px solid #44647c',borderRadius:8,padding:8}}><strong>{o.id} • {o.status.toUpperCase()}</strong><div>{o.sku} × {o.quantity} • {o.partnerId}</div>{o.tracking&&<div>{o.carrier}: {o.tracking}</div>}{o.status!=='delivered'&&<button style={btn} onClick={()=>advance(o.id)}>NEXT ORDER STAGE</button>}</div>)}
+
+   <strong>HOLO DELIVERY • LAST-MILE SANDBOX</strong>
+   <input aria-label="Demo driver" style={input} value={driver} onChange={e=>setDriver(e.target.value)}/>
+   <input aria-label="Simulated customer proof code" style={input} placeholder="Demo confirmation code" value={proof} onChange={e=>setProof(e.target.value)}/>
+   {state.orders.filter(o=>o.status==='shipped'||o.status==='delivered').map(o=><div key={o.id}><strong>{o.id}</strong><button style={btn} onClick={()=>{const next=assignDelivery(delivery,o.id,driver,true);setDelivery(next);if(next!==delivery)window.dispatchEvent(new CustomEvent('tryamm:streetverse-holofon-incoming-mission',{detail:{missionId:'warehouse-dispatch',orderId:o.id,source:'holo-delivery-demo'}}))}}>ASSIGN HOLO DELIVERY</button></div>)}
+   {delivery.jobs.map(j=><div key={j.id} style={{border:'1px solid #456',padding:8,borderRadius:8}}><strong>{j.id} • {j.stage}</strong><div>{j.driverId} • {j.orderId}</div>{(['pickup','depart','deliver','fail','return'] as const).map(action=><button key={action} style={btn} onClick={()=>{const next=advanceDelivery(delivery,j.id,action,proof);if(next===delivery){setNote('Invalid delivery transition or missing proof code.');return}setDelivery(next);window.dispatchEvent(new CustomEvent('tryamm:streetverse-holo-delivery-status',{detail:{id:j.id,orderId:j.orderId,status:next.jobs.find(x=>x.id===j.id)?.stage,demo:true}}))}}>{action.toUpperCase()}</button>)}</div>)}
+   <strong>SELLER PLANS • ILLUSTRATIVE</strong>
+   <select style={input} aria-label="Demo seller plan" value={tier} onChange={e=>setTier(e.target.value as SellerTier)}><option value="starter">Starter</option><option value="growth">Growth</option><option value="enterprise">Enterprise</option></select>
+   <label>Orders per month<input style={input} type="number" min={0} value={monthlyOrders} onChange={e=>setMonthlyOrders(Number(e.target.value))}/></label>
+   <div>Estimated platform fee: {estimateSellerPlan(tier,monthlyOrders)?.toFixed(2)??'Invalid'} USD/month</div>
+   <strong>WAREHOUSE RATE COMPARISON • SAMPLE DATA</strong>
+   {compareFulfillmentQuotes([{partnerId:'Sample 3PL A',pickPack:2.5,storage:15,shipping:5,lastMile:3,returns:.5},{partnerId:'Sample 3PL B',pickPack:3,storage:5,shipping:4.5,lastMile:4,returns:.25}],Math.max(1,monthlyOrders)).map(q=><div key={q.partnerId}>{q.partnerId}: {q.total.toFixed(2)} USD estimated</div>)}
    <div aria-live="polite">{note}</div><small>Approvals, carrier references and tracking are simulated. Real partner onboarding requires authenticated staff approval, contracts, carrier APIs and payment verification.</small>
   </div>}
  </aside>
