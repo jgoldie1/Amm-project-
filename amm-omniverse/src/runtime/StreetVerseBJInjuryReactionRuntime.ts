@@ -9,6 +9,7 @@ export function createBJInjuryReaction(){
   let rescueSent=false
   return {
     onInjury(kind:BJInjuryKind,atMs:number){hitAt=atMs;lastKind=kind;if(kind==='recovery')rescueSent=false},
+    movementMultiplier(state:BJInjuryState){return state.health<=20?.48:state.health<=40?.65:state.health<100?.85:1},
     frame(state:BJInjuryState,nowMs:number):BJReactionFrame{
       const elapsed=Math.max(0,nowMs-hitAt)
       const acute=elapsed<1100
