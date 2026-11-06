@@ -48,7 +48,7 @@ export function installStreetVerseBJAnatomy(hero:THREE.Object3D):BJAnatomyHandle
     setCondition:condition=>{injured=condition==='injured';root.userData.condition=condition;materials.forEach(m=>{m.opacity=injured?.7:.86;m.emissive.setHex(injured?0x330008:0x000000)})},
     setExploded:enabled=>{exploded=enabled;root.userData.exploded=enabled;root.visible=enabled||xray},
     setXRay:enabled=>{xray=enabled;root.userData.xray=enabled;root.visible=enabled||exploded;materials.forEach(m=>{m.depthTest=!enabled})},
-    tick:elapsedSeconds=>{for(const organ of organs){const target=organ.origin.clone().addScaledVector(organ.direction,exploded?1:0);organ.mesh.position.lerp(target,.16);if(organ.mesh.name==='bj-organ-heart')organ.mesh.scale.setScalar(1+.035*Math.sin(elapsedSeconds*5))}},
+    tick:elapsedSeconds=>{for(const organ of organs){const target=organ.origin.clone().addScaledVector(organ.direction,exploded?1:0);organ.mesh.position.lerp(target,.16);if(organ.mesh.name==='bj-organ-heart')organ.mesh.scale.set(.095*(1+.035*Math.sin(elapsedSeconds*5)),.12*(1+.035*Math.sin(elapsedSeconds*5)),.07*(1+.035*Math.sin(elapsedSeconds*5)))}},
     dispose:()=>{root.parent?.remove(root);root.traverse(o=>{if(o instanceof THREE.Mesh)o.geometry.dispose()});materials.forEach(m=>m.dispose())},
   }
 }
