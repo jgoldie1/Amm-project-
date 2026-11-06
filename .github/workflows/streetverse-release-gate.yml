@@ -58,6 +58,10 @@ jobs:
         run: node tests/streetverse-holofon-contract.mjs
       - name: Verify TRYAMM warehouse partner and order dispatch
         run: node tests/streetverse-warehouse-partner-contract.mjs
+      - name: Test fulfillment pilot server
+        run: node --test tests/streetverse-fulfillment-server.test.mjs
+      - name: Test Holo Delivery integration
+        run: node tests/streetverse-fulfillment-integration-contract.mjs
       - name: Verify continuous Chicago session and restaurant checkout
         run: node tests/streetverse-chicago-session-contract.mjs
       - name: Verify After Dark nightlife and sound integration
