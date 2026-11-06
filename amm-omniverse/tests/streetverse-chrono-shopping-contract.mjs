@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+const read=p=>fs.readFileSync(new URL('../'+p,import.meta.url),'utf8')
+const runtime=read('src/runtime/StreetVerseChronoShoppingRuntime.ts')
+const hud=read('src/components/StreetVerseChronoShopHUD.tsx')
+const world=read('src/components/StreetVerseMobileWorld.tsx')
+assert.match(runtime,/!near\|\|!onFoot/)
+assert.match(runtime,/state.insideStoreId!==storeId/)
+assert.match(runtime,/chicago-1920/)
+assert.match(runtime,/chicago-1985/)
+assert.match(runtime,/future-2126/)
+assert.match(runtime,/ChronoVerse simulation loaded/)
+assert.match(hud,/tryamm:streetverse-player-location/)
+assert.match(hud,/TALK TO/)
+assert.match(hud,/TRY CREATOR JACKET/)
+assert.match(hud,/BROWSE MERCHANDISE/)
+assert.match(world,/<StreetVerseChronoShopHUD\/>/)
+console.log('ChronoVerse shopping interaction contract PASS')
