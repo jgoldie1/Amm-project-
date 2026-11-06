@@ -52,6 +52,8 @@ jobs:
         run: node tests/streetverse-iphone-player-journey-contract.mjs
       - name: Verify whitelist authorization boundaries
         run: node tests/streetverse-whitelist-request-contract.mjs
+      - name: Verify food and drink economy
+        run: node tests/streetverse-food-economy-contract.mjs
       - name: Verify BJ rescue mission
         run: node tests/streetverse-bj-rescue-contract.mjs
       - name: Verify BJ injury reactions
