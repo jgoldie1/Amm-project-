@@ -2,6 +2,7 @@ import type {HoloFonContact} from './StreetVerseHoloFonRuntime'
 /** Original, fictional NPC mission calls. No third-party voice cloning or real telephone service. */
 export type HoloFonMission={id:string;caller:HoloFonContact;title:string;destination:string;line:string}
 export const HOLOFON_MISSIONS:readonly HoloFonMission[]=[
+ {id:'warehouse-dispatch',caller:'dispatch',title:'Warehouse dispatch',destination:'Roosevelt Warehouse',line:'BJ, a demo warehouse order is ready. Head to the Roosevelt loading dock and check the shipment.'},
  {id:'uic-delivery',caller:'dispatch',title:'UIC package delivery',destination:'UIC delivery checkpoint',line:'BJ, pick up your package and follow the UIC destination marker.'},
  {id:'circle-park-meet',caller:'marcus',title:'Meet Marcus',destination:'Circle Park',line:'BJ, come meet me at Circle Park. We need to talk.'},
  {id:'studio-show',caller:'isaiah',title:'Isaiah AI TV',destination:'StreetVerse studio',line:'BJ, come to the studio. We are preparing the next show.'},
@@ -17,6 +18,7 @@ export function stopHoloFonSpeech(){if(typeof window!=='undefined'&&'speechSynth
 
 /** Pilot positions in the existing bounded Chicago mobile scene, not real-world GPS. */
 export const HOLOFON_SCENE_DESTINATIONS:Record<string,{x:number;z:number}>={
+ 'warehouse-dispatch':{x:-28,z:18},
  'uic-delivery':{x:24,z:-8},
  'circle-park-meet':{x:0,z:49},
  'studio-show':{x:-28,z:18},
