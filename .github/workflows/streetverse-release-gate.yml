@@ -52,6 +52,8 @@ jobs:
         run: node tests/streetverse-iphone-player-journey-contract.mjs
       - name: Verify whitelist authorization boundaries
         run: node tests/streetverse-whitelist-request-contract.mjs
+      - name: Verify BJ organ overlay
+        run: node tests/streetverse-bj-anatomy-contract.mjs
       - name: Verify BJ avatar contracts
         run: |
           node tests/bj-stubbs-photomatched-runtime-contract.mjs
