@@ -15,9 +15,9 @@ export default function StreetVerseChronoShopHUD(){
    <strong>Era: {state.chrono.era} • Branch: {state.chrono.branch}</strong>
    <div>Chrono Console: WHEN + WHERE + WORLD + PURPOSE</div>
    <label>Travel to simulated era<select aria-label="ChronoVerse era" style={{minHeight:46,width:'100%'}} value={state.chrono.era} onChange={e=>{const era=e.target.value as Era;setState(s=>travelChrono(s,era,'Explore historical storefronts'));window.dispatchEvent(new CustomEvent('tryamm:streetverse-chrono-era',{detail:{era,fictional:true}}))}}><option value="present">Present Chicago</option><option value="chicago-1920">Chicago 1920</option><option value="chicago-1985">Chicago 1985</option><option value="future-2126">Future Chicago 2126</option></select></label>
-   {!shop?shops.map(s=><button key={s.id} style={b} disabled={!near(s.x,s.z)||Boolean(location?.vehicleId)} onClick={()=>setState(current=>enterShop(current,s.id,near(s.x,s.z),!location?.vehicleId))}>ENTER {s.name.toUpperCase()} {near(s.x,s.z)?'':'(WALK CLOSER)'}</button>):<>
+   {!shop?shops.map(s=><button key={s.id} style={b} disabled={!near(s.x,s.z)||Boolean(location?.vehicleId)} onClick={()=>{if(near(s.x,s.z)&&!location?.vehicleId){setState(current=>enterShop(current,s.id,true,true));window.dispatchEvent(new CustomEvent('tryamm:streetverse-shop-entered',{detail:{storeId:s.id,demo:true}}))}}}>ENTER {s.name.toUpperCase()} {near(s.x,s.z)?'':'(WALK CLOSER)'}</button>):<>
     <strong>Inside {shop.name}</strong>
-    <button style={b} onClick={()=>setState(s=>talkToMerchant(s,shop.id))}>TALK TO {shop.merchant.toUpperCase()}</button>
+    <button style={b} onClick={()=>{setState(s=>talkToMerchant(s,shop.id));window.dispatchEvent(new CustomEvent('tryamm:streetverse-npc-conversation',{detail:{storeId:shop.id,demo:true}}))}}>TALK TO {shop.merchant.toUpperCase()}</button>
     <button style={b} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-open-shopping',{detail:{storeId:shop.id,demo:true}}))}>BROWSE MERCHANDISE / CHECKOUT</button>
     <button style={b} onClick={()=>wear('creator-jacket')}>TRY CREATOR JACKET</button>
     <button style={b} onClick={()=>wear('vintage-suit')}>TRY VINTAGE SUIT</button>
