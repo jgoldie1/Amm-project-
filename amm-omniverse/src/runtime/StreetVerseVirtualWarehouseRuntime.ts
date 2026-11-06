@@ -14,3 +14,19 @@ export function fulfillWarehouseItem(state:WarehouseState,item:WarehouseItem):{o
  if(!Object.prototype.hasOwnProperty.call(state.reserved,item)||state.reserved[item]<=0)return {ok:false,state}
  return {ok:true,state:{...state,reserved:{...state.reserved,[item]:state.reserved[item]-1},fulfilled:state.fulfilled+1}}
 }
+
+export const WAREHOUSE_SAVE_KEY='tryamm.streetverse.warehouse.v1'
+export function readWarehouseSave(raw:string|null):WarehouseState{
+ const fallback=initialWarehouseState()
+ if(!raw)return fallback
+ try{
+  const parsed=JSON.parse(raw) as {version?:number;state?:WarehouseState}
+  if(parsed.version!==1||!parsed.state)return fallback
+  const state=parsed.state
+  const items:WarehouseItem[]=['uic-package','restaurant-supplies','studio-equipment']
+  if(!Number.isSafeInteger(state.fulfilled)||state.fulfilled<0)return fallback
+  for(const item of items)for(const count of [state.stock?.[item],state.reserved?.[item]])if(!Number.isSafeInteger(count)||count<0||count>10000)return fallback
+  return state
+ }catch{return fallback}
+}
+export function writeWarehouseSave(state:WarehouseState){return JSON.stringify({version:1,state})}
