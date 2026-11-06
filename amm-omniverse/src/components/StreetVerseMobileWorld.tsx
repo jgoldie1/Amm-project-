@@ -1,7 +1,7 @@
 import {canOccupyStore,storefrontBounds} from '../runtime/StreetVerseStoreNavigation'
 import StreetVerseLivingCityDirectorHUD from './StreetVerseLivingCityDirectorHUD'
 import StreetVerseChronoShopHUD from './StreetVerseChronoShopHUD'
-import {mountLivingStoreScene} from '../runtime/StreetVerseLivingStoreScene'
+import {mountLivingStoreScene,storeInteriorCollision} from '../runtime/StreetVerseLivingStoreScene'
 import {canvasRoundedRect} from '../utils/canvasRoundedRect'
 import {useEffect,useRef,useState} from 'react'
 import './streetverse-mobile-layout.css'
@@ -782,7 +782,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   const train=new THREE.Group();for(let i=0;i<3;i++){const car=new THREE.Mesh(new THREE.BoxGeometry(11.8,2.4,2.8),mat(0xd9dde0));car.position.x=i*12.3;train.add(car);const stripe=new THREE.Mesh(new THREE.BoxGeometry(10.8,.3,2.86),new THREE.MeshBasicMaterial({color:0x00a1de}));stripe.position.set(i*12.3,0,0);train.add(stripe)}train.position.set(-70,7.3,-35);scene.add(train)
   const blockedByExternal=(x:number,z:number)=>externalCollisionBoxes.some(box=>box.containsPoint(new THREE.Vector3(x,1,z)))
   const canTraverseStatic=(x:number,z:number)=>{const blockedByBuilding=buildingColliders.some(b=>x>=b.minX&&x<=b.maxX&&z>=b.minZ&&z<=b.maxZ);if(blockedByBuilding)return false;const inRiver=z>=-27.2&&z<=-8.8&&x>=-75&&x<=75;const onBridge=Math.abs(x)<=5.2;return !inRiver||onBridge}
-  const canTraverse=(x:number,z:number)=>canTraverseStatic(x,z)&&!blockedByExternal(x,z)
+  const canTraverse=(x:number,z:number)=>{const shop=storeInteriorCollision(x,z);if(shop.blocked)return false;if(shop.inside)return !blockedByExternal(x,z);return canTraverseStatic(x,z)&&!blockedByExternal(x,z)}
   const canDrive=(x:number,z:number)=>{const onMappedRoad=CHICAGO_ROAD_CORRIDORS.some(road=>road.axis==='x'?Math.abs(z-road.at)<=road.width*.68:Math.abs(x-road.at)<=road.width*.68);if(onMappedRoad)return true;const blockedByBuilding=buildingColliders.some(b=>x>=b.minX-1.5&&x<=b.maxX+1.5&&z>=b.minZ-1.5&&z<=b.maxZ+1.5);return !blockedByBuilding}
   const avatar=new THREE.Group();avatar.name='streetverse-mobile-hero';avatar.userData={characterId:'bj-stubbs',displayName:'BJ Stubbs',fallbackRealism:'bj-v12-mobile',legacyFallbackRealism:'bj-v8-mobile',presenceLayer:'bj-v12-visible-presence',identityContinuityKey:'bj-stubbs',fallbackBodyPass:'human-proportion-v6',fallbackSculptPass:'sculpted-readability-v8'}
   const skinMat=mat(0x70462f),shirtMat=mat(0x101215),pantsMat=mat(0x202329),hairMat=mat(0x17110f),beardGrayMat=mat(0x8e8882),goldMat=new THREE.MeshStandardMaterial({color:0xc8a14b,roughness:.32,metalness:.72})
