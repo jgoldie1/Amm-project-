@@ -1,6 +1,5 @@
 import StreetVerseChicagoCertificationHUD from './StreetVerseChicagoCertificationHUD'
 import {canOccupyStore,storefrontBounds} from '../runtime/StreetVerseStoreNavigation'
-import {storeInteriorCollision} from '../runtime/StreetVerseLivingStoreScene'
 import StreetVerseLivingCityDirectorHUD from './StreetVerseLivingCityDirectorHUD'
 import StreetVerseChronoShopHUD from './StreetVerseChronoShopHUD'
 import {mountLivingStoreScene,storeInteriorCollision} from '../runtime/StreetVerseLivingStoreScene'
