@@ -14,3 +14,12 @@ export function speakHoloFonLine(text:string,onEnd?:()=>void):boolean{
  try{window.speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(text);utterance.rate=.95;utterance.pitch=1;utterance.volume=.85;utterance.onend=()=>onEnd?.();window.speechSynthesis.speak(utterance);return true}catch{return false}
 }
 export function stopHoloFonSpeech(){if(typeof window!=='undefined'&&'speechSynthesis'in window)window.speechSynthesis.cancel()}
+
+/** Pilot positions in the existing bounded Chicago mobile scene, not real-world GPS. */
+export const HOLOFON_SCENE_DESTINATIONS:Record<string,{x:number;z:number}>={
+ 'uic-delivery':{x:24,z:-8},
+ 'circle-park-meet':{x:0,z:49},
+ 'studio-show':{x:-28,z:18},
+ 'kevon-job':{x:-24,z:-36},
+ 'teaasia-beauty':{x:24,z:-8}
+}
