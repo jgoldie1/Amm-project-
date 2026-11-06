@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
+import StreetVerseBusinessPilot from './StreetVerseBusinessPilot'
+import {BUSINESSVERSE_VENUES} from '../data/streetverseBusinessVerseRegistry'
 import {normalizeStreetVerseHumanHeight,STREETVERSE_HUMAN_HEIGHT_METERS,residentHeight} from '../runtime/StreetVerseHumanScale'
 import {
   ensureOmniverseGenesis,
@@ -25,6 +27,12 @@ const checkpoints=[
   {id:'marina',label:'Lakefront Marina',x:-42,z:-55,reward:35},
 ]
 
+const businessPortals=[
+ {id:'sculptify-nightlife-dining',label:'Sculptify Kitchen',x:8,z:54},
+ {id:'kevon-capital-nights',label:'Capital Nights Club',x:-8,z:54},
+ {id:'michael-fine-dining-catering',label:'Michael Catering',x:20,z:54},
+]
+
 const businesses=[
   {id:'welcome-market',label:'All American Market Pop-Up',x:14,z:48,description:'Meet the merchant and open the local commerce interaction.'},
   {id:'studio-desk',label:'64 Track Studio Desk',x:-34,z:-25,description:'Talk to the studio host about a creator mission.'},
@@ -43,6 +51,9 @@ export default function StreetVerse3D({onClose}:{onClose:()=>void}){
   const [message,setMessage]=useState('Move forward to the glowing District Welcome checkpoint, then explore the living city.')
   const [nearbyBusiness,setNearbyBusiness]=useState<(typeof businesses)[number]|null>(null)
   const [started,setStarted]=useState(true)
+  const [insideBusiness,setInsideBusiness]=useState<string|null>(null)
+  const [nearbyPortal,setNearbyPortal]=useState<(typeof businessPortals)[number]|null>(null)
+  const portalRef=useRef<(typeof businessPortals)[number]|null>(null)
   const startedRef=useRef(started)
   const [economy,setEconomy]=useState<OmniverseEconomySnapshot>(()=>loadOmniverseEconomy())
   const [economyMessage,setEconomyMessage]=useState('Demo credits only — no real-money settlement is enabled.')
@@ -200,6 +211,14 @@ export default function StreetVerse3D({onClose}:{onClose:()=>void}){
       g.add(beam)
       scene.add(g)
       beacons.set(cp.id,g)
+    })
+
+    businessPortals.forEach(portal=>{
+      const g=new THREE.Group();g.position.set(portal.x,0,portal.z)
+      const doorway=new THREE.Mesh(new THREE.BoxGeometry(3.2,3.7,.35),new THREE.MeshStandardMaterial({color:0x7845ba,emissive:0x2e1555,emissiveIntensity:.8}))
+      doorway.position.y=1.85;g.add(doorway)
+      const ring=new THREE.Mesh(new THREE.TorusGeometry(2,.14,12,32),new THREE.MeshBasicMaterial({color:0xf4c86d}))
+      ring.position.y=.18;ring.rotation.x=Math.PI/2;g.add(ring);scene.add(g)
     })
 
     businesses.forEach(business=>{
@@ -420,6 +439,10 @@ export default function StreetVerse3D({onClose}:{onClose:()=>void}){
         setNearbyBusiness(nextBusiness)
       }
 
+      const portal=businessPortals.map(p=>({p,d:Math.hypot(avatar.position.x-p.x,avatar.position.z-p.z)})).sort((a,b)=>a.d-b.d)[0]
+      const nextPortal=portal&&portal.d<5?portal.p:null
+      if(nextPortal?.id!==portalRef.current?.id){portalRef.current=nextPortal;setNearbyPortal(nextPortal)}
+
       desiredCam.set(avatar.position.x,6.5,avatar.position.z+10)
       camera.position.lerp(desiredCam,1-Math.pow(.001,dt))
       camera.lookAt(avatar.position.x,1.4,avatar.position.z-2.8)
@@ -464,6 +487,9 @@ export default function StreetVerse3D({onClose}:{onClose:()=>void}){
     }
   }
 
+  const enterBusiness=(id:string)=>{if(!BUSINESSVERSE_VENUES.some(v=>v.id===id))return;setStarted(false);setInsideBusiness(id)}
+  const exitBusiness=()=>{setInsideBusiness(null);setStarted(true)}
+
   const featured=OMNIVERSE_DEMO_ASSETS.filter(asset=>asset.class==='luxury-car'||asset.class==='boat').slice(0,4)
 
   return <div role="dialog" aria-modal="true" aria-label="StreetVerse 3D" style={{position:'fixed',inset:0,zIndex:16000,background:'#02040a',color:'#fff',display:'grid',gridTemplateRows:'auto 1fr auto',fontFamily:'Inter,system-ui,sans-serif'}}>
@@ -477,6 +503,7 @@ export default function StreetVerse3D({onClose}:{onClose:()=>void}){
         <div style={{fontSize:10,color:'#ffd45e',fontWeight:900}}>MISSION: DISTRICT INTRO</div>
         <div style={{fontSize:12,lineHeight:1.45,marginTop:5}}>{message}</div>
         <div style={{fontSize:10,marginTop:7,color:completed?'#79ffad':'#b7c6d5'}}>{visited.length}/{checkpoints.length} checkpoints {completed?'• COMPLETE ✓':''}</div>
+        {nearbyPortal&&<button onClick={()=>enterBusiness(nearbyPortal.id)} style={{...actionBtn,background:'#493072',borderColor:'#ffd45e'}}>ENTER • {nearbyPortal.label}</button>}
         {nearbyBusiness&&<button onClick={interactBusiness} style={{...actionBtn,background:'#16472f',borderColor:'#79ffad'}}>INTERACT • {nearbyBusiness.label}</button>}
         <div style={{fontSize:9,marginTop:6,color:'#8fa5b7'}}>WORLD: player • pedestrians • ordered traffic • buildings • trees • park • animals • boats</div>
       </div>
@@ -496,6 +523,10 @@ export default function StreetVerse3D({onClose}:{onClose:()=>void}){
         </div>)}
         <div style={{fontSize:8,color:'#7890a3',marginTop:8}}>Demo credits only. This proves game/asset/ledger attribution flow; it does not represent real cash receipts or a public cryptocurrency.</div>
       </aside>
+      {insideBusiness&&<div role="dialog" aria-label="Business interior" style={{position:'absolute',inset:0,zIndex:10,background:'#070d19',overflow:'auto',padding:12}}>
+        <button onClick={exitBusiness} style={{...actionBtn,maxWidth:220}}>EXIT BUSINESS • RETURN TO CHICAGO</button>
+        <StreetVerseBusinessPilot initialVenueId={insideBusiness}/>
+      </div>}
     </main>
     <footer style={{display:'grid',gridTemplateColumns:'1fr auto 1fr',alignItems:'center',gap:10,padding:'8px 10px max(8px,env(safe-area-inset-bottom))',background:'#050912',borderTop:'1px solid #24384b'}}>
       <div style={{fontSize:10,color:'#8fa5b7'}}>WASD / arrows • gamepad • touch pad</div>
