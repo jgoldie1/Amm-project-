@@ -52,6 +52,8 @@ jobs:
         run: node tests/streetverse-iphone-player-journey-contract.mjs
       - name: Verify whitelist authorization boundaries
         run: node tests/streetverse-whitelist-request-contract.mjs
+      - name: Verify BJ injury reactions
+        run: node tests/streetverse-bj-injury-reaction-contract.mjs
       - name: Verify BJ injury and After Dark consent contracts
         run: node tests/streetverse-bj-injury-after-dark-contract.mjs
       - name: Verify opt-in BJ haptics
