@@ -1,5 +1,6 @@
 import {useEffect,useState} from 'react'
 import {CERT_KEY,CERT_RELOAD_KEY,CERT_STEPS,certComplete,emptyCert,markCert,readCert,type CertStep,type ChicagoCert} from '../runtime/StreetVerseChicagoCertification'
+import {initialLivingWorldState} from '../runtime/StreetVerseLivingStoreRuntime'
 import {SHOPPING_SAVE_KEY,readShoppingLedger} from '../runtime/StreetVerseShoppingLedger'
 const labels:Record<CertStep,string>={'shop-entry':'BJ enters a Chicago shop','npc-dialogue':'Talk to NPC merchant','wardrobe':'Change BJ 3D outfit','checkout':'Purchase with game credits','van-drive':'Drive the Holo Delivery van','delivery':'Complete NPC package handoff','reload':'Reload and verify saved progress'}
 const btn={minHeight:44,padding:'8px 12px',border:'1px solid #6adbe9',background:'#153f55',color:'white',borderRadius:9,cursor:'pointer'}
@@ -11,11 +12,13 @@ export default function StreetVerseChicagoCertificationHUD(){
  useEffect(()=>{
   const mark=(step:CertStep,detail:string)=>setCert(c=>markCert(c,step,detail))
   let driving=false,lastDrive:{x:number;z:number}|null=null
-  const onShop=(e:Event)=>{const d=(e as CustomEvent<{storeId?:string;demo?:boolean}>).detail;if(d?.demo&&d.storeId)mark('shop-entry','Entered '+d.storeId+' storefront')}
-  const onTalk=(e:Event)=>{const d=(e as CustomEvent<{storeId?:string}>).detail;if(d?.storeId)mark('npc-dialogue','Merchant conversation at '+d.storeId)}
+  let enteredStore:string|null=null
+  const stores=initialLivingWorldState().stores
+  const onShop=(e:Event)=>{const d=(e as CustomEvent<{storeId?:string;demo?:boolean}>).detail;if(d?.demo&&d.storeId&&enteredStore===d.storeId)mark('shop-entry','BJ physically inside '+d.storeId+' storefront')}
+  const onTalk=(e:Event)=>{const d=(e as CustomEvent<{storeId?:string}>).detail;if(d?.demo&&d.storeId&&enteredStore===d.storeId)mark('npc-dialogue','Merchant conversation inside '+d.storeId)}
   const onOutfit=(e:Event)=>{const d=(e as CustomEvent<{outfit?:string;demo?:boolean}>).detail;if(d?.demo&&d.outfit&&d.outfit!=='default')mark('wardrobe','Visible outfit selected: '+d.outfit)}
-  const onPurchase=(e:Event)=>{const d=(e as CustomEvent<{storeId?:string;demo?:boolean}>).detail;if(d?.demo&&d.storeId)mark('checkout','Fictional purchase completed at '+d.storeId)}
-  const onPosition=(e:Event)=>{const d=(e as CustomEvent<{x?:number;z?:number;vehicleId?:string}>).detail;if(d?.vehicleId==='holo-delivery-van'&&Number.isFinite(d.x)&&Number.isFinite(d.z)){
+  const onPurchase=(e:Event)=>{const d=(e as CustomEvent<{storeId?:string;demo?:boolean}>).detail;if(d?.demo&&d.storeId&&enteredStore===d.storeId)mark('checkout','Fictional purchase completed at '+d.storeId)}
+  const onPosition=(e:Event)=>{const d=(e as CustomEvent<{x?:number;z?:number;vehicleId?:string}>).detail;if(Number.isFinite(d?.x)&&Number.isFinite(d?.z)){player={x:d!.x!,z:d!.z!,vehicleId:d?.vehicleId};enteredStore=!d?.vehicleId?(stores.find(s=>Math.abs(d!.x!-s.x)<2.05&&Math.abs(d!.z!-s.z)<2.05)?.id||null):null}else{player=null;enteredStore=null}if(d?.vehicleId==='holo-delivery-van'&&Number.isFinite(d.x)&&Number.isFinite(d.z)){
    if(driving&&lastDrive&&Math.hypot(d.x!-lastDrive.x,d.z!-lastDrive.z)>2)mark('van-drive','Holo van moved at least 2 game units between samples')
    driving=true;lastDrive={x:d.x!,z:d.z!}
   }else{driving=false;lastDrive=null}}
