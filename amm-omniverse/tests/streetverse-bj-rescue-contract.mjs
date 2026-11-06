@@ -1,0 +1,14 @@
+import fs from 'node:fs'
+import assert from 'node:assert/strict'
+const rescue=fs.readFileSync(new URL('../src/runtime/StreetVerseBJRescueMissionRuntime.ts',import.meta.url),'utf8')
+const world=fs.readFileSync(new URL('../src/components/StreetVerseMobileWorld.tsx',import.meta.url),'utf8')
+for(const stage of ['idle','requested','dispatched','arrived','treatment','recovered'])assert.ok(rescue.includes("'"+stage+"'"),'Missing rescue stage '+stage)
+assert.match(rescue,/state\.stage==='requested'\?advance\('dispatched'/,'Dispatch must require request')
+assert.match(rescue,/state\.stage==='dispatched'\?advance\('arrived'/,'Arrival must require dispatch')
+assert.match(rescue,/state\.stage==='arrived'\?advance\('treatment'/,'Treatment must require arrival')
+assert.match(rescue,/state\.stage==='treatment'\?advance\('recovered'/,'Recovery must require treatment')
+assert.match(world,/data-bj-rescue-advance="true"/,'Medical mission must have accessible action button')
+assert.match(world,/tryamm:streetverse-bj-rescue-request/,'Injury must trigger rescue mission')
+assert.match(world,/tryamm:streetverse-bj-rescue-stage/,'Rescue progress must be broadcast')
+assert.match(world,/removeEventListener\('tryamm:streetverse-bj-rescue-advance'/,'Rescue controls must clean up')
+console.log('BJ rescue mission contract PASS')
