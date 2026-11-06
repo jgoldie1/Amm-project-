@@ -90,6 +90,8 @@ jobs:
         run: node tests/streetverse-chicago-certification-contract.mjs
       - name: Test physical Chicago certification and store obstacles
         run: node tests/streetverse-chicago-physical-certification-contract.mjs
+      - name: Test replay mission ledger and duplicate-reward protection
+        run: node --test tests/streetverse-delivery-replay-regression.mjs
       - name: Test branded 3D parcel handoff regression
         run: node tests/streetverse-branded-parcel-contract.mjs
       - name: Verify Chicago delivery replay and duplicate reward guard
