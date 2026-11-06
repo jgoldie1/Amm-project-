@@ -1,7 +1,7 @@
 /** StreetVerse-only warehouse-to-store mission. Never represents a real shipment. */
 export type MissionStage='dispatch'|'pickup'|'drive'|'handoff'|'complete'
-export type HoloMission={id:string;storeId:string;sku:string;quantity:number;stage:MissionStage;vanId:'holo-delivery-van';rewardCredits:number;demo:true}
-export const initialHoloMission=():HoloMission=>({id:'HOLO-STORE-001',storeId:'creator',sku:'creator-shirt',quantity:3,stage:'dispatch',vanId:'holo-delivery-van',rewardCredits:35,demo:true})
+export type HoloMission={id:string;storeId:string;sku:string;quantity:number;stage:MissionStage;vanId:'holo-delivery-van';rewardCredits:number;arrived:boolean;demo:true}
+export const initialHoloMission=():HoloMission=>({id:'HOLO-STORE-001',storeId:'creator',sku:'creator-shirt',quantity:3,stage:'dispatch',vanId:'holo-delivery-van',rewardCredits:35,arrived:false,demo:true})
 export type MissionAction={type:'accept'|'pickup'|'enter-van'|'arrive'|'handoff';nearWarehouse?:boolean;nearStore?:boolean;vehicleId?:string;npcId?:string;packageAvailable?:boolean;onFoot?:boolean}
 export function advanceHoloMission(mission:HoloMission,action:MissionAction):{mission:HoloMission;ok:boolean;message:string;reward:number}{
  const fail=(message:string)=>({mission,ok:false,message,reward:0})
@@ -16,10 +16,10 @@ export function advanceHoloMission(mission:HoloMission,action:MissionAction):{mi
  }
  if(mission.stage==='handoff'&&action.type==='arrive'){
   if(!action.nearStore)return fail('Drive to the storefront destination.')
-  return {mission,ok:true,message:'Destination reached. Exit and hand package to the vendor.',reward:0}
+  return {mission:{...mission,arrived:true},ok:true,message:'Destination reached. Exit and hand package to the vendor.',reward:0}
  }
  if(mission.stage==='handoff'&&action.type==='handoff'){
-  if(!action.nearStore||action.onFoot!==true||action.npcId!=='npc-creator-vendor')return fail('Meet the creator vendor at the storefront.')
+  if(!mission.arrived||!action.nearStore||action.onFoot!==true||action.npcId!=='npc-creator-vendor')return fail('Meet the creator vendor at the storefront.')
   return {mission:{...mission,stage:'complete'},ok:true,message:'NPC vendor accepted package. Fictional mission completed.',reward:mission.rewardCredits}
  }
  return fail(mission.stage==='complete'?'Mission already completed.':'Complete the previous mission step first.')
