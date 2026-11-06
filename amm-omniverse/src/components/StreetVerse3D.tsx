@@ -53,6 +53,7 @@ export default function StreetVerse3D({onClose}:{onClose:()=>void}){
   const [nearbyBusiness,setNearbyBusiness]=useState<(typeof businesses)[number]|null>(null)
   const [started,setStarted]=useState(true)
   const [insideBusiness,setInsideBusiness]=useState<string|null>(null)
+  const insideBusinessRef=useRef(false)
   const [photoCameraOpen,setPhotoCameraOpen]=useState(false)
   const [nearbyPortal,setNearbyPortal]=useState<(typeof businessPortals)[number]|null>(null)
   const portalRef=useRef<(typeof businessPortals)[number]|null>(null)
@@ -455,7 +456,7 @@ export default function StreetVerse3D({onClose}:{onClose:()=>void}){
         lastSave=now
       }
 
-      renderer.render(scene,camera)
+      if(!insideBusinessRef.current)renderer.render(scene,camera)
       raf=requestAnimationFrame(animate)
     }
 
@@ -489,8 +490,8 @@ export default function StreetVerse3D({onClose}:{onClose:()=>void}){
     }
   }
 
-  const enterBusiness=(id:string)=>{if(!BUSINESSVERSE_VENUES.some(v=>v.id===id))return;setStarted(false);setInsideBusiness(id)}
-  const exitBusiness=()=>{setInsideBusiness(null);setStarted(true)}
+  const enterBusiness=(id:string)=>{if(!BUSINESSVERSE_VENUES.some(v=>v.id===id))return;insideBusinessRef.current=true;setStarted(false);setInsideBusiness(id)}
+  const exitBusiness=()=>{insideBusinessRef.current=false;setInsideBusiness(null);setStarted(true)}
 
   const featured=OMNIVERSE_DEMO_ASSETS.filter(asset=>asset.class==='luxury-car'||asset.class==='boat').slice(0,4)
 
