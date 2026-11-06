@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict'
 import {test} from 'node:test'
-import {initialShoppingLedger,awardDeliveryOnce,buyGameProduct,serializeShoppingLedger,readShoppingLedger} from '../src/runtime/StreetVerseShoppingLedger.ts'
-import {initialHoloMission,advanceHoloMission} from '../src/runtime/StreetVerseHoloDeliveryMissionRuntime.ts'
+import {build} from 'esbuild'
+const load=async entry=>{const out=await build({entryPoints:[new URL(entry,import.meta.url).pathname],bundle:true,platform:'node',format:'esm',write:false,logLevel:'silent'});return import('data:text/javascript;base64,'+Buffer.from(out.outputFiles[0].text).toString('base64'))}
+const {initialShoppingLedger,awardDeliveryOnce,buyGameProduct,serializeShoppingLedger,readShoppingLedger}=await load('../src/runtime/StreetVerseShoppingLedger.ts')
+const {initialHoloMission,advanceHoloMission}=await load('../src/runtime/StreetVerseHoloDeliveryMissionRuntime.ts')
 test('shopping checkout deducts credits, records receipt, reduces inventory',()=>{
  const initial=initialShoppingLedger(),before=initial.world.stores[0]
  const result=buyGameProduct(initial,before.id,before.sku,2)
