@@ -72,6 +72,8 @@ jobs:
         run: node tests/streetverse-living-stores-3d-contract.mjs
       - name: Test ChronoVerse shopping and NPC interactions
         run: node tests/streetverse-chrono-shopping-contract.mjs
+      - name: Test walkable store interiors and checkout bridge
+        run: node tests/streetverse-interior-shopping-contract.mjs
       - name: Verify continuous Chicago session and restaurant checkout
         run: node tests/streetverse-chicago-session-contract.mjs
       - name: Verify After Dark nightlife and sound integration
