@@ -9,5 +9,6 @@ assert.match(world,/bjReaction\.onInjury\(kind,performance\.now\(\)\)/,'Damage m
 assert.match(world,/bjReaction\.frame\(bjInjury,now\)/,'Reactions must update on animation clock')
 assert.match(world,/nativeHero\.rotation\.z=activeCar\?0:reaction\.tilt/,'Injury pose must not tilt driver')
 assert.match(world,/tryamm:streetverse-bj-rescue-request/,'Severe injury must signal rescue')
-assert.match(world,/11\*heroBodyMovementScale\*bjReaction\.frame\(bjInjury,now\)\.speedMultiplier/,'Injury speed penalty must affect actual player movement')
+assert.match(world,/11\*heroBodyMovementScale\*bjReaction\.movementMultiplier\(bjInjury\)/,'Injury speed penalty must affect actual player movement')
+assert.match(runtime,/movementMultiplier\(state:BJInjuryState\)/,'Movement lookup must not consume one-time rescue notification')
 console.log('BJ injury reaction contract PASS')
