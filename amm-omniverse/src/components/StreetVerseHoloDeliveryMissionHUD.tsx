@@ -7,7 +7,7 @@ export default function StreetVerseHoloDeliveryMissionHUD(){
  const [open,setOpen]=useState(false),[mission,setMission]=useState<HoloMission>(restoreMission)
  const [position,setPosition]=useState<{x:number;z:number;vehicleId?:string}|null>(null)
  const [note,setNote]=useState('Accept the fictional warehouse-to-store delivery mission.')
- useEffect(()=>{try{localStorage.setItem(SAVE_KEY,JSON.stringify(mission))}catch{}},[mission])
+ useEffect(()=>{try{localStorage.setItem(SAVE_KEY,JSON.stringify(mission))}catch{};window.dispatchEvent(new CustomEvent('tryamm:streetverse-package-stage',{detail:{stage:mission.stage,fictional:true}}))},[mission])
  useEffect(()=>{
   const onPosition=(event:Event)=>{const d=(event as CustomEvent<{x?:number;z?:number;vehicleId?:string}>).detail;if(Number.isFinite(d?.x)&&Number.isFinite(d?.z))setPosition({x:d!.x!,z:d!.z!,vehicleId:d?.vehicleId})}
   window.addEventListener('tryamm:streetverse-player-location',onPosition)
