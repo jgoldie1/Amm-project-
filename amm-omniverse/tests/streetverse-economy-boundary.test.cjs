@@ -1,0 +1,18 @@
+'use strict';
+const assert = require('node:assert/strict');
+const { createEngine } = require('../lib/streetverse-jobs-wallet.cjs');
+const { jobRewardIntent, purchaseIntent, xrPresentation } = require('../lib/streetverse-economy-boundary.cjs');
+const e = createEngine();
+e.acceptJob({ playerId: 'bj', venueId: 'kevon-capital-nights', role: 'dj', jobId: 'nightclub-1' });
+const receipt = e.completeJob({ jobId: 'nightclub-1', playerId: 'bj', verifiedByServer: true });
+const reward = jobRewardIntent(receipt);
+assert.equal(reward.currency, 'STREETVERSE_GAME_CREDITS');
+assert.equal(reward.redeemableForCash, false);
+assert.equal(reward.idempotencyKey, 'streetverse-job:nightclub-1');
+assert.throws(() => jobRewardIntent({ ...receipt, currency: 'USD' }), /INVALID_GAME_JOB_RECEIPT/);
+const checkout = purchaseIntent({ playerId: 'bj', productId: 'vip-pass', priceCents: 499, orderId: 'order-1' });
+assert.equal(checkout.settlementStatus, 'NOT_PAID');
+assert.equal(checkout.providerSettlementRequired, true);
+assert.equal(e.balance('bj'), 180);
+assert.equal(xrPresentation({ immersiveAr: true, immersiveVr: true }).affectsWalletBalance, false);
+console.log('StreetVerse economy boundary contract: PASS');
