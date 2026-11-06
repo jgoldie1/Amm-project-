@@ -64,6 +64,8 @@ jobs:
         run: node tests/streetverse-fulfillment-integration-contract.mjs
       - name: Test living-world NPC storefronts
         run: node tests/streetverse-living-stores-contract.mjs
+      - name: Test warehouse to storefront Holo Delivery mission
+        run: node tests/streetverse-holo-delivery-mission-contract.mjs
       - name: Verify continuous Chicago session and restaurant checkout
         run: node tests/streetverse-chicago-session-contract.mjs
       - name: Verify After Dark nightlife and sound integration
