@@ -50,3 +50,15 @@ export function nextReturnStage(current:ReturnStage,action:'approve'|'receive'|'
  }
  return transitions[current][action]||null
 }
+
+/** Creator merchandise and returns are sandbox-only; no real customer data or refunds. */
+export type CreatorMerchOrder={creatorId:string;sku:string;quantity:number;demo:true}
+export function createCreatorMerchOrder(creatorId:string,sku:string,quantity:number):CreatorMerchOrder|null{
+ if(!creatorId.trim()||!sku.trim()||!Number.isSafeInteger(quantity)||quantity<1||quantity>100)return null
+ return {creatorId:creatorId.trim().slice(0,80),sku:sku.trim().slice(0,80),quantity,demo:true}
+}
+export type DemoReturn={id:string;orderId:string;reason:string;status:ReturnStage;demo:true}
+export function requestDemoReturn(orderId:string,reason:string):DemoReturn|null{
+ if(!orderId.trim()||!reason.trim())return null
+ return {id:'RETURN-'+orderId.trim().slice(0,60),orderId:orderId.trim().slice(0,80),reason:reason.trim().slice(0,160),status:'requested',demo:true}
+}
