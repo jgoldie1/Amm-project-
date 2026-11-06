@@ -7,6 +7,8 @@ on:
       - 'amm-omniverse/src/components/StreetVerseWhitelistRequest.tsx'
       - 'amm-omniverse/src/components/QuantumDiscordHub.tsx'
       - 'amm-omniverse/src/components/HoloGPTCommunityGuide.tsx'
+      - 'amm-omniverse/api/discord/**'
+      - 'amm-omniverse/tests/quantum-discord-backend.test.mjs'
       - 'amm-omniverse/src/components/StreetVerseBusinessPilot.tsx'
       - 'amm-omniverse/src/components/StreetVerse3D.tsx'
       - 'amm-omniverse/src/runtime/StreetVerseHoloMissionDirector.ts'
@@ -58,3 +60,5 @@ jobs:
         run: node tests/quantum-discord-hub-contract.mjs
       - name: HoloGPT Discord assistant safety contract
         run: node tests/quantum-discord-hologpt-contract.mjs
+      - name: Signed Discord AI backend security tests
+        run: node tests/quantum-discord-backend.test.mjs
