@@ -1055,7 +1055,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     anatomyViewRef.current=detail.tearApart?'tear-apart':detail.xray?'xray':'off'
     bjAnatomy?.setXRay(detail.xray===true)
     bjAnatomy?.setExploded(detail.tearApart===true)
-    bjAnatomy?.setCondition(detail.injured===true?'injured':'healthy')
+    if(typeof detail.injured==='boolean')bjAnatomy?.setCondition(detail.injured?'injured':'healthy')
   }
   addEventListener('tryamm:streetverse-bj-anatomy-mode',onAnatomyMode)
   let bjInjury=initialBJInjuryState()
