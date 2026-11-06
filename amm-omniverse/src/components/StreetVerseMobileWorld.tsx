@@ -8,6 +8,7 @@ import * as THREE from 'three'
 import {installStreetVerseBJAnatomy} from '../runtime/StreetVerseBJAnatomyRuntime'
 import {createBJHapticRuntime,type BJHapticCue} from '../runtime/StreetVerseBJHapticRuntime'
 import {applyBJInjury,initialBJInjuryState,type BJInjuryKind} from '../runtime/StreetVerseBJInjuryBridgeRuntime'
+import {createBJInjuryReaction} from '../runtime/StreetVerseBJInjuryReactionRuntime'
 import {createMobileResidentPopulation,disposeMobileResidentPopulation,tickMobileResidentPopulation} from '../runtime/StreetVerseMobileLivingCityRuntime'
 import {createStreetVerseWeatherRenderer,weatherBadge,type StreetVerseWeatherState} from '../runtime/StreetVerseWeatherRuntime'
 import {normalizeStreetVerseHumanHeight,STREETVERSE_HUMAN_HEIGHT_METERS,residentHeight} from '../runtime/StreetVerseHumanScale'
@@ -1058,12 +1059,14 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     if(typeof detail.injured==='boolean')bjAnatomy?.setCondition(detail.injured?'injured':'healthy')
   }
   addEventListener('tryamm:streetverse-bj-anatomy-mode',onAnatomyMode)
+  const bjReaction=createBJInjuryReaction()
   let bjInjury=initialBJInjuryState()
   const onBJInjury=(event:Event)=>{
     const kind=(event as CustomEvent<{kind?:BJInjuryKind}>).detail?.kind
     if(!kind||!['shot','stab','blunt','fall','recovery'].includes(kind))return
     const outcome=applyBJInjury(bjInjury,kind)
     bjInjury=outcome.state
+    bjReaction.onInjury(kind,performance.now())
     setBJHealth(bjInjury.health)
     bjAnatomy?.setCondition(bjInjury.injured?'injured':'healthy')
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-haptic-cue',{detail:{cue:outcome.cue}}))
@@ -1081,7 +1084,9 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
       anatomyHero=nativeHero
     }
     bjAnatomy?.tick(now*.001)
-    if(nativeHero){avatar.visible=false;nativeHero.visible=true;if(activeCar){const driverOffset=new THREE.Vector3(-.36,.70,.42).applyAxisAngle(new THREE.Vector3(0,1,0),activeCar.rotation.y);nativeHero.position.copy(activeCar.position).add(driverOffset);nativeHero.rotation.y=activeCar.rotation.y-Math.PI/2}else{nativeHero.position.copy(avatar.position);nativeHero.rotation.y=avatar.rotation.y};const talking=now<heroConversationUntil;bjMeshyHero?.tick(now,{moving:moving&&!activeCar,running:moving&&!activeCar&&heroSprintAllowed,talking:talking||heroLiveTalkLevel>.025,liveTalkLevel:heroLiveTalkLevel,focusYaw:heroConversationFocusYaw,breathing:heroAffectBreathing,posture:heroAffectPosture,seated:Boolean(activeCar)});publishedHeroBody?.tick(now,{moving:moving&&!activeCar,running:moving&&!activeCar&&heroSprintAllowed});familyHeroHandle?.tick(now,{moving:moving&&!activeCar,running:moving&&!activeCar&&heroSprintAllowed});animateNativeHumanoid(nativeHeroRig,moving&&!activeCar,false,now,0,true,talking||heroLiveTalkLevel>.025,heroConversationFocusYaw,heroLiveTalkLevel,heroAffectBreathing,heroAffectPosture);if(activeCar)applySeatedDriverPose(nativeHeroRig);if(bjHeadRuntime){const t=now*.001,blinkClock=t%4.6,blink=blinkClock>4.36?Math.sin(((blinkClock-4.36)/.24)*Math.PI):0,synthetic=talking?THREE.MathUtils.clamp((Math.sin(t*12.4)+Math.sin(t*7.1+1.2)+1.0)/3,0,1):0,speech=Math.max(synthetic,heroLiveTalkLevel);bjHeadRuntime.applyPose({blinkLeft:blink,blinkRight:blink,jawOpen:speech*.82,browInnerUp:(talking||heroLiveTalkLevel>.05)?.10:0,lookLeft:heroConversationFocusYaw<0?Math.min(1,Math.abs(heroConversationFocusYaw)*1.8):0,lookRight:heroConversationFocusYaw>0?Math.min(1,Math.abs(heroConversationFocusYaw)*1.8):0,cheekRaise:talking?.04:0})}}
+    const reaction=bjReaction.frame(bjInjury,now)
+    if(reaction.requestRescue)window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-rescue-request',{detail:{health:bjInjury.health,source:'bj-injury'}}))
+    if(nativeHero){avatar.visible=false;nativeHero.visible=true;if(activeCar){const driverOffset=new THREE.Vector3(-.36,.70,.42).applyAxisAngle(new THREE.Vector3(0,1,0),activeCar.rotation.y);nativeHero.position.copy(activeCar.position).add(driverOffset);nativeHero.rotation.y=activeCar.rotation.y-Math.PI/2}else{nativeHero.position.copy(avatar.position);nativeHero.rotation.y=avatar.rotation.y};nativeHero.rotation.z=activeCar?0:reaction.tilt;nativeHero.userData.bjReactionPose=reaction.pose;nativeHero.userData.bjInjurySpeedMultiplier=reaction.speedMultiplier;const talking=now<heroConversationUntil;bjMeshyHero?.tick(now,{moving:moving&&!activeCar,running:moving&&!activeCar&&heroSprintAllowed,talking:talking||heroLiveTalkLevel>.025,liveTalkLevel:heroLiveTalkLevel,focusYaw:heroConversationFocusYaw,breathing:heroAffectBreathing,posture:heroAffectPosture,seated:Boolean(activeCar)});publishedHeroBody?.tick(now,{moving:moving&&!activeCar,running:moving&&!activeCar&&heroSprintAllowed});familyHeroHandle?.tick(now,{moving:moving&&!activeCar,running:moving&&!activeCar&&heroSprintAllowed});animateNativeHumanoid(nativeHeroRig,moving&&!activeCar,false,now,0,true,talking||heroLiveTalkLevel>.025,heroConversationFocusYaw,heroLiveTalkLevel,heroAffectBreathing,heroAffectPosture);if(activeCar)applySeatedDriverPose(nativeHeroRig);if(bjHeadRuntime){const t=now*.001,blinkClock=t%4.6,blink=blinkClock>4.36?Math.sin(((blinkClock-4.36)/.24)*Math.PI):0,synthetic=talking?THREE.MathUtils.clamp((Math.sin(t*12.4)+Math.sin(t*7.1+1.2)+1.0)/3,0,1):0,speech=Math.max(synthetic,heroLiveTalkLevel);bjHeadRuntime.applyPose({blinkLeft:blink,blinkRight:blink,jawOpen:speech*.82,browInnerUp:(talking||heroLiveTalkLevel>.05)?.10:0,lookLeft:heroConversationFocusYaw<0?Math.min(1,Math.abs(heroConversationFocusYaw)*1.8):0,lookRight:heroConversationFocusYaw>0?Math.min(1,Math.abs(heroConversationFocusYaw)*1.8):0,cheekRaise:talking?.04:0})}}
     if(nativeTrain){train.visible=false;nativeTrain.position.copy(train.position);nativeTrain.rotation.y=train.rotation.y}
     if(nativeStarterCar){starterCar.visible=false;nativeStarterCar.position.copy(starterCar.position);nativeStarterCar.rotation.y=starterCar.rotation.y}
     syncVisibleRiders(starterCar,now,nativeStarterCar);syncVisibleRiders(repairCar,now,nativeRepairCar)
