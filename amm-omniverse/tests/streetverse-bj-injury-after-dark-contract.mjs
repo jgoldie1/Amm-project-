@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+const injury=fs.readFileSync(new URL('../src/runtime/StreetVerseBJInjuryBridgeRuntime.ts',import.meta.url),'utf8')
+const relationship=fs.readFileSync(new URL('../src/runtime/StreetVerseAfterDarkRelationshipRuntime.ts',import.meta.url),'utf8')
+const world=fs.readFileSync(new URL('../src/components/StreetVerseMobileWorld.tsx',import.meta.url),'utf8')
+for(const kind of ['shot','stab','blunt','fall','recovery'])assert.ok(injury.includes(kind),'Missing injury type '+kind)
+assert.match(injury,/Math\.max\(0,Math\.min\(100,/,'Health must stay between zero and 100')
+assert.match(world,/applyBJInjury\(bjInjury,kind\)/,'BJ health must use injury reducer')
+assert.match(world,/bjAnatomy\?\.setCondition/,'Injury must update organ visual state')
+assert.match(world,/tryamm:streetverse-bj-haptic-cue/,'Injury must request optional haptic cue')
+assert.match(world,/tryamm:streetverse-bj-health-changed/,'Injury must notify rescue and health listeners')
+assert.match(world,/removeEventListener\('tryamm:streetverse-bj-injury'/,'Injury listener must be removed on cleanup')
+assert.match(relationship,/a\.ageVerifiedAdult&&b\.ageVerifiedAdult&&a\.consents&&b\.consents/,'Both adult verification and mutual consent required')
+assert.match(relationship,/a\.id!==b\.id/,'Two distinct participants required')
+assert.match(relationship,/canExitImmediately:true/,'After Dark interaction must allow immediate exit')
+console.log('BJ injury and non-explicit After Dark contract PASS')
