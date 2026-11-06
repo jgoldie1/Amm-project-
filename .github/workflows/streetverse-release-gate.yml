@@ -52,6 +52,8 @@ jobs:
         run: node tests/streetverse-iphone-player-journey-contract.mjs
       - name: Verify whitelist authorization boundaries
         run: node tests/streetverse-whitelist-request-contract.mjs
+      - name: Verify virtual warehouse interactions
+        run: node tests/streetverse-warehouse-contract.mjs
       - name: Verify Holo FON NPC phone interactions
         run: node tests/streetverse-holofon-contract.mjs
       - name: Verify continuous Chicago session and restaurant checkout
