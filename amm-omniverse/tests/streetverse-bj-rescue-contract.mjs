@@ -1,5 +1,6 @@
 import fs from 'node:fs'
 import assert from 'node:assert/strict'
+const injury=fs.readFileSync(new URL('../src/runtime/StreetVerseBJInjuryBridgeRuntime.ts',import.meta.url),'utf8')
 const rescue=fs.readFileSync(new URL('../src/runtime/StreetVerseBJRescueMissionRuntime.ts',import.meta.url),'utf8')
 const world=fs.readFileSync(new URL('../src/components/StreetVerseMobileWorld.tsx',import.meta.url),'utf8')
 for(const stage of ['idle','requested','dispatched','arrived','treatment','recovered'])assert.ok(rescue.includes("'"+stage+"'"),'Missing rescue stage '+stage)
@@ -11,4 +12,7 @@ assert.match(world,/data-bj-rescue-advance="true"/,'Medical mission must have ac
 assert.match(world,/tryamm:streetverse-bj-rescue-request/,'Injury must trigger rescue mission')
 assert.match(world,/tryamm:streetverse-bj-rescue-stage/,'Rescue progress must be broadcast')
 assert.match(world,/removeEventListener\('tryamm:streetverse-bj-rescue-advance'/,'Rescue controls must clean up')
+assert.match(injury,/'hospital-discharge':-100/,'Hospital discharge must restore health fully')
+assert.match(world,/kind:'hospital-discharge'/,'Completing rescue must discharge BJ')
+assert.match(world,/BJ DISCHARGED/,'Player must receive discharge confirmation')
 console.log('BJ rescue mission contract PASS')
