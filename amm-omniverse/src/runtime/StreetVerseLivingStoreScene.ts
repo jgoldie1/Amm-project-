@@ -11,7 +11,8 @@ export function mountLivingStoreScene(scene:THREE.Scene){
  const vendors:THREE.Group[]=[]
  initialLivingWorldState().stores.forEach((store,i)=>{
   const group=new THREE.Group();group.name='shop-'+store.id;group.position.set(store.x,0,store.z)
-  box(group,5,3,4,0,1.5,0,[0x413d70,0x6a4a36,0x36566b][i])
+  // Keep interior hollow so the avatar can walk through the front entrance.
+  box(group,5,.2,5,0,3,0,[0x413d70,0x6a4a36,0x36566b][i])
   box(group,4.4,.55,.55,0,2.65,2.2,[0xf4b55a,0xffd175,0x90d9ee][i])
   // Open front arcade: walkable floor, side walls, rear wall and accessible doorway.
   box(group,5,.15,5,0,.08,0,0x8999a2)
