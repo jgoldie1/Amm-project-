@@ -82,6 +82,8 @@ jobs:
         run: node tests/streetverse-wardrobe-bridge-contract.mjs
       - name: Test Holo Delivery reducer transitions
         run: node tests/streetverse-holo-delivery-behavior.test.mjs
+      - name: Test Chicago shop doorway and interior navigation
+        run: node tests/streetverse-store-navigation.test.mjs
       - name: Verify continuous Chicago session and restaurant checkout
         run: node tests/streetverse-chicago-session-contract.mjs
       - name: Verify After Dark nightlife and sound integration
