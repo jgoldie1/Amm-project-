@@ -1,0 +1,16 @@
+'use strict';
+const assert = require('node:assert/strict');
+const { createEngine } = require('../lib/streetverse-jobs-wallet.cjs');
+const e = createEngine();
+assert.equal(Object.keys(e.venues()).length, 3);
+assert.equal(e.balance('bj'), 0);
+e.acceptJob({ playerId: 'bj', venueId: 'nikki-frances-skyline', role: 'dispatcher', jobId: 'delivery-1' });
+assert.throws(() => e.completeJob({ jobId: 'delivery-1', playerId: 'other', verifiedByServer: true }), /NOT_JOB_OWNER/);
+assert.throws(() => e.completeJob({ jobId: 'delivery-1', playerId: 'bj', verifiedByServer: false }), /SERVER_VERIFICATION_REQUIRED/);
+assert.equal(e.completeJob({ jobId: 'delivery-1', playerId: 'bj', verifiedByServer: true }).amount, 160);
+assert.equal(e.completeJob({ jobId: 'delivery-1', playerId: 'bj', verifiedByServer: true }).duplicate, true);
+assert.equal(e.balance('bj'), 160);
+assert.equal(e.history('bj').length, 1);
+assert.throws(() => e.acceptJob({ playerId: 'bj', venueId: 'nikki-frances-skyline', role: 'dispatcher', jobId: 'delivery-1' }), /DUPLICATE_JOB_ID/);
+assert.throws(() => e.acceptJob({ playerId: 'bj', venueId: 'bad', role: 'dj', jobId: 'bad' }), /INVALID_JOB/);
+console.log('StreetVerse fictional jobs and wallet: PASS');
