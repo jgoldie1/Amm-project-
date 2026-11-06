@@ -88,6 +88,8 @@ jobs:
         run: node tests/streetverse-store-navigation.test.mjs
       - name: Test Chicago mission certification and reload regression
         run: node tests/streetverse-chicago-certification-contract.mjs
+      - name: Test physical Chicago certification and store obstacles
+        run: node tests/streetverse-chicago-physical-certification-contract.mjs
       - name: Verify continuous Chicago session and restaurant checkout
         run: node tests/streetverse-chicago-session-contract.mjs
       - name: Verify After Dark nightlife and sound integration
