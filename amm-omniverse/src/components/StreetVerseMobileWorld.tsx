@@ -1111,6 +1111,21 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   let warehouseLastStatus=0
   const warehouseMarker=new THREE.Mesh(new THREE.BoxGeometry(3,3,3),new THREE.MeshStandardMaterial({color:0x3389aa,emissive:0x082b40}))
   warehouseMarker.position.set(WAREHOUSE_LOCATION.x,1.5,WAREHOUSE_LOCATION.z);scene.add(warehouseMarker)
+  const warehouseShelves=new THREE.Group()
+  warehouseShelves.name='streetverse-roosevelt-virtual-warehouse'
+  const warehouseAssets:THREE.Mesh[]=[]
+  const addWarehouseMesh=(w:number,h:number,d:number,x:number,y:number,z:number,color:number)=>{
+   const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color,roughness:.76}))
+   mesh.position.set(x,y,z);warehouseShelves.add(mesh);warehouseAssets.push(mesh)
+  }
+  addWarehouseMesh(12,.35,10,0,.18,0,0x394755)
+  addWarehouseMesh(12,.3,10,0,5.2,0,0x354455)
+  for(const x of [-4,0,4])for(const y of [1.2,2.5,3.8]){
+   addWarehouseMesh(2.8,.16,6,x,y,0,0x78909c)
+   for(const z of [-2,0,2])addWarehouseMesh(1.1,.7,1.2,x,y+.45,z,0xb58b59)
+  }
+  warehouseShelves.position.set(WAREHOUSE_LOCATION.x+11,0,WAREHOUSE_LOCATION.z)
+  scene.add(warehouseShelves)
   const onWarehouseInteract=(event:Event)=>{
    const detail=(event as CustomEvent<{action?:string;item?:WarehouseItem}>).detail
    const item=detail?.item
