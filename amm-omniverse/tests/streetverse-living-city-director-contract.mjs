@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+const read=p=>fs.readFileSync(new URL('../'+p,import.meta.url),'utf8')
+const runtime=read('src/runtime/StreetVerseLivingCityDirector.ts')
+const hud=read('src/components/StreetVerseLivingCityDirectorHUD.tsx')
+const chrono=read('src/components/StreetVerseChronoShopHUD.tsx')
+const world=read('src/components/StreetVerseMobileWorld.tsx')
+assert.match(runtime,/export function citySnapshot/)
+assert.match(runtime,/deliveryDemand/)
+assert.match(runtime,/footTraffic/)
+assert.match(runtime,/Number.isSafeInteger/)
+assert.match(hud,/ADVANCE CITY TIME/)
+assert.match(hud,/tryamm:streetverse-chrono-era/)
+assert.match(chrono,/tryamm:streetverse-chrono-era/)
+assert.match(world,/<StreetVerseLivingCityDirectorHUD\/>/)
+console.log('Living city director and ChronoVerse event contract PASS')
