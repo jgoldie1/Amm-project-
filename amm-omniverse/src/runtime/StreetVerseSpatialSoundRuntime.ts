@@ -11,7 +11,7 @@ export function createStreetVerseSpatialSound(){
    const now=ctx.currentTime
    const freq:Record<StreetVerseSoundKind,number>={engine:80,traffic:110,'footstep-pavement':260,'footstep-grass':140,'footstep-wood':195,nightclub:220}
    const oscillator=ctx.createOscillator(),gain=ctx.createGain()
-   const duration=kind==='nightclub'?.22:kind==='engine'?.18:.09
+   const duration=kind==='nightclub' ? 0.22 : kind==='engine' ? 0.18 : 0.09
    oscillator.type=kind==='nightclub'?'sine':kind.startsWith('footstep')?'triangle':'sawtooth'
    oscillator.frequency.setValueAtTime(freq[kind],now)
    const attenuation=1/(1+Math.max(0,distanceMeters)/12)**2
