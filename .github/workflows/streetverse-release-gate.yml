@@ -1,0 +1,60 @@
+name: StreetVerse release gate
+on:
+  push:
+    paths:
+      - 'amm-omniverse/src/components/StreetVerse*.tsx'
+      - 'amm-omniverse/src/runtime/StreetVerse*.ts'
+      - 'amm-omniverse/tests/streetverse-*.mjs'
+      - 'amm-omniverse/tests/bj-*.mjs'
+      - 'amm-omniverse/package.json'
+      - 'amm-omniverse/package-lock.json'
+      - '.github/workflows/streetverse-release-gate.yml'
+  pull_request:
+    paths:
+      - 'amm-omniverse/src/components/StreetVerse*.tsx'
+      - 'amm-omniverse/src/runtime/StreetVerse*.ts'
+      - 'amm-omniverse/tests/streetverse-*.mjs'
+      - 'amm-omniverse/tests/bj-*.mjs'
+      - 'amm-omniverse/package.json'
+      - 'amm-omniverse/package-lock.json'
+      - '.github/workflows/streetverse-release-gate.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: streetverse-release-gate-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify-gameplay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install dependencies without lifecycle scripts
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: TypeScript check
+        run: npm run typecheck
+      - name: Verify vehicle interaction
+        run: node tests/streetverse-vehicle-control-contract.mjs
+      - name: Verify mission completion bridge
+        run: node tests/streetverse-mobile-mission-completion-bridge-contract.mjs
+      - name: Verify iPhone player journey
+        run: node tests/streetverse-iphone-player-journey-contract.mjs
+      - name: Verify whitelist authorization boundaries
+        run: node tests/streetverse-whitelist-request-contract.mjs
+      - name: Verify BJ avatar contracts
+        run: |
+          node tests/bj-stubbs-photomatched-runtime-contract.mjs
+          node tests/bj-mobile-visual-acceptance-contract.mjs
+      - name: Build frontend
+        run: npm run build
