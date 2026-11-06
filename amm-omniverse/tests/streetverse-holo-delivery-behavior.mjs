@@ -58,3 +58,11 @@ test('returns follow strict order',()=>{
  assert.equal(nextReturnStage('inspected','close'),'closed')
  assert.equal(nextReturnStage('closed','approve'),null)
 })
+
+test('creator merchandise and returns reject malformed demo requests',()=>{
+ assert.equal(createCreatorMerchOrder('','shirt',1),null)
+ assert.equal(createCreatorMerchOrder('creator','shirt',0),null)
+ assert.deepEqual(createCreatorMerchOrder('creator','shirt',2),{creatorId:'creator',sku:'shirt',quantity:2,demo:true})
+ assert.equal(requestDemoReturn('ORDER-1',''),null)
+ assert.equal(requestDemoReturn('ORDER-1','damaged')?.status,'requested')
+})
