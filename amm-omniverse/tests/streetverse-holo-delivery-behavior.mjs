@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import {test} from 'node:test'
 import {initialDeliveryState,assignDelivery,advanceDelivery,compareFulfillmentQuotes,estimateSellerPlan,validateInventorySync,nextReturnStage} from '../src/runtime/StreetVerseHoloDeliveryRuntime.ts'
+import {mayReleaseRealShipment,mayApproveRealWarehouse} from '../src/runtime/StreetVerseFulfillmentProductionGate.ts'
 import {initialFulfillmentState,addPartner,approvePartner,addSeller,approveSeller,createDemoOrder,advanceDemoOrder} from '../src/runtime/StreetVerseWarehousePartnerRuntime.ts'
 test('partner and seller approval gates and unique orders',()=>{
  let s=initialFulfillmentState();s=addPartner(s,'Chicago 3PL','Chicago');s=addSeller(s,'Creator Store')
@@ -65,4 +66,18 @@ test('creator merchandise and returns reject malformed demo requests',()=>{
  assert.deepEqual(createCreatorMerchOrder('creator','shirt',2),{creatorId:'creator',sku:'shirt',quantity:2,demo:true})
  assert.equal(requestDemoReturn('ORDER-1',''),null)
  assert.equal(requestDemoReturn('ORDER-1','damaged')?.status,'requested')
+})
+
+test('production policy fails closed for demos and unverified evidence',()=>{
+ const auth={authenticated:true,role:'warehouse-staff',partnerId:'WH-1'}
+ const evidence={demo:true,paymentVerified:true,agreementActive:true,inventoryConfirmed:true,carrierTrackingVerified:true,reconciled:true}
+ assert.equal(mayReleaseRealShipment(auth,evidence),false)
+ assert.equal(mayReleaseRealShipment({...auth,authenticated:false},{...evidence,demo:false}),false)
+ assert.equal(mayReleaseRealShipment({...auth,role:'seller'},{...evidence,demo:false}),false)
+ assert.equal(mayReleaseRealShipment(auth,{...evidence,demo:false,paymentVerified:false}),false)
+ assert.equal(mayReleaseRealShipment(auth,{...evidence,demo:false,agreementActive:false}),false)
+ assert.equal(mayReleaseRealShipment(auth,{...evidence,demo:false,carrierTrackingVerified:false}),false)
+ assert.equal(mayReleaseRealShipment(auth,{...evidence,demo:false}),true)
+ assert.equal(mayApproveRealWarehouse({authenticated:true,role:'seller'}),false)
+ assert.equal(mayApproveRealWarehouse({authenticated:true,role:'admin'}),true)
 })
