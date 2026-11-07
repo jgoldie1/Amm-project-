@@ -1,0 +1,90 @@
+name: StreetVerse Weekend QA - stop Saturday 8 PM Chicago
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: streetverse-weekend-qa
+  cancel-in-progress: false
+
+jobs:
+  run-checks:
+    name: Timeboxed, read-only StreetVerse checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - name: Check Chicago deadline
+        id: window
+        shell: bash
+        run: |
+          deadline=$(date -u -d '2026-11-08 02:00:00 UTC' +%s)
+          now=$(date -u +%s)
+          if (( now < deadline )); then
+            echo 'active=true' >> "$GITHUB_OUTPUT"
+            echo 'QA active until Saturday Nov 7, 2026 at 8:00 PM CST.'
+          else
+            echo 'active=false' >> "$GITHUB_OUTPUT"
+            echo 'Time window closed. No builds or tests will execute.'
+          fi
+
+      - name: Checkout repository
+        if: steps.window.outputs.active == 'true'
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js 24
+        if: steps.window.outputs.active == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Install dependencies (no install scripts)
+        if: steps.window.outputs.active == 'true'
+        shell: bash
+        run: |
+          timeout 420s npm install --ignore-scripts --no-audit --no-fund
+          timeout 420s npm ci --prefix amm-omniverse --ignore-scripts --no-audit --no-fund
+
+      - name: Run focused mission, AI and WebXR checks
+        if: steps.window.outputs.active == 'true'
+        shell: bash
+        run: bash scripts/streetverse-weekend-qa.sh
+
+      - name: Archive check report and logs
+        if: always() && steps.window.outputs.active == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-weekend-qa-${{ github.run_number }}
+          path: ${{ runner.temp }}/streetverse-weekend-qa/
+          if-no-files-found: warn
+          retention-days: 7
+
+  stop-schedule:
+    name: Disable this scheduled workflow at cutoff
+    needs: run-checks
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: write
+    steps:
+      - name: Disable ONLY this workflow at/after deadline
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          deadline=$(date -u -d '2026-11-08 02:00:00 UTC' +%s)
+          now=$(date -u +%s)
+          if (( now >= deadline )); then
+            gh api --method PUT "repos/$GITHUB_REPOSITORY/actions/workflows/streetverse-weekend-qa.yml/disable"
+            echo 'Cutoff reached; this workflow schedule was disabled.'
+          else
+            echo 'Before cutoff; the schedule remains active.'
+          fi
