@@ -4,6 +4,10 @@ import fs from 'node:fs'
 const read=name=>fs.readFileSync(new URL('../src/'+name,import.meta.url),'utf8')
 test('OmniBox keeps six original 5-minute script beats, and adds the new bridge',()=>{
  const omni=read('components/OmniBoxStoryStudio.tsx')
+ const main=read('main.tsx')
+ assert.match(main,/const MediaStudioLauncher=lazy/)
+ assert.match(main,/else if\(isOmniBox\)routeContent=<>/)
+ assert.match(main,/<MediaStudioLauncher \/>/)
  assert.equal((omni.match(/durationSeconds:300/g)||[]).length,6)
  assert.match(omni,/import HoloCreatorBridgePanel/)
  assert.match(omni,/onApply=\{text=>changeScene\('dialogue',text\)\}/)
