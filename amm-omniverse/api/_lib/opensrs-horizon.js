@@ -7,6 +7,7 @@ const allowed=new Set(['LOOKUP','GET_PRICE']);
 const md5=x=>createHash('md5').update(x,'utf8').digest('hex');
 
 export function validateDomainName(input){
+ if(/[\r\n\t]/.test(String(input||'')))throw Error('invalid_domain');
  const d=String(input||'').trim().toLowerCase();
  if(d.length>253||d.length<4||d.endsWith('.')||d.includes('..'))throw Error('invalid_domain');
  const parts=d.split('.');
@@ -36,7 +37,9 @@ function item(xml,key){
  return m?.[1]?.trim()??null;
 }
 export function parseHorizonReply(xml,action){
- if(typeof xml!=='string'||xml.length>64000||!/<OPS_envelope>/i.test(xml)||/<!ENTITY|<!DOCTYPE/i.test(xml))throw Error('unexpected_horizon_response');
+ if(typeof xml!=='string'||xml.length>64000||!/<OPS_envelope>/i.test(xml))throw Error('unexpected_horizon_response');
+ const safe=xml.replace(/<!DOCTYPE\s+OPS_envelope\s+SYSTEM\s+["']ops\.dtd["']\s*>/gi,'');
+ if(/<!ENTITY|<!DOCTYPE/i.test(safe))throw Error('unexpected_horizon_response');
  const success=item(xml,'is_success'),code=item(xml,'response_code');
  if(success!=='1'||!/^\d{3}$/.test(code||''))throw Error('horizon_query_failed');
  if(action==='LOOKUP'){
