@@ -28,7 +28,7 @@ export function installStreetVerseCloudCheckpointRuntime() {
   installed = true
   const client = getSupabaseClient()
   if (!client) { emit('unconfigured'); return }
-  let pending = false, writing = false, lastUpload = 0, revision = 0
+  let pending = false, writing = false, lastUpload = 0, revision = 0, retryFailures = 0
   let timer: number | undefined
   const backup = async () => {
     if (writing || !pending || navigator.onLine === false) return
@@ -49,18 +49,23 @@ export function installStreetVerseCloudCheckpointRuntime() {
       if (error || !data?.id) throw Error('Save not acknowledged')
       pending = revision !== startedRevision
       lastUpload = Date.now()
+      retryFailures = 0
       emit('saved', { snapshotId: data.id, at: data.created_at })
-    } catch { pending = true; emit('failed', { retryable: true }) }
+    } catch { pending = true; retryFailures++; emit('failed', { retryable: true, retryFailures }) }
     finally { writing = false; if (pending) schedule() }
   }
   const schedule = () => {
     pending = true
     if (timer !== undefined) return
-    timer = window.setTimeout(() => { timer = undefined; void backup() }, Math.max(1000, 60000 - (Date.now() - lastUpload)))
+    timer = window.setTimeout(() => { timer = undefined; void backup() }, Math.max(1000, 60000 - (Date.now() - lastUpload), Math.min(600000, 5000 * 2 ** Math.min(retryFailures, 7))))
   }
   window.addEventListener('tryamm:streetverse-checkpoint-saved', () => { revision++; schedule() })
   window.addEventListener('online', () => { if (pending) void backup() })
   window.addEventListener('tryamm:streetverse-cloud-backup-request', () => { revision++; pending = true; void backup() })
+  // Reschedule old browser checkpoints after a new session; do not depend on a fresh mission event.
+  client.auth.onAuthStateChange((_event, session) => {
+    if (session?.user && pending) window.setTimeout(() => { if (pending) void backup() }, 0)
+  })
   window.addEventListener('tryamm:streetverse-cloud-list-request', () => {
     void (async () => {
       const { data: auth } = await client.auth.getUser()
@@ -92,5 +97,6 @@ export function installStreetVerseCloudCheckpointRuntime() {
         { detail: { snapshotId: row.id, checkpoint: safe, protectedEconomy: true } }))
     })().catch(() => emit('restore-failed'))
   })
+  try { if (safeCheckpoint(localStorage.getItem(KEY) || 'null')) schedule() } catch { /* No valid prior checkpoint. */ }
   emit('ready', { scope: 'navigation-only' })
 }
