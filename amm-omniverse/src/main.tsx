@@ -44,6 +44,7 @@ const GuardianCommandCenter=lazy(()=>import('./components/GuardianCommandCenter'
 const AccountPrivacyCenter=lazy(()=>import('./components/AccountPrivacyCenter'))
 const HoloDramaHub=lazy(()=>import('./components/HoloDramaHub'))
 const OmniBoxStoryStudio=lazy(()=>import('./components/OmniBoxStoryStudio'))
+const MediaStudioLauncher=lazy(()=>import('./components/MediaStudioLauncher'))
 const StreetVerseCinematicMissions=lazy(()=>import('./components/StreetVerseCinematicMissions'))
 const HoloDeliveryRideEntertainmentHub=lazy(()=>import('./components/HoloDeliveryRideEntertainmentHub'))
 const SpectraStudioCommandCenter=lazy(()=>import('./components/SpectraStudioCommandCenter'))
@@ -156,7 +157,7 @@ try {
   else if(isGuardian)routeContent=<Suspense fallback={routeFallback}><GuardianCommandCenter /></Suspense>
   else if(isAccountDeletion)routeContent=<Suspense fallback={routeFallback}><AccountPrivacyCenter onClose={()=>{window.location.href='/'}} /></Suspense>
   else if(isHoloDrama)routeContent=<Suspense fallback={routeFallback}><HoloDramaHub /></Suspense>
-   else if(isOmniBox)routeContent=<Suspense fallback={routeFallback}><OmniBoxStoryStudio /></Suspense>
+   else if(isOmniBox)routeContent=<><Suspense fallback={routeFallback}><OmniBoxStoryStudio /></Suspense><Suspense fallback={null}><MediaStudioLauncher /></Suspense></>
   else if(isSpectraStudios)routeContent=<Suspense fallback={routeFallback}><SpectraStudioCommandCenter /></Suspense>
   else if(isEthiopianBible)routeContent=<Suspense fallback={routeFallback}><EthiopianBibleMetaverse /></Suspense>
   else if(isKingdomsPress)routeContent=<Suspense fallback={routeFallback}><KingdomsPressOperations onClose={()=>{window.location.href='/'}} /></Suspense>
