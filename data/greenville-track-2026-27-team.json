@@ -1,0 +1,160 @@
+{
+  "title": "Greenville 2026-27 men's track-and-field team meet schedule",
+  "source": "https://greenvillepanthers.com/sports/mens-track-and-field/schedule",
+  "retrievedDate": "2026-11-08",
+  "notPersonalSchedule": true,
+  "meets": [
+    {
+      "id": "gu27-1",
+      "start": "2026-12-04",
+      "end": "2026-12-04",
+      "name": "Illinois Wesleyan University",
+      "season": "indoor",
+      "verifiedStudentParticipation": false
+    },
+    {
+      "id": "gu27-2",
+      "start": "2027-01-16",
+      "end": "2027-01-16",
+      "name": "Eastern Illinois University",
+      "season": "indoor",
+      "verifiedStudentParticipation": false
+    },
+    {
+      "id": "gu27-3",
+      "start": "2027-01-23",
+      "end": "2027-01-23",
+      "name": "Snow Bird Open",
+      "season": "indoor",
+      "verifiedStudentParticipation": false
+    },
+    {
+      "id": "gu27-4",
+      "start": "2027-01-30",
+      "end": "2027-01-30",
+      "name": "Rose-Hulman",
+      "season": "indoor",
+      "verifiedStudentParticipation": false
+    },
+    {
+      "id": "gu27-5",
+      "start": "2027-02-06",
+      "end": "2027-02-06",
+      "name": "Jim Green Invite",
+      "season": "indoor",
+      "verifiedStudentParticipation": false
+    },
+    {
+      "id": "gu27-6",
+      "start": "2027-02-12",
+      "end": "2027-02-13",
+      "name": "NCCAA Indoor Nationals",
+      "season": "indoor",
+      "verifiedStudentParticipation": false
+    },
+    {
+      "id": "gu27-7",
+      "start": "2027-02-20",
+      "end": "2027-02-20",
+      "name": "Rose-Hulman",
+      "season": "indoor",
+      "verifiedStudentParticipation": false
+    },
+    {
+      "id": "gu27-8",
+      "start": "2027-02-20",
+      "end": "2027-02-20",
+      "name": "Indiana State University",
+      "season": "indoor",
+      "verifiedStudentParticipation": false
+    },
+    {
+      "id": "gu27-9",
+      "start": "2027-02-26",
+      "end": "2027-02-27",
+      "name": "SLIAC Indoor Championships",
+      "season": "indoor",
+      "verifiedStudentParticipation": false
+    },
+    {
+      "id": "gu27-10",
+      "start": "2027-03-05",
+      "end": "2027-03-05",
+      "name": "Carthage College",
+      "season": "indoor",
+      "verifiedStudentParticipation": false
+    },
+    {
+      "id": "gu27-11",
+      "start": "2027-03-12",
+      "end": "2027-03-13",
+      "name": "NCAA Indoor Championships",
+      "season": "indoor",
+      "verifiedStudentParticipation": false
+    },
+    {
+      "id": "gu27-12",
+      "start": "2027-04-02",
+      "end": "2027-04-03",
+      "name": "Washington University in St. Louis",
+      "season": "outdoor",
+      "verifiedStudentParticipation": false
+    },
+    {
+      "id": "gu27-13",
+      "start": "2027-04-10",
+      "end": "2027-04-10",
+      "name": "Illinois College",
+      "season": "outdoor",
+      "verifiedStudentParticipation": false
+    },
+    {
+      "id": "gu27-14",
+      "start": "2027-04-17",
+      "end": "2027-04-17",
+      "name": "Greenville Select",
+      "season": "outdoor",
+      "verifiedStudentParticipation": false
+    },
+    {
+      "id": "gu27-15",
+      "start": "2027-04-23",
+      "end": "2027-04-23",
+      "name": "Millikin University",
+      "season": "outdoor",
+      "verifiedStudentParticipation": false
+    },
+    {
+      "id": "gu27-16",
+      "start": "2027-04-30",
+      "end": "2027-05-01",
+      "name": "SLIAC Outdoor Championships",
+      "season": "outdoor",
+      "verifiedStudentParticipation": false
+    },
+    {
+      "id": "gu27-17",
+      "start": "2027-05-12",
+      "end": "2027-05-14",
+      "name": "NCCAA Outdoor Nationals",
+      "season": "outdoor",
+      "verifiedStudentParticipation": false
+    },
+    {
+      "id": "gu27-18",
+      "start": "2027-05-19",
+      "end": "2027-05-20",
+      "name": "Augustana College (IL)",
+      "season": "outdoor",
+      "verifiedStudentParticipation": false
+    },
+    {
+      "id": "gu27-19",
+      "start": "2027-05-27",
+      "end": "2027-05-29",
+      "name": "NCAA Outdoor Championships",
+      "season": "outdoor",
+      "verifiedStudentParticipation": false
+    }
+  ]
+}
