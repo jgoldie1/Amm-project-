@@ -1,4 +1,5 @@
 import { useGameStore, type Screen } from '../game/state/useGameStore'
+import { installStreetVerseCloudCheckpointRuntime } from './StreetVerseCloudCheckpointRuntime'
 import { installStreetVerseMobileMissionRewardRuntime } from './StreetVerseMobileMissionRewardRuntime'
 
 const KEY='tryamm_streetverse_checkpoint_v1'
@@ -101,6 +102,7 @@ export function installStreetVerseCheckpointRuntime(){
   if(installed||typeof window==='undefined')return
   installed=true
   installStreetVerseMobileMissionRewardRuntime()
+  installStreetVerseCloudCheckpointRuntime()
 
   const checkpoint=read()
   if(checkpoint)queueMicrotask(()=>restore(checkpoint))
