@@ -98,6 +98,9 @@ jobs:
       - name: Omniverse readiness and provider gates
         run: npm run readiness
 
+      - name: StreetVerse permanent regression gate
+        run: node --test tests/streetverse-permanent-typecheck-guard.test.mjs
+
       - name: Omniverse typecheck
         run: npm run typecheck
 

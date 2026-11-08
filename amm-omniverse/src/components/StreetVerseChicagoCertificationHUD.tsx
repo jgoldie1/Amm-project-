@@ -15,10 +15,10 @@ export default function StreetVerseChicagoCertificationHUD(){
   let enteredStore:string|null=null
   const stores=initialLivingWorldState().stores
   const onShop=(e:Event)=>{const d=(e as CustomEvent<{storeId?:string;demo?:boolean}>).detail;if(d?.demo&&d.storeId&&enteredStore===d.storeId)mark('shop-entry','BJ physically inside '+d.storeId+' storefront')}
-  const onTalk=(e:Event)=>{const d=(e as CustomEvent<{storeId?:string}>).detail;if(d?.demo&&d.storeId&&enteredStore===d.storeId)mark('npc-dialogue','Merchant conversation inside '+d.storeId)}
+  const onTalk=(e:Event)=>{const d=(e as CustomEvent<{storeId?:string;demo?:boolean}>).detail;if(d?.demo&&d.storeId&&enteredStore===d.storeId)mark('npc-dialogue','Merchant conversation inside '+d.storeId)}
   const onOutfit=(e:Event)=>{const d=(e as CustomEvent<{outfit?:string;demo?:boolean}>).detail;if(d?.demo&&d.outfit&&d.outfit!=='default')mark('wardrobe','Visible outfit selected: '+d.outfit)}
   const onPurchase=(e:Event)=>{const d=(e as CustomEvent<{storeId?:string;demo?:boolean}>).detail;if(d?.demo&&d.storeId&&enteredStore===d.storeId)mark('checkout','Fictional purchase completed at '+d.storeId)}
-  const onPosition=(e:Event)=>{const d=(e as CustomEvent<{x?:number;z?:number;vehicleId?:string}>).detail;if(Number.isFinite(d?.x)&&Number.isFinite(d?.z)){player={x:d!.x!,z:d!.z!,vehicleId:d?.vehicleId};enteredStore=!d?.vehicleId?(stores.find(s=>Math.abs(d!.x!-s.x)<2.05&&Math.abs(d!.z!-s.z)<2.05)?.id||null):null}else{player=null;enteredStore=null}if(d?.vehicleId==='holo-delivery-van'&&Number.isFinite(d.x)&&Number.isFinite(d.z)){
+  const onPosition=(e:Event)=>{const d=(e as CustomEvent<{x?:number;z?:number;vehicleId?:string}>).detail;if(Number.isFinite(d?.x)&&Number.isFinite(d?.z)){enteredStore=!d?.vehicleId?(stores.find(s=>Math.abs(d!.x!-s.x)<2.05&&Math.abs(d!.z!-s.z)<2.05)?.id||null):null}else{enteredStore=null}if(d?.vehicleId==='holo-delivery-van'&&Number.isFinite(d.x)&&Number.isFinite(d.z)){
    if(driving&&lastDrive&&Math.hypot(d.x!-lastDrive.x,d.z!-lastDrive.z)>2)mark('van-drive','Holo van moved at least 2 game units between samples')
    driving=true;lastDrive={x:d.x!,z:d.z!}
   }else{driving=false;lastDrive=null}}
