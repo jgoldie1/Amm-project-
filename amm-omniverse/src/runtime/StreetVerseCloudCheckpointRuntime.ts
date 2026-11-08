@@ -9,7 +9,7 @@ function emit(state: string, extra: Record<string, unknown> = {}) {
 }
 function safeCheckpoint(raw: string) {
   const v = JSON.parse(raw)
-  if (!Number.isFinite(v?.savedAt) || Date.now() - v.savedAt > 14 * 86400000) throw Error('Invalid or outdated checkpoint')
+  if (!Number.isFinite(v?.savedAt) || v.savedAt <= 0 || v.savedAt > Date.now() + 300000) throw Error('Invalid checkpoint timestamp')
   const position = v.position && [v.position.x, v.position.y, v.position.z].every((n: unknown) => typeof n === 'number' && Number.isFinite(n) && Math.abs(n) < 100000)
     ? { x: v.position.x, y: v.position.y, z: v.position.z } : null
   return { format: 'streetverse-safe-checkpoint-v1', savedAt: v.savedAt, screen: String(v.screen || 'streetverse').slice(0, 64),
@@ -32,13 +32,15 @@ export function installStreetVerseCloudCheckpointRuntime() {
   let timer: number | undefined
   const backup = async () => {
     if (writing || !pending || navigator.onLine === false) return
-    const { data: auth, error: authError } = await client.auth.getUser()
-    if (authError || !auth.user) { emit('sign-in-required'); return }
-    let safe: ReturnType<typeof safeCheckpoint>
-    try { safe = safeCheckpoint(localStorage.getItem(KEY) || 'null') } catch { emit('no-valid-local-save'); return }
-    const raw = JSON.stringify(safe)
-    if (new TextEncoder().encode(raw).byteLength > 160000) { emit('too-large'); return }
     writing = true
+    let auth
+    try { ({ data: auth } = await client.auth.getUser()) }
+    catch { writing = false; emit('sign-in-required'); return }
+    if (!auth?.user) { writing = false; emit('sign-in-required'); return }
+    let safe: ReturnType<typeof safeCheckpoint>
+    try { safe = safeCheckpoint(localStorage.getItem(KEY) || 'null') } catch { writing = false; emit('no-valid-local-save'); return }
+    const raw = JSON.stringify(safe)
+    if (new TextEncoder().encode(raw).byteLength > 160000) { writing = false; emit('too-large'); return }
     const startedRevision = revision
     try {
       const checksum = await digest(raw)
@@ -57,7 +59,7 @@ export function installStreetVerseCloudCheckpointRuntime() {
   const schedule = () => {
     pending = true
     if (timer !== undefined) return
-    timer = window.setTimeout(() => { timer = undefined; void backup() }, Math.max(1000, 60000 - (Date.now() - lastUpload), Math.min(600000, 5000 * 2 ** Math.min(retryFailures, 7))))
+    timer = window.setTimeout(() => { timer = undefined; void backup() }, Math.max(1000, 300000 - (Date.now() - lastUpload), Math.min(600000, 5000 * 2 ** Math.min(retryFailures, 7))))
   }
   window.addEventListener('tryamm:streetverse-checkpoint-saved', () => { revision++; schedule() })
   window.addEventListener('online', () => { if (pending) void backup() })
