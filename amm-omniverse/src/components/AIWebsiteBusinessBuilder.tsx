@@ -1,11 +1,24 @@
 import { useEffect,useState } from 'react'
 import { FAMILY_BUSINESS_REGISTRY } from '../data/familyBusinessRegistry'
 import {DOMAIN_AUTOMATION_FLOW} from '../services/domainProvisioning'
+import {getAccessToken} from '../services/supabaseClient'
 
 type Site={id:string;name:string;industry:string;city:string;status:string;ownership:'subscription'|'buyout'|'exported';domain?:string}
 export default function AIWebsiteBusinessBuilder(){
  const [open,setOpen]=useState(false),[sites,setSites]=useState<Site[]>([]),[name,setName]=useState(''),[industry,setIndustry]=useState('general'),[city,setCity]=useState('Chicago'),[familyId,setFamilyId]=useState(''),[domain,setDomain]=useState(''),[domainStatus,setDomainStatus]=useState('Choose a domain, provide registrant information and complete payment. TRYAMM can automate DNS, SSL and verification after a registrar provider is connected.')
  useEffect(()=>{const h=(e:Event)=>setSites(((e as CustomEvent<any>).detail?.sites||[]) as Site[]);window.addEventListener('tryamm:ai-site-builder-state',h);window.dispatchEvent(new CustomEvent('tryamm:ai-site-builder-request'));return()=>window.removeEventListener('tryamm:ai-site-builder-state',h)},[])
+ const [resellerStatus,setResellerStatus]=useState('Registrar connection not yet verified. No domain charges are enabled.')
+ const checkResellerStatus=async()=>{
+  setResellerStatus('Checking the secure domain reseller endpoint…')
+  try{
+   const token=await getAccessToken()
+   if(!token){setResellerStatus('Sign in to check domain reseller readiness. No payment is required.');return}
+   const response=await fetch('/api/domains/status',{headers:{Authorization:'Bearer '+token},cache:'no-store'})
+   if(!response.ok){setResellerStatus('Reseller status unavailable. Domain purchases stay disabled.');return}
+   const data=await response.json()
+   setResellerStatus(data?.canRegisterDomains?'Provider connected; request an approved checkout quote before paying.':'Preparation only: '+String(data?.checks?.registrarAccount||'NOT_CONNECTED')+'. No live registration or DNS change.')
+  }catch{setResellerStatus('Reseller status unavailable. No domain purchase or DNS change occurred.')}
+ }
  const create=()=>{window.dispatchEvent(new CustomEvent('tryamm:ai-site-create',{detail:{name:name||'My Business',industry,city}}));setName('')}
  const loadFamily=(id:string)=>{setFamilyId(id);const p=FAMILY_BUSINESS_REGISTRY.find(x=>x.id===id);if(!p)return;setName(`${p.owner} — ${p.ventures[0]}`);setIndustry(p.ventures.join(' / '));setCity(p.region);window.dispatchEvent(new CustomEvent('tryamm:family-business-selected',{detail:p}))}
  if(!open)return <button onClick={()=>setOpen(true)} style={{position:'fixed',right:12,bottom:356,zIndex:8995,border:'1px solid #4FE3FF88',borderRadius:999,padding:'10px 14px',background:'#07131e',color:'#4FE3FF',fontWeight:900,fontSize:10,cursor:'pointer'}}>🌐 BUILD & OWN WEBSITE</button>
@@ -16,11 +29,12 @@ export default function AIWebsiteBusinessBuilder(){
   <section style={{display:'grid',gap:10,marginTop:12}}>{sites.map(s=><article key={s.id} style={card}><div style={{display:'flex',justifyContent:'space-between',gap:10,flexWrap:'wrap'}}><div><strong>{s.name}</strong><div style={{fontSize:10,color:'#8ea4ba',marginTop:4}}>{s.industry} • {s.city} • {s.status}</div></div><span style={{fontSize:9,color:'#e8b944'}}>{s.ownership.toUpperCase()}</span></div><div style={{display:'flex',gap:7,flexWrap:'wrap',marginTop:10}}><button style={btn} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:ai-site-publish',{detail:{id:s.id,domain:s.domain}}))}>PUBLISH</button><button style={btn} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:ai-site-ownership',{detail:{id:s.id,ownership:'subscription'}}))}>SUBSCRIPTION</button><button style={btn} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:ai-site-ownership',{detail:{id:s.id,ownership:'buyout'}}))}>BUY & OWN</button><button style={btn} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:ai-site-export',{detail:{id:s.id}}))}>EXPORT PROJECT</button><button style={primary} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:business-launch-from-site',{detail:{id:s.id}}))}>LAUNCH BUSINESS</button></div></article>)}</section>
   <section style={{...card,marginTop:12}}>
    <h3>DOMAIN + GO LIVE</h3>
-   <p style={{fontSize:11,color:'#aebed0',lineHeight:1.6}}>Customer pays for the domain through the approved checkout. After verified payment and required registrant information, TRYAMM sends the order to the connected registrar, configures DNS/hosting, waits for SSL, verifies resolution and then marks the business live.</p>
+   <p style={{fontSize:11,color:'#aebed0',lineHeight:1.6}}>Domain reseller preparation only. After we connect a licensed registrar partner and verify a live quote, registrant consent and server-side checkout, TRYAMM can request registration. DNS, SSL and public-site verification are separate steps. No domain charge or purchase is available from this screen today.</p>
    <div style={{display:'grid',gridTemplateColumns:'1fr auto',gap:8}}>
     <input value={domain} onChange={e=>setDomain(e.target.value)} placeholder="yourbusiness.com" style={input}/>
-    <button onClick={()=>{window.dispatchEvent(new CustomEvent('tryamm:domain-provision-request',{detail:{domain,source:'ai-website-builder'}}));setDomainStatus(domain?`Domain request prepared for ${domain}. Purchase/connection stays gated until registrar credentials and server-verified payment are available.`:'Enter a domain first.')}} style={primary}>PAY + CONNECT DOMAIN</button>
+    <button onClick={()=>{window.dispatchEvent(new CustomEvent('tryamm:domain-provision-request',{detail:{domain,source:'ai-website-builder'}}));setDomainStatus(domain?`Draft domain request prepared for ${domain}. No availability, ownership or price is confirmed; no charge was made.`:'Enter a domain first.')}} style={primary}>PREPARE DOMAIN (NO CHARGE)</button>
    </div>
+   <div style={{marginTop:10,display:'flex',flexWrap:'wrap',gap:8,alignItems:'center'}}><button style={btn} onClick={checkResellerStatus}>CHECK RESELLER CONNECTION</button><span role="status" style={{fontSize:10,color:'#ffd98a'}}>{resellerStatus}</span></div>
    <div style={{display:'flex',gap:6,flexWrap:'wrap',marginTop:10}}>{DOMAIN_AUTOMATION_FLOW.map((x,i)=><span key={x} style={{fontSize:9,padding:'5px 7px',borderRadius:999,border:'1px solid #2b4558',background:'#091721'}}>{i+1}. {x}</span>)}</div>
    <div role="status" style={{fontSize:10,color:'#ffd98a',marginTop:10}}>{domainStatus}</div>
   </section>
