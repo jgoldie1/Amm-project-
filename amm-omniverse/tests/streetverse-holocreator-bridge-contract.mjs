@@ -67,4 +67,10 @@ test('Original voices require rights confirmation and mix into recorded video',(
  assert.match(panel,/audioBitsPerSecond:96000/)
 })
 
+test('CC0 validator must be first after shared asset prebuild, preserving production build contract',()=>{
+ const pkg=JSON.parse(fs.readFileSync(new URL('../package.json',import.meta.url),'utf8'))
+ assert.match(String(pkg.scripts?.build||''),/^npm run assets:prebuild && node tests\/cc0-free-asset-layer-contract\.mjs &&/)
+ assert.match(String(pkg.scripts?.build||''),/node tests\/streetverse-holocreator-bridge-contract\.mjs/)
+})
+
 console.log('Holo creator bridge contract: PASS')
