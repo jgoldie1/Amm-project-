@@ -1,4 +1,5 @@
 import {getSupabaseClient} from '../services/supabaseClient'
+import {QUANTUM_CLOUD_LIMITS,routeQuantumCloudJob} from './QuantumCloudCostPolicy'
 import {getCloudSiteSession,latestSiteBackup,listSiteBackups,readSiteBackup,saveSiteBackup,type CloudSiteSnapshot} from '../services/aiWebsiteCloudRecovery'
 import {SITE_VAULT_SCHEMA,emptyVault,parseVault,createSite,changeSite,applyChildTheme,softDeleteSite,
  restoreFromTrash,restoreVersion,mergeImportedVault,sanitizeSite,type ThemePreset,type SiteVault,type BusinessSite} from './AIWebsiteRecoveryVault'
@@ -20,6 +21,9 @@ let vault:SiteVault=emptyVault()
 let ownerId:string|null=null
 let busy=false
 let syncQueue=Promise.resolve()
+let pendingCloud:{owner:string;reason:string;snapshot:SiteVault}|null=null
+let cloudTimer:number|undefined
+const urgentReasons=new Set(['site_soft_deleted','site_undeleted','cloud_restore','site_published','manual_backup_imported'])
 let backups:CloudSiteSnapshot[]=[]
 let hydrated=false
 const detail=(e:Event):Record<string,any>=>((e as CustomEvent<any>).detail||{}) as Record<string,any>
@@ -67,19 +71,37 @@ function enqueueCloud(reason:string,snapshot:SiteVault){
    if(ownerId===user&&JSON.stringify(vault)===JSON.stringify(snapshot)){
     persistLocal(false);cloudStatus='cloud-saved';message='Private cloud backup saved.'
    }
-   await refreshBackups()
+   if(ownerId===user)await refreshBackups()
   }catch{
    if(ownerId===user){cloudStatus='offline-pending';message='Cloud backup failed. Local copy retained; export a file until sync succeeds.';emit()}
   }
  })
 }
+function flushPendingCloud(){
+ if(cloudTimer!==undefined){clearTimeout(cloudTimer);cloudTimer=undefined}
+ const next=pendingCloud
+ pendingCloud=null
+ if(!next||ownerId!==next.owner)return
+ if(!navigator.onLine){pendingCloud=next;return}
+ enqueueCloud(next.reason,next.snapshot)
+}
+function scheduleCloud(reason:string,snapshot:SiteVault){
+ if(!ownerId)return
+ const route=routeQuantumCloudJob('website-draft',{signedIn:true,online:navigator.onLine})
+ pendingCloud={owner:ownerId,reason,snapshot}
+ if(route.route==='browser')return // Local draft first; flush when connectivity resumes.
+ if(urgentReasons.has(reason)){flushPendingCloud();return}
+ if(cloudTimer===undefined){
+  cloudTimer=window.setTimeout(flushPendingCloud,QUANTUM_CLOUD_LIMITS.websiteDraftDebounceMs)
+ }
+}
 function commit(reason:string,next:SiteVault){
  vault=next
  const saved=persistLocal(Boolean(ownerId))
  cloudStatus=ownerId?'offline-pending':'browser-only'
- message=ownerId?'Saving encrypted-in-transit backup in Supabase…':'Browser-only draft; sign in for off-device recovery.'
+ message=ownerId?'Saved locally; cloud snapshots are batched to reduce costs.':'Browser-only draft; sign in for off-device recovery.'
  emit()
- if(ownerId&&saved)enqueueCloud(reason,copy(vault))
+ if(ownerId&&saved)scheduleCloud(reason,copy(vault))
 }
 function mutate(reason:string,op:(v:SiteVault)=>SiteVault){
  try{commit(reason,op(vault))}
@@ -91,6 +113,12 @@ async function hydrateForUser(){
  try{
   const session=await getCloudSiteSession(),nextOwner=session?.userId||null
   if(nextOwner===ownerId&&hydrated)return
+  // The pending draft remains saved under its previous owner-specific browser key.
+  // Never upload the previous account's draft to a newly signed-in account.
+  if(ownerId!==nextOwner){
+   if(cloudTimer!==undefined){clearTimeout(cloudTimer);cloudTimer=undefined}
+   pendingCloud=null
+  }
   ownerId=nextOwner
   const local=validLocal(keyFor(nextOwner))
   const preserved=validLocal(BROWSER_BACKUP_KEY+'_'+(nextOwner||'guest'))
@@ -113,7 +141,7 @@ async function hydrateForUser(){
     }
     }else if(vault.sites.length||vault.trash.length){
      cloudStatus='offline-pending';message='Local drafts found; preparing first cloud backup.'
-     enqueueCloud('initial_account_backup',copy(vault))
+     scheduleCloud('initial_account_backup',copy(vault))
     }else{
      cloudStatus='cloud-saved';message='Cloud recovery ready. New drafts will auto-save.'
     }
@@ -194,7 +222,10 @@ export function installAIWebsiteBusinessBuilderRuntime(){
   setTimeout(()=>{void hydrateForUser()},0)
  })
  window.addEventListener('online',()=>{
-  if(ownerId&&cloudStatus==='offline-pending')enqueueCloud('reconnect_after_offline',copy(vault))
+  if(ownerId&&(cloudStatus==='offline-pending'||pendingCloud)){
+   pendingCloud={owner:ownerId,reason:'reconnect_after_offline',snapshot:copy(vault)}
+   flushPendingCloud()
+  }
  })
  queueMicrotask(()=>{emit();void hydrateForUser()})
 }
