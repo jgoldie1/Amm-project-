@@ -45,4 +45,26 @@ test('HoloBox handoff imports the actual video blob into existing media studio',
  assert.match(media,/\/api\/media\/upload-intent/)
  assert.doesNotMatch(panel,/\/api\/media\/publish|\/api\/checkout|payableBalance\s*\+=/)
 })
+
+test('Owned-model health check never claims live inference from configuration alone',()=>{
+ const panel=read('components/HoloCreatorBridgePanel.tsx')
+ assert.match(panel,/api\/ai\/health/)
+ assert.match(panel,/selfHosted\?\.configured===true/)
+ assert.match(panel,/actual response generation still requires a live request/)
+ assert.match(panel,/CHECK OWN LLAMA ROUTER/)
+ assert.match(panel,/offline dialogue remains available/)
+})
+test('Original voices require rights confirmation and mix into recorded video',()=>{
+ const panel=read('components/HoloCreatorBridgePanel.tsx')
+ assert.match(panel,/voiceRightsApproved/)
+ assert.match(panel,/documented permission to synchronize/)
+ assert.match(panel,/voiceFile\.size>12_000_000/)
+ assert.match(panel,/decodeAudioData/)
+ assert.match(panel,/createMediaStreamDestination/)
+ assert.match(panel,/stream\.addTrack\(track\)/)
+ assert.match(panel,/voiceSource\?\.start\(0\)/)
+ assert.match(panel,/voiceFile&&!voiceRightsApproved/)
+ assert.match(panel,/audioBitsPerSecond:96000/)
+})
+
 console.log('Holo creator bridge contract: PASS')
