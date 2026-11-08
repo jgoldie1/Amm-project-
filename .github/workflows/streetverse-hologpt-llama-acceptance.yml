@@ -1,0 +1,49 @@
+name: StreetVerse HoloGPT Llama and Creator Acceptance
+on:
+  push:
+    branches:
+      - feature/streetverse-holo-creator-bridge-20261107
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: streetverse-hologpt-llama-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  no-deploy-build-and-gates:
+    name: Owned model mock, TypeScript, and full Vite production build
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - name: Checkout reviewed branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Llama proxy tests (local simulated Ollama, no cloud or API keys)
+        run: node --test tests/hologpt-owned-llama-gateway.test.mjs
+      - name: Holo Creator bridge regression
+        run: node --test tests/streetverse-holocreator-bridge-contract.mjs
+      - name: Holo mission and OmniBox compatibility
+        run: node --test tests/streetverse-cinematics-omnibox-contract.test.mjs
+      - name: Full TypeScript no-emit check
+        run: npm run typecheck
+      - name: Full project production build (no Vercel deploy)
+        run: npm run build
+      - name: Release boundary
+        run: |
+          echo 'BUILD CHECK ONLY; not a production deployment or device certification.'
+          echo 'A real Llama server and real Chromebook playback must be independently verified.'
