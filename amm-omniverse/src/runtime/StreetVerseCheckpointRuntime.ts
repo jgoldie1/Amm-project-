@@ -1,8 +1,9 @@
 import { useGameStore, type Screen } from '../game/state/useGameStore'
+import { installStreetVerseCloudCheckpointRuntime } from './StreetVerseCloudCheckpointRuntime'
 import { installStreetVerseMobileMissionRewardRuntime } from './StreetVerseMobileMissionRewardRuntime'
 
 const KEY='tryamm_streetverse_checkpoint_v1'
-const MAX_AGE_MS=1000*60*60*24*14
+// Do not silently delete checkpoints after a fixed age. They may be the only remaining save.
 
 type Position={x:number;y:number;z:number}
 type Checkpoint={
@@ -40,7 +41,7 @@ function read():Checkpoint|null{
   try{
     const value=JSON.parse(localStorage.getItem(KEY)||'null') as Checkpoint|null
     if(!value||!Number.isFinite(value.savedAt))return null
-    if(Date.now()-value.savedAt>MAX_AGE_MS){localStorage.removeItem(KEY);return null}
+    if(value.savedAt <= 0 || value.savedAt > Date.now()+300000)return null
     if(value.position&&!validPosition(value.position))delete value.position
     return value
   }catch{return null}
@@ -65,8 +66,11 @@ function persist(){
   const value=snapshot()
   const serialized=JSON.stringify(value)
   if(serialized===lastSerialized)return
+  try{localStorage.setItem(KEY,serialized)}catch{
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-checkpoint-save-error',{detail:{reason:'browser-storage-unavailable'}}))
+    return
+  }
   lastSerialized=serialized
-  try{localStorage.setItem(KEY,serialized)}catch{}
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-checkpoint-saved',{detail:{savedAt:value.savedAt,screen:value.screen,position:value.position||null}}))
 }
 
@@ -101,6 +105,7 @@ export function installStreetVerseCheckpointRuntime(){
   if(installed||typeof window==='undefined')return
   installed=true
   installStreetVerseMobileMissionRewardRuntime()
+  installStreetVerseCloudCheckpointRuntime()
 
   const checkpoint=read()
   if(checkpoint)queueMicrotask(()=>restore(checkpoint))
