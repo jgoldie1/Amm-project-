@@ -24,7 +24,7 @@ test('mission buttons open scripted scenes instead of only beeping',()=>{
  assert.match(director,/financialReward:false/)
  assert.match(read('components/StreetVerseCinematicMissions.css'),/@keyframes svCineFade/)
 })
-test('Omni Box creates six five-minute acts without pretending to render a movie',()=>{
+test('Omni Box preserves six full-length outlines while accurately labelling short rendered animatics',()=>{
  const studio=read('components/OmniBoxStoryStudio.tsx')
  const hub=read('components/HoloDramaHub.tsx')
  const beats=(studio.match(/durationSeconds:300/g)||[]).length
@@ -32,7 +32,9 @@ test('Omni Box creates six five-minute acts without pretending to render a movie
  assert.match(studio,/OMNI_BOX_DRAFT_KEY/)
  assert.match(studio,/OMNI_BOX_HANDOFF_KEY/)
  assert.match(studio,/SEND OUTLINE TO HOLO DRAMA/)
- assert.match(studio,/0<\/strong><span>minutes rendered/)
+ assert.match(studio,/HoloCreatorBridgePanel/)
+ assert.match(studio,/renderedSeconds/)
+ assert.match(studio,/not a complete 30-minute cinematic movie/)
  assert.match(hub,/IMPORT OMNI BOX OUTLINE/)
  assert.match(hub,/if\(!file\)/)
  assert.match(hub,/if\(mode!=='free'\)/)

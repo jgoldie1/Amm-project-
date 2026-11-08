@@ -1,0 +1,75 @@
+name: tryamm-cloud
+services:
+  ollama:
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    environment:
+      OLLAMA_HOST: "0.0.0.0:11434"
+      OLLAMA_NUM_PARALLEL: "1"
+      OLLAMA_KEEP_ALIVE: "5m"
+    volumes:
+      - ollama_models:/root/.ollama
+    networks:
+      - private_ai
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 60s
+    security_opt:
+      - no-new-privileges:true
+
+  gateway:
+    build:
+      context: ../..
+      dockerfile: infra/tryamm-cloud/Dockerfile.gateway
+    restart: unless-stopped
+    environment:
+      HOLO_LLAMA_PRIVATE_DOCKER_MODE: "true"
+      OLLAMA_BASE_URL: "http://ollama:11434"
+      HOLO_LLAMA_GATEWAY_PORT: "4117"
+      HOLO_LLAMA_PROXY_TOKEN: ${HOLO_LLAMA_PROXY_TOKEN:?Generate a random 64-character token in .env}
+      HOLOGPT_SELFHOST_MODEL: ${HOLOGPT_SELFHOST_MODEL:-llama3.2:1b}
+    depends_on:
+      ollama:
+        condition: service_healthy
+    networks:
+      - private_ai
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      HOLO_AI_DOMAIN: ${HOLO_AI_DOMAIN:?Set an inference subdomain pointing to your server}
+      CADDY_EMAIL: ${CADDY_EMAIL:?Set certificate contact email}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - gateway
+    networks:
+      - private_ai
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  ollama_models:
+  caddy_data:
+  caddy_config:
+
+networks:
+  private_ai:
+    driver: bridge

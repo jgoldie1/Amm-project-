@@ -1,0 +1,6 @@
+FROM node:24-alpine
+WORKDIR /srv
+COPY tools/owned-llama/holo-llama-gateway.mjs ./gateway.mjs
+USER node
+EXPOSE 4117
+CMD ["node", "gateway.mjs"]

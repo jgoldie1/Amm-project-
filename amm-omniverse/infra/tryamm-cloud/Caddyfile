@@ -1,0 +1,19 @@
+{
+    email {$CADDY_EMAIL}
+}
+{$HOLO_AI_DOMAIN} {
+    encode gzip
+    header {
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "no-referrer"
+        X-Frame-Options "DENY"
+        Cache-Control "no-store"
+    }
+    @inference path /health /v1/chat/completions
+    handle @inference {
+        reverse_proxy gateway:4117
+    }
+    handle {
+        respond "Not found" 404
+    }
+}

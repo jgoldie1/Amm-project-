@@ -1,5 +1,5 @@
 // StreetVerse building reconstruction: game-world configuration, not construction engineering.
-export type Level={id:string;label:string;elevationM:number;rooms:{id:string;label:string;doorIds:string[]}[]};
+export type Level={id:string;label:string;elevationM:number;heightM?:number;rooms:{id:string;label:string;doorIds:string[]}[]};
 export type Connection={id:string;kind:'stairs'|'elevator'|'accessible-ramp';from:string;to:string;accessible:boolean};
 export type Shell={widthM:number;depthM:number;levels:Level[]};
 export type Source={id:string;kind:'floor-plan'|'blueprint'|'scan'|'photo'|'owner-model';rights:'owner-authorized'|'licensed'|'tryamm-created'|'reference-only'|'unknown';currentPrivateInterior?:boolean;sensitiveInfrastructure?:boolean};
@@ -12,7 +12,7 @@ export function compileBuildingReconstruction(plan:BuildingPlan):Result{
  if(!Number.isFinite(widthM)||!Number.isFinite(depthM)||widthM<=0||depthM<=0||widthM>500||depthM>500||!Array.isArray(levels)||levels.length<1||levels.length>MAX_LEVELS)throw Error('invalid_shell');
  const ids=new Set(levels.map(l=>l.id));
  if(ids.size!==levels.length||!ids.has(plan.publicEntryLevelId))throw Error('invalid_levels');
- for(const l of levels){if(!Number.isFinite(l.elevationM)||!Number.isFinite(l.heightM)||l.heightM<2||l.heightM>25||!Array.isArray(l.rooms)||l.rooms.length>200)throw Error('invalid_level_geometry');if(new Set(l.rooms.map(r=>r.id)).size!==l.rooms.length)throw Error('duplicate_room')}
+ for(const l of levels){const height=l.heightM;if(!Number.isFinite(l.elevationM)||typeof height!=='number'||!Number.isFinite(height)||height<2||height>25||!Array.isArray(l.rooms)||l.rooms.length>200)throw Error('invalid_level_geometry');if(new Set(l.rooms.map(r=>r.id)).size!==l.rooms.length)throw Error('duplicate_room')}
  const navigation:Record<string,string[]>={};
  for(const l of levels)navigation[l.id]=[];
  for(const c of plan.connections||[]){if(!ids.has(c.from)||!ids.has(c.to)||c.from===c.to)throw Error('invalid_connection');navigation[c.from].push(c.to);navigation[c.to].push(c.from)}
