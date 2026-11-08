@@ -2,8 +2,8 @@ name: StreetVerse Weekend QA - stop Saturday 8 PM Chicago
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '17 * * * *'
+  # Hourly schedule removed after Saturday Nov 7, 2026, 8 PM CST cutoff.
+  # Manual dispatch remains, but the deadline gate prevents checks after cutoff.
 
 permissions:
   contents: read
