@@ -34,7 +34,7 @@ export function createHoloLlamaGateway({
   if(typeof token!=='string'||token.length<32)throw new Error('Set a random HOLO_LLAMA_PROXY_TOKEN (32+ characters).');
   if(!/^[a-zA-Z0-9._:-]{2,120}$/.test(model))throw new Error('Invalid fixed model ID.');
   const url=new URL(upstream);
-  if(url.protocol!=='http:'||!['127.0.0.1','localhost','[::1]'].includes(url.hostname)||url.username||url.password||url.search||url.hash)
+  if(url.protocol!=='http:'||!(['127.0.0.1','localhost','[::1]'].includes(url.hostname)||(process.env.HOLO_LLAMA_PRIVATE_DOCKER_MODE==='true'&&url.hostname==='ollama'))||url.username||url.password||url.search||url.hash)
     throw new Error('OLLAMA_BASE_URL must be a local HTTP endpoint. Never expose Ollama directly.');
   let inflight=0;
   const request=async (pathname,options={})=>{
@@ -81,7 +81,10 @@ export function createHoloLlamaGateway({
   return server;
 }
 if(process.argv[1]&&fileURLToPath(import.meta.url)===resolve(process.argv[1])){
-  const host='127.0.0.1'; // Protect from accidental binding to a public network interface.
+  // Binding all interfaces is allowed ONLY inside the isolated Docker Compose application network.
+  // The compose stack does not publish the gateway or Ollama ports onto the host.
+  const privateDocker=process.env.HOLO_LLAMA_PRIVATE_DOCKER_MODE==='true';
+  const host=privateDocker?'0.0.0.0':'127.0.0.1';
   const port=Number(process.env.HOLO_LLAMA_GATEWAY_PORT||4117);
   if(!Number.isInteger(port)||port<1024||port>65535)throw new Error('Invalid gateway port.');
   const server=createHoloLlamaGateway({
@@ -89,5 +92,5 @@ if(process.argv[1]&&fileURLToPath(import.meta.url)===resolve(process.argv[1])){
     model:process.env.HOLOGPT_SELFHOST_MODEL||'llama3.2:1b',
     upstream:process.env.OLLAMA_BASE_URL||'http://127.0.0.1:11434'
   });
-  server.listen(port,host,()=>console.log('HoloGPT owned Llama gateway listening on localhost:'+port+' (private only)'));
+  server.listen(port,host,()=>console.log('HoloGPT private gateway ready on '+host+':'+port+' (do not publish this port)'));
 }
