@@ -4,7 +4,7 @@ import {getCloudSiteSession,latestSiteBackup,listSiteBackups,readSiteBackup,save
 import {SITE_VAULT_SCHEMA,emptyVault,parseVault,createSite,changeSite,applyChildTheme,softDeleteSite,
  restoreFromTrash,restoreVersion,mergeImportedVault,sanitizeSite,type ThemePreset,type SiteVault,type BusinessSite} from './AIWebsiteRecoveryVault'
 
-export type {BusinessSite} from './AIWebsiteRecoveryVault'
+export type {BusinessSite,SiteOwnership} from './AIWebsiteRecoveryVault'
 const LOCAL_KEY='tryamm_ai_site_builder_v2_'
 const LEGACY_KEY='tryamm_ai_site_builder_v1'
 const BROWSER_BACKUP_KEY='tryamm_ai_site_builder_recovery_last_good'
