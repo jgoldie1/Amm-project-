@@ -9,6 +9,8 @@ export default async function handler(req,res){
  const provider=String(process.env.TRYAMM_DOMAIN_REGISTRAR_PROVIDER||'').trim()||null
  const keyConfigured=Boolean(process.env.TRYAMM_DOMAIN_REGISTRAR_API_KEY)
  const providerConfigured=Boolean(provider&&keyConfigured)
+ const horizonCredentials=Boolean(process.env.TRYAMM_OPENSRS_HORIZON_USERNAME&&process.env.TRYAMM_OPENSRS_HORIZON_API_KEY)
+ const horizonEnabled=process.env.TRYAMM_OPENSRS_HORIZON_ENABLED==='true'
  return res.status(200).json({
   ok:true,
   service:'TRYAMM Domains',
@@ -16,6 +18,7 @@ export default async function handler(req,res){
   provider,
   checks:{
    registrarAccount:providerConfigured?'CREDENTIALS_PRESENT_UNVERIFIED':'NOT_CONNECTED',
+   opensrsHorizon:horizonCredentials&&horizonEnabled?'TEST_CREDENTIALS_PRESENT_NOT_YET_PROVEN':'NOT_CONNECTED',
    liveQuote:'NOT_VERIFIED',
    resellerAgreement:'NOT_VERIFIED',
    authenticatedCheckout:'NOT_CONNECTED_TO_DOMAIN_ORDER',
