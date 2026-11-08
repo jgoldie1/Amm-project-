@@ -55,7 +55,7 @@
     "streetverse-logistics:check": "node tests/streetverse-logistics-jobs-bridge-contract.mjs",
     "business-revenue:check": "node tests/el-saturn-business-revenue-contract.mjs",
     "business-pricing:check": "node tests/business-completion-pricing-contract.mjs",
-    "domain-provisioning:check": "node tests/domain-provisioning-contract.mjs",
+    "domain-provisioning:check": "node tests/domain-provisioning-contract.mjs && node --test tests/domain-reseller-payment-safety.test.mjs",
     "quantum-growth:check": "node tests/quantum-seo-back-channel-contract.mjs",
     "kingdom:regression:check": "node tests/kingdom-googolplex-regression-contract.mjs",
     "kingdom:memory:capture": "node scripts/capture-kingdom-googolplex-memory.mjs",
