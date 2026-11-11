@@ -1,6 +1,7 @@
 import {Canvas,useFrame,useThree} from '@react-three/fiber'
 import {useRef} from 'react'
 import * as THREE from 'three'
+import JacobieCampusAvatar from './JacobieCampusAvatar'
 
 export type GreenvilleCampusStop={id:string;label:string;x:number;z:number}
 
@@ -29,8 +30,7 @@ function Player({move,onPosition}:{move:React.MutableRefObject<MoveState>;onPosi
   onPosition(g.position.x,g.position.z)
  })
  return <group ref={ref} position={[8,0,12]}>
-  <mesh castShadow position={[0,1.15,0]}><capsuleGeometry args={[.28,.8,5,10]}/><meshStandardMaterial color="#172c55"/></mesh>
-  <mesh castShadow position={[0,2,0]}><sphereGeometry args={[.29,14,10]}/><meshStandardMaterial color="#79513c"/></mesh>
+  <JacobieCampusAvatar moving={Math.abs(move.current.x)+Math.abs(move.current.z)>.05}/>
  </group>
 }
 
