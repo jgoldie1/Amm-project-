@@ -82,7 +82,7 @@ test('one-hand checkpoint UI changes the actual 3D world, without replacing dorm
  assert.match(world,/name=\{'greenville-memory-'\+hub\.id\}/)
  assert.match(world,/visible=\{Boolean\(record\)\}/)
  assert.match(world,/memory\.entries\.find/)
- assert.match(world,/<Player move=\{move\} onPosition=\{onPosition\}\/>/)
+ assert.match(world,/<Player move=\{move\} onPosition=\{onPosition\} rigUrl=\{rigUrl\} onRigProof=\{onRigProof\}\/>/)
 })
 
 test('NPC dialogues change with saved choices and remember Jacobie after reload',()=>{
