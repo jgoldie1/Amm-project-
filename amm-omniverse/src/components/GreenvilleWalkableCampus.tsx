@@ -35,6 +35,38 @@ function Player({move,onPosition}:{move:React.MutableRefObject<MoveState>;onPosi
  </group>
 }
 
+/** Lightweight fictional campus residents with visible idle and waving motions.
+ * Production Jacobie and NPC rigged GLBs are separate asset milestones.
+ */
+function CampusResident({hub,index,memory}:{hub:typeof GREENVILLE_MEMORY_HUBS[number];index:number;memory:GreenvilleCampusLivingMemory}){
+ const stop=GREENVILLE_CAMPUS_STOPS.find(item=>item.id===hub.id)!
+ const figure=useRef<THREE.Group>(null)
+ const wavingArm=useRef<THREE.Group>(null)
+ const record=memory.entries.find(item=>item.hubId===hub.id)
+ useFrame(({clock})=>{
+  const t=clock.elapsedTime+index*1.17
+  if(figure.current){
+   figure.current.position.y=Math.sin(t*1.8)*.045
+   figure.current.rotation.y=Math.sin(t*.65)*.16
+  }
+  if(wavingArm.current)wavingArm.current.rotation.z=-.35+Math.sin(t*2.3)*(record?.choice==='help' ? .6 : .25)
+ })
+ const shirts=['#195a71','#6a417d','#a04e40','#4c7457','#3c538f']
+ const skins=['#815338','#aa7a53','#5d3b2f','#c29069','#6d4b38']
+ return <group name={'greenville-fictional-npc-'+hub.id} position={[stop.x+4.2,0,stop.z+3.5]}>
+  <mesh rotation={[-Math.PI/2,0,0]} position={[0,.04,0]}><torusGeometry args={[.85,.08,6,24]}/><meshBasicMaterial color={record?'#7bffb8':'#ffd57b'}/></mesh>
+  <group ref={figure}>
+   <mesh castShadow position={[0,1.18,0]}><capsuleGeometry args={[.3,.8,5,10]}/><meshStandardMaterial color={shirts[index%shirts.length]} roughness={.9}/></mesh>
+   <mesh castShadow position={[0,2.08,0]}><sphereGeometry args={[.3,12,10]}/><meshStandardMaterial color={skins[index%skins.length]} roughness={.92}/></mesh>
+   <mesh castShadow position={[0,2.31,-.035]}><sphereGeometry args={[.305,12,7,0,Math.PI*2,0,Math.PI*.32]}/><meshStandardMaterial color="#29202b"/></mesh>
+   {[-.18,.18].map(x=><mesh key={x} castShadow position={[x,.45,0]}><cylinderGeometry args={[.13,.14,.85,8]}/><meshStandardMaterial color="#283345"/></mesh>)}
+   <mesh castShadow position={[-.48,1.49,0]} rotation={[0,0,-.17]}><capsuleGeometry args={[.11,.45,5,8]}/><meshStandardMaterial color={shirts[index%shirts.length]}/></mesh>
+   <group ref={wavingArm} position={[.46,1.78,0]}><mesh castShadow position={[.08,-.3,0]}><capsuleGeometry args={[.11,.46,5,8]}/><meshStandardMaterial color={shirts[index%shirts.length]}/></mesh><mesh position={[.08,-.66,0]}><sphereGeometry args={[.12,9,7]}/><meshStandardMaterial color={skins[index%skins.length]}/></mesh></group>
+   <mesh position={[0,2.8,0]}><octahedronGeometry args={[.21,0]}/><meshStandardMaterial color={record?'#8dffbe':'#ffe08c'} emissive={record?'#28784c':'#86692c'} emissiveIntensity={.6}/></mesh>
+  </group>
+ </group>
+}
+
 function Campus({memory}:{memory:GreenvilleCampusLivingMemory}){
  return <group>
   <mesh receiveShadow position={[0,-.1,0]}><boxGeometry args={[165,.2,145]}/><meshStandardMaterial color="#5b7d4b"/></mesh>
@@ -58,6 +90,7 @@ function Campus({memory}:{memory:GreenvilleCampusLivingMemory}){
     {hub.id==='hogue-lawn'&&[-.7,0,.7].map(x=><group key={x} position={[x,.4,1.2]}><mesh position={[0,.4,0]}><cylinderGeometry args={[.05,.06,.8,6]}/><meshStandardMaterial color="#58bb60"/></mesh><mesh position={[0,.85,0]}><sphereGeometry args={[.3,8,6]}/><meshStandardMaterial color="#83d376"/></mesh></group>)}
    </group>
   })}
+  {GREENVILLE_MEMORY_HUBS.map((hub,index)=><CampusResident key={'npc-'+hub.id} hub={hub} index={index} memory={memory}/>)}
   {GREENVILLE_CAMPUS_STOPS.map(stop=><group key={stop.id} position={[stop.x,0,stop.z]}><mesh position={[0,3,0]}><cylinderGeometry args={[.25,.25,6,10]}/><meshStandardMaterial color="#6de3ff" emissive="#3bbbd9" emissiveIntensity={.6}/></mesh><mesh position={[0,6.4,0]}><sphereGeometry args={[.5,10,8]}/><meshStandardMaterial color="#fff2a3" emissive="#ffd85f" emissiveIntensity={.7}/></mesh></group>)}
  </group>
 }
