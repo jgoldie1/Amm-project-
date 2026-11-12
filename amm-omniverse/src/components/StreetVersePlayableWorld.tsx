@@ -61,5 +61,5 @@ export default function StreetVersePlayableWorld({onClose}:{onClose:()=>void}){
  const mobile=useMemo(isMobileDevice,[])
  if(safe)return <><StreetVerseWeatherSync/><StreetVerseSafeWorld onClose={onClose}/><StreetVerseMobileGameShell onClose={onClose}/><StreetVerseCommunityLegacyHUD/></>
  if(mobile)return <><StreetVerseWeatherSync/><StreetVerseWorldBoundary onClose={onClose}><MobileRuntimeGuard onClose={onClose}><Suspense fallback={<MobileLoading/>}><StreetVerseMobileWorld onClose={onClose}/></Suspense></MobileRuntimeGuard></StreetVerseWorldBoundary><StreetVerseCommunityLegacyHUD/></>
- return <><StreetVerseWeatherSync/><StreetVerseWorldBoundary onClose={onClose}><Suspense fallback={<MobileLoading/>}><StreetVerseLivingWorld onClose={onClose}/></Suspense></StreetVerseWorldBoundary><StreetVerseCommunityLegacyHUD/></>
+ return <><StreetVerseWeatherSync/><StreetVerseWorldBoundary onClose={onClose}><Suspense fallback={<MobileLoading/>}><StreetVerseLivingWorld onClose={onClose}/></Suspense></StreetVerseWorldBoundary></>
 }
