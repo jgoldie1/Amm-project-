@@ -12,7 +12,8 @@ const required=(contains,why)=>assert.ok(contains,why)
 // do not mark it certified likeness or a finished MetaHuman.
 required(loader.includes('BJ_STUBBS_V15_ACTING_FACE_LOOK_NOD.glb'),'must identify the real V15 artifact')
 
-required(loader.includes('const published=v15PreviewUrl?null:await Promise.race('),'V15 must start without waiting for online Meshy manifest')
+required(loader.includes('const published=(v15PreviewUrl||localOnly)?null:await Promise.race('),'V15 and explicit offline mode must not wait for the online Meshy manifest')
+required(loader.includes("get('bj')==='offline'"),'offline BJ mode must be explicit and preserve the V15 default')
 required(loader.includes('response.arrayBuffer()'),'V15 fetch must be network bounded and explicit')
 required(loader.includes('new AbortController()'),'iPhone GLB download must be abortable')
 required(loader.includes('parseAsync(bytes,basePath)'),'V15 must decode fetched GLB without duplicate GET')
