@@ -49,7 +49,7 @@ export default function GreenvilleCampusVerseScene({onReturn}:{onReturn:()=>void
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-start',{detail}))
  }
  const routeHub=(hub:(typeof GREENVILLE_HUBS)[number])=>{
-  const stop=GREENVILLE_CAMPUS_STOPS.find(s=>s.id===hub.id);setActiveHub(hub);setArrivedHubId(null);reached.current.delete(hub.id);setDialogue(null);withinHubRef.current=false;setWithinHub(false);setStatus(`CAMPUS ROUTE • walk to ${hub.label}`)
+  const stop=GREENVILLE_CAMPUS_STOPS.find(s=>s.id===hub.id);setActiveTrack(null);setActiveHub(hub);setArrivedHubId(null);reached.current.delete(hub.id);setDialogue(null);withinHubRef.current=false;setWithinHub(false);setStatus(`CAMPUS ROUTE • walk to ${hub.label}`)
   window.dispatchEvent(new CustomEvent('tryamm:campusverse-destination',{detail:{campus:'greenville',hubId:hub.id,label:hub.label,kind:hub.kind,x:stop?.x,z:stop?.z,character:'Jacobie',source:'greenville-campus-3d'}}))
  }
  const openBook=(book:(typeof books)[number])=>{setSelectedBook(book);setStatus(`COLLEGEBOOK OPEN • ${book.title}`);window.dispatchEvent(new CustomEvent('tryamm:collegebook-open',{detail:book}))}
