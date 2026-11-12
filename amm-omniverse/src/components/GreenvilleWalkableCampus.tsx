@@ -1,6 +1,7 @@
 import {Canvas,useFrame,useThree} from '@react-three/fiber'
 import {useRef} from 'react'
 import * as THREE from 'three'
+import {GREENVILLE_MEMORY_HUBS,type GreenvilleCampusLivingMemory} from '../runtime/GreenvilleCampusLivingMemory'
 
 export type GreenvilleCampusStop={id:string;label:string;x:number;z:number}
 
@@ -34,7 +35,7 @@ function Player({move,onPosition}:{move:React.MutableRefObject<MoveState>;onPosi
  </group>
 }
 
-function Campus(){
+function Campus({memory}:{memory:GreenvilleCampusLivingMemory}){
  return <group>
   <mesh receiveShadow position={[0,-.1,0]}><boxGeometry args={[165,.2,145]}/><meshStandardMaterial color="#5b7d4b"/></mesh>
   <mesh receiveShadow position={[0,.02,0]}><boxGeometry args={[20,.08,100]}/><meshStandardMaterial color="#c9c5ba"/></mesh>
@@ -44,16 +45,29 @@ function Campus(){
   <group position={[34,0,-28]}><mesh castShadow position={[0,8,0]}><boxGeometry args={[16,16,16]}/><meshStandardMaterial color="#6e5145"/></mesh></group>
   <mesh receiveShadow position={[30,.03,8]}><cylinderGeometry args={[13,13,.08,32]}/><meshStandardMaterial color="#4f7646"/></mesh>
   <mesh receiveShadow position={[-40,.03,-32]}><boxGeometry args={[44,.08,26]}/><meshStandardMaterial color="#446a43"/></mesh>
+  {GREENVILLE_MEMORY_HUBS.map(hub=>{
+   const stop=GREENVILLE_CAMPUS_STOPS.find(item=>item.id===hub.id)!
+   const record=memory.entries.find(item=>item.hubId===hub.id)
+   const accent=record?.choice==='help'?'#7affb0':record?.choice==='learn'?'#70baff':'#ffc773'
+   return <group key={'legacy-'+hub.id} name={'greenville-memory-'+hub.id} position={[stop.x+8,0,stop.z+7]} visible={Boolean(record)}>
+    <mesh castShadow position={[0,.22,0]}><boxGeometry args={[3,.44,2]}/><meshStandardMaterial color="#486e5c"/></mesh>
+    <mesh castShadow position={[0,1.8,0]}><boxGeometry args={[2.5,1.7,.18]}/><meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={.35}/></mesh>
+    <mesh castShadow position={[-1.1,1.25,.45]}><cylinderGeometry args={[.12,.12,2.5,8]}/><meshStandardMaterial color="#385968"/></mesh>
+    <mesh castShadow position={[1.1,1.25,.45]}><cylinderGeometry args={[.12,.12,2.5,8]}/><meshStandardMaterial color="#385968"/></mesh>
+    <mesh position={[0,3.05,0]}><sphereGeometry args={[.42,12,8]}/><meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={.6}/></mesh>
+    {hub.id==='hogue-lawn'&&[-.7,0,.7].map(x=><group key={x} position={[x,.4,1.2]}><mesh position={[0,.4,0]}><cylinderGeometry args={[.05,.06,.8,6]}/><meshStandardMaterial color="#58bb60"/></mesh><mesh position={[0,.85,0]}><sphereGeometry args={[.3,8,6]}/><meshStandardMaterial color="#83d376"/></mesh></group>)}
+   </group>
+  })}
   {GREENVILLE_CAMPUS_STOPS.map(stop=><group key={stop.id} position={[stop.x,0,stop.z]}><mesh position={[0,3,0]}><cylinderGeometry args={[.25,.25,6,10]}/><meshStandardMaterial color="#6de3ff" emissive="#3bbbd9" emissiveIntensity={.6}/></mesh><mesh position={[0,6.4,0]}><sphereGeometry args={[.5,10,8]}/><meshStandardMaterial color="#fff2a3" emissive="#ffd85f" emissiveIntensity={.7}/></mesh></group>)}
  </group>
 }
 
-export default function GreenvilleWalkableCampus({move,onPosition}:{move:React.MutableRefObject<MoveState>;onPosition:(x:number,z:number)=>void}){
+export default function GreenvilleWalkableCampus({move,onPosition,memory}:{move:React.MutableRefObject<MoveState>;onPosition:(x:number,z:number)=>void;memory:GreenvilleCampusLivingMemory}){
  return <Canvas shadows camera={{position:[8,7,25],fov:58,far:600}}>
   <color attach="background" args={['#88a8bf']}/>
   <ambientLight intensity={1.25}/>
   <directionalLight castShadow position={[55,90,30]} intensity={2}/>
-  <Campus/>
+  <Campus memory={memory}/>
   <Player move={move} onPosition={onPosition}/>
  </Canvas>
 }
