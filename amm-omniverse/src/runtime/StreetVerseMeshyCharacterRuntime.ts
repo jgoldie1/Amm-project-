@@ -3,6 +3,7 @@ import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js'
 import {
   STREETVERSE_MESHY_CHARACTER_SLOTS,
   STREETVERSE_MESHY_DURABLE_OVERRIDES,
+  STREETVERSE_MESHY_CHARACTER_BASE_PATH,
   streetVerseMeshyCharacterUrl,
   type StreetVerseMeshyCharacterSlot,
 } from '../data/streetVerseMeshyCharacterSlots'
@@ -86,12 +87,17 @@ export async function loadStreetVerseMeshyCharacter(slotId:string,options:{defer
   const slot=STREETVERSE_MESHY_CHARACTER_SLOTS.find(x=>x.id===slotId)
   if(!slot)return null
   const cityScope=typeof document!=='undefined'?(document.documentElement.dataset.streetverseCity||'global'):'global'
-  const published=await resolvePublishedMeshyAsset(slot.id,cityScope)
-  const staticMeshyUrl=streetVerseMeshyCharacterUrl(slot)
+  // Use the owned GLB bundled with this release before requesting Supabase assets.
+  // A genuine same-origin 200 GLB avoids HTTP 402, CDN latency and duplicate costs.
+  // The MIME check in assetExists also rejects SPA HTML rewrites for absent files.
+  const localMeshyUrl=`${STREETVERSE_MESHY_CHARACTER_BASE_PATH}/${slot.filename}`
+  const localMeshyReady=await assetExists(localMeshyUrl)
+  const published=localMeshyReady?null:await resolvePublishedMeshyAsset(slot.id,cityScope)
+  const staticMeshyUrl=localMeshyReady?localMeshyUrl:streetVerseMeshyCharacterUrl(slot)
   const publishedReady=published?.url?await assetExists(published.url):false
-  // These twelve original Wave 1/2 objects are independently verified and preserved.
-  // A failed cross-origin HEAD on slow iPhones must not suppress their actual GLB GET.
-  const staticMeshyReady=publishedReady?false:(Boolean(STREETVERSE_MESHY_DURABLE_OVERRIDES[slot.id])||await assetExists(staticMeshyUrl))
+  // Preserve the durable remote GET path for hosts that have not bundled the
+  // GLBs. A failed remote load still falls through to the native real-GLB model.
+  const staticMeshyReady=localMeshyReady||(publishedReady?false:(Boolean(STREETVERSE_MESHY_DURABLE_OVERRIDES[slot.id])||await assetExists(staticMeshyUrl)))
   const nativeUrl=NATIVE_RESIDENT_URLS[slot.fallbackResidentIndex%NATIVE_RESIDENT_URLS.length]
   let sourceUrl=publishedReady?published!.url:(staticMeshyReady?staticMeshyUrl:nativeUrl)
   let nativeFallback=!publishedReady&&!staticMeshyReady
