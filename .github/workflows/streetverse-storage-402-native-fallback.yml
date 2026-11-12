@@ -18,7 +18,7 @@ concurrency:
 jobs:
   native-people-on-supabase-outage:
     name: Preserve visible 3D characters without storage service
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # Pin supported Playwright Chromium OS; latest currently resolves to Ubuntu 26.04
     timeout-minutes: 17
     defaults:
       run:
