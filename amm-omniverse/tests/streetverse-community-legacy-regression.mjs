@@ -83,5 +83,5 @@ test('gameplay includes a single one-hand HUD and visual mesh implementation on 
  assert.match(hud,/minHeight:48/)
  assert.match(hud,/aria-live="polite"/)
  assert.match(hud,/No real construction, donations, token sales, payments or ownership rights/)
- assert.match(hud,/detail\.demo!==true\|\|detail\.fictional!==true/)
+ assert.match(hud,/detail\?\.demo!==true\|\|detail\.fictional!==true/)
 })
