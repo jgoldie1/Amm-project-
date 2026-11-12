@@ -1,0 +1,45 @@
+name: Greenville CampusVerse Living RP Memory
+
+on:
+  pull_request:
+    paths:
+      - 'amm-omniverse/src/runtime/GreenvilleCampusLivingMemory.ts'
+      - 'amm-omniverse/src/components/GreenvilleCampusVerseScene.tsx'
+      - 'amm-omniverse/src/components/GreenvilleWalkableCampus.tsx'
+      - 'amm-omniverse/tests/greenville-campus-living-memory-regression.mjs'
+      - '.github/workflows/greenville-campus-living-rp.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: greenville-living-rp-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  campus-living-rp:
+    name: Persistent campus choices, visible impact, TypeScript
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install pinned dependencies without third-party postinstall
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Verify campus memory, replay protection, and 3D integration
+        run: node tests/greenville-campus-living-memory-regression.mjs
+      - name: Typecheck CampusVerse and StreetVerse together
+        run: npm run typecheck
+      - name: Scope and safety
+        if: always()
+        run: |
+          echo 'Fictional Greenville CampusVerse checkpoint effects are local to player save data.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'No real campus records, academic credit, or payments are changed; dorm, gift and character creator remain separate.' >> "$GITHUB_STEP_SUMMARY"
