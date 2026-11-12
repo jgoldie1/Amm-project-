@@ -1,7 +1,9 @@
-import {useEffect,useRef,useState} from 'react'
+import {useCallback,useEffect,useRef,useState} from 'react'
 import {JACOBIE_CAMPUS_PATH,CAMPUSVERSE_COLLEGEBOOK_LIBRARY} from '../data/campusVerseUicGreenvilleBridge'
 import IllinoisCampusVerseNetwork from './IllinoisCampusVerseNetwork'
 import GreenvilleWalkableCampus,{GREENVILLE_CAMPUS_STOPS} from './GreenvilleWalkableCampus'
+import {createGreenvilleCampusAudio,type GreenvilleCampusAudio} from '../runtime/GreenvilleCampusAudio'
+import type {JacobieRigProof} from './GreenvilleJacobieRig'
 import {
  GREENVILLE_CAMPUS_MEMORY_SAVE_KEY,GREENVILLE_CAMPUS_MEMORY_EVENT,
  chooseGreenvilleCampusAction,greenvilleCampusGreeting,greenvilleCampusNPCDialogue,greenvilleCampusReputation,greenvilleCampusXp,
@@ -31,6 +33,54 @@ export default function GreenvilleCampusVerseScene({onReturn}:{onReturn:()=>void
   catch{return initialGreenvilleCampusLivingMemory()}
  })
  const move=useRef({x:0,z:0})
+ const audio=useRef<GreenvilleCampusAudio|null>(null)
+ const importedRigUrl=useRef<string|null>(null)
+ const [rigUrl,setRigUrl]=useState<string|null>(null)
+ const [rigStatus,setRigStatus]=useState('Jacobie: import the original private GLB to replace the temporary avatar.')
+ const [voiceEnabled,setVoiceEnabled]=useState(false)
+ const [ambientEnabled,setAmbientEnabled]=useState(false)
+ const [audioNotice,setAudioNotice]=useState('Captions are always on; NPC speech and sound are opt-in.')
+ const onRigProof=useCallback((proof:JacobieRigProof)=>{
+  if(proof.loaded)setRigStatus('JACOBIE REAL GLB ✓ '+proof.joints+' joints • '+proof.clipNames.length+' clips • loaded locally')
+  else setRigStatus('GLB not verified: '+(proof.error||'Use the original rigged export.'))
+ },[])
+ const importJacobieRig=async(file:File|undefined)=>{
+  if(!file)return
+  if(!file.name.toLowerCase().endsWith('.glb')||file.size>30*1024*1024){
+   setRigStatus('Select the original .glb file under 30 MB.');return
+  }
+  try{
+   const header=new DataView(await file.slice(0,12).arrayBuffer())
+   if(header.byteLength!==12||header.getUint32(0,true)!==0x46546c67||header.getUint32(4,true)!==2||header.getUint32(8,true)!==file.size){
+    setRigStatus('Invalid GLB 2.0 file.');return
+   }
+   const url=URL.createObjectURL(file)
+   const previous=importedRigUrl.current
+   importedRigUrl.current=url
+   setRigUrl(url)
+   setRigStatus('Loading your original Jacobie model locally…')
+   if(previous)URL.revokeObjectURL(previous)
+  }catch{setRigStatus('Cannot read model. Extract the GLB file from the ZIP first.')}
+ }
+ useEffect(()=>{
+  audio.current=createGreenvilleCampusAudio()
+  return()=>{
+   audio.current?.dispose();audio.current=null
+   if(importedRigUrl.current)URL.revokeObjectURL(importedRigUrl.current)
+  }
+ },[])
+ const toggleVoices=()=>{
+  const next=!voiceEnabled
+  setVoiceEnabled(next)
+  audio.current?.setVoicesEnabled(next)
+  setAudioNotice(next?'Browser NPC speech is ON. Tap TALK near an NPC.':'NPC voices OFF; captions still work.')
+ }
+ const toggleAmbience=async()=>{
+  const next=!ambientEnabled
+  const started=await audio.current?.setAmbienceEnabled(next)
+  if(started){setAmbientEnabled(next);setAudioNotice(next?'Quiet campus breeze, birds and steps enabled.':'Campus sounds OFF.')}
+  else setAudioNotice('Audio is unavailable here. Try tapping the sound button again.')
+ }
  const reached=useRef(new Set<string>())
  useEffect(()=>{window.dispatchEvent(new CustomEvent('tryamm:campusverse-scene-ready',{detail:{campus:'greenville',character:'Jacobie',source:'greenville-campus-scene'}}))},[])
  useEffect(()=>{
@@ -56,6 +106,7 @@ export default function GreenvilleCampusVerseScene({onReturn}:{onReturn:()=>void
  const startBook=()=>{if(!selectedBook)return;startTrack(`CollegeBook • ${selectedBook.subject}`)}
  const publishDialogue=(line:ReturnType<typeof greenvilleCampusNPCDialogue>)=>{
   setDialogue(line)
+  if(voiceEnabled)audio.current?.speak(line.text)
   window.dispatchEvent(new CustomEvent('tryamm:campusverse-npc-dialogue',{detail:{
    campus:'greenville',character:'Jacobie',hubId:line.hubId,
    speaker:line.speaker,text:line.text,remembered:line.remembered,
@@ -80,6 +131,7 @@ export default function GreenvilleCampusVerseScene({onReturn}:{onReturn:()=>void
  const setMove=(x:number,z:number)=>{move.current={x,z}}
  const stopMove=()=>{move.current={x:0,z:0}}
  const sensePosition=(x:number,z:number)=>{
+  if(Math.abs(move.current.x)+Math.abs(move.current.z)>.12)audio.current?.footstep()
   if(!activeHub)return
   const stop=GREENVILLE_CAMPUS_STOPS.find(s=>s.id===activeHub.id)
   if(!stop)return
@@ -99,13 +151,26 @@ export default function GreenvilleCampusVerseScene({onReturn}:{onReturn:()=>void
   }
  }
  return <main aria-label="Greenville CampusVerse Jacobie scene" style={{position:'fixed',inset:0,zIndex:33000,overflow:'hidden',background:'#081725',color:'#fff',fontFamily:'system-ui'}}>
-  <div style={{position:'absolute',inset:0}}><GreenvilleWalkableCampus move={move} onPosition={sensePosition} memory={campusMemory}/></div>
+  <div style={{position:'absolute',inset:0}}><GreenvilleWalkableCampus move={move} onPosition={sensePosition} memory={campusMemory} rigUrl={rigUrl} onRigProof={onRigProof}/></div>
   <button onClick={onReturn} aria-label="Return to UIC StreetVerse" style={{position:'fixed',top:'calc(env(safe-area-inset-top) + 12px)',left:14,zIndex:33020,minHeight:46,padding:'10px 12px',borderRadius:12,fontWeight:900}}>← UIC • CHICAGO</button>
   <section style={{position:'absolute',left:12,top:'calc(env(safe-area-inset-top) + 72px)',zIndex:33010,width:'min(330px,72vw)',maxHeight:'58vh',overflow:'auto',padding:12,borderRadius:16,background:'#07131ae8',border:'1px solid #456'}}>
    <div style={{fontSize:12,fontWeight:900,letterSpacing:1.4}}>CAMPUSVERSE • GREENVILLE UNIVERSITY</div>
    <h1 style={{margin:'8px 0'}}>JACOBIE CAMPUS CHAPTER</h1>
    <p style={{marginTop:0,opacity:.88}}>Persistent CollegeBook identity • launch milestone {JACOBIE_CAMPUS_PATH.milestone}</p>
    <div aria-live="polite" style={{padding:'10px 11px',borderRadius:12,background:'#0b3140',border:'1px solid #63d8ff',fontWeight:850,fontSize:12}}>{status}</div>
+   <div aria-label="Greenville audio and private Jacobie character controls" style={{display:'grid',gap:7,marginTop:9,padding:9,border:'1px solid #486b75',background:'#102638',borderRadius:11}}>
+    <strong style={{fontSize:12}}>IMMERSION • VOICE / SOUND / REAL JACOBIE</strong>
+    <div style={{display:'flex',gap:7,flexWrap:'wrap'}}>
+     <button type="button" aria-label="Toggle campus NPC voices" aria-pressed={voiceEnabled} onClick={toggleVoices} style={{minHeight:48,flex:1,borderRadius:9,background:voiceEnabled?'#226d5c':'#31465b',color:'#fff',fontWeight:850}}>{voiceEnabled?'NPC VOICES ON':'NPC VOICES OFF'}</button>
+     <button type="button" aria-label="Toggle campus ambient sound" aria-pressed={ambientEnabled} onClick={()=>{void toggleAmbience()}} style={{minHeight:48,flex:1,borderRadius:9,background:ambientEnabled?'#226d5c':'#31465b',color:'#fff',fontWeight:850}}>{ambientEnabled?'CAMPUS SOUND ON':'CAMPUS SOUND OFF'}</button>
+    </div>
+    <label style={{fontSize:12}}>IMPORT JACOBIE'S PRIVATE GLB
+     <input aria-label="Import private Jacobie GLB" type="file" accept=".glb,model/gltf-binary" onChange={e=>{void importJacobieRig(e.currentTarget.files?.[0])}} style={{display:'block',width:'100%',marginTop:5,fontSize:12}}/>
+    </label>
+    <div role="status" aria-live="polite" style={{fontSize:11,color:'#d5f5f1'}}>{rigStatus}</div>
+    <div role="status" aria-live="polite" style={{fontSize:11}}>{audioNotice}</div>
+    <small>Use the original Jacobie_12_Motions_Textured_Rigged.glb. Audio uses device speech synthesis and procedural effects; no recording or upload. The file stays in this browser session.</small>
+   </div>
    <div role="status" aria-label="CampusVerse saved character impact" style={{padding:'8px 10px',borderRadius:9,marginTop:8,background:'#17382d',color:'#bbfada',fontWeight:800,fontSize:12}}>
     Campus XP {greenvilleCampusXp(campusMemory)} • Neighborhood changes {campusMemory.entries.length}/5 • Trust {greenvilleCampusReputation(campusMemory)}
    </div>
