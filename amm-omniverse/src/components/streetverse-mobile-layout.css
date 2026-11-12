@@ -305,12 +305,11 @@ body:has([data-streetverse-world-root][data-control-side="right"]) #sv-store-ope
  * Important: NEVER hide stop-recording or stop-microphone controls once active.
  */
 @media (max-width: 540px) and (orientation: portrait) {
-  body:has([data-streetverse-world-root][data-hud-focus="true"]) #sv-store-open,
-  body:has([data-streetverse-world-root][data-hud-focus="true"]) #sv-retail-open,
+  /* Travel and storefront entrances remain visible in focus mode;
+   * they are essential one-hand RP actions, not secondary launchers. */
   body:has([data-streetverse-world-root][data-hud-focus="true"]) [data-streetverse-create-earn],
   body:has([data-streetverse-world-root][data-hud-focus="true"]) [aria-label="Open Universal Mission Director"],
   body:has([data-streetverse-world-root][data-hud-focus="true"]) [aria-label="Open repair actions"],
-  body:has([data-streetverse-world-root][data-hud-focus="true"]) [data-streetverse-travel],
   body:has([data-streetverse-world-root][data-hud-focus="true"]) [aria-label="Start StreetVerse Reel recording"],
   body:has([data-streetverse-world-root][data-hud-focus="true"]) [aria-label="Start live BJ microphone"] {
     display: none !important;

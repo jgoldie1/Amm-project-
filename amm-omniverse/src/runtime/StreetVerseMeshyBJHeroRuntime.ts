@@ -222,13 +222,16 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   // Do not wait for an unrelated Meshy API before starting the owned BJ V15 GLB.
   // On slow iPhone connections that unbounded manifest request left the UI at
   // "BJ V15 LOADING" even though the V15 asset itself was healthy.
-  const v15PreviewUrl=getBJPreviewV15Url()
-  const published=v15PreviewUrl?null:await Promise.race([
+  // Offline mode is explicit. Keep the ordinary V15 preview unchanged for players
+  // with healthy connectivity; never request a paid/disabled CDN in offline mode.
+  const localOnly=typeof window!=='undefined'&&new URLSearchParams(window.location.search).get('bj')==='offline'
+  const v15PreviewUrl=localOnly?null:getBJPreviewV15Url()
+  const published=(v15PreviewUrl||localOnly)?null:await Promise.race([
     resolvePublishedMeshyAsset('sv-bj-stubbs-v6',cityScope),
     new Promise<null>(resolve=>window.setTimeout(()=>resolve(null),3000)),
   ])
   // Never load a MetaHuman candidate by default; preview is explicitly opted-in.
-  const metaHumanPreviewUrl=getPreviewBJMetaHumanUrl()
+  const metaHumanPreviewUrl=localOnly?null:getPreviewBJMetaHumanUrl()
   // Default to the actual V15 hero; ?bj=legacy preserves a manual fallback.
   const candidates=[v15PreviewUrl,metaHumanPreviewUrl,published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
   let sourceUrl=''
