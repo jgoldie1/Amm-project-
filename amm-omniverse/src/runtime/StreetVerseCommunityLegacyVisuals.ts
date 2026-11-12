@@ -66,6 +66,10 @@ export function installStreetVerseCommunityLegacyVisuals(scene:THREE.Scene){
  scene.add(root)
  const apply=(ids:readonly string[])=>{
   for(const [id,group] of projects)group.visible=ids.includes(id)
+  // Report actual Three.js mesh visibility, not merely a saved button state.
+  const visible=[...projects].filter(([,group])=>group.visible).map(([id])=>id)
+  const mounted=root.parent===scene
+  if(typeof window!=='undefined')window.dispatchEvent(new CustomEvent('tryamm:streetverse-community-legacy-visual-proof',{detail:{visible,sceneMounted:mounted,fictional:true}}))
  }
  const readSaved=()=>{
   try{return readStreetVerseCommunityLegacy(localStorage.getItem(STREETVERSE_LEGACY_SAVE_KEY)).built}
