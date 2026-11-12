@@ -1,6 +1,7 @@
 import {Canvas,useFrame,useThree} from '@react-three/fiber'
 import {useRef} from 'react'
 import * as THREE from 'three'
+import GreenvilleJacobieRig,{type JacobieRigProof} from './GreenvilleJacobieRig'
 import {GREENVILLE_MEMORY_HUBS,type GreenvilleCampusLivingMemory} from '../runtime/GreenvilleCampusLivingMemory'
 
 export type GreenvilleCampusStop={id:string;label:string;x:number;z:number}
@@ -15,7 +16,7 @@ export const GREENVILLE_CAMPUS_STOPS:readonly GreenvilleCampusStop[]=[
 
 type MoveState={x:number;z:number}
 
-function Player({move,onPosition}:{move:React.MutableRefObject<MoveState>;onPosition:(x:number,z:number)=>void}){
+function Player({move,onPosition,rigUrl,onRigProof}:{move:React.MutableRefObject<MoveState>;onPosition:(x:number,z:number)=>void;rigUrl:string|null;onRigProof:(p:JacobieRigProof)=>void}){
  const ref=useRef<THREE.Group>(null)
  const {camera}=useThree()
  useFrame((_,dt)=>{
@@ -30,8 +31,7 @@ function Player({move,onPosition}:{move:React.MutableRefObject<MoveState>;onPosi
   onPosition(g.position.x,g.position.z)
  })
  return <group ref={ref} position={[8,0,12]}>
-  <mesh castShadow position={[0,1.15,0]}><capsuleGeometry args={[.28,.8,5,10]}/><meshStandardMaterial color="#172c55"/></mesh>
-  <mesh castShadow position={[0,2,0]}><sphereGeometry args={[.29,14,10]}/><meshStandardMaterial color="#79513c"/></mesh>
+  <GreenvilleJacobieRig move={move} assetUrl={rigUrl} onProof={onRigProof}/>
  </group>
 }
 
@@ -95,12 +95,12 @@ function Campus({memory}:{memory:GreenvilleCampusLivingMemory}){
  </group>
 }
 
-export default function GreenvilleWalkableCampus({move,onPosition,memory}:{move:React.MutableRefObject<MoveState>;onPosition:(x:number,z:number)=>void;memory:GreenvilleCampusLivingMemory}){
+export default function GreenvilleWalkableCampus({move,onPosition,memory,rigUrl,onRigProof}:{move:React.MutableRefObject<MoveState>;onPosition:(x:number,z:number)=>void;memory:GreenvilleCampusLivingMemory;rigUrl:string|null;onRigProof:(p:JacobieRigProof)=>void}){
  return <Canvas shadows camera={{position:[8,7,25],fov:58,far:600}}>
   <color attach="background" args={['#88a8bf']}/>
   <ambientLight intensity={1.25}/>
   <directionalLight castShadow position={[55,90,30]} intensity={2}/>
   <Campus memory={memory}/>
-  <Player move={move} onPosition={onPosition}/>
+  <Player move={move} onPosition={onPosition} rigUrl={rigUrl} onRigProof={onRigProof}/>
  </Canvas>
 }
