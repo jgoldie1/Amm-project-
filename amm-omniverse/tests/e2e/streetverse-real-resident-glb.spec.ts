@@ -8,7 +8,7 @@ test.use({
   hasTouch:true,
 })
 
-test('Circle Park loads an actual October 5 durable GLB on an iPhone-sized viewport',async({page},testInfo)=>{
+test('Circle Park mounts an actual Meshy resident GLB from local assets or durable storage on iPhone',async({page},testInfo)=>{
   test.setTimeout(120_000)
   await page.addInitScript(()=>{
     const events:Array<Record<string,unknown>>=[]
@@ -25,13 +25,13 @@ test('Circle Park loads an actual October 5 durable GLB on an iPhone-sized viewp
   await expect(page.locator('canvas').first()).toBeVisible({timeout:30_000})
   await page.waitForFunction(()=>{
     const events=(window as unknown as {__streetverseDurableProof:Array<{sourceUrl:string}>}).__streetverseDurableProof||[]
-    return events.some(event=>event.sourceUrl?.includes('/streetverse-assets/characters/static-wave'))
+    return events.some(event=>/\/(?:streetverse-assets\/characters\/static-wave[12]|tryamm-assets\/meshy\/characters)\/SV_NPC_[A-Z0-9_]+\.glb(?:\?.*)?$/.test(event.sourceUrl||''))
   },null,{timeout:85_000})
   const events=await page.evaluate(()=>((window as unknown as {__streetverseDurableProof:Array<{sourceUrl:string;slotId:string;filename:string}>}).__streetverseDurableProof||[]))
-  const real=events.filter(e=>e.sourceUrl?.includes('/streetverse-assets/characters/static-wave'))
+  const real=events.filter(e=>/\/(?:streetverse-assets\/characters\/static-wave[12]|tryamm-assets\/meshy\/characters)\/SV_NPC_[A-Z0-9_]+\.glb(?:\?.*)?$/.test(e.sourceUrl||''))
   expect(real.length).toBeGreaterThanOrEqual(1)
   expect(real[0].filename).toMatch(/\.glb$/)
   expect(failedResponses).toEqual([])
   await page.screenshot({path:testInfo.outputPath('streetverse-verified-real-resident-iphone.png'),fullPage:false})
-  console.log('DURABLE RESIDENT PROOF',JSON.stringify(real.map(e=>({slotId:e.slotId,filename:e.filename,sourceUrl:e.sourceUrl}))))
+  console.log('VERIFIED OWNED RESIDENT GLB PROOF',JSON.stringify(real.map(e=>({slotId:e.slotId,filename:e.filename,sourceUrl:e.sourceUrl}))))
 })
