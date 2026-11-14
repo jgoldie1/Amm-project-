@@ -36,8 +36,13 @@ export default function StreetVerseCoreGameplayDock(){
   },[])
 
   const missionAction=()=>{
+    // The first journey starts from the dock without requiring a second overlay.
+    // Preserve the scripted selector for players choosing subsequent missions.
+    if(!mission){
+      dispatchEvent(new CustomEvent('tryamm:streetverse-first-journey-start',{detail:{source:'streetverse-core-dock'}}))
+    }
     dispatchEvent(new CustomEvent('tryamm:streetverse-cinematic-mission-open',{detail:{missionId:mission?.id,source:'streetverse-core-dock'}}))
-    setMessage('SCRIPTED MISSION SELECTOR OPENED')
+    setMessage(mission?'SCRIPTED MISSION SELECTOR OPENED':'MISSION START REQUESTED')
   }
 
   const repair=()=>{
