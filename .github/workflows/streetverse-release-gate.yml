@@ -151,6 +151,8 @@ jobs:
         run: node tests/streetverse-career-economy.test.mjs
       - name: Test StreetVerse creator academy marketplace and payout safeguards
         run: node tests/streetverse-creator-program.test.mjs
+      - name: Test Creator Studio and legal agreement source safeguards
+        run: node tests/streetverse-creator-studio-contract.mjs
       - name: Require verified BJ V15 binary for release
         run: node tests/streetverse-bj-v15-binary-release-gate.mjs
       - name: Verify Chicago motion vehicle NPC mission and checkpoint recorder
