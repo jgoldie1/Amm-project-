@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+const read=p=>fs.readFileSync(new URL('../'+p,import.meta.url),'utf8')
+const salon=read('src/components/StreetVerseLaTeasiaBeautyHouse.tsx')
+const scene=read('src/components/StreetVerseNearWest3D.tsx')
+assert.match(salon,/streetverse:lateasia-treasure-starter:v1/)
+assert.match(salon,/claimed===true/)
+assert.match(salon,/streetverse:lateasia-beauty-house:v1/)
+assert.match(salon,/USE FOUNDER KEY/)
+assert.match(salon,/OPEN SALON DOOR/)
+assert.match(salon,/START BEAUTY RP SERVICE/)
+assert.match(salon,/!salon\.unlocked\|\|!salon\.doorOpen/)
+assert.match(salon,/beauty-house-door-hinge/)
+assert.match(salon,/aria-live="polite"/)
+assert.match(scene,/<StreetVerseLaTeasiaBeautyHouseControls\/>/)
+assert.match(scene,/<StreetVerseLaTeasiaBeautyHouseScene\/>/)
+console.log('LaTeasia Beauty House founder key and RP contract PASS')
