@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+const read=p=>fs.readFileSync(new URL('../'+p,import.meta.url),'utf8')
+const scene=read('src/components/StreetVerseGreenvilleFratMansion.tsx')
+const missions=read('src/components/StreetVerseEstateMissions.tsx')
+const dock=read('src/components/StreetVerseGreenvilleFraternityRoomDock.tsx')
+const management=read('src/components/StreetVerseGreenvilleFraternityManagement.tsx')
+assert.ok(scene.includes('Jacobie Stubbs · Private Master Suite'))
+assert.ok(scene.includes('jacobie-master-suite'))
+for(const action of ['master-suite','study','invite','campus-tour','resident-check','house-meeting','career-training','inventory','garden','graduation'])assert.ok(missions.includes("action:'"+action+"'"),action)
+assert.ok(missions.includes('40 missions across three estates'))
+assert.ok(dock.includes('VISIT JACOBIE MASTER SUITE'))
+assert.ok(dock.includes("action:'master-suite'"))
+assert.ok(management.includes("missionAction('maintenance')"))
+assert.ok(management.includes("missionAction('graduation')"))
+console.log('Jacobie Greenville master suite and missions static contract PASS')
