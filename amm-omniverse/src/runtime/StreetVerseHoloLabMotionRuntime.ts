@@ -3,7 +3,7 @@ export type HoloLabMotionStage='outside'|'approaching'|'inside'|'charging'|'warp
 export function createHoloLabMotion(){
  let stage:HoloLabMotionStage='outside'
  const transitions:Record<HoloLabMotionStage,HoloLabMotionStage|null>={
-  outside:'approaching',approaching:'inside',inside:'charging',charging:'warping',warping:'arrived',arrived:null,
+  outside:'approaching',approaching:'inside',inside:'charging',charging:'warping',warping:null,arrived:null,
  }
  return {
   stage:()=>stage,
