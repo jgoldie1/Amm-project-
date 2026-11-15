@@ -1,5 +1,6 @@
 import React,{useState} from 'react'
 import {StreetVerseCreatorStudio} from './StreetVerseCreatorStudio'
+import StreetVerseFreePlayJourneyTest from './StreetVerseFreePlayJourneyTest'
 import {CREATOR_ACADEMY} from '../runtime/StreetVerseCreatorProgram'
 type Props={onClose:()=>void}
 const modes=[
@@ -12,12 +13,15 @@ const modes=[
 export default function StreetVerseFreePlayHub({onClose}:Props){
  const [studio,setStudio]=useState(false)
  const [academy,setAcademy]=useState(false)
+ const [journey,setJourney]=useState(false)
  return <div role="dialog" aria-modal="true" aria-label="TRYAMM free play hub" style={{position:'fixed',inset:0,zIndex:12050,overflowY:'auto',background:'#080d1b',color:'#fff',padding:20}}>
   <div style={{maxWidth:780,margin:'0 auto'}}>
    <button type="button" onClick={onClose} style={{minHeight:48,padding:'8px 18px'}}>Close free play hub</button>
    <h1>TRYAMM FREE PLAY</h1>
    <p>Play the available StreetVerse experience without buying a game pass. Fictional mission credits cannot be cashed out or converted to real money.</p>
    <p role="note">Internal hash-chain receipts are experimental audit records, not a public blockchain, financial settlement system or substitute for an independent security audit.</p>
+   <button type="button" onClick={()=>setJourney(v=>!v)} style={{minHeight:56,width:'100%',padding:12,margin:'10px 0',fontWeight:700}}>{journey?'Hide guided test':'Run Chicago → Creator Studio guided test'}</button>
+   {journey&&<StreetVerseFreePlayJourneyTest/>}
    <div style={{display:'grid',gap:14}}>
     {modes.map(mode=><section key={mode.name} style={{border:'1px solid #3b506c',borderRadius:12,padding:16}}>
       <h2>{mode.name}</h2><p>{mode.description}</p><small>{mode.state}</small>
