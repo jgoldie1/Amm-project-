@@ -1,0 +1,68 @@
+name: Green Slice Recovery Proof
+
+on:
+  push:
+    branches:
+      - agent/green-slice-recovery-20261114
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: green-slice-recovery-proof
+  cancel-in-progress: true
+
+jobs:
+  internal-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout exact recovery commit
+        uses: actions/checkout@v4
+
+      - name: Use Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            amm-omniverse/package-lock.json
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install Omniverse dependencies
+        run: npm --prefix amm-omniverse ci
+
+      - name: Root syntax proof
+        run: npm run syntax
+
+      - name: Omniverse security proof
+        run: npm --prefix amm-omniverse run security
+
+      - name: Omniverse typecheck proof
+        run: npm --prefix amm-omniverse run typecheck
+
+      - name: Recovery contract proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f amm-omniverse/src/game/testing/completionGovernor.ts
+          test -f amm-omniverse/src/game/testing/district01ReleaseManifest.ts
+          test -f amm-omniverse/src/game/testing/districtEvidenceIngestion.ts
+          test -f amm-omniverse/src/game/release/districtProofOrchestrator.ts
+          test -f amm-omniverse/src/game/security/guardianGroup.ts
+          test -f amm-omniverse/src/game/story/streetverseCoreCast.ts
+          grep -q "holoGuardian_minor_safety" amm-omniverse/src/game/security/guardianGroup.ts
+          ! grep -q "holGuardian_minor_safety" amm-omniverse/src/game/security/guardianGroup.ts
+          grep -q "Meet the Stubbs" amm-omniverse/src/game/story/streetverseCoreCast.ts
+          grep -q "RECOVER" amm-omniverse/src/game/testing/completionGovernor.ts
+
+      - name: Omniverse smoke contracts
+        run: npm --prefix amm-omniverse run smoke
+
+      - name: Offline production bundle
+        working-directory: amm-omniverse
+        run: npx vite build
