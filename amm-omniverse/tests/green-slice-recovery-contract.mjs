@@ -24,7 +24,7 @@ const [
 ]);
 
 assert.match(governor, /finish|expand|GREEN|BLOCKED/i);
-assert.match(governor, /RECOVER/);
+assert.match(governor, /finish_before_expand_freeze_active/);
 
 assert.match(guardian, /holoGuardian_minor_safety/);
 assert.doesNotMatch(guardian, /holGuardian_minor_safety/);
