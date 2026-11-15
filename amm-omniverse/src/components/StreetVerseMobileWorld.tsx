@@ -1291,7 +1291,14 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
       characterId:'bj-stubbs',kind,...assessment,health:bjInjury.health,
       medicalAccuracy:false,
     }}))
-    if(outcome.requiresMedicalHelp)setMessage('BJ NEEDS MEDICAL HELP • seek a rescue or medical mission')
+    if(outcome.requiresMedicalHelp){
+      setMessage('BJ NEEDS MEDICAL HELP • pain '+assessment.painScore+'/10 • request rescue')
+      window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-medical-triage',{detail:{kind,...assessment,health:bjInjury.health}}))
+    }else if(bjInjury.injured){
+      setMessage('BJ '+region.toUpperCase()+' INJURY • pain '+assessment.painScore+'/10 • '+assessment.mobility+' mobility')
+    }else{
+      setMessage('BJ RECOVERED • pain 0/10 • normal mobility')
+    }
   }
   addEventListener('tryamm:streetverse-bj-injury',onBJInjury)
   const onRescueRequest=()=>{
