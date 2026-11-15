@@ -1,7 +1,7 @@
-import {createCareerState,completeCareerMission,purchaseApprovedMod} from './StreetVerseCareerEconomy'
-import type {PlayerCareerState} from './StreetVerseCareerEconomy'
-import {createAccessibleModDraft,reviewCreatorMod,submitCreatorMod,decideCreatorMod,REAL_MONEY_PAYOUTS_ENABLED} from './StreetVerseCreatorProgram'
-import type {CreatorSubmission} from './StreetVerseCreatorProgram'
+import {createCareerState,completeCareerMission,purchaseApprovedMod} from './StreetVerseCareerEconomy.ts'
+import type {PlayerCareerState} from './StreetVerseCareerEconomy.ts'
+import {createAccessibleModDraft,reviewCreatorMod,submitCreatorMod,decideCreatorMod,REAL_MONEY_PAYOUTS_ENABLED} from './StreetVerseCreatorProgram.ts'
+import type {CreatorSubmission} from './StreetVerseCreatorProgram.ts'
 /** Explicitly simulated offline acceptance journey. Never issues server-authoritative rewards or public listings. */
 export type JourneyStep='enter-chicago'|'play-bj'|'complete-mission'|'earn-credits'|'open-studio'|'customize-jacket'|'submit-review'|'approve-demo'|'find-approved'|'buy-cosmetic'|'complete'
 export const JOURNEY_STEPS:readonly JourneyStep[]=['enter-chicago','play-bj','complete-mission','earn-credits','open-studio','customize-jacket','submit-review','approve-demo','find-approved','buy-cosmetic','complete']
