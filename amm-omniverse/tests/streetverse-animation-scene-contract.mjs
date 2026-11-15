@@ -1,0 +1,18 @@
+import fs from 'node:fs'
+import assert from 'node:assert/strict'
+const read=relative=>fs.readFileSync(new URL(relative,import.meta.url),'utf8')
+const scene=read('../src/components/StreetVerseNearWest3D.tsx')
+const npc=read('../src/components/StreetVerseLaTeasiaAnimatedNpc.tsx')
+const adapter=read('../src/lib/streetverseThreeAnimationAdapter.ts')
+const factory=read('../src/lib/streetverseAnimationFactory.ts')
+assert.match(scene,/StreetVerseLaTeasiaAnimatedNpc/)
+assert.match(scene,/VITE_STREETVERSE_LATEASIA_GLB_URL/)
+assert.match(npc,/GLTFLoader/)
+assert.match(npc,/controller\.current\?\.update\(delta\)/)
+assert.match(npc,/streetverse-character-animation-ready/)
+assert.match(npc,/streetverse-character-animation-error/)
+assert.match(npc,/controller\.current\?\.dispose\(\)/)
+assert.match(adapter,/THREE\.AnimationMixer/)
+assert.match(adapter,/fadeOut\(fadeSeconds\)/)
+assert.match(factory,/Missing .* clip/)
+console.log('STREETVERSE ANIMATION SCENE CONTRACT PASS: opt-in asset, GLB loader, action dispatch, crossfade, cleanup and honest errors')
