@@ -759,7 +759,7 @@ export default function StreetVerseNearWest3D(){
   <StreetVerseLuxuryLifestyleCareers/>
   <StreetVerseGreenvilleFraternityManagement/>
   <StreetVerseGreenvilleFraternityRoomDock onTravel={travelGreenvilleSuite}/>
-  <StreetVerseEstateMissions onTravel={travelEstateMission}/>
+  <StreetVerseEstateMissions onTravel={travelEstateMission} getPlayerPosition={()=>playerLocation.current}/>
   <StreetVerseHoloFonHUD/>
   <StreetVerseDoorTestButtons/>
   {import.meta.env.VITE_STREETVERSE_LATEASIA_GLB_URL&&<StreetVerseLaTeasiaAnimationTest/>}
