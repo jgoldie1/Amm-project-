@@ -43,6 +43,7 @@ export default function StreetVerseHospitalMissionHUD(){
   }
  }
  const advance=()=>{
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-hospital-action',{detail:{step:step+1,action:stage.action,staff:stage.speaker,region:assessment.region,health:assessment.health}}))
   if(step===0)window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-rescue-request'))
   if(step>=1&&step<=3)window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-rescue-advance'))
   if(step===3){setExamined(true);window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-anatomy-mode',{detail:{xray:true,tearApart:false,injured:true}}))}
