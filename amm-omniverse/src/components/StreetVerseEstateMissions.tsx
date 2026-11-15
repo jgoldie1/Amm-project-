@@ -1,6 +1,6 @@
 import {useEffect,useState} from 'react'
 export type EstateKey='lateasia'|'bj'|'greenville'
-export type EstateAction='arrive'|'housekeeping'|'maintenance'|'staff'|'event'|'security'|'chef'|'butler'|'design'|'inspect'
+export type EstateAction='arrive'|'housekeeping'|'maintenance'|'staff'|'event'|'security'|'chef'|'butler'|'design'|'inspect'|'master-suite'|'study'|'invite'|'campus-tour'|'resident-check'|'house-meeting'|'career-training'|'inventory'|'garden'|'graduation'
 export const ESTATE_MISSION_EVENT='tryamm:estate-mission-action'
 const TASKS:{action:EstateAction;title:string}[]=[
  {action:'arrive',title:'Arrive at the estate entrance'},
@@ -17,7 +17,18 @@ const TASKS:{action:EstateAction;title:string}[]=[
 export const ESTATE_MISSIONS:Record<EstateKey,{id:string;title:string;action:EstateAction}[]>={
  lateasia:TASKS.map((t,i)=>({...t,id:'TM'+String(i+1).padStart(2,'0')})),
  bj:TASKS.map((t,i)=>({...t,id:'CM'+String(i+1).padStart(2,'0')})),
- greenville:TASKS.map((t,i)=>({...t,id:'GM'+String(i+1).padStart(2,'0')}))
+ greenville:[...TASKS,...[
+ {action:'master-suite',title:'Inspect Jacobie’s private master suite'},
+ {action:'study',title:'Set up Jacobie’s study desk'},
+ {action:'invite',title:'Invite a campus guest'},
+ {action:'campus-tour',title:'Lead a fraternity house tour'},
+ {action:'resident-check',title:'Check student resident needs'},
+ {action:'house-meeting',title:'Host a house leadership meeting'},
+ {action:'career-training',title:'Complete a luxury career orientation'},
+ {action:'inventory',title:'Review house supply inventory'},
+ {action:'garden',title:'Inspect the courtyard garden'},
+ {action:'graduation',title:'Plan a graduation celebration'}
+ ] as {action:EstateAction;title:string}[]].map((t,i)=>({...t,id:'GM'+String(i+1).padStart(2,'0')}))
 }
 const KEY='streetverse:estate-missions:v1'
 function load():string[]{try{const a=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(a)?a.filter(v=>typeof v==='string'):[]}catch{return []}}
@@ -31,7 +42,7 @@ export function StreetVerseEstateMissions({onTravel}:{onTravel?:(estate:EstateKe
  useEffect(()=>{
   const handler=(event:Event)=>{
    const detail=(event as CustomEvent<{estate:EstateKey;action:EstateAction}>).detail
-   if(!detail)return
+   if(!detail||!ESTATE_MISSIONS[detail.estate])return
    const mission=ESTATE_MISSIONS[detail.estate].find(m=>!completed.includes(m.id))
    if(mission&&mission.action===detail.action){
     setCompleted(s=>s.includes(mission.id)?s:[...s,mission.id])
@@ -49,12 +60,12 @@ export function StreetVerseEstateMissions({onTravel}:{onTravel?:(estate:EstateKe
   {open&&<div style={{display:'grid',gap:8,fontSize:13}}>
    <label htmlFor="estate-mission-property">Estate</label>
    <select id="estate-mission-property" style={btn} value={estate} onChange={e=>setEstate(e.target.value as EstateKey)}><option value="lateasia">LaTeasia · Tampa</option><option value="bj">BJ Stubbs · Chicago</option><option value="greenville">Greenville · Fraternity Mansion</option></select>
-   <strong>{ESTATE_MISSIONS[estate].filter(m=>completed.includes(m.id)).length}/10 completed</strong>
+   <strong>{ESTATE_MISSIONS[estate].filter(m=>completed.includes(m.id)).length}/{ESTATE_MISSIONS[estate].length} completed</strong>
    {current?<><p>{current.id}: {current.title}</p>
     {current.action==='arrive'?<button type="button" style={btn} onClick={()=>{onTravel?.(estate);emit('arrive')}}>TRAVEL TO ESTATE</button>:<button type="button" style={btn} onClick={()=>emit(current.action)}>PERFORM {current.action.toUpperCase()} ACTION</button>}
-   </>:<strong>All ten estate missions completed!</strong>}
+   </>:<strong>All estate missions completed!</strong>}
    <div role="status" aria-live="polite">{notice}</div>
-   <small>30 missions across three estates. RP actions trigger mission completion and local saves; this does not establish physical NPC interaction, real employment or verified multiplayer gameplay.</small>
+   <small>40 missions across three estates (20 at Greenville). RP actions trigger mission completion and local saves; this does not establish physical NPC interaction, real employment or verified multiplayer gameplay.</small>
   </div>}
  </section>
 }
