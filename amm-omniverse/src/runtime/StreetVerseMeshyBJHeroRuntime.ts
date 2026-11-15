@@ -223,6 +223,9 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   // On slow iPhone connections that unbounded manifest request left the UI at
   // "BJ V15 LOADING" even though the V15 asset itself was healthy.
   const v15PreviewUrl=getBJPreviewV15Url()
+  // Prefer the owner's recovered, locally hosted V15 binary when installed.
+  // The remote V15 remains a fallback until the recovery asset is deployed.
+  const localV15Url=v15PreviewUrl?'/tryamm-assets/meshy/characters/BJ_STUBBS_V15_RECOVERED.glb':null
   const published=v15PreviewUrl?null:await Promise.race([
     resolvePublishedMeshyAsset('sv-bj-stubbs-v6',cityScope),
     new Promise<null>(resolve=>window.setTimeout(()=>resolve(null),3000)),
@@ -230,7 +233,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   // Never load a MetaHuman candidate by default; preview is explicitly opted-in.
   const metaHumanPreviewUrl=getPreviewBJMetaHumanUrl()
   // Default to the actual V15 hero; ?bj=legacy preserves a manual fallback.
-  const candidates=[v15PreviewUrl,metaHumanPreviewUrl,published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
+  const candidates=[localV15Url,v15PreviewUrl,metaHumanPreviewUrl,published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
   let sourceUrl=''
   let publishedGlb:Awaited<ReturnType<typeof loader.loadAsync>>|null=null
   let usingMetaHumanPreview=false
@@ -251,7 +254,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       let candidateGlb:Awaited<ReturnType<typeof loader.loadAsync>>
       try{
         window.dispatchEvent(new CustomEvent('tryamm:bj-model-progress',{detail:{
-          stage:'fetching',source:candidate===v15PreviewUrl?'v15':'fallback',
+          stage:'fetching',source:(candidate===localV15Url||candidate===v15PreviewUrl)?'v15':'fallback',
         }}))
         const response=await fetch(candidate,{signal:controller.signal,mode:'cors'})
         if(!response.ok)throw new Error('BJ GLB HTTP '+response.status)
@@ -282,7 +285,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
         if(!audit.ok){disposeObject(candidateGlb.scene);continue}
         usingMetaHumanPreview=true
       }
-      if(candidate===v15PreviewUrl){
+      if(candidate===localV15Url||candidate===v15PreviewUrl){
         const faceNames=new Set<string>()
         candidateGlb.scene.traverse(n=>{
           if(n instanceof THREE.Mesh)for(const name of Object.keys(n.morphTargetDictionary||{}))faceNames.add(name)
