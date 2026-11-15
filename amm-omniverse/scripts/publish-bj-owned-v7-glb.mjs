@@ -50,8 +50,12 @@ const manifestV12={
   compatibilityFiles:['SV_HERO_BJ_STUBBS_V7.glb','SV_HERO_BJ_STUBBS_V6.glb'],
   assetVersion:'bj-realism-v12',
   visualPass:'west-side-bj-v12',
-  lifeLayer:'StreetVerse BJ V12 runtime',
-  truth:'Owned TRYAMM procedural BJ V12 GLB generated from the current native hero foundry. It improves the production mesh/material pipeline but does not claim certified photo likeness.'
+  lifeLayer:'StreetVerse BJ V12 static fallback',
+  rigged:false,
+  skeletalSkins:0,
+  animationClips:0,
+  productionRole:'owned-static-fallback-when-v15-unavailable',
+  truth:'Owned TRYAMM procedural BJ V12 static fallback generated from the native hero foundry. It is not the playable production rig, has no verified skeletal skin or embedded animation clips, and does not claim certified photo likeness.'
 }
 fs.writeFileSync(manifestV12Path,JSON.stringify(manifestV12,null,2))
 console.log(JSON.stringify({published:true,v12:path.relative(root,v12),v7:path.relative(root,v7),v6:path.relative(root,v6),bytes:bytes.length,sha256},null,2))
