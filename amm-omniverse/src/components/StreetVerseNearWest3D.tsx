@@ -9,6 +9,7 @@ import {StreetVerseTampaArrivalSociety} from './StreetVerseTampaArrivalSociety'
 import {StreetVerseTampaWorldBuilderInspector} from './StreetVerseTampaWorldBuilderInspector'
 import {StreetVerseTampaBusinessDesk} from './StreetVerseTampaBusinessDesk'
 import {StreetVerseTampaCommercialMissions} from './StreetVerseTampaCommercialMissions'
+import {StreetVerseTampaCommercialMarketplace} from './StreetVerseTampaCommercialMarketplace'
 import {StreetVerseLaTeasiaStarterControls,StreetVerseLaTeasiaTreasureScene} from './StreetVerseLaTeasiaTreasureStarter'
 import {StreetVerseHingedDoor,StreetVerseDoorTestButtons} from './StreetVerseHingedDoorTest'
 import StreetVerseHoloFonHUD from './StreetVerseHoloFonHUD'
@@ -742,6 +743,7 @@ export default function StreetVerseNearWest3D(){
   <StreetVerseTampaWorldBuilderInspector/>
   <StreetVerseTampaBusinessDesk/>
   <StreetVerseTampaCommercialMissions/>
+  <StreetVerseTampaCommercialMarketplace/>
   <StreetVerseHoloFonHUD/>
   <StreetVerseDoorTestButtons/>
   {import.meta.env.VITE_STREETVERSE_LATEASIA_GLB_URL&&<StreetVerseLaTeasiaAnimationTest/>}
