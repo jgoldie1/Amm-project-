@@ -30,9 +30,11 @@ export const ESTATE_MISSIONS:Record<EstateKey,{id:string;title:string;action:Est
  {action:'graduation',title:'Plan a graduation celebration'}
  ] as {action:EstateAction;title:string}[]].map((t,i)=>({...t,id:'GM'+String(i+1).padStart(2,'0')}))
 }
+export const ESTATE_MISSION_LOCATIONS:Record<EstateKey,{x:number;z:number}>={lateasia:{x:-723,z:864},bj:{x:950,z:-821},greenville:{x:310,z:-390}}
+const MASTER_SUITE_LOCATION={x:283,z:-458}
 const KEY='streetverse:estate-missions:v1'
 function load():string[]{try{const a=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(a)?a.filter(v=>typeof v==='string'):[]}catch{return []}}
-export function StreetVerseEstateMissions({onTravel}:{onTravel?:(estate:EstateKey)=>void}){
+export function StreetVerseEstateMissions({onTravel,getPlayerPosition}:{onTravel?:(estate:EstateKey)=>void;getPlayerPosition?:()=>{x:number;z:number}}){
  const [open,setOpen]=useState(false)
  const [estate,setEstate]=useState<EstateKey>('greenville')
  const [completed,setCompleted]=useState<string[]>(load)
@@ -45,6 +47,9 @@ export function StreetVerseEstateMissions({onTravel}:{onTravel?:(estate:EstateKe
    if(!detail||!ESTATE_MISSIONS[detail.estate])return
    const mission=ESTATE_MISSIONS[detail.estate].find(m=>!completed.includes(m.id))
    if(mission&&mission.action===detail.action){
+    const position=getPlayerPosition?.()
+    const target=mission.action==='master-suite'?MASTER_SUITE_LOCATION:ESTATE_MISSION_LOCATIONS[detail.estate]
+    if(!position||Math.hypot(position.x-target.x,position.z-target.z)>55){setNotice('Move to the correct mansion location before completing this action.');return}
     setCompleted(s=>s.includes(mission.id)?s:[...s,mission.id])
     setNotice(mission.id+' completed through '+detail.action+' action. +30 fictional XP.')
     window.dispatchEvent(new CustomEvent('tryamm:estate-mission-complete',{detail:{estate:detail.estate,missionId:mission.id,rewardXP:30}}))
@@ -52,7 +57,7 @@ export function StreetVerseEstateMissions({onTravel}:{onTravel?:(estate:EstateKe
   }
   window.addEventListener(ESTATE_MISSION_EVENT,handler)
   return()=>window.removeEventListener(ESTATE_MISSION_EVENT,handler)
- },[completed])
+ },[completed,getPlayerPosition])
  const emit=(action:EstateAction)=>window.dispatchEvent(new CustomEvent(ESTATE_MISSION_EVENT,{detail:{estate,action}}))
  const btn={minHeight:48,width:'100%',borderRadius:8,padding:8,fontSize:14} as const
  return <section aria-label="Mansion missions" style={{position:'absolute',right:12,top:590,zIndex:46,width:'min(300px,65vw)',background:'rgba(21,29,41,.97)',color:'white',border:'1px solid #dbbf7b',borderRadius:12,padding:10}}>
@@ -62,10 +67,10 @@ export function StreetVerseEstateMissions({onTravel}:{onTravel?:(estate:EstateKe
    <select id="estate-mission-property" style={btn} value={estate} onChange={e=>setEstate(e.target.value as EstateKey)}><option value="lateasia">LaTeasia · Tampa</option><option value="bj">BJ Stubbs · Chicago</option><option value="greenville">Greenville · Fraternity Mansion</option></select>
    <strong>{ESTATE_MISSIONS[estate].filter(m=>completed.includes(m.id)).length}/{ESTATE_MISSIONS[estate].length} completed</strong>
    {current?<><p>{current.id}: {current.title}</p>
-    {current.action==='arrive'?<button type="button" style={btn} onClick={()=>{onTravel?.(estate);emit('arrive')}}>TRAVEL TO ESTATE</button>:<button type="button" style={btn} onClick={()=>emit(current.action)}>PERFORM {current.action.toUpperCase()} ACTION</button>}
+    {current.action==='arrive'?<button type="button" style={btn} onClick={()=>{if(!onTravel){setNotice('Travel controller unavailable.');return}onTravel(estate);emit('arrive')}}>TRAVEL TO ESTATE</button>:<button type="button" style={btn} onClick={()=>emit(current.action)}>PERFORM {current.action.toUpperCase()} ACTION</button>}
    </>:<strong>All estate missions completed!</strong>}
    <div role="status" aria-live="polite">{notice}</div>
-   <small>40 missions across three estates (20 at Greenville). RP actions trigger mission completion and local saves; this does not establish physical NPC interaction, real employment or verified multiplayer gameplay.</small>
+   <small>40 missions across three estates (20 at Greenville). Missions now require proximity to the matching estate (master-suite visit requires the gallery). Other tasks still use prototype action buttons; this does not establish physical NPC interaction, real employment or verified multiplayer gameplay.</small>
   </div>}
  </section>
 }
