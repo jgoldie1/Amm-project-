@@ -1,7 +1,7 @@
 import {useEffect,useState} from 'react'
 /** Fictional Greenville University fraternity mansion: visual prototype only. */
 export const GREENVILLE_FRAT_MANSION_POSITION:[number,number,number]=[310,0,-420]
-export const GREENVILLE_FRAT_ROOMS=Array.from({length:12},(_,i)=>({id:'suite-'+String(i+1).padStart(2,'0'),label:'Student Suite '+(i+1)}))
+export const GREENVILLE_FRAT_ROOMS=Array.from({length:12},(_,i)=>({id:'suite-'+String(i+1).padStart(2,'0'),label:i===0?'Jacobie Stubbs · Private Master Suite':'Student Suite '+(i+1)}))
 export const GREENVILLE_FRAT_INTERACTION_EVENT='tryamm:greenville-frat-interaction'
 export function StreetVerseGreenvilleFratMansion(){
  const [frontDoorOpen,setFrontDoorOpen]=useState(false)
@@ -21,6 +21,13 @@ export function StreetVerseGreenvilleFratMansion(){
   <mesh position={[0,.2,-19]}><boxGeometry args={[24,.3,13]}/><meshStandardMaterial color="#7fabb9"/></mesh>
   <mesh position={[0,2,-29]}><boxGeometry args={[29,4,2]}/><meshStandardMaterial color="#d9c8af"/></mesh>
   <mesh position={[0,5.5,10.3]}><boxGeometry args={[8,1,.2]}/><meshStandardMaterial color="#8a6844"/></mesh>
+  {/* Jacobie's larger master suite: separate private residence wing in the gallery. */}
+  <group name="jacobie-master-suite" position={[-27,0,-42]}>
+   <mesh position={[-2,0,-1]}><boxGeometry args={[12,.25,11]}/><meshStandardMaterial color="#e0c79d"/></mesh>
+   <mesh position={[-5,1.5,-4]}><boxGeometry args={[3,3,3]}/><meshStandardMaterial color="#b9b6a9"/></mesh>
+   <mesh position={[1,1.3,-3]}><boxGeometry args={[4,1.2,3.2]}/><meshStandardMaterial color="#52485f"/></mesh>
+   <mesh position={[3,1.2,3]}><boxGeometry args={[2,2,1.5]}/><meshStandardMaterial color="#c0b19a"/></mesh>
+  </group>
   {/* Visible furnished suite gallery behind the main house; full walkable interiors follow. */}
   {GREENVILLE_FRAT_ROOMS.map((room,i)=><group key={room.id} name={room.id} position={[-27+(i%6)*10,0,-42-Math.floor(i/6)*11]} onClick={e=>{e.stopPropagation();setActiveRoom(room.id)}}>
    <mesh receiveShadow position={[0,0,0]}><boxGeometry args={[8,.2,8]}/><meshStandardMaterial color={activeRoom===room.id?'#e8ca86':'#c9bbaa'}/></mesh>
