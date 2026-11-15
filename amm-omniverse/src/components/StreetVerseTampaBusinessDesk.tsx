@@ -1,6 +1,6 @@
 import {useEffect,useState} from 'react'
 const KEY='streetverse:tampa-business-desk:v1'
-type Request={id:string;kind:'game-permit'|'website'|'cashapp-question';business:string;message:string;status:'draft-submitted';createdAt:string}
+type Request={id:string;kind:'game-permit'|'website'|'cashapp-question'|'commercial-brand';business:string;message:string;status:'draft-submitted';createdAt:string}
 const load=():Request[]=>{try{const v=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(v)?v.filter(x=>x&&typeof x.id==='string').slice(-30):[]}catch{return []}}
 export function StreetVerseTampaBusinessDesk(){
  const [open,setOpen]=useState(false)
@@ -27,6 +27,7 @@ export function StreetVerseTampaBusinessDesk(){
    <select id="tampa-dm-type" style={control} value={kind} onChange={e=>setKind(e.target.value as Request['kind'])}>
     <option value="game-permit">StreetVerse fictional business permit</option>
     <option value="website">$450 real-world website inquiry</option>
+    <option value="commercial-brand">Commercial brand / business partnership inquiry</option>
     <option value="cashapp-question">Ask about Cash App payment</option>
    </select>
    <label htmlFor="tampa-dm-business">Business name</label>
