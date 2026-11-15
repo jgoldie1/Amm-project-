@@ -62,7 +62,7 @@ export default function StreetVerseHospitalMissionHUD(){
    <p>“{stage.line}”</p>
    <button onClick={speak} style={{width:'100%',minHeight:48,borderRadius:10,background:'#204b5a',color:'white',border:'1px solid #a1c7d1',fontWeight:800}}>💬 TALK TO {stage.speaker.toUpperCase()}</button>
    <label style={{display:'flex',gap:8,alignItems:'center',margin:'10px 0',fontSize:13}}><input type="checkbox" checked={voiceEnabled} onChange={event=>setVoiceEnabled(event.target.checked)} /> Optional spoken staff dialogue</label>
-   {spoken&&<p role="status">✓ {stage.speaker} dialogue delivered</p>
+   {spoken&&<p role="status">✓ {stage.speaker} dialogue delivered</p>}
    {step===3&&<p>Examine: {assessment.potentialOrganImpact.length?assessment.potentialOrganImpact.join(', '):'bones and soft tissue'} (fictional visualization; no confirmed organ damage)</p>}
    {examined&&<p>✓ X-ray examination opened</p>}
    <button onClick={advance} style={{width:'100%',minHeight:56,borderRadius:12,background:'#b8f4df',color:'#06251f',fontWeight:900,border:0,touchAction:'manipulation'}}>{stage.action}</button>
