@@ -1,0 +1,52 @@
+name: StreetVerse Creator Studio compile and safety
+on:
+  push:
+    paths:
+      - 'amm-omniverse/src/components/StreetVerseBJCreatorPreview3D.tsx'
+      - 'amm-omniverse/src/components/StreetVerseCreatorStudio.tsx'
+      - 'amm-omniverse/src/components/StreetVerseFreePlayHub.tsx'
+      - 'amm-omniverse/src/services/streetverseCreatorMarketplace.ts'
+      - 'amm-omniverse/tests/streetverse-creator-production-boundaries.test.mjs'
+      - 'amm-omniverse/tests/streetverse-free-play-hub-contract.mjs'
+      - '.github/workflows/streetverse-creator-studio-build.yml'
+  pull_request:
+    paths:
+      - 'amm-omniverse/src/components/StreetVerseBJCreatorPreview3D.tsx'
+      - 'amm-omniverse/src/components/StreetVerseCreatorStudio.tsx'
+      - 'amm-omniverse/src/components/StreetVerseFreePlayHub.tsx'
+      - 'amm-omniverse/src/services/streetverseCreatorMarketplace.ts'
+      - 'amm-omniverse/tests/streetverse-creator-production-boundaries.test.mjs'
+      - 'amm-omniverse/tests/streetverse-free-play-hub-contract.mjs'
+      - '.github/workflows/streetverse-creator-studio-build.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  compile-creator-studio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install dependencies without lifecycle scripts
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Verify TypeScript compilation
+        run: npm run typecheck
+      - name: Verify free play and creator security contracts
+        run: |
+          node tests/streetverse-creator-program.test.mjs
+          node tests/streetverse-creator-production-boundaries.test.mjs
+          node tests/streetverse-free-play-hub-contract.mjs
+      - name: Compile browser app
+        run: ./node_modules/.bin/vite build
+      - name: Explain release separation
+        run: echo "Browser compile passing does not replace verified BJ GLB binary gate or public acceptance tests"
