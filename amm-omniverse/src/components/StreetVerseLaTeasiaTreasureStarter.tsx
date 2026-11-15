@@ -25,6 +25,19 @@ export const LATEASIA_BEAUTYVERSE_WELCOME_GIFTS=[
  {id:'salon-booking',label:'Fictional salon booking starter pass',category:'experience'},
  {id:'gift-box',label:'Collectible pink-and-gold flying gift box',category:'collectible'}
 ] as const
+export const LATEASIA_BEAUTYVERSE_GIFTS=[
+ {id:'salon-founder-key',label:'Beauty House Founder Key',count:1},
+ {id:'salon-chair',label:'Luxury Salon Chair',count:1},
+ {id:'beauty-toolkit',label:'Professional Beauty Toolkits',count:2},
+ {id:'hair-collection',label:'Hair & Loc Styling Collection',count:1},
+ {id:'makeup-collection',label:'Makeup & Skincare Collection',count:1},
+ {id:'designer-outfits',label:'Designer Outfit Sets',count:5},
+ {id:'signature-heels',label:'Signature Red-Sole Heels',count:2},
+ {id:'vanity-mirror',label:'Illuminated Vanity Mirror',count:1},
+ {id:'holofon',label:'BeautyVerse Holo FON',count:1},
+ {id:'vip-pass',label:'BeautyVerse Founder VIP Pass',count:1},
+ {id:'birthday-gift-box',label:'Collectible Founder Gift Box',count:1}
+] as const
 const KEY='streetverse:lateasia-treasure-starter:v1'
 export const STARTER_EVENT='tryamm:streetverse-lateasia-starter-update'
 type GiftState={claimed:boolean;chestOpen:boolean;delivering:boolean;replay:number}
