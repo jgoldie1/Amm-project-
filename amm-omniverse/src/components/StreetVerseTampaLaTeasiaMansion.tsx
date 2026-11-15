@@ -1,4 +1,4 @@
-import {useMemo,useState} from 'react'
+import {useEffect,useMemo,useState} from 'react'
 /** Fictional Tampa mansion duplex, 12 bedrooms total (6 per wing), no real-estate representation. */
 export const LATEASIA_MANSION_ROOMS=[
  ...Array.from({length:6},(_,i)=>({id:'east-'+(i+1),wing:'East',name:'East Bedroom '+(i+1)})),
@@ -9,6 +9,7 @@ export function StreetVerseTampaLaTeasiaMansion(){
  const [doorsOpen,setDoorsOpen]=useState(false)
  const [lightsOn,setLightsOn]=useState(true)
  const rooms=useMemo(()=>LATEASIA_MANSION_ROOMS,[])
+ useEffect(()=>{const handler=(e:Event)=>{const d=(e as CustomEvent<{doorsOpen:boolean;lightsOn:boolean}>).detail;if(d){setDoorsOpen(d.doorsOpen);setLightsOn(d.lightsOn)}};window.addEventListener('tryamm:tampa-mansion-controls',handler);return()=>window.removeEventListener('tryamm:tampa-mansion-controls',handler)},[])
  return <group name="lateasia-12-bedroom-mansion-duplex" position={LATEASIA_MANSION_POSITION}>
   {/* Two wings, six bedrooms each, arranged around a grand shared atrium. */}
   {[-1,1].map((side)=><group key={side} position={[side*15,0,0]}>
