@@ -5,6 +5,7 @@ import StreetVerseLaTeasiaChainSwitcher from './StreetVerseLaTeasiaChainSwitcher
 import {StreetVerseLaTeasiaBeautyHouseControls,StreetVerseLaTeasiaBeautyHouseScene} from './StreetVerseLaTeasiaBeautyHouse'
 import {StreetVerseTampaBeautyDistricts} from './StreetVerseTampaBeautyDistricts'
 import {StreetVerseTampaTravelDock,TAMPA_DESTINATIONS,type TampaDestination} from './StreetVerseTampaTravelDock'
+import {StreetVerseTampaArrivalSociety} from './StreetVerseTampaArrivalSociety'
 import {StreetVerseLaTeasiaStarterControls,StreetVerseLaTeasiaTreasureScene} from './StreetVerseLaTeasiaTreasureStarter'
 import {StreetVerseHingedDoor,StreetVerseDoorTestButtons} from './StreetVerseHingedDoorTest'
 import StreetVerseHoloFonHUD from './StreetVerseHoloFonHUD'
@@ -734,6 +735,7 @@ export default function StreetVerseNearWest3D(){
   <StreetVerseLaTeasiaStarterControls/>
   <StreetVerseLaTeasiaBeautyHouseControls/>
   <StreetVerseTampaTravelDock onTravel={travelTampa}/>
+  <StreetVerseTampaArrivalSociety/>
   <StreetVerseHoloFonHUD/>
   <StreetVerseDoorTestButtons/>
   {import.meta.env.VITE_STREETVERSE_LATEASIA_GLB_URL&&<StreetVerseLaTeasiaAnimationTest/>}
