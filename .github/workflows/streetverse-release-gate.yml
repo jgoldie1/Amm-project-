@@ -134,12 +134,6 @@ jobs:
         run: node tests/streetverse-hololab-rig-ack-contract.mjs
       - name: Verify HoloLab Nov 15 asset inventory and collision integration
         run: node tests/streetverse-hololab-nov15-asset-gate.mjs
-      - name: Require verified BJ V15 binary for release
-        run: node tests/streetverse-bj-v15-binary-release-gate.mjs
-      - name: Verify HoloLab arrival safety and asset recovery registry
-        run: node tests/streetverse-hololab-recovery-safety-contract.mjs
-      - name: Verify Chicago motion vehicle NPC mission and checkpoint recorder
-        run: node tests/streetverse-chicago-motion-acceptance-contract.mjs
       - name: Run Chicago motion behavioral test and record receipt
         run: node tests/streetverse-chicago-motion-behavior.test.mjs
       - name: Upload Chicago motion test recording
@@ -149,6 +143,12 @@ jobs:
           name: chicago-motion-acceptance-record
           path: amm-omniverse/test-results/chicago-motion-acceptance.json
           if-no-files-found: warn
+      - name: Require verified BJ V15 binary for release
+        run: node tests/streetverse-bj-v15-binary-release-gate.mjs
+      - name: Verify HoloLab arrival safety and asset recovery registry
+        run: node tests/streetverse-hololab-recovery-safety-contract.mjs
+      - name: Verify Chicago motion vehicle NPC mission and checkpoint recorder
+        run: node tests/streetverse-chicago-motion-acceptance-contract.mjs
       - name: Verify BJ V15 no-placeholder asset loader
         run: node tests/streetverse-bj-v15-no-placeholder-contract.mjs
       - name: Verify Chicago timeline scanner and NPC memory isolation
