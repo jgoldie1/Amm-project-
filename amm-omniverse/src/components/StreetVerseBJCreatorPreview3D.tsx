@@ -39,7 +39,7 @@ export function StreetVerseBJCreatorPreview3D({jacketColor}:{jacketColor:string}
     model.position.y+=.05
    }
    target.add(model)
-   setStatus('Verified-file route loaded: BJ 3D model shown. Jacket color is a separate swatch, not fitted clothing.')
+   setStatus('BJ 3D model loaded from asset route; identity is validated only by the CI SHA-256 release gate. Jacket remains an unfitted color swatch.')
   },undefined,()=>{
    if(!ended)setStatus('Verified BJ V15 asset is not installed at this URL. 2D jacket preview remains available.')
   })
