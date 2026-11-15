@@ -27,10 +27,10 @@ export function StreetVerseLuxuryEstateManagement(){
    <div>{config.bedrooms} bedrooms · {config.bathrooms} bathrooms ({config.ensuites} en-suite, {config.powderRooms} powder rooms)</div>
    <div>Housekeepers: {config.housekeepers} · Butlers: {config.butlers} · Estate manager: {config.estateManagers} · Chef: {config.chefs} · Security: {config.security}</div>
    <div>Maintenance: {current.maintenance}/100 · Cleanliness: {current.cleanliness}/100</div>
-   <button type="button" style={btn} onClick={()=>update({staffOnDuty:!current.staffOnDuty},current.staffOnDuty?'Staff off duty.':'Staff on duty.');missionAction('staff')}>{current.staffOnDuty?'END':'START'} STAFF SHIFT</button>
-   <button type="button" style={btn} onClick={()=>update({cleanliness:100},'Fictional housekeeping service completed.');missionAction('housekeeping')}>HOUSEKEEPING</button>
-   <button type="button" style={btn} onClick={()=>update({maintenance:100},'Fictional property maintenance completed.');missionAction('maintenance')}>MAINTENANCE</button>
-   <button type="button" style={btn} onClick={()=>update({eventBooked:!current.eventBooked},current.eventBooked?'Event canceled.':'Private RP event scheduled.');missionAction('event')}>{current.eventBooked?'CANCEL':'SCHEDULE'} ESTATE EVENT</button>
+   <button type="button" style={btn} onClick={()=>{update({staffOnDuty:!current.staffOnDuty},current.staffOnDuty?'Staff off duty.':'Staff on duty.');missionAction('staff')}}>{current.staffOnDuty?'END':'START'} STAFF SHIFT</button>
+   <button type="button" style={btn} onClick={()=>{update({cleanliness:100},'Fictional housekeeping service completed.');missionAction('housekeeping')}}>HOUSEKEEPING</button>
+   <button type="button" style={btn} onClick={()=>{update({maintenance:100},'Fictional property maintenance completed.');missionAction('maintenance')}}>MAINTENANCE</button>
+   <button type="button" style={btn} onClick={()=>{update({eventBooked:!current.eventBooked},current.eventBooked?'Event canceled.':'Private RP event scheduled.');missionAction('event')}}>{current.eventBooked?'CANCEL':'SCHEDULE'} ESTATE EVENT</button>
    <div role="status" aria-live="polite">{notice}</div>
    <small>Prototype estate simulation: no real employees, wages, property ownership, bookings or payments.</small>
   </div>}
