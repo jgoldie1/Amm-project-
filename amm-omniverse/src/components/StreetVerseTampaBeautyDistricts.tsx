@@ -32,7 +32,7 @@ export function StreetVerseTampaBeautyDistricts(){
   {/* Housing: repeatable low-poly buildings, each tagged with an RP residence ID. */}
   {homes.map(h=><group key={h.id} onClick={e=>{e.stopPropagation();inspect('home-001')}} name={'beautyverse-residence-'+String(h.id+1).padStart(3,'0')} position={[h.x+8,0,h.z+50]}>
    <mesh position={[0,1.4,0]} castShadow><boxGeometry args={[4,2.8,4.6]}/><meshStandardMaterial color={h.id%2?'#f3ddc7':'#d6d8e6'}/></mesh>
-   <mesh position={[0,2.95,0]}><coneGeometry args={[3.5,1.3,4]} rotation={[0,Math.PI/4,0]}/><meshStandardMaterial color="#805e65"/></mesh>
+   <mesh position={[0,2.95,0]} rotation={[0,Math.PI/4,0]}><coneGeometry args={[3.5,1.3,4]}/><meshStandardMaterial color="#805e65"/></mesh>
    <mesh position={[0,.85,2.34]}><boxGeometry args={[.9,1.7,.06]}/><meshStandardMaterial color="#9b7457"/></mesh>
   </group>)}
   {/* Flagship and community facilities */}
