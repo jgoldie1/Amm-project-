@@ -24,7 +24,7 @@ export function StreetVerseHoloLab3DPreview(){
   torso.position.y=1.1;proxy.add(torso)
   const head=new THREE.Mesh(new THREE.SphereGeometry(0.24,16,12),new THREE.MeshStandardMaterial({color:0x76513d}))
   head.position.y=2.12;proxy.add(head)
-  proxy.position.x=-3;scene.add(proxy)
+  proxy.position.x=-3;proxy.visible=false;scene.add(proxy)
   let activeCharacter:THREE.Object3D=proxy
   let mixer:THREE.AnimationMixer|null=null
   let walkAction:THREE.AnimationAction|null=null
