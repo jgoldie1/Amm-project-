@@ -112,6 +112,8 @@ jobs:
         run: node tests/streetverse-hospital-mission-contract.mjs
       - name: Verify Mycelium timeline fork isolation
         run: node tests/streetverse-mycelium-timeline-contract.mjs
+      - name: Verify CrossVerse gateway consent and world registry
+        run: node tests/streetverse-crossverse-gateway-contract.mjs
       - name: Verify CrossVerse world permissions
         run: node tests/streetverse-crossverse-platform-contract.mjs
       - name: Verify BJ injury reactions
