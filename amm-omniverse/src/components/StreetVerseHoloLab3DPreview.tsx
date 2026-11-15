@@ -28,6 +28,7 @@ export function StreetVerseHoloLab3DPreview(){
   node.appendChild(renderer.domElement);resize()
   const observer=typeof ResizeObserver!=='undefined'?new ResizeObserver(resize):null;observer?.observe(node)
   let raf=0,travelStart=0
+  let acknowledgeEra:ChicagoEra|null=null
   let motionStage='outside'
   let proxyTargetX=-3
   const onMotion=(event:Event)=>{
@@ -41,12 +42,12 @@ export function StreetVerseHoloLab3DPreview(){
   const onTravel=(event:Event)=>{
    const detail=(event as CustomEvent).detail as {era?:ChicagoEra;confirmed?:boolean}
    if(detail?.confirmed===true&&detail?.era&&['past','present','future'].includes(detail.era)){
-    chamber.setWarp(1);travelStart=performance.now();chamber.switchEra(detail.era);setEra(detail.era);setStatus('3D era changed: '+detail.era)
+    chamber.setWarp(1);travelStart=performance.now();chamber.switchEra(detail.era);acknowledgeEra=detail.era;setEra(detail.era);setStatus('3D era changed: '+detail.era)
    }
   }
   window.addEventListener('tryamm:hololab-demo-scene-request',onTravel)
   window.addEventListener('tryamm:hololab-motion',onMotion)
-  const animate=(now:number)=>{raf=requestAnimationFrame(animate);proxy.position.x+=Math.max(-0.045,Math.min(0.045,proxyTargetX-proxy.position.x));proxy.rotation.y=0.3;chamber.setWarp(travelStart?Math.max(0,1-(now-travelStart)/1400):0);renderer.render(scene,camera)}
+  const animate=(now:number)=>{raf=requestAnimationFrame(animate);proxy.position.x+=Math.max(-0.045,Math.min(0.045,proxyTargetX-proxy.position.x));proxy.rotation.y=0.3;chamber.setWarp(travelStart?Math.max(0,1-(now-travelStart)/1400):0);renderer.render(scene,camera);if(acknowledgeEra){window.dispatchEvent(new CustomEvent('tryamm:hololab-scene-rendered',{detail:{era:acknowledgeEra}}));acknowledgeEra=null}}
   raf=requestAnimationFrame(animate)
   return ()=>{cancelAnimationFrame(raf);window.removeEventListener('tryamm:hololab-demo-scene-request',onTravel);window.removeEventListener('tryamm:hololab-motion',onMotion);observer?.disconnect();chamber.dispose();proxy.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();(o.material as THREE.Material).dispose()}});renderer.dispose();renderer.domElement.remove()}
  },[])
