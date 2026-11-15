@@ -140,6 +140,15 @@ jobs:
         run: node tests/streetverse-hololab-recovery-safety-contract.mjs
       - name: Verify Chicago motion vehicle NPC mission and checkpoint recorder
         run: node tests/streetverse-chicago-motion-acceptance-contract.mjs
+      - name: Run Chicago motion behavioral test and record receipt
+        run: node tests/streetverse-chicago-motion-behavior.test.mjs
+      - name: Upload Chicago motion test recording
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: chicago-motion-acceptance-record
+          path: amm-omniverse/test-results/chicago-motion-acceptance.json
+          if-no-files-found: warn
       - name: Verify BJ V15 no-placeholder asset loader
         run: node tests/streetverse-bj-v15-no-placeholder-contract.mjs
       - name: Verify Chicago timeline scanner and NPC memory isolation
