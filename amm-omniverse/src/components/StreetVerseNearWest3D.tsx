@@ -7,6 +7,7 @@ import {StreetVerseTampaBeautyDistricts} from './StreetVerseTampaBeautyDistricts
 import {StreetVerseTampaTravelDock,TAMPA_DESTINATIONS,type TampaDestination} from './StreetVerseTampaTravelDock'
 import {StreetVerseTampaArrivalSociety} from './StreetVerseTampaArrivalSociety'
 import {StreetVerseTampaWorldBuilderInspector} from './StreetVerseTampaWorldBuilderInspector'
+import {StreetVerseTampaBusinessDesk} from './StreetVerseTampaBusinessDesk'
 import {StreetVerseLaTeasiaStarterControls,StreetVerseLaTeasiaTreasureScene} from './StreetVerseLaTeasiaTreasureStarter'
 import {StreetVerseHingedDoor,StreetVerseDoorTestButtons} from './StreetVerseHingedDoorTest'
 import StreetVerseHoloFonHUD from './StreetVerseHoloFonHUD'
@@ -738,6 +739,7 @@ export default function StreetVerseNearWest3D(){
   <StreetVerseTampaTravelDock onTravel={travelTampa}/>
   <StreetVerseTampaArrivalSociety/>
   <StreetVerseTampaWorldBuilderInspector/>
+  <StreetVerseTampaBusinessDesk/>
   <StreetVerseHoloFonHUD/>
   <StreetVerseDoorTestButtons/>
   {import.meta.env.VITE_STREETVERSE_LATEASIA_GLB_URL&&<StreetVerseLaTeasiaAnimationTest/>}
