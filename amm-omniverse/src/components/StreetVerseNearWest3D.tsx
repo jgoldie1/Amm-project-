@@ -609,7 +609,7 @@ export default function StreetVerseNearWest3D(){
   window.dispatchEvent(new CustomEvent('tryamm:beautyverse-tampa-travel',{detail:{destination,x:target.x,z:target.z}}))
  }
  const travelGreenvilleSuite=(x:number,z:number)=>{if(driving)setDriving(null);stopMove();playerLocation.current={x,z};setPlayerSpawn({x,z});setTampaTravelKey(k=>k+1)}
- const travelEstateMission=(estate:EstateKey)=>travelTampa(estate==='lateasia'?'lateasia-mansion':estate==='jacobie'?'jacobie-chicago-mansion':'greenville-frat-mansion')
+ const travelEstateMission=(estate:EstateKey)=>travelTampa(estate==='lateasia'?'lateasia-mansion':estate==='bj'?'bj-chicago-mansion':'greenville-frat-mansion')
  const [vehicleAmmo,setVehicleAmmo]=useState(12)
  const [vehicleAimSide,setVehicleAimSide]=useState<'left'|'right'>('left')
  const [hitFx,setHitFx]=useState<{id:number;position:[number,number,number]}|null>(null)
