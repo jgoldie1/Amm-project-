@@ -12,7 +12,10 @@ target=app/'public/assets/characters'
 target.mkdir(parents=True,exist_ok=True)
 with zipfile.ZipFile(source) as archive:
  for filename,expected in EXPECTED.items():
-  raw=archive.read('assets/'+filename)
+  candidates=('assets/'+filename,'amm-omniverse/public/assets/characters/'+filename)
+  member=next((item for item in candidates if item in archive.namelist()),None)
+  if member is None:raise SystemExit('ERROR: verified asset missing from ZIP: '+filename)
+  raw=archive.read(member)
   if hashlib.sha256(raw).hexdigest()!=expected:raise SystemExit('ERROR: SHA256 mismatch for '+filename)
   (target/filename).write_bytes(raw)
   print('INSTALLED VERIFIED',filename,len(raw),'bytes')
