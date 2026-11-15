@@ -5,6 +5,7 @@ on:
     paths:
       - 'amm-omniverse/public/holofon-preview.html'
       - 'amm-omniverse/tests/holofon-commerce-preview-contract.mjs'
+      - 'amm-omniverse/tests/streetverse-holofon-contract.mjs'
       - '.github/workflows/tryamm-push-button-rp-live.yml'
 
 permissions:
