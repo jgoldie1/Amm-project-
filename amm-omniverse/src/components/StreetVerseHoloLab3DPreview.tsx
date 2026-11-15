@@ -1,6 +1,7 @@
 import React,{useEffect,useRef,useState} from 'react'
 import * as THREE from 'three'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js'
+import {advanceHoloLabCharacter,HOLOLAB_SAFE_SPAWNS} from '../runtime/StreetVerseHoloLabCollision'
 import {createHoloLabChamberScene} from '../runtime/StreetVerseHoloLabThreeScene'
 import type {ChicagoEra} from '../runtime/StreetVerseChicagoTimeSwitchRuntime'
 
@@ -44,7 +45,7 @@ export function StreetVerseHoloLab3DPreview(){
   let raf=0,travelStart=0,lastFrame=0
   let acknowledgeEra:ChicagoEra|null=null
   let motionStage='outside'
-  let proxyTargetX=-3
+  let proxyTargetX=HOLOLAB_SAFE_SPAWNS.outside.x
   const onMotion=(event:Event)=>{
    const detail=(event as CustomEvent).detail as {stage?:string}
    if(!detail?.stage)return
@@ -61,7 +62,7 @@ export function StreetVerseHoloLab3DPreview(){
   }
   window.addEventListener('tryamm:hololab-demo-scene-request',onTravel)
   window.addEventListener('tryamm:hololab-motion',onMotion)
-  const animate=(now:number)=>{raf=requestAnimationFrame(animate);const delta=lastFrame?Math.min((now-lastFrame)/1000,0.05):0;lastFrame=now;const distance=proxyTargetX-activeCharacter.position.x;activeCharacter.position.x+=Math.max(-0.045,Math.min(0.045,distance));activeCharacter.rotation.y=0.3;if(walkAction){if(Math.abs(distance)>0.08){if(!walkAction.isRunning())walkAction.play()}else walkAction.stop()}mixer?.update(delta);chamber.setWarp(travelStart?Math.max(0,1-(now-travelStart)/1400):0);renderer.render(scene,camera);if(acknowledgeEra){window.dispatchEvent(new CustomEvent('tryamm:hololab-scene-rendered',{detail:{era:acknowledgeEra}}));acknowledgeEra=null}}
+  const animate=(now:number)=>{raf=requestAnimationFrame(animate);const delta=lastFrame?Math.min((now-lastFrame)/1000,0.05):0;lastFrame=now;const distance=proxyTargetX-activeCharacter.position.x;const next=advanceHoloLabCharacter({x:activeCharacter.position.x,z:activeCharacter.position.z},{x:proxyTargetX,z:0},2.5,delta,[]);activeCharacter.position.set(next.x,activeCharacter.position.y,next.z);activeCharacter.rotation.y=0.3;if(walkAction){if(Math.abs(distance)>0.08){if(!walkAction.isRunning())walkAction.play()}else walkAction.stop()}mixer?.update(delta);chamber.setWarp(travelStart?Math.max(0,1-(now-travelStart)/1400):0);renderer.render(scene,camera);if(acknowledgeEra){window.dispatchEvent(new CustomEvent('tryamm:hololab-scene-rendered',{detail:{era:acknowledgeEra}}));acknowledgeEra=null}}
   raf=requestAnimationFrame(animate)
   return ()=>{cancelAnimationFrame(raf);window.removeEventListener('tryamm:hololab-demo-scene-request',onTravel);window.removeEventListener('tryamm:hololab-motion',onMotion);observer?.disconnect();chamber.dispose();mixer?.stopAllAction();proxy.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();(o.material as THREE.Material).dispose()}});renderer.dispose();renderer.domElement.remove()}
  },[])
