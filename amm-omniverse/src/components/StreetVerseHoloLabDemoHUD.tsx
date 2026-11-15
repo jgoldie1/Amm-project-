@@ -39,8 +39,9 @@ export function StreetVerseHoloLabDemoHUD(){
   if(!motion.canConfirmArrival()){setStatus('Complete warp motion before confirming arrival.');return}
   try{
    const destination=pending==='present'?'streetverse:chicago':'chicago:'+pending
-   if(renderedEra!==pending){window.dispatchEvent(new CustomEvent('tryamm:hololab-demo-scene-request',{detail:{to:destination,era:pending,simulation:true,confirmed:true}}));setStatus('Waiting for the 3D renderer to acknowledge the destination. Press confirm again when ready.');return}
+   if(renderedEra!==pending){window.dispatchEvent(new CustomEvent('tryamm:hololab-demo-scene-request',{detail:{to:destination,era:pending,simulation:true,phase:'prepare'}}));setStatus('Preparing 3D destination without changing the current scene. Confirm arrival after the renderer is ready.');return}
    const result=journey.confirmSceneLoaded(destination)
+   window.dispatchEvent(new CustomEvent('tryamm:hololab-demo-scene-request',{detail:{to:destination,era:pending,simulation:true,phase:'commit'}}))
    setMotionStage(motion.arrive())
    setEra(pending)
    setSnapshot(result.restore??{...snapshot,x:0,y:0,z:0})
@@ -72,7 +73,7 @@ export function StreetVerseHoloLabDemoHUD(){
   {motionStage==='arrived'&&<button onClick={()=>{motion.reset();setMotionStage('outside');setStatus('Ready for the next HoloLab journey.')}} style={{minHeight:52,width:'100%',marginTop:6}}>RESTART CHAMBER MOTION</button>}
   <p>Mission: {snapshot.missionId} • Credits: {snapshot.credits} • Visits: {visits}</p>
   <div style={{display:'grid',gridTemplateColumns:'repeat(3,minmax(0,1fr))',gap:6}}>{(['past','present','future'] as ChicagoEra[]).map(target=><button key={target} disabled={pending!==null} onClick={()=>request(target)} style={{minHeight:56,fontWeight:800,borderRadius:10}}>{target.toUpperCase()}</button>)}</div>
-  {pending&&<div style={{marginTop:10}}><p>Simulation destination: {scenes[pending].label}</p><button onClick={confirm} style={{minHeight:56,width:'100%',fontWeight:800}}>{renderedEra===pending?'COMPLETE ARRIVAL':'LOAD 3D DESTINATION'}</button><button onClick={()=>{journey.cancel();setPending(null);motion.reset();setMotionStage('outside');setStatus('Travel cancelled.')}} style={{minHeight:48,width:'100%',marginTop:6}}>CANCEL</button></div>}
+  {pending&&<div style={{marginTop:10}}><p>Simulation destination: {scenes[pending].label}</p><button onClick={confirm} style={{minHeight:56,width:'100%',fontWeight:800}}>{renderedEra===pending?'COMPLETE ARRIVAL':'LOAD 3D DESTINATION'}</button><button onClick={()=>{journey.cancel();window.dispatchEvent(new CustomEvent('tryamm:hololab-demo-scene-request',{detail:{phase:'cancel'}}));setRenderedEra(null);setPending(null);motion.reset();setMotionStage('outside');setStatus('Travel cancelled.')}} style={{minHeight:48,width:'100%',marginTop:6}}>CANCEL</button></div>}
   <label style={{display:'block',marginTop:12}}>Guide NPC memory<input value={npcText} onChange={e=>setNpcText(e.target.value)} placeholder="What should the guide remember?" style={{width:'100%',boxSizing:'border-box',minHeight:48}}/></label>
   <button onClick={saveMemory} style={{minHeight:50,width:'100%',marginTop:6}}>SAVE GUIDE MEMORY</button>
   <p>Guide remembers: {journey.recall('hololab-guide').join(' • ')||'Nothing yet'}</p>
