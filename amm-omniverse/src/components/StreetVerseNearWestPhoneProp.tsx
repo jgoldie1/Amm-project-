@@ -15,8 +15,9 @@ export default function StreetVerseNearWestPhoneProp({playerPosition}:{playerPos
   return()=>window.removeEventListener('tryamm:streetverse-holofon-hand-pose',onPose)
  },[])
  useFrame(()=>{
-  if(!phone.current)return
-  phone.current.position.set(playerPosition.current.x+.42,1.6,playerPosition.current.z+.24)
+  const position=playerPosition.current
+  if(!phone.current||!position)return
+  phone.current.position.set(position.x+.42,1.6,position.z+.24)
  })
  return <group ref={phone} visible={visible} name="near-west-holofon-call-prop">
   <mesh><boxGeometry args={[.16,.31,.035]}/><meshStandardMaterial color="#171e30" metalness={.3}/></mesh>
