@@ -1,5 +1,5 @@
 import {useEffect,useState} from 'react'
-export type EstateKey='lateasia'|'jacobie'|'greenville'
+export type EstateKey='lateasia'|'bj'|'greenville'
 export type EstateAction='arrive'|'housekeeping'|'maintenance'|'staff'|'event'|'security'|'chef'|'butler'|'design'|'inspect'
 export const ESTATE_MISSION_EVENT='tryamm:estate-mission-action'
 const TASKS:{action:EstateAction;title:string}[]=[
@@ -16,7 +16,7 @@ const TASKS:{action:EstateAction;title:string}[]=[
 ]
 export const ESTATE_MISSIONS:Record<EstateKey,{id:string;title:string;action:EstateAction}[]>={
  lateasia:TASKS.map((t,i)=>({...t,id:'TM'+String(i+1).padStart(2,'0')})),
- jacobie:TASKS.map((t,i)=>({...t,id:'CM'+String(i+1).padStart(2,'0')})),
+ bj:TASKS.map((t,i)=>({...t,id:'CM'+String(i+1).padStart(2,'0')})),
  greenville:TASKS.map((t,i)=>({...t,id:'GM'+String(i+1).padStart(2,'0')}))
 }
 const KEY='streetverse:estate-missions:v1'
@@ -48,7 +48,7 @@ export function StreetVerseEstateMissions({onTravel}:{onTravel?:(estate:EstateKe
   <button type="button" style={btn} onClick={()=>setOpen(v=>!v)}>{open?'CLOSE':'OPEN'} MANSION MISSIONS</button>
   {open&&<div style={{display:'grid',gap:8,fontSize:13}}>
    <label htmlFor="estate-mission-property">Estate</label>
-   <select id="estate-mission-property" style={btn} value={estate} onChange={e=>setEstate(e.target.value as EstateKey)}><option value="lateasia">LaTeasia · Tampa</option><option value="jacobie">Jacobie · Chicago</option><option value="greenville">Greenville · Fraternity Mansion</option></select>
+   <select id="estate-mission-property" style={btn} value={estate} onChange={e=>setEstate(e.target.value as EstateKey)}><option value="lateasia">LaTeasia · Tampa</option><option value="bj">BJ Stubbs · Chicago</option><option value="greenville">Greenville · Fraternity Mansion</option></select>
    <strong>{ESTATE_MISSIONS[estate].filter(m=>completed.includes(m.id)).length}/10 completed</strong>
    {current?<><p>{current.id}: {current.title}</p>
     {current.action==='arrive'?<button type="button" style={btn} onClick={()=>{onTravel?.(estate);emit('arrive')}}>TRAVEL TO ESTATE</button>:<button type="button" style={btn} onClick={()=>emit(current.action)}>PERFORM {current.action.toUpperCase()} ACTION</button>}
