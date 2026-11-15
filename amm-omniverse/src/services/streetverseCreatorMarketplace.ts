@@ -24,7 +24,7 @@ export async function submitPersistentCreatorListing(draft:ModDraft){
  const {data:{user},error:authError}=await sb.auth.getUser()
  if(authError||!user)throw new Error('Sign in before submitting an original creator mod.')
  const payload={
-  id:draft.id,creator_user_id:user.id,category:draft.category,title:draft.title,
+  id:`${user.id.slice(0,8)}-${crypto.randomUUID()}`,creator_user_id:user.id,category:draft.category,title:draft.title,
   description:draft.description,asset_path:draft.assetPath,license:draft.license,
   rights_confirmed:draft.rightsConfirmed,triangle_count:draft.triangleCount,
   texture_bytes:draft.textureBytes,reward_credits:draft.rewardCredits,price_credits:draft.priceCredits,
