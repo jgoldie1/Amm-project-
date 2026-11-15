@@ -607,6 +607,7 @@ export default function StreetVerseNearWest3D(){
   setTampaTravelKey(k=>k+1)
   window.dispatchEvent(new CustomEvent('tryamm:beautyverse-tampa-travel',{detail:{destination,x:target.x,z:target.z}}))
  }
+ const travelGreenvilleSuite=(x:number,z:number)=>{if(driving)setDriving(null);stopMove();playerLocation.current={x,z};setPlayerSpawn({x,z});setTampaTravelKey(k=>k+1)}
  const [vehicleAmmo,setVehicleAmmo]=useState(12)
  const [vehicleAimSide,setVehicleAimSide]=useState<'left'|'right'>('left')
  const [hitFx,setHitFx]=useState<{id:number;position:[number,number,number]}|null>(null)
@@ -755,7 +756,7 @@ export default function StreetVerseNearWest3D(){
   <StreetVerseLuxuryEstateManagement/>
   <StreetVerseLuxuryLifestyleCareers/>
   <StreetVerseGreenvilleFraternityManagement/>
-  <StreetVerseGreenvilleFraternityRoomDock/>
+  <StreetVerseGreenvilleFraternityRoomDock onTravel={travelGreenvilleSuite}/>
   <StreetVerseHoloFonHUD/>
   <StreetVerseDoorTestButtons/>
   {import.meta.env.VITE_STREETVERSE_LATEASIA_GLB_URL&&<StreetVerseLaTeasiaAnimationTest/>}
