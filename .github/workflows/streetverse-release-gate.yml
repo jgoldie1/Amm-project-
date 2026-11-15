@@ -124,6 +124,8 @@ jobs:
         run: node tests/streetverse-crossverse-chicago-journey-contract.mjs
       - name: Verify HoloLab browser demonstration
         run: node tests/streetverse-hololab-demo-contract.mjs
+      - name: Verify HoloLab BJ chamber motion
+        run: node tests/streetverse-hololab-motion-contract.mjs
       - name: Verify Chicago timeline scanner and NPC memory isolation
         run: node tests/streetverse-chicago-timeline-scanner-contract.mjs
       - name: Verify CrossVerse world permissions
