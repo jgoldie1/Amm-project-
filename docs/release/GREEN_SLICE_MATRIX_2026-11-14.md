@@ -56,3 +56,13 @@ The slice becomes GREEN only when:
 3. current-build regression is green,
 4. provider/device gates have real external evidence,
 5. no manual or AI override is used to promote an unproven gate.
+
+
+## Security dependency repair checkpoint
+- Production dependency audit previously found high-severity advisories in `undici` and `zod`, plus moderate `glob`, `minimatch`, and `qs`.
+- Constrained non-forced lockfile repair completed successfully.
+- Post-repair production audit: **zero moderate-or-higher advisories**.
+- Post-repair repository security contracts: **PASS**.
+- Post-repair TypeScript check: **PASS**.
+- Repaired lockfile commit: `ada7865a639eac2901dceb8d00290d7bbd3fc76e`.
+- Full green-slice proof on the repaired lockfile is required next; this checkpoint does not self-promote the slice to GREEN.
