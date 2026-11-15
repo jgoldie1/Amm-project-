@@ -1275,6 +1275,22 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     const region=detail?.region&&allowedRegions.includes(detail.region)?detail.region:'chest'
     const assessment=assessBJInjury(bjInjury,region)
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-injury-assessment',{detail:{kind,...assessment,health:bjInjury.health}}))
+    // One event drives the non-graphic wound overlay, voice cues, and hospital UI.
+    // Effects are requests: individual subsystems can opt in or stay muted.
+    const recovering=kind==='recovery'||kind==='hospital-discharge'
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-injury-visual',{detail:{
+      region,kind,visible:!recovering&&bjInjury.injured,severity:assessment.pain,
+      style:'non-graphic',bloodEffects:false,
+    }}))
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-pain-voice',{detail:{
+      characterId:'bj-stubbs',kind,region,painScore:assessment.painScore,
+      cue:recovering?'relief':assessment.painScore>=7?'pain-strong':assessment.painScore>=3?'pain-soft':'none',
+      optional:true,
+    }}))
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-hospital-triage-update',{detail:{
+      characterId:'bj-stubbs',kind,...assessment,health:bjInjury.health,
+      medicalAccuracy:false,
+    }}))
     if(outcome.requiresMedicalHelp)setMessage('BJ NEEDS MEDICAL HELP • seek a rescue or medical mission')
   }
   addEventListener('tryamm:streetverse-bj-injury',onBJInjury)
