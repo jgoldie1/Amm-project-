@@ -22,22 +22,33 @@ export function StreetVerseHoloLab3DPreview(){
   torso.position.y=1.1;proxy.add(torso)
   const head=new THREE.Mesh(new THREE.SphereGeometry(0.24,16,12),new THREE.MeshStandardMaterial({color:0x76513d}))
   head.position.y=2.12;proxy.add(head)
-  scene.add(proxy)
+  proxy.position.x=-3;scene.add(proxy)
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5))
   const resize=()=>{const w=Math.max(1,node.clientWidth),h=Math.max(1,node.clientHeight);renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
   node.appendChild(renderer.domElement);resize()
   const observer=typeof ResizeObserver!=='undefined'?new ResizeObserver(resize):null;observer?.observe(node)
-  let frame=0,raf=0,travelStart=0
+  let raf=0,travelStart=0
+  let motionStage='outside'
+  let proxyTargetX=-3
+  const onMotion=(event:Event)=>{
+   const detail=(event as CustomEvent).detail as {stage?:string}
+   if(!detail?.stage)return
+   motionStage=detail.stage
+   proxyTargetX=motionStage==='outside'?-3:motionStage==='approaching'?-1.3:0
+   if(motionStage==='warping')travelStart=performance.now()
+   setStatus('BJ 3D proxy: '+motionStage)
+  }
   const onTravel=(event:Event)=>{
-   const detail=(event as CustomEvent).detail as {era?:ChicagoEra}
-   if(detail?.era&&['past','present','future'].includes(detail.era)){
+   const detail=(event as CustomEvent).detail as {era?:ChicagoEra;confirmed?:boolean}
+   if(detail?.confirmed===true&&detail?.era&&['past','present','future'].includes(detail.era)){
     chamber.setWarp(1);travelStart=performance.now();chamber.switchEra(detail.era);setEra(detail.era);setStatus('3D era changed: '+detail.era)
    }
   }
   window.addEventListener('tryamm:hololab-demo-scene-request',onTravel)
-  const animate=(now:number)=>{raf=requestAnimationFrame(animate);frame+=0.02;proxy.position.x=-3+Math.min(1,(now%9000)/5000)*3;proxy.rotation.y=0.3;chamber.setWarp(travelStart?Math.max(0,1-(now-travelStart)/1400):0);renderer.render(scene,camera)}
+  window.addEventListener('tryamm:hololab-motion',onMotion)
+  const animate=(now:number)=>{raf=requestAnimationFrame(animate);proxy.position.x+=Math.max(-0.045,Math.min(0.045,proxyTargetX-proxy.position.x));proxy.rotation.y=0.3;chamber.setWarp(travelStart?Math.max(0,1-(now-travelStart)/1400):0);renderer.render(scene,camera)}
   raf=requestAnimationFrame(animate)
-  return ()=>{cancelAnimationFrame(raf);window.removeEventListener('tryamm:hololab-demo-scene-request',onTravel);observer?.disconnect();chamber.dispose();proxy.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();(o.material as THREE.Material).dispose()}});renderer.dispose();renderer.domElement.remove()}
+  return ()=>{cancelAnimationFrame(raf);window.removeEventListener('tryamm:hololab-demo-scene-request',onTravel);window.removeEventListener('tryamm:hololab-motion',onMotion);observer?.disconnect();chamber.dispose();proxy.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();(o.material as THREE.Material).dispose()}});renderer.dispose();renderer.domElement.remove()}
  },[])
  return <section aria-label="HoloLab live 3D chamber preview" style={{background:'#11182a',color:'white',padding:10,borderRadius:12,maxWidth:410}}>
   <strong>HOLOLAB • LIVE 3D CHAMBER</strong>
