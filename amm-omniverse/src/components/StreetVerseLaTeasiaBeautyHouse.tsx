@@ -85,7 +85,7 @@ export function StreetVerseLaTeasiaBeautyHouseScene(){
    }
   }
  })
- return <group name="lateasia-beauty-house-prototype" position={[-625,0,682]}>
+ return <group name="lateasia-beauty-house-prototype" position={[-705,0,775]}>
   <mesh position={[0,2.1,-1.3]}><boxGeometry args={[7,4.2,.3]}/><meshStandardMaterial color="#f2b4d3"/></mesh>
   <mesh position={[-3.4,2,0]}><boxGeometry args={[.3,4,3]}/><meshStandardMaterial color="#fff0f6"/></mesh>
   <mesh position={[3.4,2,0]}><boxGeometry args={[.3,4,3]}/><meshStandardMaterial color="#fff0f6"/></mesh>
