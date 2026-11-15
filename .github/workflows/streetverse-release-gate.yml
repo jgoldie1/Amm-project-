@@ -128,6 +128,8 @@ jobs:
         run: node tests/streetverse-hololab-motion-contract.mjs
       - name: Verify HoloLab Three.js chamber and era switching
         run: node tests/streetverse-hololab-three-scene-contract.mjs
+      - name: Verify HoloLab synchronized motion and confirmed travel
+        run: node tests/streetverse-hololab-synced-motion-contract.mjs
       - name: Verify Chicago timeline scanner and NPC memory isolation
         run: node tests/streetverse-chicago-timeline-scanner-contract.mjs
       - name: Verify CrossVerse world permissions
