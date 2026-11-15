@@ -21,10 +21,13 @@ must(manifest.productionFile==='SV_HERO_BJ_STUBBS_V12.glb','manifest must identi
 must(manifest.assetVersion==='bj-realism-v12','manifest must identify BJ realism V12')
 must(manifest.photoMatched===false,'procedural V12 must not claim photo matching')
 must(manifest.certifiedLikeness===false,'procedural V12 must not claim likeness certification')
+must(manifest.rigged===false,'generated V12 must truthfully identify itself as an unrigged fallback')
+must(manifest.skeletalSkins===0&&manifest.animationClips===0,'generated V12 fallback must not claim nonexistent rig or clips')
+must(manifest.productionRole==='owned-static-fallback-when-v15-unavailable','generated V12 must be classified as the owned static fallback')
 
 const runtime=fs.readFileSync(runtimeUrl,'utf8')
 must(runtime.includes("productionFilename:'SV_HERO_BJ_STUBBS_V12.glb'"),'runtime must prefer V12 production file')
 must(runtime.includes("authority:'tryamm-owned-native-glb-v12'"),'runtime must identify V12 authority')
 must(runtime.includes("texturePipeline:'pbr-mobile-production-v12'"),'runtime must keep the V12 material pipeline')
 
-console.log('BJ V12 PUBLISHED GLB CONTRACT PASS: owned V12 exists, runtime prefers it, and likeness claims remain truthful')
+console.log('BJ V12 PUBLISHED GLB CONTRACT PASS: owned static fallback exists and rig/likeness claims remain truthful')
