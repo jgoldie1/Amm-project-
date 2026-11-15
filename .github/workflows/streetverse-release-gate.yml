@@ -143,12 +143,12 @@ jobs:
           name: chicago-motion-acceptance-record
           path: amm-omniverse/test-results/chicago-motion-acceptance.json
           if-no-files-found: warn
-      - name: Require verified BJ V15 binary for release
-        run: node tests/streetverse-bj-v15-binary-release-gate.mjs
       - name: Verify HoloLab arrival safety and asset recovery registry
         run: node tests/streetverse-hololab-recovery-safety-contract.mjs
       - name: Verify real BJ rig readiness and walking evidence contract
         run: node tests/streetverse-bj-rig-readiness-contract.mjs
+      - name: Require verified BJ V15 binary for release
+        run: node tests/streetverse-bj-v15-binary-release-gate.mjs
       - name: Verify Chicago motion vehicle NPC mission and checkpoint recorder
         run: node tests/streetverse-chicago-motion-acceptance-contract.mjs
       - name: Verify BJ V15 no-placeholder asset loader
