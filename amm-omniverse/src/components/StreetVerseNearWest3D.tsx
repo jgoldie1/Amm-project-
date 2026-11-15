@@ -4,6 +4,7 @@ import StreetVerseLaTeasiaAnimationTest from './StreetVerseLaTeasiaAnimationTest
 import StreetVerseLaTeasiaChainSwitcher from './StreetVerseLaTeasiaChainSwitcher'
 import {StreetVerseLaTeasiaBeautyHouseControls,StreetVerseLaTeasiaBeautyHouseScene} from './StreetVerseLaTeasiaBeautyHouse'
 import {StreetVerseTampaBeautyDistricts} from './StreetVerseTampaBeautyDistricts'
+import {StreetVerseTampaTravelDock,TAMPA_DESTINATIONS,type TampaDestination} from './StreetVerseTampaTravelDock'
 import {StreetVerseLaTeasiaStarterControls,StreetVerseLaTeasiaTreasureScene} from './StreetVerseLaTeasiaTreasureStarter'
 import {StreetVerseHingedDoor,StreetVerseDoorTestButtons} from './StreetVerseHingedDoorTest'
 import StreetVerseHoloFonHUD from './StreetVerseHoloFonHUD'
@@ -584,6 +585,16 @@ export default function StreetVerseNearWest3D(){
  const startGateFlyIn=()=>{setAerialFlightKey(k=>k+1);setAerialMode('fly-in');stopMove()}
  const [driving,setDriving]=useState<string|null>(null)
  const [playerSpawn,setPlayerSpawn]=useState({x:-650,z:700})
+ const [tampaTravelKey,setTampaTravelKey]=useState(0)
+ const travelTampa=(destination:TampaDestination)=>{
+  if(driving){setDriving(null)}
+  stopMove()
+  const target=TAMPA_DESTINATIONS[destination]
+  playerLocation.current={x:target.x,z:target.z}
+  setPlayerSpawn({x:target.x,z:target.z})
+  setTampaTravelKey(k=>k+1)
+  window.dispatchEvent(new CustomEvent('tryamm:beautyverse-tampa-travel',{detail:{destination,x:target.x,z:target.z}}))
+ }
  const [vehicleAmmo,setVehicleAmmo]=useState(12)
  const [vehicleAimSide,setVehicleAimSide]=useState<'left'|'right'>('left')
  const [hitFx,setHitFx]=useState<{id:number;position:[number,number,number]}|null>(null)
@@ -722,6 +733,7 @@ export default function StreetVerseNearWest3D(){
   <StreetVerseLaTeasiaChainSwitcher/>
   <StreetVerseLaTeasiaStarterControls/>
   <StreetVerseLaTeasiaBeautyHouseControls/>
+  <StreetVerseTampaTravelDock onTravel={travelTampa}/>
   <StreetVerseHoloFonHUD/>
   <StreetVerseDoorTestButtons/>
   {import.meta.env.VITE_STREETVERSE_LATEASIA_GLB_URL&&<StreetVerseLaTeasiaAnimationTest/>}
@@ -729,7 +741,7 @@ export default function StreetVerseNearWest3D(){
    <color attach="background" args={['#88a8bf']}/>
    <ambientLight intensity={1.3}/><directionalLight castShadow position={[80,180,60]} intensity={2}/>
    <mesh receiveShadow position={[0,-.12,700]}><boxGeometry args={[2600,.2,1800]}/><meshStandardMaterial color="#58724c"/></mesh>
-   {import.meta.env.VITE_STREETVERSE_LATEASIA_GLB_URL&&<StreetVerseLaTeasiaAnimatedNpc assetUrl={import.meta.env.VITE_STREETVERSE_LATEASIA_GLB_URL}/>}<StreetVerseLaTeasiaTreasureScene/><StreetVerseLaTeasiaBeautyHouseScene/><StreetVerseTampaBeautyDistricts/><StreetVerseHingedDoor playerPosition={playerLocation}/><StreetVerseNearWestPhoneProp playerPosition={playerLocation}/><RoadMeshes/><StreetVerseTaylorFillmoreGate/><NearWestNativeGlbLayer/><ChicagoWestSideVisualAssets/><ChicagoCorridorDetailAssets/><EmergencyServiceAssets/><EmergencyRouteTraversal/><MovingCivilianTraffic/><MovingPedestrians/><MissionMarker mission={activeMission}/><TaylorLots/><UICCampusMesh/><JeffersonLegacyCampusMesh/><CircleParkWestSideMarker/><PopulationMeshes reaction={npcReaction} detailedIds={detailedResidents}/><StreetVerseNearWestDetailedNpcLayer playerPosition={playerLocation} reaction={npcReaction} onResidentLoaded={onResidentLoaded}/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn} cameraLocked={aerialMode!=='ground'}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z};playerLocation.current={x,z}}} onHeading={yaw=>{drivenHeading.current=yaw}} cameraLocked={aerialMode!=='ground'}/>}<StreetVerseQuantumConeAerialCamera mode={aerialMode} flightKey={aerialFlightKey} onArrive={()=>setAerialMode('gate')}/>
+   {import.meta.env.VITE_STREETVERSE_LATEASIA_GLB_URL&&<StreetVerseLaTeasiaAnimatedNpc assetUrl={import.meta.env.VITE_STREETVERSE_LATEASIA_GLB_URL}/>}<StreetVerseLaTeasiaTreasureScene/><StreetVerseLaTeasiaBeautyHouseScene/><StreetVerseTampaBeautyDistricts/><StreetVerseHingedDoor playerPosition={playerLocation}/><StreetVerseNearWestPhoneProp playerPosition={playerLocation}/><RoadMeshes/><StreetVerseTaylorFillmoreGate/><NearWestNativeGlbLayer/><ChicagoWestSideVisualAssets/><ChicagoCorridorDetailAssets/><EmergencyServiceAssets/><EmergencyRouteTraversal/><MovingCivilianTraffic/><MovingPedestrians/><MissionMarker mission={activeMission}/><TaylorLots/><UICCampusMesh/><JeffersonLegacyCampusMesh/><CircleParkWestSideMarker/><PopulationMeshes reaction={npcReaction} detailedIds={detailedResidents}/><StreetVerseNearWestDetailedNpcLayer playerPosition={playerLocation} reaction={npcReaction} onResidentLoaded={onResidentLoaded}/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer key={'tampa-travel-'+tampaTravelKey} move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn} cameraLocked={aerialMode!=='ground'}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z};playerLocation.current={x,z}}} onHeading={yaw=>{drivenHeading.current=yaw}} cameraLocked={aerialMode!=='ground'}/>}<StreetVerseQuantumConeAerialCamera mode={aerialMode} flightKey={aerialFlightKey} onArrive={()=>setAerialMode('gate')}/>
   </Canvas>
  </div>
 }
