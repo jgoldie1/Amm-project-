@@ -21,8 +21,9 @@ export function StreetVerseGreenvilleFraternityManagement(){
  const apply=()=>{
   if(name.trim().length<2||reason.trim().length<4){setNotice('Enter a name and a short reason to apply.');return}
   update(s=>({...s,applications:[...s.applications.slice(-29),{id:'APP-'+Date.now().toString(36),name:name.trim().slice(0,60),reason:reason.trim().slice(0,180),status:'pending'}]}),'Fictional application saved locally for review.')
-  setName('');setReason('')
+  missionAction('invite');setName('');setReason('')
  }
+ const missionAction=(action:string)=>window.dispatchEvent(new CustomEvent('tryamm:estate-mission-action',{detail:{estate:'greenville',action}}))
  const button={minHeight:48,width:'100%',borderRadius:8,padding:8,fontSize:14} as const
  return <section aria-label="Greenville fraternity management" style={{position:'absolute',left:12,top:440,zIndex:44,width:'min(310px,65vw)',maxHeight:'65vh',overflowY:'auto',background:'rgba(22,29,40,.96)',color:'white',border:'1px solid #d7c48a',padding:10,borderRadius:12}}>
   <button type="button" style={button} onClick={()=>setOpen(v=>!v)}>{open?'CLOSE':'OPEN'} GREENVILLE FRAT HOUSE</button>
@@ -46,9 +47,9 @@ export function StreetVerseGreenvilleFraternityManagement(){
    </div>)}
    <strong>House operations</strong>
    <button type="button" style={button} disabled={!canFinance} onClick={()=>update(s=>({...s,budget:s.budget+50,duesPaid:s.duesPaid+1}),'Added 50 fictional credits; no real dues collected.')}>RECORD FICTIONAL DUES (+50)</button>
-   <button type="button" style={button} disabled={!canManage||state.budget<100} onClick={()=>update(s=>({...s,budget:s.budget-100,maintenance:Math.min(100,s.maintenance+15)}),'House repair logged: -100 fictional credits.')}>MAINTENANCE REPAIR (-100)</button>
+   <button type="button" style={button} disabled={!canManage||state.budget<100} onClick={()=>update(s=>({...s,budget:s.budget-100,maintenance:Math.min(100,s.maintenance+15)}),'House repair logged: -100 fictional credits.');missionAction('maintenance')}>MAINTENANCE REPAIR (-100)</button>
    <label htmlFor="frat-event">Campus event name</label><input id="frat-event" style={button} maxLength={80} value={eventTitle} onChange={e=>setEventTitle(e.target.value)}/>
-   <button type="button" style={button} disabled={!canEvents||!eventTitle.trim()} onClick={()=>{update(s=>({...s,events:[...s.events.slice(-19),{id:'EV-'+Date.now().toString(36),title:eventTitle.trim().slice(0,80),status:'planned'}]}),'Fictional event planned; no real booking.');setEventTitle('')}}>PLAN CAMPUS EVENT</button>
+   <button type="button" style={button} disabled={!canEvents||!eventTitle.trim()} onClick={()=>{update(s=>({...s,events:[...s.events.slice(-19),{id:'EV-'+Date.now().toString(36),title:eventTitle.trim().slice(0,80),status:'planned'}]}),'Fictional event planned; no real booking.');missionAction('graduation');setEventTitle('')}}>PLAN CAMPUS EVENT</button>
    {state.events.slice(-5).map(e=><div key={e.id}>{e.title} · {e.status}</div>)}
    <div role="status" aria-live="polite">{notice}</div>
    <small>Local-only prototype. Officer permissions are simulated and must be server-enforced before multiplayer release. No real dues, employment, leases, or university affiliation.</small>
