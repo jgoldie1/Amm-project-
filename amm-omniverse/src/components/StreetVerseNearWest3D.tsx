@@ -1,6 +1,7 @@
 import {Canvas,useFrame,useThree} from '@react-three/fiber'
 import StreetVerseLaTeasiaAnimatedNpc from './StreetVerseLaTeasiaAnimatedNpc'
 import StreetVerseLaTeasiaAnimationTest from './StreetVerseLaTeasiaAnimationTest'
+import {StreetVerseHingedDoor,StreetVerseDoorTestButtons} from './StreetVerseHingedDoorTest'
 import StreetVerseTaylorFillmoreGate from './StreetVerseTaylorFillmoreGate'
 import {StreetVerseNearWestHeroGLB,StreetVerseNearWestDetailedNpcLayer} from './StreetVerseNearWestCinematicCast'
 import StreetVerseQuantumConeAerialCamera,{type StreetVerseAerialLensMode} from './StreetVerseQuantumConeAerialCamera'
@@ -712,12 +713,13 @@ export default function StreetVerseNearWest3D(){
    <button aria-label="Travel from UIC to Greenville CampusVerse" onClick={travelToGreenville} style={{minHeight:44,padding:'8px 10px',borderRadius:12,fontWeight:900}}>GREENVILLE • JACOBIE →</button>
    {collegeBookOpen&&<CampusVerseCollegeBookBridge onClose={()=>setCollegeBookOpen(false)}/>}
   </div>
+  <StreetVerseDoorTestButtons/>
   {import.meta.env.VITE_STREETVERSE_LATEASIA_GLB_URL&&<StreetVerseLaTeasiaAnimationTest/>}
   <Canvas shadows camera={{position:[-620,260,980],fov:55,far:5000}}>
    <color attach="background" args={['#88a8bf']}/>
    <ambientLight intensity={1.3}/><directionalLight castShadow position={[80,180,60]} intensity={2}/>
    <mesh receiveShadow position={[0,-.12,700]}><boxGeometry args={[2600,.2,1800]}/><meshStandardMaterial color="#58724c"/></mesh>
-   {import.meta.env.VITE_STREETVERSE_LATEASIA_GLB_URL&&<StreetVerseLaTeasiaAnimatedNpc assetUrl={import.meta.env.VITE_STREETVERSE_LATEASIA_GLB_URL}/>}<RoadMeshes/><StreetVerseTaylorFillmoreGate/><NearWestNativeGlbLayer/><ChicagoWestSideVisualAssets/><ChicagoCorridorDetailAssets/><EmergencyServiceAssets/><EmergencyRouteTraversal/><MovingCivilianTraffic/><MovingPedestrians/><MissionMarker mission={activeMission}/><TaylorLots/><UICCampusMesh/><JeffersonLegacyCampusMesh/><CircleParkWestSideMarker/><PopulationMeshes reaction={npcReaction} detailedIds={detailedResidents}/><StreetVerseNearWestDetailedNpcLayer playerPosition={playerLocation} reaction={npcReaction} onResidentLoaded={onResidentLoaded}/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn} cameraLocked={aerialMode!=='ground'}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z};playerLocation.current={x,z}}} onHeading={yaw=>{drivenHeading.current=yaw}} cameraLocked={aerialMode!=='ground'}/>}<StreetVerseQuantumConeAerialCamera mode={aerialMode} flightKey={aerialFlightKey} onArrive={()=>setAerialMode('gate')}/>
+   {import.meta.env.VITE_STREETVERSE_LATEASIA_GLB_URL&&<StreetVerseLaTeasiaAnimatedNpc assetUrl={import.meta.env.VITE_STREETVERSE_LATEASIA_GLB_URL}/>}<StreetVerseHingedDoor playerPosition={playerLocation}/><RoadMeshes/><StreetVerseTaylorFillmoreGate/><NearWestNativeGlbLayer/><ChicagoWestSideVisualAssets/><ChicagoCorridorDetailAssets/><EmergencyServiceAssets/><EmergencyRouteTraversal/><MovingCivilianTraffic/><MovingPedestrians/><MissionMarker mission={activeMission}/><TaylorLots/><UICCampusMesh/><JeffersonLegacyCampusMesh/><CircleParkWestSideMarker/><PopulationMeshes reaction={npcReaction} detailedIds={detailedResidents}/><StreetVerseNearWestDetailedNpcLayer playerPosition={playerLocation} reaction={npcReaction} onResidentLoaded={onResidentLoaded}/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn} cameraLocked={aerialMode!=='ground'}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z};playerLocation.current={x,z}}} onHeading={yaw=>{drivenHeading.current=yaw}} cameraLocked={aerialMode!=='ground'}/>}<StreetVerseQuantumConeAerialCamera mode={aerialMode} flightKey={aerialFlightKey} onArrive={()=>setAerialMode('gate')}/>
   </Canvas>
  </div>
 }
