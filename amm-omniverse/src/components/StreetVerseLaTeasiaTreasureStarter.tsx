@@ -10,6 +10,21 @@ export const LATEASIA_TREASURE_ITEMS=[
  {id:'gold',label:'Gold bars',count:16},
  {id:'pearls',label:'Pearls',count:18}
 ] as const
+export const LATEASIA_BEAUTYVERSE_WELCOME_GIFTS=[
+ {id:'salon-keys',label:'Beauty House salon keys',category:'business'},
+ {id:'salon-chair',label:'Luxury salon chair and mirror station',category:'business'},
+ {id:'beauty-kit',label:'Professional hair, makeup and nail kit',category:'business'},
+ {id:'stylist-uniform',label:'LaTeasia signature stylist outfit',category:'fashion'},
+ {id:'heels',label:'Designer-inspired red-sole heels',category:'fashion'},
+ {id:'handbag',label:'Gold-trimmed fashion handbag',category:'fashion'},
+ {id:'vanity',label:'Illuminated beauty vanity',category:'furniture'},
+ {id:'crown',label:'Royal diamond-look tiara',category:'jewelry'},
+ {id:'chain-daddy',label:"Who's Your Daddy pendant chain",category:'jewelry'},
+ {id:'chain-name',label:'LaTeasia Monroe nameplate chain',category:'jewelry'},
+ {id:'photo-studio',label:'BeautyVerse photo and Holo Reel booth access',category:'experience'},
+ {id:'salon-booking',label:'Fictional salon booking starter pass',category:'experience'},
+ {id:'gift-box',label:'Collectible pink-and-gold flying gift box',category:'collectible'}
+] as const
 const KEY='streetverse:lateasia-treasure-starter:v1'
 export const STARTER_EVENT='tryamm:streetverse-lateasia-starter-update'
 type GiftState={claimed:boolean;chestOpen:boolean;delivering:boolean;replay:number}
@@ -46,12 +61,12 @@ export function StreetVerseLaTeasiaStarterControls(){
  const button={minHeight:48,padding:'9px 12px',borderRadius:10,fontWeight:800,fontSize:13,cursor:'pointer'} as const
  return <section aria-label="LaTeasia BeautyVerse flying welcome gift" style={{position:'absolute',right:12,top:260,zIndex:33,width:'min(265px,60vw)',background:'rgba(12,21,38,.96)',border:'1px solid #f5d37e',borderRadius:12,padding:10,color:'white'}}>
   <strong>🎁 LaTeasia • BeautyVerse Gift</strong>
-  <div style={{fontSize:12,marginTop:6}}>Flying gift box → treasure chest → diamonds, precious gems, gold and two nameplate chains</div>
+  <div style={{fontSize:12,marginTop:6}}>Flying gift box → treasure chest → diamonds, precious gems, gold, salon gifts, fashion and two nameplate chains</div>
   <div style={{display:'grid',gap:7,marginTop:9}}>
    <button type="button" onClick={deliver} style={button} disabled={gift.delivering}>{gift.delivering?'GIFT FLYING IN…':gift.claimed?'REPLAY FLYING GIFT':'SEND FLYING WELCOME GIFT'}</button>
    <button type="button" onClick={claim} style={button} disabled={gift.delivering}>{gift.claimed?(gift.chestOpen?'CLOSE TREASURE CHEST':'OPEN TREASURE CHEST'):'CLAIM & OPEN GIFT'}</button>
   </div>
-  {gift.claimed&&<div style={{fontSize:12,marginTop:7}}>Gift contents: {LATEASIA_TREASURE_ITEMS.map(item=>item.count+' '+item.label).join(' · ')} · Who's Your Daddy chain · LaTeasia Monroe chain</div>}
+  {gift.claimed&&<details style={{fontSize:12,marginTop:7}}><summary>VIEW ALL OWNED WELCOME GIFTS</summary><div>Treasure: {LATEASIA_TREASURE_ITEMS.map(item=>item.count+' '+item.label).join(' · ')}</div><ul style={{paddingLeft:18}}>{LATEASIA_BEAUTYVERSE_WELCOME_GIFTS.map(item=><li key={item.id}>{item.label}</li>)}</ul></details>}
   <div role="status" aria-live="polite" style={{fontSize:12,marginTop:8}}>{message}</div>
  </section>
 }
