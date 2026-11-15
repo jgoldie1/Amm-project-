@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+const studio=fs.readFileSync(new URL('../src/components/StreetVerseCreatorStudio.tsx',import.meta.url),'utf8')
+const preview=fs.readFileSync(new URL('../src/components/StreetVerseBJCreatorPreview3D.tsx',import.meta.url),'utf8')
+const service=fs.readFileSync(new URL('../src/services/streetverseCreatorMarketplace.ts',import.meta.url),'utf8')
+const ddl=fs.readFileSync(new URL('../../docs/sql/STREETVERSE_CREATOR_MARKETPLACE_REVIEWED_DDL.sql',import.meta.url),'utf8')
+for(const token of ['submitPersistentCreatorListing','listApprovedCreatorListings','getSupabaseClient','sb.auth.getUser()',"status:'pending' as const", "eq('status','approved')"])assert.ok(service.includes(token),'Missing authenticated marketplace protection '+token)
+for(const token of ['create policy streetverse_creator_public_read','create policy streetverse_creator_creator_insert','create policy streetverse_creator_moderator_update','creator_user_id<>(select auth.uid())','app_metadata','enable row level security','revoke all','Review cannot change creator assets or pricing'])assert.ok(ddl.includes(token),'Missing database guard '+token)
+assert.match(studio,/StreetVerseBJCreatorPreview3D/)
+assert.match(studio,/submitReal/)
+assert.match(studio,/published.length/)
+assert.match(preview,/BJ_STUBBS_V15_RECOVERED.glb/)
+assert.match(preview,/3D is unavailable/)
+assert.match(preview,/actual skinned clothing attachment remains gated/)
+assert.ok(!/service_role|secret_key/.test(service),'No service-role keys in browser')
+console.log('Authenticated creator marketplace, moderation and BJ preview boundary contract PASS')
