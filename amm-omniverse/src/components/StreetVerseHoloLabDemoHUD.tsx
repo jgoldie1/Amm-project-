@@ -20,7 +20,7 @@ export function StreetVerseHoloLabDemoHUD(){
   present:{label:'Present-day Chicago',sky:'linear-gradient(#4887b4,#c6e5f3)',buildings:'Modern neighborhood and businesses',transport:'City buses'},
   future:{label:'Future Chicago',sky:'linear-gradient(#302466,#a85ee1)',buildings:'Solar towers and holo storefronts',transport:'Autonomous shuttles'}
  }
- const move=()=>{try{setMotionStage(motion.advance())}catch(e){setStatus(e instanceof Error?e.message:'Motion unavailable')}}
+ const move=()=>{try{const stage=motion.advance();setMotionStage(stage);window.dispatchEvent(new CustomEvent('tryamm:hololab-motion',{detail:{stage,era:pending??era}}))}catch(e){setStatus(e instanceof Error?e.message:'Motion unavailable')}}
  const request=(next:ChicagoEra)=>{
   if(motion.stage()!=='inside'&&motion.stage()!=='charging'){setStatus('Walk BJ into the HoloLab chamber first.');return}
   try{
@@ -28,7 +28,7 @@ export function StreetVerseHoloLabDemoHUD(){
    setPending(next)
    if(motion.stage()==='inside')setMotionStage(motion.advance())
    setStatus('Destination selected. Charge the chamber and start warp motion.')
-   window.dispatchEvent(new CustomEvent('tryamm:hololab-demo-scene-request',{detail:{to:p.to,era:next,simulation:true}}))
+   window.dispatchEvent(new CustomEvent('tryamm:hololab-motion',{detail:{stage:'charging',era:next}}))
   }catch(e){setStatus(e instanceof Error?e.message:'Transition unavailable')}
  }
  const confirm=()=>{
@@ -38,6 +38,7 @@ export function StreetVerseHoloLabDemoHUD(){
    const destination=pending==='present'?'streetverse:chicago':'chicago:'+pending
    const result=journey.confirmSceneLoaded(destination)
    setMotionStage(motion.arrive())
+   window.dispatchEvent(new CustomEvent('tryamm:hololab-demo-scene-request',{detail:{to:destination,era:pending,simulation:true,confirmed:true}}))
    setEra(pending)
    setSnapshot(result.restore??{...snapshot,x:0,y:0,z:0})
    setVisits(v=>v+1)
