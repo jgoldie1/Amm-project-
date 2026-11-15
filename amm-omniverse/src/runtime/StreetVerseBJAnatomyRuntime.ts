@@ -88,7 +88,7 @@ export function installStreetVerseBJAnatomy(hero:THREE.Object3D):BJAnatomyHandle
         targetWorld.applyMatrix4(delta)
       }
       const target=root.worldToLocal(targetWorld).addScaledVector(organ.direction,exploded?1:0)
-      organ.mesh.position.copy(target);if(organ.mesh.name==='bj-organ-heart')organ.mesh.scale.set(.095*(1+.035*Math.sin(elapsedSeconds*5)),.12*(1+.035*Math.sin(elapsedSeconds*5)),.07*(1+.035*Math.sin(elapsedSeconds*5)))}},
+      organ.mesh.position.lerp(target,.16);if(organ.mesh.name==='bj-organ-heart')organ.mesh.scale.set(.095*(1+.035*Math.sin(elapsedSeconds*5)),.12*(1+.035*Math.sin(elapsedSeconds*5)),.07*(1+.035*Math.sin(elapsedSeconds*5)))}},
     dispose:()=>{root.parent?.remove(root);root.traverse(o=>{if(o instanceof THREE.Mesh)o.geometry.dispose()});materials.forEach(m=>m.dispose());skeletonGeometry.dispose();skeletonMaterial.dispose()},
   }
 }
