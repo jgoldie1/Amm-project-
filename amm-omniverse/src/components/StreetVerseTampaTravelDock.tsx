@@ -1,13 +1,15 @@
 import {useState} from 'react'
 import {TAMPA_BEAUTY_DISTRICTS} from './StreetVerseTampaBeautyDistricts'
 
-export type TampaDestination='riverwalk'|'beauty-house'|'residential'|'entertainment'|'home-001'
+export type TampaDestination='riverwalk'|'beauty-house'|'residential'|'entertainment'|'home-001'|'lateasia-mansion'|'jacobie-chicago-mansion'
 export const TAMPA_DESTINATIONS:Record<TampaDestination,{name:string;x:number;z:number}>={
  riverwalk:{name:'Riverwalk',x:-772,z:780},
  'beauty-house':{name:'LaTeasia Beauty House',x:-705,z:791},
  residential:{name:'Residential Village',x:-710,z:830},
  entertainment:{name:'Entertainment Pier',x:-760,z:830},
- 'home-001':{name:'Residence 001',x:-719,z:812}
+ 'home-001':{name:'Residence 001',x:-719,z:812},
+ 'lateasia-mansion':{name:'LaTeasia Tampa Mansion',x:-723,z:864},
+ 'jacobie-chicago-mansion':{name:'Jacobie Chicago Gold Coast Mansion',x:950,z:-821}
 }
 export function StreetVerseTampaTravelDock({onTravel}:{onTravel:(id:TampaDestination)=>void}){
  const [destination,setDestination]=useState<TampaDestination>('beauty-house')
@@ -18,6 +20,8 @@ export function StreetVerseTampaTravelDock({onTravel}:{onTravel:(id:TampaDestina
   <select id="tampa-destination" value={destination} onChange={e=>setDestination(e.target.value as TampaDestination)} style={{width:'100%',minHeight:48,fontSize:16,borderRadius:8}}>
    {TAMPA_BEAUTY_DISTRICTS.map(d=><option key={d.id} value={d.id}>{d.name}</option>)}
    <option value="home-001">Residence 001 • front door</option>
+   <option value="lateasia-mansion">LaTeasia • Tampa Mansion</option>
+   <option value="jacobie-chicago-mansion">Jacobie • Chicago Gold Coast Mansion</option>
   </select>
   <button type="button" onClick={()=>{onTravel(destination);setMessage('Arrived: '+TAMPA_DESTINATIONS[destination].name)}} style={{width:'100%',minHeight:52,marginTop:8,borderRadius:9,fontWeight:800,fontSize:16}}>TRAVEL TO DISTRICT</button>
   <div role="status" aria-live="polite" style={{fontSize:12,marginTop:8}}>{message}</div>
