@@ -61,11 +61,13 @@ const HoloStyleCenter = lazy(() => import('./components/HoloStyleCenter'))
 const StaysAgencyFamilyHub = lazy(() => import('./components/StaysAgencyFamilyHub'))
 const SparrowMapCenter = lazy(() => import('./components/SparrowMapCenter'))
 const BJStubbsV7Viewer = lazy(() => import('./components/BJStubbsV7Viewer'))
+const StreetVerseFreePlayHub = lazy(() => import('./components/StreetVerseFreePlayHub'))
 const HoloGPTAssistant = lazy(() => import('./components/HoloGPTAssistant'))
 
 export default function App() {
   const screen = useGameStore(s => s.screen)
   const setScreen = useGameStore(s => s.setScreen)
+  const [showFreePlay, setShowFreePlay] = useState(false)
   const [showPricing, setShowPricing] = useState(false)
   const [showHoloverse, setShowHoloverse] = useState(false)
   const [showBennie, setShowBennie] = useState(false)
@@ -292,6 +294,7 @@ export default function App() {
     ['SPACE','SPACEVERSE • TIME',()=>setShowAdvanced(true),'BETA'],
     ['🔭','QUANTUM ZOOM',()=>setShowQuantumZoom(true),'BETA'],
     ['MAP','SPARROW MAP',()=>setShowSparrowMap(true),'BETA'],
+    ['🎮','FREE PLAY',()=>setShowFreePlay(true),'BETA'],
     ['ROAD','NEXT BUILD',()=>setShowNextDevelopment(true),'BETA'],
     ['📚','KINGDOMS PRESS',()=>setShowPress(true),'BETA'],
     ['♜','FAMILY LEGACY',()=>setShowFamilyLegacy(true),'BETA'],
@@ -341,6 +344,7 @@ export default function App() {
           <div style={{marginTop:10,fontSize:9,color:'#718096',lineHeight:1.5}}>Advanced systems stay available here without covering the main experience. Readiness labels distinguish live, protected and beta features.</div>
         </div>}
 
+        {showFreePlay && <StreetVerseFreePlayHub onClose={() => setShowFreePlay(false)} />}
         {showPricing && <div style={{position:'fixed',inset:0,zIndex:9999,background:'#020212'}}><PricingScreen onClose={() => setShowPricing(false)} /></div>}
         {showHoloverse && <div style={{position:'fixed',inset:0,zIndex:2147483500,background:'#020212'}}><HoloverseHub onClose={() => setShowHoloverse(false)} /></div>}
         {showBennie && <div style={{position:'fixed',inset:0,zIndex:9997,background:'#020212'}}><BennieChat onClose={() => setShowBennie(false)} /></div>}
