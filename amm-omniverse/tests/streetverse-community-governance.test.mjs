@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict'
+import {GOVERNANCE_POLICY,createProposal,castCommunityVote,tallyCommunityVotes,closeCommunityProposal,decideCommunityProposal,registerCreatorOwnership} from '../src/runtime/StreetVerseCommunityGovernance.ts'
+assert.equal(GOVERNANCE_POLICY.platformOwner,'TRYAMM LLC')
+assert.equal(GOVERNANCE_POLICY.ownershipTransferAllowed,false)
+assert.equal(GOVERNANCE_POLICY.cashPayoutByVoteAllowed,false)
+const p=createProposal({id:'accessible-tools-1',authorId:'creator-1',category:'accessibility',title:'Large touch controls',description:'Improve one-handed creation tools',createdAt:'2026-11-15T00:00:00Z',closesAt:'2026-11-22T00:00:00Z'})
+const voted=castCommunityVote(p,'member-1','yes','2026-11-16T00:00:00Z')
+assert.deepEqual(tallyCommunityVotes(voted),{yes:1,no:0,abstain:0,total:1})
+assert.throws(()=>castCommunityVote(voted,'member-1','no','2026-11-16T00:00:00Z'),/Duplicate/)
+assert.throws(()=>closeCommunityProposal(voted,'2026-11-16T00:00:00Z'),/not ready/)
+const closed=closeCommunityProposal(voted,'2026-11-23T00:00:00Z')
+const approved=decideCommunityProposal(closed,'tryamm-owner','approved','Accessibility improvement fits approved roadmap')
+assert.equal(approved.ownerDecision.reviewerId,'tryamm-owner')
+assert.equal(approved.status,'approved')
+assert.throws(()=>decideCommunityProposal(voted,'tryamm-owner','approved','skip vote'),/after voting/)
+assert.equal(registerCreatorOwnership({assetId:'jacket-001',creatorId:'creator-1',license:'original',platformLicense:'nonexclusive',creatorRetainsCopyright:true,verifiedBy:'moderator'}).creatorRetainsCopyright,true)
+console.log('StreetVerse community advisory governance and ownership protection PASS')
