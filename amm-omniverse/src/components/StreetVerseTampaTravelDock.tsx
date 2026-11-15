@@ -4,7 +4,7 @@ import {TAMPA_BEAUTY_DISTRICTS} from './StreetVerseTampaBeautyDistricts'
 export type TampaDestination='riverwalk'|'beauty-house'|'residential'|'entertainment'|'home-001'
 export const TAMPA_DESTINATIONS:Record<TampaDestination,{name:string;x:number;z:number}>={
  riverwalk:{name:'Riverwalk',x:-772,z:780},
- 'beauty-house':{name:'LaTeasia Beauty House',x:-705,z:780},
+ 'beauty-house':{name:'LaTeasia Beauty House',x:-705,z:791},
  residential:{name:'Residential Village',x:-710,z:830},
  entertainment:{name:'Entertainment Pier',x:-760,z:830},
  'home-001':{name:'Residence 001',x:-719,z:812}
