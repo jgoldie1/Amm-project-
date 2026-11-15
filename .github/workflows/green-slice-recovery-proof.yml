@@ -37,6 +37,10 @@ jobs:
       - name: Omniverse security proof
         run: npm --prefix amm-omniverse run security
 
+      - name: Production dependency high-severity audit
+        working-directory: amm-omniverse
+        run: npm audit --omit=dev --audit-level=high
+
       - name: Omniverse typecheck proof
         run: npm --prefix amm-omniverse run typecheck
 
@@ -53,7 +57,7 @@ jobs:
           grep -q "holoGuardian_minor_safety" amm-omniverse/src/game/security/guardianGroup.ts
           ! grep -q "holGuardian_minor_safety" amm-omniverse/src/game/security/guardianGroup.ts
           grep -q "Meet the Stubbs" amm-omniverse/src/game/story/streetverseCoreCast.ts
-          grep -q "RECOVER" amm-omniverse/src/game/testing/completionGovernor.ts
+          grep -q "finish_before_expand_freeze_active" amm-omniverse/src/game/testing/completionGovernor.ts
 
       - name: Green-slice recovery regression contract
         run: node amm-omniverse/tests/green-slice-recovery-contract.mjs
