@@ -110,6 +110,8 @@ jobs:
         run: node tests/streetverse-bj-rescue-contract.mjs
       - name: Verify hospital dialogue and treatment mission
         run: node tests/streetverse-hospital-mission-contract.mjs
+      - name: Verify Mycelium timeline fork isolation
+        run: node tests/streetverse-mycelium-timeline-contract.mjs
       - name: Verify BJ injury reactions
         run: node tests/streetverse-bj-injury-reaction-contract.mjs
       - name: Verify BJ injury and After Dark consent contracts
