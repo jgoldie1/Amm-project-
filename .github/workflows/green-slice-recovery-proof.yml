@@ -55,6 +55,9 @@ jobs:
           grep -q "Meet the Stubbs" amm-omniverse/src/game/story/streetverseCoreCast.ts
           grep -q "RECOVER" amm-omniverse/src/game/testing/completionGovernor.ts
 
+      - name: Green-slice recovery regression contract
+        run: node amm-omniverse/tests/green-slice-recovery-contract.mjs
+
       - name: Omniverse smoke contracts
         run: npm --prefix amm-omniverse run smoke
 
