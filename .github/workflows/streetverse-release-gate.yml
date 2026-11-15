@@ -118,6 +118,8 @@ jobs:
         run: node tests/streetverse-time-machine-contract.mjs
       - name: Verify SpaceVerse flight and life-support foundation
         run: node tests/streetverse-spaceverse-flight-contract.mjs
+      - name: Verify Chicago timeline scanner integration
+        run: node tests/streetverse-chicago-time-scanner-contract.mjs
       - name: Verify Chicago timeline scanner and NPC memory isolation
         run: node tests/streetverse-chicago-timeline-scanner-contract.mjs
       - name: Verify CrossVerse world permissions
