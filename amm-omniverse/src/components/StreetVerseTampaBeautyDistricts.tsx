@@ -1,5 +1,6 @@
 import {useMemo} from 'react'
-import * as THREE from 'three'
+import {TAMPA_INSPECT_EVENT} from './StreetVerseTampaWorldBuilderInspector'
+const inspect=(id:string)=>window.dispatchEvent(new CustomEvent(TAMPA_INSPECT_EVENT,{detail:{id}}))
 
 /** Fictional walkable Tampa-inspired district layout. Not a GIS reconstruction. */
 export const TAMPA_BEAUTY_DISTRICTS=[
@@ -29,18 +30,18 @@ export function StreetVerseTampaBeautyDistricts(){
   <mesh name="district-connector-east-west" position={[-25,.02,25]}><boxGeometry args={[112,.08,5]}/><meshStandardMaterial color="#555e67"/></mesh>
   <mesh name="district-connector-north-south" position={[-25,.025,25]}><boxGeometry args={[5,.08,112]}/><meshStandardMaterial color="#555e67"/></mesh>
   {/* Housing: repeatable low-poly buildings, each tagged with an RP residence ID. */}
-  {homes.map(h=><group key={h.id} name={'beautyverse-residence-'+String(h.id+1).padStart(3,'0')} position={[h.x+8,0,h.z+50]}>
+  {homes.map(h=><group key={h.id} onClick={e=>{e.stopPropagation();inspect('home-001')}} name={'beautyverse-residence-'+String(h.id+1).padStart(3,'0')} position={[h.x+8,0,h.z+50]}>
    <mesh position={[0,1.4,0]} castShadow><boxGeometry args={[4,2.8,4.6]}/><meshStandardMaterial color={h.id%2?'#f3ddc7':'#d6d8e6'}/></mesh>
    <mesh position={[0,2.95,0]}><coneGeometry args={[3.5,1.3,4]} rotation={[0,Math.PI/4,0]}/><meshStandardMaterial color="#805e65"/></mesh>
    <mesh position={[0,.85,2.34]}><boxGeometry args={[.9,1.7,.06]}/><meshStandardMaterial color="#9b7457"/></mesh>
   </group>)}
   {/* Flagship and community facilities */}
-  <group name="lateasia-tampa-flagship-salon" position={[5,0,-5]}>
+  <group name="lateasia-tampa-flagship-salon" onClick={e=>{e.stopPropagation();inspect("salon")}} position={[5,0,-5]}>
    <mesh position={[0,2,0]} castShadow><boxGeometry args={[12,4,9]}/><meshStandardMaterial color="#eaa8c8"/></mesh>
    <mesh position={[0,1.7,4.55]}><boxGeometry args={[4,3.2,.12]}/><meshStandardMaterial color="#a7d8e4" transparent opacity={.7}/></mesh>
    <mesh position={[0,4.2,0]}><boxGeometry args={[13,.5,10]}/><meshStandardMaterial color="#e5c16a" metalness={.5}/></mesh>
   </group>
-  {['academy','boutique','cafe','photo-studio','restaurant','music-venue'].map((id,i)=><group key={id} name={'tampa-'+id} position={[i<3?i*12-14:i*12-50,0,i<3?13:57]}>
+  {['academy','boutique','cafe','photo-studio','restaurant','music-venue'].map((id,i)=><group key={id} name={'tampa-'+id} onClick={e=>{e.stopPropagation();inspect(id)}} position={[i<3?i*12-14:i*12-50,0,i<3?13:57]}>
    <mesh position={[0,1.8,0]} castShadow><boxGeometry args={[9,3.6,7]}/><meshStandardMaterial color={i%2?'#e1c3b0':'#b4c9cf'}/></mesh>
    <mesh position={[0,1.5,3.54]}><boxGeometry args={[4,2.5,.08]}/><meshStandardMaterial color="#b9e5ed" transparent opacity={.65}/></mesh>
   </group>)}
