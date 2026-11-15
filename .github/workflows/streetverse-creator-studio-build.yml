@@ -8,6 +8,7 @@ on:
       - 'amm-omniverse/src/services/streetverseCreatorMarketplace.ts'
       - 'amm-omniverse/tests/streetverse-creator-production-boundaries.test.mjs'
       - 'amm-omniverse/tests/streetverse-free-play-hub-contract.mjs'
+      - 'amm-omniverse/tests/streetverse-free-play-direct-entry.test.mjs'
       - '.github/workflows/streetverse-creator-studio-build.yml'
   pull_request:
     paths:
@@ -17,6 +18,7 @@ on:
       - 'amm-omniverse/src/services/streetverseCreatorMarketplace.ts'
       - 'amm-omniverse/tests/streetverse-creator-production-boundaries.test.mjs'
       - 'amm-omniverse/tests/streetverse-free-play-hub-contract.mjs'
+      - 'amm-omniverse/tests/streetverse-free-play-direct-entry.test.mjs'
       - '.github/workflows/streetverse-creator-studio-build.yml'
   workflow_dispatch:
 permissions:
@@ -46,6 +48,7 @@ jobs:
           node tests/streetverse-creator-program.test.mjs
           node tests/streetverse-creator-production-boundaries.test.mjs
           node tests/streetverse-free-play-hub-contract.mjs
+          node tests/streetverse-free-play-direct-entry.test.mjs
       - name: Compile browser app
         run: ./node_modules/.bin/vite build
       - name: Explain release separation
