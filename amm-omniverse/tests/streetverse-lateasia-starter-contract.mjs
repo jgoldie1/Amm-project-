@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+const read=p=>fs.readFileSync(new URL('../'+p,import.meta.url),'utf8')
+const starter=read('src/components/StreetVerseLaTeasiaTreasureStarter.tsx')
+const scene=read('src/components/StreetVerseNearWest3D.tsx')
+for(const item of ['diamonds','rubies','emeralds','sapphires','gold','pearls'])assert.match(starter,new RegExp("id:'"+item+"'"))
+assert.match(starter,/streetverse:lateasia-treasure-starter:v1/)
+assert.match(starter,/if\(state.claimed\)/)
+assert.match(starter,/localStorage\.setItem/)
+assert.match(starter,/CLAIM TREASURE \+ FLIGHT PACK/)
+assert.match(starter,/ACTIVATE FLYING PACK/)
+assert.match(starter,/treasure-lid-hinge/)
+assert.match(starter,/lateasia-flight-starter-preview/)
+assert.match(starter,/aria-live="polite"/)
+assert.match(scene,/<StreetVerseLaTeasiaStarterControls\/>/)
+assert.match(scene,/<StreetVerseLaTeasiaTreasureScene\/>/)
+console.log('LaTeasia treasure chest and flying starter pack contract PASS')
