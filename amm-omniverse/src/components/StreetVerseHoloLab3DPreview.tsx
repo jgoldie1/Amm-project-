@@ -48,7 +48,7 @@ export function StreetVerseHoloLab3DPreview(){
   let preparedEra:ChicagoEra|null=null
   let disposed=false
   let motionStage='outside'
-  let proxyTargetX=HOLOLAB_SAFE_SPAWNS.outside.x
+  let proxyTargetX:number=HOLOLAB_SAFE_SPAWNS.outside.x
   const onMotion=(event:Event)=>{
    const detail=(event as CustomEvent).detail as {stage?:string}
    if(!detail?.stage)return
