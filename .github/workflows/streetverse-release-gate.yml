@@ -153,6 +153,8 @@ jobs:
         run: node tests/streetverse-creator-program.test.mjs
       - name: Test Creator Studio and legal agreement source safeguards
         run: node tests/streetverse-creator-studio-contract.mjs
+      - name: Test advisory creator governance and TRYAMM authorization
+        run: node tests/streetverse-creator-governance.test.mjs
       - name: Require verified BJ V15 binary for release
         run: node tests/streetverse-bj-v15-binary-release-gate.mjs
       - name: Verify Chicago motion vehicle NPC mission and checkpoint recorder
