@@ -1,5 +1,6 @@
 import {Canvas,useFrame,useThree} from '@react-three/fiber'
 import StreetVerseLaTeasiaAnimatedNpc from './StreetVerseLaTeasiaAnimatedNpc'
+import StreetVerseLaTeasiaAnimationTest from './StreetVerseLaTeasiaAnimationTest'
 import StreetVerseTaylorFillmoreGate from './StreetVerseTaylorFillmoreGate'
 import {StreetVerseNearWestHeroGLB,StreetVerseNearWestDetailedNpcLayer} from './StreetVerseNearWestCinematicCast'
 import StreetVerseQuantumConeAerialCamera,{type StreetVerseAerialLensMode} from './StreetVerseQuantumConeAerialCamera'
@@ -711,6 +712,7 @@ export default function StreetVerseNearWest3D(){
    <button aria-label="Travel from UIC to Greenville CampusVerse" onClick={travelToGreenville} style={{minHeight:44,padding:'8px 10px',borderRadius:12,fontWeight:900}}>GREENVILLE • JACOBIE →</button>
    {collegeBookOpen&&<CampusVerseCollegeBookBridge onClose={()=>setCollegeBookOpen(false)}/>}
   </div>
+  {import.meta.env.VITE_STREETVERSE_LATEASIA_GLB_URL&&<StreetVerseLaTeasiaAnimationTest/>}
   <Canvas shadows camera={{position:[-620,260,980],fov:55,far:5000}}>
    <color attach="background" args={['#88a8bf']}/>
    <ambientLight intensity={1.3}/><directionalLight castShadow position={[80,180,60]} intensity={2}/>
