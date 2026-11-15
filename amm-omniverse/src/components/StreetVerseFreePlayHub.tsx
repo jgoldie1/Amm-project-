@@ -19,6 +19,7 @@ export default function StreetVerseFreePlayHub({onClose}:Props){
    <button type="button" onClick={onClose} style={{minHeight:48,padding:'8px 18px'}}>Close free play hub</button>
    <h1>TRYAMM FREE PLAY</h1>
    <p>Play the available StreetVerse experience without buying a game pass. Fictional mission credits cannot be cashed out or converted to real money.</p>
+   <p>StreetVerse aims to connect free gameplay, creative skills and genuine customer demand so players can explore future business opportunities. Real earnings are never guaranteed; verified sales, contracts, independent review and payment safeguards are required before creator payouts.</p>
    <p role="note">Internal hash-chain receipts are experimental audit records, not a public blockchain, financial settlement system or substitute for an independent security audit.</p>
    <button type="button" onClick={()=>setJourney(v=>!v)} style={{minHeight:56,width:'100%',padding:12,margin:'10px 0',fontWeight:700}}>{journey?'Hide guided test':'Run Chicago → Creator Studio guided test'}</button>
    {journey&&<StreetVerseFreePlayJourneyTest/>}
