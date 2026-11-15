@@ -70,7 +70,7 @@ export function StreetVerseCreatorStudio(){
   </div>
   <p role="status" aria-live="polite">{message}</p>
   <h3>Approved server listings</h3>
-  {published.length?published.map(item=><p key={item.id}>{item.title} — {item.price_credits} fictional credits</p>):<p>No published server listings loaded. Sign-in and server configuration are required for submissions.</p>
+  {published.length?published.map(item=><p key={item.id}>{item.title} — {item.price_credits} fictional credits</p>):<p>No published server listings loaded. Sign-in and server configuration are required for submissions.</p>}
   <h3>Local demonstration marketplace</h3>
   {market.length?market.map(item=><p key={item.draft.id}>{item.draft.title} — approved in demo — {item.draft.priceCredits} fictional credits</p>):<p>No approved demonstration mods yet.</p>}
   <small>Real creator payments, actual BJ clothing attachment, production moderation and persistent marketplace storage are not enabled.</small>
