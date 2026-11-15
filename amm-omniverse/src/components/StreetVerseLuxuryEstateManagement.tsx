@@ -1,13 +1,13 @@
 import {useEffect,useState} from 'react'
 export const LUXURY_ESTATE_CONFIG={
  lateasia:{id:'lateasia',name:"LaTeasia's Tampa Mansion",city:'Tampa',bedrooms:12,bathrooms:14,ensuites:12,powderRooms:2,housekeepers:4,butlers:2,estateManagers:1,chefs:1,security:2},
- jacobie:{id:'jacobie',name:"Jacobie's Chicago Gold Coast Mansion",city:'Chicago',bedrooms:12,bathrooms:14,ensuites:12,powderRooms:2,housekeepers:4,butlers:2,estateManagers:1,chefs:1,security:2}
+ bj:{id:'bj',name:"BJ Stubbs's Chicago Gold Coast Mansion",city:'Chicago',bedrooms:12,bathrooms:14,ensuites:12,powderRooms:2,housekeepers:4,butlers:2,estateManagers:1,chefs:1,security:2}
 } as const
 export type EstateId=keyof typeof LUXURY_ESTATE_CONFIG
 const KEY='streetverse:luxury-estates:v1'
 type EstateStatus={maintenance:number;cleanliness:number;staffOnDuty:boolean;eventBooked:boolean}
-const defaults:Record<EstateId,EstateStatus>={lateasia:{maintenance:95,cleanliness:95,staffOnDuty:true,eventBooked:false},jacobie:{maintenance:95,cleanliness:95,staffOnDuty:true,eventBooked:false}}
-function load(){try{const raw=JSON.parse(localStorage.getItem(KEY)||'null');return raw&&raw.lateasia&&raw.jacobie?raw as Record<EstateId,EstateStatus>:defaults}catch{return defaults}}
+const defaults:Record<EstateId,EstateStatus>={lateasia:{maintenance:95,cleanliness:95,staffOnDuty:true,eventBooked:false},bj:{maintenance:95,cleanliness:95,staffOnDuty:true,eventBooked:false}}
+function load(){try{const raw=JSON.parse(localStorage.getItem(KEY)||'null');return raw&&raw.lateasia?( {lateasia:raw.lateasia,bj:raw.bj??raw.jacobie??defaults.bj} as Record<EstateId,EstateStatus>):defaults}catch{return defaults}}
 export function StreetVerseLuxuryEstateManagement(){
  const [open,setOpen]=useState(false)
  const [estate,setEstate]=useState<EstateId>('lateasia')
@@ -22,7 +22,7 @@ export function StreetVerseLuxuryEstateManagement(){
   <button type="button" style={btn} onClick={()=>setOpen(v=>!v)}>{open?'CLOSE':'OPEN'} ESTATE MANAGER</button>
   {open&&<div style={{display:'grid',gap:7,fontSize:13}}>
    <label htmlFor="estate-select">Property</label>
-   <select id="estate-select" style={btn} value={estate} onChange={e=>setEstate(e.target.value as EstateId)}><option value="lateasia">LaTeasia · Tampa</option><option value="jacobie">Jacobie · Chicago Gold Coast</option></select>
+   <select id="estate-select" style={btn} value={estate} onChange={e=>setEstate(e.target.value as EstateId)}><option value="lateasia">LaTeasia · Tampa</option><option value="bj">BJ Stubbs · Chicago Gold Coast</option></select>
    <strong>{config.name}</strong>
    <div>{config.bedrooms} bedrooms · {config.bathrooms} bathrooms ({config.ensuites} en-suite, {config.powderRooms} powder rooms)</div>
    <div>Housekeepers: {config.housekeepers} · Butlers: {config.butlers} · Estate manager: {config.estateManagers} · Chef: {config.chefs} · Security: {config.security}</div>
