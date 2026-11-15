@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+const app=fs.readFileSync(new URL('../src/App.tsx',import.meta.url),'utf8')
+const hub=fs.readFileSync(new URL('../src/components/StreetVerseFreePlayHub.tsx',import.meta.url),'utf8')
+const chain=fs.readFileSync(new URL('../src/runtime/OmniverseAssetLedger.ts',import.meta.url),'utf8')
+assert.match(app,/StreetVerseFreePlayHub/)
+assert.match(app,/FREE PLAY/)
+assert.match(app,/showFreePlay && <StreetVerseFreePlayHub/)
+assert.match(hub,/StreetVerseCreatorStudio/)
+assert.match(hub,/href:'\/streetverse'/)
+assert.match(hub,/cannot be cashed out/)
+assert.match(hub,/not a public blockchain/)
+assert.match(hub,/Godot, Unity, Unreal, WebXR/)
+assert.match(chain,/verifyOmniverseLedger/)
+console.log('TRYAMM free play and internal chain non-cash-out contract PASS')
