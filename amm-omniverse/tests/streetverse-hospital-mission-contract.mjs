@@ -1,0 +1,18 @@
+import fs from 'node:fs'
+import assert from 'node:assert/strict'
+const hud=fs.readFileSync(new URL('../src/components/StreetVerseHospitalMissionHUD.tsx',import.meta.url),'utf8')
+const world=fs.readFileSync(new URL('../src/components/StreetVerseMobileWorld.tsx',import.meta.url),'utf8')
+const injury=fs.readFileSync(new URL('../src/runtime/StreetVerseBJInjuryBridgeRuntime.ts',import.meta.url),'utf8')
+for(const staff of ['911 Dispatcher','Paramedic','Triage Nurse','Emergency Doctor','Hospital Nurse','Discharge Nurse'])
+ assert.ok(hud.includes(staff),'Missing hospital dialogue: '+staff)
+for(const action of ['DISPATCH AMBULANCE','ARRIVE AT HOSPITAL','BEGIN TRIAGE','EXAMINE IN X-RAY','COMPLETE TREATMENT','DISCHARGE BJ'])
+ assert.ok(hud.includes(action),'Missing push action: '+action)
+assert.match(world,/<StreetVerseHospitalMissionHUD\s*\/>/,'Hospital mission must be mounted')
+assert.match(hud,/tryamm:streetverse-bj-injury-assessment/,'Hospital must receive injury assessment')
+assert.match(hud,/tryamm:streetverse-hospital-action/,'Buttons must broadcast action events')
+assert.match(hud,/step>=1&&step<=4/,'Rescue must progress through treatment before discharge')
+assert.match(hud,/if\(step===5\)\{[\s\S]*?kind:'hospital-discharge'/,'Only discharge nurse should restore health')
+assert.match(hud,/tryamm:streetverse-bj-anatomy-mode/,'Doctor must open X-ray examination')
+assert.match(hud,/speechSynthesis/,'Optional staff voice must be supported')
+assert.match(injury,/assessBJInjury/,'Injury assessment must be available')
+console.log('StreetVerse hospital mission contract PASS')
