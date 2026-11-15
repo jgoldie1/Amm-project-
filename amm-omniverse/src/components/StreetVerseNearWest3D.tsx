@@ -17,6 +17,7 @@ import {StreetVerseGreenvilleFratMansion} from './StreetVerseGreenvilleFratMansi
 import {StreetVerseLuxuryLifestyleCareers} from './StreetVerseLuxuryLifestyleCareers'
 import {StreetVerseGreenvilleFraternityManagement} from './StreetVerseGreenvilleFraternityManagement'
 import {StreetVerseGreenvilleFraternityRoomDock} from './StreetVerseGreenvilleFraternityRoomDock'
+import {StreetVerseEstateMissions,type EstateKey} from './StreetVerseEstateMissions'
 import {StreetVerseLaTeasiaStarterControls,StreetVerseLaTeasiaTreasureScene} from './StreetVerseLaTeasiaTreasureStarter'
 import {StreetVerseHingedDoor,StreetVerseDoorTestButtons} from './StreetVerseHingedDoorTest'
 import StreetVerseHoloFonHUD from './StreetVerseHoloFonHUD'
@@ -608,6 +609,7 @@ export default function StreetVerseNearWest3D(){
   window.dispatchEvent(new CustomEvent('tryamm:beautyverse-tampa-travel',{detail:{destination,x:target.x,z:target.z}}))
  }
  const travelGreenvilleSuite=(x:number,z:number)=>{if(driving)setDriving(null);stopMove();playerLocation.current={x,z};setPlayerSpawn({x,z});setTampaTravelKey(k=>k+1)}
+ const travelEstateMission=(estate:EstateKey)=>travelTampa(estate==='lateasia'?'lateasia-mansion':estate==='jacobie'?'jacobie-chicago-mansion':'greenville-frat-mansion')
  const [vehicleAmmo,setVehicleAmmo]=useState(12)
  const [vehicleAimSide,setVehicleAimSide]=useState<'left'|'right'>('left')
  const [hitFx,setHitFx]=useState<{id:number;position:[number,number,number]}|null>(null)
@@ -757,6 +759,7 @@ export default function StreetVerseNearWest3D(){
   <StreetVerseLuxuryLifestyleCareers/>
   <StreetVerseGreenvilleFraternityManagement/>
   <StreetVerseGreenvilleFraternityRoomDock onTravel={travelGreenvilleSuite}/>
+  <StreetVerseEstateMissions onTravel={travelEstateMission}/>
   <StreetVerseHoloFonHUD/>
   <StreetVerseDoorTestButtons/>
   {import.meta.env.VITE_STREETVERSE_LATEASIA_GLB_URL&&<StreetVerseLaTeasiaAnimationTest/>}
