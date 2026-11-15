@@ -1,6 +1,7 @@
 import {useEffect,useRef,useState} from 'react'
 import {useFrame} from '@react-three/fiber'
 import * as THREE from 'three'
+import {FLIGHT_EVENT,FLIGHT_STATUS_EVENT,type FlightInput,type FlightState} from '../lib/streetverseLaTeasiaFlight'
 
 export const LATEASIA_TREASURE_ITEMS=[
  {id:'diamonds',label:'Diamonds',count:24},
@@ -20,13 +21,20 @@ export const STARTER_EVENT='tryamm:streetverse-lateasia-starter-update'
 export function StreetVerseLaTeasiaStarterControls(){
  const [state,setState]=useState<StarterState>(readStarter)
  const [message,setMessage]=useState('A fictional treasure chest and flight starter pack for LaTeasia.')
+ const [flightStatus,setFlightStatus]=useState<FlightState|null>(null)
+ useEffect(()=>{
+  const onStatus=(event:Event)=>setFlightStatus((event as CustomEvent<FlightState>).detail)
+  window.addEventListener(FLIGHT_STATUS_EVENT,onStatus)
+  return()=>window.removeEventListener(FLIGHT_STATUS_EVENT,onStatus)
+ },[])
  useEffect(()=>{
   try{localStorage.setItem(KEY,JSON.stringify(state))}catch{}
   window.dispatchEvent(new CustomEvent(STARTER_EVENT,{detail:state}))
  },[state])
  const claim=()=>{if(state.claimed){setMessage('Starter pack already claimed. No duplicate rewards.');return}setState(s=>({...s,claimed:true,chestOpen:true}));setMessage('Starter claimed! Treasure unlocked and flight pack equipped.')}
  const open=()=>{if(!state.claimed){setMessage('Claim starter pack first.');return}setState(s=>({...s,chestOpen:!s.chestOpen}))}
- const fly=()=>{if(!state.claimed){setMessage('Claim starter pack first.');return}setState(s=>({...s,flightEnabled:!s.flightEnabled}));setMessage(state.flightEnabled?'Flight preview off':'Flight preview on — cosmetic hover only.')}
+ const command=(value:FlightInput|'start'|'recharge')=>window.dispatchEvent(new CustomEvent(FLIGHT_EVENT,{detail:{command:value}}))
+ const fly=()=>{if(!state.claimed){setMessage('Claim starter pack first.');return}const enabling=!state.flightEnabled;setState(s=>({...s,flightEnabled:enabling}));command(enabling?'start':'land');setMessage(enabling?'Flight controls active when LaTeasia GLB is loaded.':'Landing requested.')}
  const btn={minHeight:48,padding:'9px 12px',borderRadius:10,fontWeight:800,fontSize:13,cursor:'pointer'} as const
  return <section aria-label="LaTeasia treasure and flying starter pack" style={{position:'absolute',right:12,top:260,zIndex:33,width:'min(265px,60vw)',background:'rgba(12,21,38,.96)',border:'1px solid #f5d37e',borderRadius:12,padding:10,color:'white'}}>
   <strong>💎 LaTeasia • Royal Starter Pack</strong>
@@ -35,9 +43,13 @@ export function StreetVerseLaTeasiaStarterControls(){
    <button type="button" onClick={claim} disabled={state.claimed} style={btn}>{state.claimed?'✓ STARTER CLAIMED':'CLAIM TREASURE + FLIGHT PACK'}</button>
    <button type="button" onClick={open} style={btn}>{state.chestOpen?'CLOSE TREASURE CHEST':'OPEN TREASURE CHEST'}</button>
    <button type="button" onClick={fly} style={btn}>{state.flightEnabled?'LAND / STOP HOVER':'ACTIVATE FLYING PACK'}</button>
+   {state.flightEnabled&&<div aria-label="LaTeasia flight direction controls" style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:6}}>
+    {([['↑ RISE','rise'],['↓ LOWER','descend'],['↑ FORWARD','forward'],['← LEFT','left'],['■ HOVER','hover'],['RIGHT →','right'],['BACK','back']] as const).map(([label,direction])=><button key={direction} type="button" onClick={()=>command(direction)} style={btn}>{label}</button>)}
+    <button type="button" onClick={()=>command('recharge')} style={btn}>RECHARGE</button>
+   </div>}
   </div>
   {state.claimed&&<div style={{fontSize:12,marginTop:7}}>Owned: {LATEASIA_TREASURE_ITEMS.map(item=>item.count+' '+item.label).join(' · ')}</div>}
-  <div role="status" aria-live="polite" style={{fontSize:12,marginTop:8}}>{message}</div>
+  <div role="status" aria-live="polite" style={{fontSize:12,marginTop:8}}>{message}{flightStatus?' • Altitude '+flightStatus.y.toFixed(1)+' • Energy '+flightStatus.energy.toFixed(0)+'s':''}</div>
  </section>
 }
 const gems=[
