@@ -32,7 +32,8 @@ export default function StreetVerseLaTeasiaAnimatedNpc({assetUrl,position=[-635,
   const onAction=(event:Event)=>{
    const detail=(event as CustomEvent<{characterId?:string;role?:AnimationRole}>).detail
    if(detail?.characterId!=='lateasia-monroe'||!detail.role)return
-   controller.current?.play(detail.role)
+   const result=controller.current?.play(detail.role)
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-character-animation-result',{detail:{characterId:'lateasia-monroe',role:detail.role,ok:result?.ok===true,reason:result?.reason||(!result?'Character not loaded':undefined)}}))
   }
   window.addEventListener('tryamm:streetverse-character-animation',onAction)
   return ()=>{
