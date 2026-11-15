@@ -33,7 +33,7 @@ export default function StreetVerseHospitalMissionHUD(){
  const stage=dialogue[Math.min(step,dialogue.length-1)]
  const advance=()=>{
   if(step===0)window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-rescue-request'))
-  if(step>=1&&step<=4)window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-rescue-advance'))
+  if(step>=1&&step<=3)window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-rescue-advance'))
   if(step===3){setExamined(true);window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-anatomy-mode',{detail:{xray:true,tearApart:false,injured:true}}))}
   if(step===5){
    window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-rescue-advance'))
