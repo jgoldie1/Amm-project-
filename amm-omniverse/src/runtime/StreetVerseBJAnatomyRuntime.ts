@@ -59,6 +59,20 @@ export function installStreetVerseBJAnatomy(hero:THREE.Object3D):BJAnatomyHandle
   skeletonLines.frustumCulled=false
   root.add(skeletonLines)
   const parentPosition=new THREE.Vector3(),childPosition=new THREE.Vector3()
+  // Attach organ positions to the actual animated torso bones, not the world.
+  const chest=bones.find(b=>/^(chest|upperchest)$/i.test(b.name))
+  const spine=bones.find(b=>/^spine/i.test(b.name))
+  const hips=bones.find(b=>/^(hips|pelvis)$/i.test(b.name))
+  hero.updateWorldMatrix(true,true)
+  const bindWorld=new Map<THREE.Bone,THREE.Matrix4>()
+  for(const bone of [chest,spine,hips])if(bone)bindWorld.set(bone,bone.matrixWorld.clone())
+  const organAnchors=organs.map(organ=>{
+    const name=organ.mesh.userData.organ as BJOrganName
+    const anchor=/^(heart|left-lung|right-lung)$/.test(name)?(chest||spine):
+      /^(bladder|prostate)$/.test(name)?(hips||spine):(spine||chest)
+    return {organ,anchor,bindWorldPosition:organ.origin.clone().applyMatrix4(hero.matrixWorld)}
+  })
+  const delta=new THREE.Matrix4(),inverseBind=new THREE.Matrix4(),targetWorld=new THREE.Vector3()
   hero.add(root)
   return {
     root,
@@ -66,7 +80,15 @@ export function installStreetVerseBJAnatomy(hero:THREE.Object3D):BJAnatomyHandle
     setCondition:condition=>{injured=condition==='injured';root.userData.condition=condition;materials.forEach(m=>{m.opacity=injured?.7:.86;m.emissive.setHex(injured?0x330008:0x000000)})},
     setExploded:enabled=>{exploded=enabled;root.userData.exploded=enabled;root.visible=enabled||xray},
     setXRay:enabled=>{xray=enabled;root.userData.xray=enabled;root.visible=enabled||exploded;materials.forEach(m=>{m.depthTest=!enabled})},
-    tick:elapsedSeconds=>{if(root.visible&&segments.length){hero.updateWorldMatrix(true,true);for(let i=0;i<segments.length;i++){const bone=segments[i];(bone.parent as THREE.Bone).getWorldPosition(parentPosition);bone.getWorldPosition(childPosition);root.worldToLocal(parentPosition);root.worldToLocal(childPosition);skeletonPositions.set([parentPosition.x,parentPosition.y,parentPosition.z,childPosition.x,childPosition.y,childPosition.z],i*6)}skeletonGeometry.attributes.position.needsUpdate=true}for(const organ of organs){const target=organ.origin.clone().addScaledVector(organ.direction,exploded?1:0);organ.mesh.position.lerp(target,.16);if(organ.mesh.name==='bj-organ-heart')organ.mesh.scale.set(.095*(1+.035*Math.sin(elapsedSeconds*5)),.12*(1+.035*Math.sin(elapsedSeconds*5)),.07*(1+.035*Math.sin(elapsedSeconds*5)))}},
+    tick:elapsedSeconds=>{if(root.visible&&segments.length){hero.updateWorldMatrix(true,true);for(let i=0;i<segments.length;i++){const bone=segments[i];(bone.parent as THREE.Bone).getWorldPosition(parentPosition);bone.getWorldPosition(childPosition);root.worldToLocal(parentPosition);root.worldToLocal(childPosition);skeletonPositions.set([parentPosition.x,parentPosition.y,parentPosition.z,childPosition.x,childPosition.y,childPosition.z],i*6)}skeletonGeometry.attributes.position.needsUpdate=true}for(const {organ,anchor,bindWorldPosition} of organAnchors){
+      targetWorld.copy(bindWorldPosition)
+      if(anchor&&bindWorld.has(anchor)){
+        inverseBind.copy(bindWorld.get(anchor)!).invert()
+        delta.multiplyMatrices(anchor.matrixWorld,inverseBind)
+        targetWorld.applyMatrix4(delta)
+      }
+      const target=root.worldToLocal(targetWorld).addScaledVector(organ.direction,exploded?1:0)
+      organ.mesh.position.copy(target);if(organ.mesh.name==='bj-organ-heart')organ.mesh.scale.set(.095*(1+.035*Math.sin(elapsedSeconds*5)),.12*(1+.035*Math.sin(elapsedSeconds*5)),.07*(1+.035*Math.sin(elapsedSeconds*5)))}},
     dispose:()=>{root.parent?.remove(root);root.traverse(o=>{if(o instanceof THREE.Mesh)o.geometry.dispose()});materials.forEach(m=>m.dispose());skeletonGeometry.dispose();skeletonMaterial.dispose()},
   }
 }
