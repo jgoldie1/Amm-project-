@@ -1,7 +1,7 @@
 /** Fictional Gold Coast-inspired Chicago estate, not a surveyed real-world property. */
 export const JACOBIE_GOLD_COAST_POSITION:[number,number,number]=[950,0,-850]
 export function StreetVerseChicagoJacobieGoldCoastMansion(){
- return <group name="jacobie-gold-coast-12-bedroom-mansion" position={JACOBIE_GOLD_COAST_POSITION}>
+ return <group name="bj-stubbs-gold-coast-12-bedroom-mansion" position={JACOBIE_GOLD_COAST_POSITION}>
   <mesh receiveShadow position={[0,-.2,0]}><boxGeometry args={[85,.3,78]}/><meshStandardMaterial color="#71856a"/></mesh>
   {[-1,1].map(side=><group key={side} position={[side*15,0,0]}>
    <mesh castShadow position={[0,5,0]}><boxGeometry args={[25,10,23]}/><meshStandardMaterial color="#d8c9b4"/></mesh>
