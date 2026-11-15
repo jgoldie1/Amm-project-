@@ -12,7 +12,7 @@ import {installStreetVerseVisibleForgeBridge} from '../runtime/StreetVerseVisibl
 import * as THREE from 'three'
 import {installStreetVerseBJAnatomy} from '../runtime/StreetVerseBJAnatomyRuntime'
 import {createBJHapticRuntime,type BJHapticCue} from '../runtime/StreetVerseBJHapticRuntime'
-import {applyBJInjury,initialBJInjuryState,type BJInjuryKind} from '../runtime/StreetVerseBJInjuryBridgeRuntime'
+import {applyBJInjury,assessBJInjury,initialBJInjuryState,type BJBodyRegion,type BJInjuryKind} from '../runtime/StreetVerseBJInjuryBridgeRuntime'
 import {createBJInjuryReaction} from '../runtime/StreetVerseBJInjuryReactionRuntime'
 import {createBJRescueMission,type BJRescueStage} from '../runtime/StreetVerseBJRescueMissionRuntime'
 import {LIFE_MISSION_ROUTE,performLifeAction} from '../runtime/StreetVerseLifeActionsRuntime'
@@ -1261,7 +1261,8 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   const bjReaction=createBJInjuryReaction()
   let bjInjury=initialBJInjuryState()
   const onBJInjury=(event:Event)=>{
-    const kind=(event as CustomEvent<{kind?:BJInjuryKind}>).detail?.kind
+    const detail=(event as CustomEvent<{kind?:BJInjuryKind;region?:BJBodyRegion}>).detail
+    const kind=detail?.kind
     if(!kind||!['shot','stab','blunt','fall','recovery','hospital-discharge'].includes(kind))return
     const outcome=applyBJInjury(bjInjury,kind)
     bjInjury=outcome.state
@@ -1270,6 +1271,10 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     bjAnatomy?.setCondition(bjInjury.injured?'injured':'healthy')
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-haptic-cue',{detail:{cue:outcome.cue}}))
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-health-changed',{detail:{...bjInjury,requiresMedicalHelp:outcome.requiresMedicalHelp}}))
+    const allowedRegions:BJBodyRegion[]=['head','chest','abdomen','left-arm','right-arm','left-leg','right-leg']
+    const region=detail?.region&&allowedRegions.includes(detail.region)?detail.region:'chest'
+    const assessment=assessBJInjury(bjInjury,region)
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-injury-assessment',{detail:{kind,...assessment,health:bjInjury.health}}))
     if(outcome.requiresMedicalHelp)setMessage('BJ NEEDS MEDICAL HELP • seek a rescue or medical mission')
   }
   addEventListener('tryamm:streetverse-bj-injury',onBJInjury)
