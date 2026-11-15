@@ -161,6 +161,8 @@ jobs:
         run: node tests/streetverse-free-play-hub-contract.mjs
       - name: Verify portable creator assets and cross-engine save safety
         run: node tests/streetverse-portable-creator-asset.test.mjs
+      - name: Verify authenticated creator marketplace and 3D preview safeguards
+        run: node tests/streetverse-creator-production-boundaries.test.mjs
       - name: Require verified BJ V15 binary for release
         run: node tests/streetverse-bj-v15-binary-release-gate.mjs
       - name: Verify Chicago motion vehicle NPC mission and checkpoint recorder
