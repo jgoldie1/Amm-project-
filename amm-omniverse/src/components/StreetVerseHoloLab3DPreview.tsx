@@ -28,16 +28,16 @@ export function StreetVerseHoloLab3DPreview(){
   let activeCharacter:THREE.Object3D=proxy
   let mixer:THREE.AnimationMixer|null=null
   let walkAction:THREE.AnimationAction|null=null
-  const modelUrl=(import.meta.env.VITE_STREETVERSE_BJ_GLB_URL as string|undefined)?.trim()
-  if(modelUrl&&modelUrl.startsWith('/'))new GLTFLoader().load(modelUrl,gltf=>{
-   if(!gltf.scene||!gltf.scene.getObjectByProperty('type','SkinnedMesh')||!gltf.animations.length){setStatus('BJ GLB lacks a skinned mesh or animation clips; using proxy');return}
+  const modelUrl=(import.meta.env.VITE_STREETVERSE_BJ_GLB_URL as string|undefined)?.trim()||'/assets/characters/BJ_STUBBS_V15_RECOVERED.glb'
+  if(modelUrl.startsWith('/'))new GLTFLoader().load(modelUrl,gltf=>{
+   if(!gltf.scene||!gltf.scene.getObjectByProperty('type','SkinnedMesh')||!gltf.animations.length){setStatus('ERROR: BJ rig invalid; production preview unavailable');return}
    gltf.scene.position.copy(proxy.position)
    scene.remove(proxy);scene.add(gltf.scene);activeCharacter=gltf.scene
    mixer=new THREE.AnimationMixer(gltf.scene)
    const walk=gltf.animations.find(a=>/walk|run/i.test(a.name))
    if(walk)walkAction=mixer.clipAction(walk)
    setStatus('Rigged BJ GLB loaded with '+gltf.animations.length+' animation clips')
-  },undefined,()=>setStatus('BJ GLB failed to load; using proxy'))
+  },undefined,()=>setStatus('ERROR: BJ V15 GLB missing; install verified asset to continue'))
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5))
   const resize=()=>{const w=Math.max(1,node.clientWidth),h=Math.max(1,node.clientHeight);renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
   node.appendChild(renderer.domElement);resize()
@@ -70,6 +70,6 @@ export function StreetVerseHoloLab3DPreview(){
   <strong>HOLOLAB • LIVE 3D CHAMBER</strong>
   <div ref={host} style={{width:'100%',height:240,marginTop:8}}/>
   <p role="status" aria-live="polite">{status} • {era.toUpperCase()}</p>
-  <small>Procedural 3D scenery. Rigged BJ loads only when VITE_STREETVERSE_BJ_GLB_URL points to a verified skinned, animated GLB; otherwise a proxy is shown. Not the production Chicago map.</small>
+  <small>Rigged BJ V15 is required for release. Missing/invalid GLB is an explicit blocking error. Procedural scenery is not the production Chicago map.</small>
  </section>
 }
