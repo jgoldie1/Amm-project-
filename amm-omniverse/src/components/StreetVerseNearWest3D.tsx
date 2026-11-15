@@ -1,6 +1,7 @@
 import {Canvas,useFrame,useThree} from '@react-three/fiber'
 import StreetVerseLaTeasiaAnimatedNpc from './StreetVerseLaTeasiaAnimatedNpc'
 import StreetVerseLaTeasiaAnimationTest from './StreetVerseLaTeasiaAnimationTest'
+import StreetVerseLaTeasiaSongSwitcher from './StreetVerseLaTeasiaSongSwitcher'
 import {StreetVerseHingedDoor,StreetVerseDoorTestButtons} from './StreetVerseHingedDoorTest'
 import StreetVerseHoloFonHUD from './StreetVerseHoloFonHUD'
 import StreetVerseNearWestPhoneProp from './StreetVerseNearWestPhoneProp'
@@ -715,6 +716,7 @@ export default function StreetVerseNearWest3D(){
    <button aria-label="Travel from UIC to Greenville CampusVerse" onClick={travelToGreenville} style={{minHeight:44,padding:'8px 10px',borderRadius:12,fontWeight:900}}>GREENVILLE • JACOBIE →</button>
    {collegeBookOpen&&<CampusVerseCollegeBookBridge onClose={()=>setCollegeBookOpen(false)}/>}
   </div>
+  <StreetVerseLaTeasiaSongSwitcher/>
   <StreetVerseHoloFonHUD/>
   <StreetVerseDoorTestButtons/>
   {import.meta.env.VITE_STREETVERSE_LATEASIA_GLB_URL&&<StreetVerseLaTeasiaAnimationTest/>}
