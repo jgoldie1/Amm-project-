@@ -48,6 +48,7 @@ export default function StreetVerseHospitalMissionHUD(){
   if(step>=1&&step<=4)window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-rescue-advance'))
   if(step===3){setExamined(true);window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-anatomy-mode',{detail:{xray:true,tearApart:false,injured:true}}))}
   if(step===5){
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-injury',{detail:{kind:'hospital-discharge'}}))
    window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-anatomy-mode',{detail:{xray:false,tearApart:false,injured:false}}))
    setOpen(false);return
   }
