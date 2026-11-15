@@ -185,7 +185,8 @@ export default function App() {
 
     const params = new URLSearchParams(window.location.search)
     const open = params.get('open')
-    if (open === 'holoverse') setShowHoloverse(true)
+    if (open === 'free-play') setShowFreePlay(true)
+    else if (open === 'holoverse') setShowHoloverse(true)
     else if (open === 'holofon') setShowConnect(true)
     else if (open === 'tv') setShowTryammTv(true)
     else if (open === 'isaiah-ai-tv') setShowOTT(true)
