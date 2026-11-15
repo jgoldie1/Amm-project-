@@ -15,6 +15,7 @@ import {StreetVerseChicagoJacobieGoldCoastMansion} from './StreetVerseChicagoJac
 import {StreetVerseLuxuryEstateManagement} from './StreetVerseLuxuryEstateManagement'
 import {StreetVerseGreenvilleFratMansion} from './StreetVerseGreenvilleFratMansion'
 import {StreetVerseLuxuryLifestyleCareers} from './StreetVerseLuxuryLifestyleCareers'
+import {StreetVerseGreenvilleFraternityManagement} from './StreetVerseGreenvilleFraternityManagement'
 import {StreetVerseLaTeasiaStarterControls,StreetVerseLaTeasiaTreasureScene} from './StreetVerseLaTeasiaTreasureStarter'
 import {StreetVerseHingedDoor,StreetVerseDoorTestButtons} from './StreetVerseHingedDoorTest'
 import StreetVerseHoloFonHUD from './StreetVerseHoloFonHUD'
@@ -752,6 +753,7 @@ export default function StreetVerseNearWest3D(){
   <StreetVerseTampaMansionControls/>
   <StreetVerseLuxuryEstateManagement/>
   <StreetVerseLuxuryLifestyleCareers/>
+  <StreetVerseGreenvilleFraternityManagement/>
   <StreetVerseHoloFonHUD/>
   <StreetVerseDoorTestButtons/>
   {import.meta.env.VITE_STREETVERSE_LATEASIA_GLB_URL&&<StreetVerseLaTeasiaAnimationTest/>}
