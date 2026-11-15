@@ -42,7 +42,7 @@ export default function StreetVerseHospitalMissionHUD(){
   }
   setStep(value=>Math.min(5,value+1))
  }
- return <aside aria-label="StreetVerse hospital roleplay mission" style={{position:'fixed',right:12,top:100,zIndex:35000,width:'min(330px,calc(100vw - 24px))',padding:12,borderRadius:16,background:'rgba(7,23,35,.96)',border:'2px solid #8be3f6',color:'white',fontFamily:'system-ui',boxShadow:'0 10px 32px #0008'}}>
+ return <aside aria-label="StreetVerse hospital roleplay mission" style={{position:'fixed',right:12,top:100,zIndex:45000,width:'min(330px,calc(100vw - 24px))',padding:12,borderRadius:16,background:'rgba(7,23,35,.96)',border:'2px solid #8be3f6',color:'white',fontFamily:'system-ui',boxShadow:'0 10px 32px #0008'}}>
   <button onClick={()=>setOpen(value=>!value)} style={{width:'100%',minHeight:48,background:'#174c63',color:'white',border:'1px solid #8be3f6',borderRadius:10,fontWeight:800}}>🏥 HOSPITAL MISSION {open?'−':'+'}</button>
   {open&&<div aria-live="polite">
    <p style={{margin:'10px 0'}}>BJ • {assessment.region.replaceAll('-',' ')} • pain {assessment.painScore}/10 • health {assessment.health}/100</p>
