@@ -17,6 +17,19 @@ export interface PerformanceSnapshot {
   droppedFramePct?: number
 }
 
+function performanceMetrics(snapshot: PerformanceSnapshot): Record<string, number|string|boolean> {
+  const metrics: Record<string, number|string|boolean> = {
+    fps: snapshot.fps,
+    p95FrameMs: snapshot.p95FrameMs,
+    inputLatencyMs: snapshot.inputLatencyMs,
+  }
+  if (snapshot.gpuMemoryMb != null) metrics.gpuMemoryMb = snapshot.gpuMemoryMb
+  if (snapshot.networkRttMs != null) metrics.networkRttMs = snapshot.networkRttMs
+  if (snapshot.xrLatencyMs != null) metrics.xrLatencyMs = snapshot.xrLatencyMs
+  if (snapshot.droppedFramePct != null) metrics.droppedFramePct = snapshot.droppedFramePct
+  return metrics
+}
+
 function artifact(ctx: RuntimeProbeContext, kind: EvidenceKind, status: 'PASS'|'FAIL'|'UNPROVEN', metrics: Record<string, number|string|boolean> = {}, source: EvidenceArtifact['source'] = 'runtime_probe'): EvidenceArtifact {
   return {
     id: `${kind}:${ctx.buildId}:${ctx.nowIso}`,
@@ -32,12 +45,12 @@ function artifact(ctx: RuntimeProbeContext, kind: EvidenceKind, status: 'PASS'|'
 
 export function probeMobilePerformance(ctx: RuntimeProbeContext, snapshot: PerformanceSnapshot) {
   const pass = snapshot.fps >= 30 && snapshot.p95FrameMs <= 33.4 && snapshot.inputLatencyMs <= 120 && (snapshot.droppedFramePct ?? 0) <= 5
-  return artifact(ctx, 'mobile_performance', pass ? 'PASS' : 'FAIL', snapshot)
+  return artifact(ctx, 'mobile_performance', pass ? 'PASS' : 'FAIL', performanceMetrics(snapshot))
 }
 
 export function probeXrPerformance(ctx: RuntimeProbeContext, snapshot: PerformanceSnapshot) {
   const pass = snapshot.fps >= 72 && snapshot.p95FrameMs <= 13.9 && snapshot.inputLatencyMs <= 50 && (snapshot.xrLatencyMs ?? 0) <= 35 && (snapshot.droppedFramePct ?? 0) <= 3
-  return artifact(ctx, 'xr_performance', pass ? 'PASS' : 'FAIL', snapshot)
+  return artifact(ctx, 'xr_performance', pass ? 'PASS' : 'FAIL', performanceMetrics(snapshot))
 }
 
 export function probeTwoDeviceLive(ctx: RuntimeProbeContext, aSessionId?: string, bSessionId?: string, connected = false, audioOk = false, videoOk = false) {
