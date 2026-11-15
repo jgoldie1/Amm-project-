@@ -138,6 +138,8 @@ jobs:
         run: node tests/streetverse-bj-v15-binary-release-gate.mjs
       - name: Verify HoloLab arrival safety and asset recovery registry
         run: node tests/streetverse-hololab-recovery-safety-contract.mjs
+      - name: Verify Chicago motion vehicle NPC mission and checkpoint recorder
+        run: node tests/streetverse-chicago-motion-acceptance-contract.mjs
       - name: Verify BJ V15 no-placeholder asset loader
         run: node tests/streetverse-bj-v15-no-placeholder-contract.mjs
       - name: Verify Chicago timeline scanner and NPC memory isolation
