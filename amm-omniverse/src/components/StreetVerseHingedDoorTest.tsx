@@ -20,7 +20,7 @@ export function StreetVerseHingedDoor({playerPosition}:{playerPosition:React.Ref
    const detail=(event as CustomEvent<{action?:'toggle'|'lock'|'unlock'}>).detail
    const action=detail?.action||'toggle'
    const position=playerPosition.current
-   const distance=Math.hypot(position.x-DOOR_TEST_POSITION.x,position.z-DOOR_TEST_POSITION.z)
+   const distance=position?Math.hypot(position.x-DOOR_TEST_POSITION.x,position.z-DOOR_TEST_POSITION.z):Number.POSITIVE_INFINITY
    let result:DoorTestResult
    if(distance>DOOR_INTERACT_RANGE)result={ok:false,open:openRef.current,reason:'Move closer to the door (within 7 units).'}
    else if(action==='lock'||action==='unlock'){
