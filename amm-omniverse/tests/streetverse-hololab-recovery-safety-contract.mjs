@@ -1,7 +1,5 @@
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
-import {createRequire} from 'node:module'
-const require=createRequire(import.meta.url)
 const source=fs.readFileSync(new URL('../src/runtime/StreetVerseHoloLabMotionRuntime.ts',import.meta.url),'utf8')
 assert.match(source,/warping:null,arrived:null/,'Arrival bypass must remain disabled')
 const collision=fs.readFileSync(new URL('../src/runtime/StreetVerseHoloLabCollision.ts',import.meta.url),'utf8')
