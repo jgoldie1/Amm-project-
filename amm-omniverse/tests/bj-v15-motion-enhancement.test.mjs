@@ -77,3 +77,17 @@ test('BJ V15 local File picker uses the actual StreetVerse loader with safe fall
  assert.match(mobile,/tryamm:streetverse-bj-v15-preview/)
  assert.match(ui,/COPY DEVICE QA REPORT/)
 })
+
+test('BJ mobile mount timeout exceeds network and decoder deadlines',async()=>{
+ const fs=await import('node:fs')
+ const mobile=fs.readFileSync(new URL('../src/components/StreetVerseMobileWorld.tsx',import.meta.url),'utf8')
+ const loader=fs.readFileSync(new URL('../src/runtime/StreetVerseMeshyBJHeroRuntime.ts',import.meta.url),'utf8')
+ const fetchTimeout=Number(loader.match(/controller\.abort\(\),(\d+)\)/)?.[1])
+ const decoderTimeout=Number(loader.match(/GLB decode timed out'\)\),(\d+)\)/)?.[1])
+ const mountGuard=Number(mobile.match(/BJ V15 TIMED OUT[\s\S]*?\},(\d+)\)/)?.[1])
+ assert.ok(Number.isFinite(fetchTimeout)&&fetchTimeout>=10000,'fetch deadline must be explicit')
+ assert.ok(Number.isFinite(decoderTimeout)&&decoderTimeout>=10000,'decode deadline must be explicit')
+ assert.ok(mountGuard>fetchTimeout+decoderTimeout,
+  'outer mobile guard cannot invalidate a legitimate fetch plus decode operation')
+ assert.match(mobile,/BJ V15 GLB MOUNTED .* verify playback/)
+})
