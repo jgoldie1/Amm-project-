@@ -20,6 +20,7 @@ export const LATEASIA_CHICAGO = {
 export default function StreetVerseLaTeasiaChicago({onStatus}:{onStatus?:(realGlbLoaded:boolean)=>void}){
  const group=useRef<THREE.Group>(null)
  const mixer=useRef<THREE.AnimationMixer|null>(null)
+ const installed=useRef<THREE.Object3D|null>(null)
  const [realModel,setRealModel]=useState(false)
  const notify=useRef(onStatus);notify.current=onStatus
  const labelTexture=useMemo(()=>{
@@ -30,24 +31,23 @@ export default function StreetVerseLaTeasiaChicago({onStatus}:{onStatus?:(realGl
  },[])
  useEffect(()=>{
   let cancelled=false
-  let installed:THREE.Object3D|null=null
   const loader=new GLTFLoader()
   loader.load(LATEASIA_CHICAGO.modelUrl,glb=>{
    if(cancelled)return
    let meshes=0
    glb.scene.traverse(o=>{if((o as THREE.Mesh).isMesh)meshes++})
    if(meshes===0||!group.current)return
-   installed=glb.scene
-   group.current.add(installed)
+   installed.current=glb.scene
+   group.current.add(installed.current)
    if(glb.animations.length){
-    const m=new THREE.AnimationMixer(installed)
+    const m=new THREE.AnimationMixer(installed.current)
     const idle=glb.animations.find(x=>/idle|breath|stand/i.test(x.name))||glb.animations[0]
     m.clipAction(idle).play()
     mixer.current=m
    }
    setRealModel(true);notify.current?.(true)
   },undefined,()=>{if(!cancelled){setRealModel(false);notify.current?.(false)}})
-  return()=>{cancelled=true;if(installed)installed.removeFromParent();mixer.current?.stopAllAction();mixer.current=null;notify.current?.(false)}
+  return()=>{cancelled=true;installed.current?.removeFromParent();installed.current=null;mixer.current?.stopAllAction();mixer.current=null;notify.current?.(false)}
  },[])
  useFrame((_,dt)=>{mixer.current?.update(Math.min(dt,.05))})
  useEffect(()=>()=>labelTexture.dispose(),[labelTexture])
