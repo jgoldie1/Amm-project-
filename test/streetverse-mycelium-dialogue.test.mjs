@@ -48,7 +48,8 @@ test('accessible response buttons and human-actor playback are opt-in, with no m
  const html=read('public/warehouse-missions.html'),ui=read('public/warehouse-mission-ui.mjs');
  for(const id of ['npcConversation','npcLine','npcChoices','npcObjective','npcSpeak','npcStop','npcRepeat'])assert.ok(html.includes('id="'+id+'"'));
  assert.ok(html.includes('aria-live="polite"'));
- assert.match(ui,/SpeechSynthesisUtterance/);assert.match(ui,/speechSynthesis\.cancel/);
+ assert.match(ui,/resolveHumanVoiceAsset/);assert.match(ui,/validateLocalVoicePreview/);
+ assert.doesNotMatch(ui,/SpeechSynthesisUtterance|speechSynthesis/);
  assert.doesNotMatch(ui,/getUserMedia|SpeechRecognition|fetch\(/);
  assert.match(ui,/tryamm:mycelium-dialogue-complete/);
 });
