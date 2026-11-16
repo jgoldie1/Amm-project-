@@ -45,9 +45,23 @@ export default function StreetVerseMyceliumSubmissionPanel(){
   window.addEventListener('tryamm:streetverse-forge-renderer-ready',onRendererReady)
   return()=>{window.removeEventListener('tryamm:streetverse-bj-rig-audit',onBJ);window.removeEventListener('tryamm:streetverse-forge-renderer-ready',onRenderer);window.removeEventListener('tryamm:streetverse-district-preview-result',onDistrictVisual);window.removeEventListener('tryamm:streetverse-forge-placement-result',onPlacement);window.removeEventListener('tryamm:streetverse-forge-renderer-ready',onRendererReady)}
  },[])
+ const runEngineDiagnostic=()=>{
+   const kernel=createStreetVerseWorldKernel()
+   kernel.startMission();kernel.step({enter:true})
+   for(let i=0;i<120;i++)kernel.step({throttle:1,steer:.1})
+   const moving=kernel.snapshot()
+   const blockedExit=kernel.step({exit:true}).mode==='driving'
+   for(let i=0;i<150;i++)kernel.step({brake:1})
+   kernel.step({exit:true})
+   const completed=kernel.finishMission()
+   const report=blockedExit&&completed&&kernel.snapshot().missionRewards===1
+   setEngineCheck(report?'PASS • 60Hz vehicle / brake / safe exit / mission simulation':'FAIL • investigate kernel inputs and events')
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-engine-diagnostic',{detail:{source:'streetverse-open-world-kernel',kind:'offline-simulation',passed:report,vehicleMovementMeters:Number(moving.distanceMeters.toFixed(2)),actual3DVerified:false,physicsVerified:false}}))
+ }
  const submit=async()=>{
   if(running)return
   setRunning(true);setResult(null)
+  runEngineDiagnostic()
   setPlacement(cityId==='chicago'?'Requesting native geometry placement in the real StreetVerse 3D scene…':'Other cities: layout preview only; no Chicago assets placed')
   if(cityId==='chicago')window.dispatchEvent(new CustomEvent('tryamm:streetverse-forge-placement-request',{detail:{preset:'street',source:'west-side-world-builder'}}))
   try{setResult(await runStreetVerseSubmissionTest(cityId))}
@@ -67,19 +81,7 @@ export default function StreetVerseMyceliumSubmissionPanel(){
   <div role="status" aria-live="polite" style={{fontSize:12,color:'#b8f4e3'}}>{placement}</div>
   <div role="status" aria-live="polite" style={{fontSize:12,color:'#9ee7ff'}}>{districtVisual}</div>
   <button type="button" style={{...control,background:'#34304d'}} onClick={()=>window.dispatchEvent(new Event('tryamm:streetverse-district-preview-clear'))}>CLEAR GENERATED 3D DISTRICT PREVIEW</button>
-  <button type="button" style={control} onClick={()=>{
-   const kernel=createStreetVerseWorldKernel()
-   kernel.startMission();kernel.step({enter:true})
-   for(let i=0;i<120;i++)kernel.step({throttle:1,steer:.1})
-   const moving=kernel.snapshot()
-   const blockedExit=kernel.step({exit:true}).mode==='driving'
-   for(let i=0;i<150;i++)kernel.step({brake:1})
-   kernel.step({exit:true})
-   const completed=kernel.finishMission()
-   const report=blockedExit&&completed&&kernel.snapshot().missionRewards===1
-   setEngineCheck(report?'PASS • 60Hz vehicle / brake / safe exit / mission simulation':'FAIL • investigate kernel inputs and events')
-   window.dispatchEvent(new CustomEvent('tryamm:streetverse-engine-diagnostic',{detail:{source:'streetverse-open-world-kernel',kind:'offline-simulation',passed:report,vehicleMovementMeters:Number(moving.distanceMeters.toFixed(2)),actual3DVerified:false,physicsVerified:false}}))
-  }}>TEST OUR OPEN WORLD ENGINE</button>
+  <button type="button" style={control} onClick={runEngineDiagnostic}>RETEST OPEN WORLD DRIVING SIMULATION</button>
   <div role="status" aria-live="polite" style={{fontSize:12,color:'#cbeaf9'}}>{engineCheck}</div>
   <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
    <button type="button" style={control} onClick={()=>window.dispatchEvent(new Event('tryamm:open-hologpt'))}>ASK HOLOGPT</button>
