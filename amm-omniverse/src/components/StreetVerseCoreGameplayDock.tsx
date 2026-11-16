@@ -9,6 +9,7 @@ export default function StreetVerseCoreGameplayDock(){
   const [mission,setMission]=useState<ActiveMission|null>(null)
   const [inVehicle,setInVehicle]=useState(false)
   const [message,setMessage]=useState('READY')
+  const [toolsOpen,setToolsOpen]=useState(false)
 
   useEffect(()=>{
     const onContext=(e:Event)=>setCtx((e as CustomEvent<Context>).detail||{})
@@ -75,10 +76,8 @@ export default function StreetVerseCoreGameplayDock(){
   const status=mission?'ACTIVE • '+mission.label:message
   return <><StreetVerseInGamePanels/><aside aria-label="StreetVerse core gameplay controls" style={{position:'fixed',left:8,right:8,bottom:'max(8px, env(safe-area-inset-bottom))',zIndex:47000,pointerEvents:'none',fontFamily:'system-ui,sans-serif'}}>
     <div style={{pointerEvents:'auto',margin:'0 auto',maxWidth:620,border:'1px solid #4fe3ff66',borderRadius:18,padding:7,background:'#030b12e8',boxShadow:'0 12px 36px #000b'}}>
-      <div style={{display:'grid',gridTemplateColumns:'repeat(3,minmax(0,1fr))',gap:5}}>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(5,minmax(0,1fr))',gap:5}}>
         <button onClick={missionAction} style={{...btn,color:'#ffe47f'}}>📍<br/>MISSION</button>
-        <button aria-label="Play Warehouse Delivery Mission" onClick={()=>{window.location.href='/warehouse-missions.html'}} style={{...btn,color:'#b0f5cc'}}>📦<br/>WAREHOUSE</button>
-        <button aria-label="Open Aniyah vocal recording and AutoTune studio" onClick={()=>{window.location.href='/aniyah-studio'}} style={{...btn,color:'#ffb6e7'}}>🎤<br/>STUDIO</button>
         <button onClick={repair} style={{...btn,color:'#ffb36b'}}>🔧<br/>REPAIR</button>
         <button onClick={ride} style={{...btn,color:'#8effb7'}}>🚕<br/>RIDE</button>
         <button onClick={reel} style={{...btn,color:'#f3a6ff'}}>🎥<br/>REEL</button>
@@ -86,9 +85,14 @@ export default function StreetVerseCoreGameplayDock(){
         <button onClick={social} style={{...btn,color:'#ff9ecf'}}>❤️<br/>SOCIAL</button>
         <button onClick={people} style={{...btn,color:'#9fc8ff'}}>🔎<br/>PEOPLE</button>
         <button onClick={tickets} style={{...btn,color:'#b7ffa2'}}>🎟️<br/>TICKETS</button>
-        <button onClick={faith} style={{...btn,color:'#e5c56a'}}>📖<br/>FAITH</button>
         <button onClick={exit} disabled={!inVehicle} style={{...btn,color:inVehicle?'#ffcf6b':'#687785',opacity:inVehicle?1:.55}}>🚪<br/>EXIT</button>
+        <button aria-label="Show additional StreetVerse tools" aria-expanded={toolsOpen} onClick={()=>setToolsOpen(v=>!v)} style={{...btn,color:'#e6c8ff'}}>{toolsOpen?'✕':'☰'}<br/>TOOLS</button>
       </div>
+      {toolsOpen&&<div aria-label="Additional StreetVerse recording and faith tools" style={{display:'grid',gridTemplateColumns:'repeat(3,minmax(0,1fr))',gap:6,marginTop:6}}>
+        <button aria-label="Play Warehouse Delivery Mission" onClick={()=>{window.location.href='/warehouse-missions.html'}} style={{...btn,color:'#b0f5cc'}}>📦<br/>WAREHOUSE</button>
+        <button aria-label="Open Aniyah vocal recording and AutoTune studio" onClick={()=>{window.location.href='/aniyah-studio'}} style={{...btn,color:'#ffb6e7'}}>🎤<br/>STUDIO</button>
+        <button onClick={faith} style={{...btn,color:'#e5c56a'}}>📖<br/>FAITH</button>
+      </div>}
       <div aria-live="polite" style={{marginTop:5,textAlign:'center',fontSize:8,fontWeight:900,color:'#8ea6b7'}}>{status}</div>
     </div>
   </aside></>
