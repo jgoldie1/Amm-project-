@@ -39,3 +39,9 @@ test('real AutoTune is not falsely claimed: no pitch-preserving export or automa
  assert.match(booth,/playbackRate/);
  assert.doesNotMatch(booth,/fetch\(|getUserMedia|MediaRecorder|checkout|publishTrack/);
 });
+
+test('StreetVerse gameplay dock opens the Aniyah vocal studio',()=>{
+ const dock=fs.readFileSync(new URL('../amm-omniverse/src/components/StreetVerseCoreGameplayDock.tsx',import.meta.url),'utf8');
+ assert.match(dock,/aria-label="Open Aniyah vocal recording and AutoTune studio"/);
+ assert.match(dock,/window\.location\.href='\/aniyah-studio'/);
+});
