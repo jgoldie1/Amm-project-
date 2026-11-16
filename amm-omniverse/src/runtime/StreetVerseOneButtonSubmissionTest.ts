@@ -49,7 +49,7 @@ export async function runStreetVerseSubmissionTest(cityId:string):Promise<Submis
   const verify=await fetch(`/api/agents/jobs?id=${encodeURIComponent(result.jobId!)}`,{headers:{Authorization:`Bearer ${token}`}});
   const stored=await verify.json().catch(()=>({}));
   const job=Array.isArray(stored.jobs)?stored.jobs.find((j:{id?:string})=>j.id===result.jobId):null;
-  if(!verify.ok||job?.status!=='completed'||!job?.output?.plan){result.status='blocked';result.missing.push('Backend job was queued but no completed, stored plan was verified');return result}
+  if(!verify.ok||job?.status!=='succeeded'||!job?.output?.plan){result.status='blocked';result.missing.push('Backend job was queued but no completed, stored plan was verified');return result}
   result.status='backend-verified';
   result.checks.push('Backend execution and stored, read-back plan verified');
   return result;
