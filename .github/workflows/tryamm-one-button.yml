@@ -61,6 +61,10 @@ jobs:
         id: sound_bank
         continue-on-error: true
         run: node --test test/aniyah-sound-bank-cards.test.mjs
+      - name: Direct-to-fan vinyl CD planning regression
+        id: physical_music
+        continue-on-error: true
+        run: node --test test/direct-fan-physical-music.test.mjs
       - name: Whole-app readiness inventory
         id: readiness
         continue-on-error: true
@@ -83,6 +87,7 @@ jobs:
           WAREHOUSE_MISSION: ${{ steps.warehouse_mission.outcome }}
           VOCAL_PITCH: ${{ steps.vocal_pitch.outcome }}
           SOUND_BANK: ${{ steps.sound_bank.outcome }}
+          PHYSICAL_MUSIC: ${{ steps.physical_music.outcome }}
         run: |
           echo "Root: $PLATFORM; Omniverse: $OMNIVERSE; Readiness: $READINESS"
           test "$PLATFORM" = "success"
@@ -93,4 +98,5 @@ jobs:
           test "$WAREHOUSE_MISSION" = "success"
           test "$VOCAL_PITCH" = "success"
           test "$SOUND_BANK" = "success"
+          test "$PHYSICAL_MUSIC" = "success"
           echo "Code and readiness gates passed without unresolved critical blockers."
