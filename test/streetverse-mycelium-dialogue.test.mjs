@@ -44,7 +44,7 @@ test('replay dialogue only removes its own storage, never real orders',()=>{
 test('app and game share exact same dialogue runtime, UI and HTML',()=>{
  for(const file of ['warehouse-dialogue-director.mjs','warehouse-mission-ui.mjs','warehouse-missions.html'])assert.equal(read('public/'+file),read('amm-omniverse/public/'+file));
 });
-test('accessible response buttons and speech are opt-in, with no microphone API',()=>{
+test('accessible response buttons and human-actor playback are opt-in, with no microphone API',()=>{
  const html=read('public/warehouse-missions.html'),ui=read('public/warehouse-mission-ui.mjs');
  for(const id of ['npcConversation','npcLine','npcChoices','npcObjective','npcSpeak','npcStop','npcRepeat'])assert.ok(html.includes('id="'+id+'"'));
  assert.ok(html.includes('aria-live="polite"'));
