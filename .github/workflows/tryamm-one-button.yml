@@ -49,6 +49,10 @@ jobs:
         id: warehouse
         continue-on-error: true
         run: node --test amm-omniverse/tests/three-pl-quote-pilot.test.mjs
+      - name: Warehouse-to-StreetVerse mission regression
+        id: warehouse_mission
+        continue-on-error: true
+        run: node --test test/warehouse-delivery-mission.test.mjs
       - name: Whole-app readiness inventory
         id: readiness
         continue-on-error: true
@@ -68,6 +72,7 @@ jobs:
           READINESS: ${{ steps.readiness.outcome }}
           HOLOVERSE: ${{ steps.holoverse.outcome }}
           WAREHOUSE: ${{ steps.warehouse.outcome }}
+          WAREHOUSE_MISSION: ${{ steps.warehouse_mission.outcome }}
         run: |
           echo "Root: $PLATFORM; Omniverse: $OMNIVERSE; Readiness: $READINESS"
           test "$PLATFORM" = "success"
@@ -75,4 +80,5 @@ jobs:
           test "$READINESS" = "success"
           test "$HOLOVERSE" = "success"
           test "$WAREHOUSE" = "success"
+          test "$WAREHOUSE_MISSION" = "success"
           echo "Code and readiness gates passed without unresolved critical blockers."
