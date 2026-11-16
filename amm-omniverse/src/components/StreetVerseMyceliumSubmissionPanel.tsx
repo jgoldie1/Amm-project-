@@ -8,6 +8,7 @@ export default function StreetVerseMyceliumSubmissionPanel(){
  const [cityId,setCityId]=useState('chicago'),[running,setRunning]=useState(false),[result,setResult]=useState<SubmissionTestResult|null>(null)
  const [placement,setPlacement]=useState('No actual 3D placement attempted')
  const [engineCheck,setEngineCheck]=useState('Engine test not run')
+ const [districtVisual,setDistrictVisual]=useState('District 3D preview not requested')
  const awaitingRenderer=useRef(false)
  useEffect(()=>{
   const onPlacement=(e:Event)=>{
@@ -23,9 +24,14 @@ export default function StreetVerseMyceliumSubmissionPanel(){
    awaitingRenderer.current=false
    window.dispatchEvent(new CustomEvent('tryamm:streetverse-forge-placement-request',{detail:{preset:'street',source:'west-side-world-builder'}}))
   }
+  const onDistrictVisual=(e:Event)=>{
+   const d=(e as CustomEvent<{rendered?:boolean;reason?:string;count?:number;cleared?:boolean}>).detail||{}
+   setDistrictVisual(d.cleared?'PREVIEW CLEARED':d.rendered?`VISIBLE 3D • ${d.count||0} original mesh objects in active renderer • collision-free preview`:`3D PREVIEW BLOCKED • ${d.reason||'renderer unavailable'}`)
+  }
+  window.addEventListener('tryamm:streetverse-district-preview-result',onDistrictVisual)
   window.addEventListener('tryamm:streetverse-forge-placement-result',onPlacement)
   window.addEventListener('tryamm:streetverse-forge-renderer-ready',onRendererReady)
-  return()=>{window.removeEventListener('tryamm:streetverse-forge-placement-result',onPlacement);window.removeEventListener('tryamm:streetverse-forge-renderer-ready',onRendererReady)}
+  return()=>{window.removeEventListener('tryamm:streetverse-district-preview-result',onDistrictVisual);window.removeEventListener('tryamm:streetverse-forge-placement-result',onPlacement);window.removeEventListener('tryamm:streetverse-forge-renderer-ready',onRendererReady)}
  },[])
  const submit=async()=>{
   if(running)return
@@ -45,6 +51,8 @@ export default function StreetVerseMyceliumSubmissionPanel(){
   </select>
   <button type="button" onClick={submit} disabled={running} style={{...control,background:'#145b43',opacity:running?.65:1}}>{running?'RUNNING CHECKS…':'BUILD VISIBLE CHICAGO + TEST CONNECTIONS'}</button>
   <div role="status" aria-live="polite" style={{fontSize:12,color:'#b8f4e3'}}>{placement}</div>
+  <div role="status" aria-live="polite" style={{fontSize:12,color:'#9ee7ff'}}>{districtVisual}</div>
+  <button type="button" style={{...control,background:'#34304d'}} onClick={()=>window.dispatchEvent(new Event('tryamm:streetverse-district-preview-clear'))}>CLEAR GENERATED 3D DISTRICT PREVIEW</button>
   <button type="button" style={control} onClick={()=>{
    const kernel=createStreetVerseWorldKernel()
    kernel.startMission();kernel.step({enter:true})
