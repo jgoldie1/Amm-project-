@@ -38,7 +38,7 @@ test('renderer bridge consumes simulation event and supports explicit cleanup',a
  const panel=fs.readFileSync(new URL('../src/components/StreetVerseMyceliumSubmissionPanel.tsx',import.meta.url),'utf8')
  assert.match(bridge,/tryamm:streetverse-district-preview',preview/)
  assert.match(bridge,/tryamm:streetverse-district-preview-clear',clearPreview/)
- assert.match(bridge,/districtPreview\.dispose\(\)/)
+ assert.match(bridge,/districtPreview\?\.dispose\(\)/)
  assert.match(panel,/CLEAR GENERATED 3D DISTRICT PREVIEW/)
  assert.match(panel,/tryamm:streetverse-district-preview-result/)
 })
