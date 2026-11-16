@@ -190,21 +190,42 @@ jobs:
       - name: Main synchronization audit
         run: node scripts/main-sync-audit.mjs
 
+  whole-app-readiness:
+    name: Whole-app readiness evidence
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - name: Gate real customer readiness
+        run: node scripts/whole-app-journey-audit.mjs --strict
+      - name: Publish readiness evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: whole-app-readiness-evidence
+          path: release-evidence/whole-app-readiness.*
+          if-no-files-found: warn
+
   release-gate:
     name: Release gate
     if: ${{ always() }}
-    needs: [root-platform, omniverse-app]
+    needs: [root-platform, omniverse-app, whole-app-readiness]
     runs-on: ubuntu-latest
     steps:
       - name: Confirm both validation lanes passed
         env:
           ROOT_RESULT: ${{ needs.root-platform.result }}
           OMNIVERSE_RESULT: ${{ needs.omniverse-app.result }}
+          READINESS_RESULT: ${{ needs.whole-app-readiness.result }}
         run: |
           echo "Root platform: $ROOT_RESULT"
           echo "Omniverse app: $OMNIVERSE_RESULT"
           test "$ROOT_RESULT" = "success"
           test "$OMNIVERSE_RESULT" = "success"
+          test "$READINESS_RESULT" = "success"
           echo "TryAMM release gate is GREEN"
 
   production-deploy:
