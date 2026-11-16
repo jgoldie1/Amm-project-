@@ -8,6 +8,8 @@ on:
       - 'amm-omniverse/scripts/build-bj-v15-motion.mjs'
       - 'amm-omniverse/tests/bj-v15-motion-enhancement.test.mjs'
       - 'amm-omniverse/tests/bj-threejs-skeletal-playback.test.mjs'
+      - 'amm-omniverse/tests/bj-local-glb-preflight.test.mjs'
+      - 'amm-omniverse/src/runtime/StreetVerseBJLocalAssetPreflight.ts'
       - 'amm-omniverse/src/runtime/StreetVerseMyceliumNetwork.ts'
       - 'amm-omniverse/src/runtime/StreetVerseOriginalOpenWorldKernel.ts'
       - 'amm-omniverse/src/runtime/StreetVerseOriginalDistrictPreview.ts'
