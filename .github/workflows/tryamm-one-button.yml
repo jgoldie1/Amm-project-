@@ -53,6 +53,10 @@ jobs:
         id: warehouse_mission
         continue-on-error: true
         run: node --test test/warehouse-delivery-mission.test.mjs test/warehouse-mission-wiring.test.mjs && node test/streetverse-mycelium-timeline-contract.mjs && node --test test/streetverse-mycelium-scenes.test.mjs test/streetverse-mycelium-dialogue.test.mjs test/streetverse-human-npc-voice.test.mjs test/aniyah-mycelium-studio-handoff.test.mjs test/warehouse-vocal-studio-handoff.test.mjs
+      - name: Aniyah vocal pitch guide regression
+        id: vocal_pitch
+        continue-on-error: true
+        run: node --test test/vocal-pitch-guide.test.mjs
       - name: Whole-app readiness inventory
         id: readiness
         continue-on-error: true
@@ -73,6 +77,7 @@ jobs:
           HOLOVERSE: ${{ steps.holoverse.outcome }}
           WAREHOUSE: ${{ steps.warehouse.outcome }}
           WAREHOUSE_MISSION: ${{ steps.warehouse_mission.outcome }}
+          VOCAL_PITCH: ${{ steps.vocal_pitch.outcome }}
         run: |
           echo "Root: $PLATFORM; Omniverse: $OMNIVERSE; Readiness: $READINESS"
           test "$PLATFORM" = "success"
@@ -81,4 +86,5 @@ jobs:
           test "$HOLOVERSE" = "success"
           test "$WAREHOUSE" = "success"
           test "$WAREHOUSE_MISSION" = "success"
+          test "$VOCAL_PITCH" = "success"
           echo "Code and readiness gates passed without unresolved critical blockers."
