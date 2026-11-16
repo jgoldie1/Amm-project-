@@ -1,4 +1,6 @@
 import {WAREHOUSE_MISSION_STAGES,WAREHOUSE_MISSION_ID,readWarehouseMission,saveWarehouseMission,resetWarehouseMission,advanceWarehouseMission} from './warehouse-mission-engine.mjs';
+import {installWarehouseMyceliumBridge} from './warehouse-mycelium-bridge.mjs';
+installWarehouseMyceliumBridge(window);
 const $=id=>document.getElementById(id);
 let state=readWarehouseMission(localStorage);
 function emit(name,detail){dispatchEvent(new CustomEvent(name,{detail:{...detail,source:'tryamm-warehouse-demo',authoritative:false,realMoney:false}}));}
