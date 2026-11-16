@@ -20,8 +20,25 @@ const GRAPH: Readonly<Record<MyceliumNode,readonly MyceliumNode[]>> = {
   'ai-cafe':['mlp'],
   'mlp':[],
 };
-export function createStreetVerseMyceliumNetwork(){
+const STORAGE_KEY='tryamm.streetverse.mycelium-receipts.v1';
+/** Browser-only bounded simulation receipts. No payments or server-authoritative rewards. */
+export function createStreetVerseMyceliumNetwork(options:{persistLocal?:boolean}={}){
  const handled=new Map<string,MyceliumReceipt>();
+ if(options.persistLocal&&typeof localStorage!=='undefined'){
+  try{
+   const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
+   if(Array.isArray(saved))for(const row of saved.slice(-100)){
+    if(row&&typeof row.eventId==='string'&&/^[a-z0-9][a-z0-9:._-]{0,127}$/i.test(row.eventId)&&
+       Array.isArray(row.delivered)&&row.delivered.length<=8&&row.delivered.every((n:unknown)=>typeof n==='string'&&Object.prototype.hasOwnProperty.call(GRAPH,n))&&row.effects==='simulation-only'){
+      handled.set(row.eventId,{eventId:row.eventId,delivered:[...row.delivered],duplicate:false,effects:'simulation-only'});
+    }
+   }
+  }catch{}
+ }
+ function persist(){
+  if(!options.persistLocal||typeof localStorage==='undefined')return;
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify([...handled.values()].slice(-100)))}catch{}
+ }
  return {
   publish(event:MyceliumEvent):MyceliumReceipt {
    if(!/^[a-z0-9][a-z0-9:._-]{0,127}$/i.test(event.id))throw new Error('Invalid event identifier');
@@ -39,6 +56,8 @@ export function createStreetVerseMyceliumNetwork(){
    }
    const receipt:MyceliumReceipt={eventId:event.id,delivered:[...visited],duplicate:false,effects:'simulation-only'};
    handled.set(event.id,receipt);
+   if(handled.size>100)handled.delete(handled.keys().next().value!);
+   persist();
    return receipt;
   },
   receipts:()=>[...handled.values()].map(r=>({...r,delivered:[...r.delivered]})),
