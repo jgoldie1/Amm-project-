@@ -17,7 +17,7 @@ export const LATEASIA_CHICAGO = {
  intro:'I’m LaTeasia Monroe. Welcome to the Chicago creator district! We can plan a beauty showcase, an original music session, or a trip to my BeautyVerse project in Tampa.',
 } as const
 
-export default function StreetVerseLaTeasiaChicago({onStatus}:{onStatus?:(realGlbLoaded:boolean)=>void}){
+export default function StreetVerseLaTeasiaChicago({onStatus,city='chicago',position}:{onStatus?:(realGlbLoaded:boolean)=>void;city?:'chicago'|'tampa';position?:readonly [number,number,number]}){
  const group=useRef<THREE.Group>(null)
  const mixer=useRef<THREE.AnimationMixer|null>(null)
  const installed=useRef<THREE.Object3D|null>(null)
@@ -34,9 +34,10 @@ export default function StreetVerseLaTeasiaChicago({onStatus}:{onStatus?:(realGl
   const loader=new GLTFLoader()
   loader.load(LATEASIA_CHICAGO.modelUrl,glb=>{
    if(cancelled)return
-   let meshes=0
-   glb.scene.traverse(o=>{if((o as THREE.Mesh).isMesh)meshes++})
-   if(meshes===0||!group.current)return
+   let meshes=0,skinnedMeshes=0
+   glb.scene.traverse(o=>{if((o as THREE.Mesh).isMesh)meshes++;if((o as THREE.SkinnedMesh).isSkinnedMesh)skinnedMeshes++})
+   const hasExpectedAnimations=glb.animations.some(x=>/walk/i.test(x.name))&&glb.animations.some(x=>/idle/i.test(x.name))
+   if(meshes===0||skinnedMeshes===0||!hasExpectedAnimations||!group.current){notify.current?.(false);return}
    installed.current=glb.scene
    group.current.add(installed.current)
    if(glb.animations.length){
@@ -51,7 +52,7 @@ export default function StreetVerseLaTeasiaChicago({onStatus}:{onStatus?:(realGl
  },[])
  useFrame((_,dt)=>{mixer.current?.update(Math.min(dt,.05))})
  useEffect(()=>()=>labelTexture.dispose(),[labelTexture])
- return <group name="lateasia-monroe-chicago-taylor-street" position={[LATEASIA_CHICAGO.position.x,0,LATEASIA_CHICAGO.position.z]}>
+ return <group name={city==='chicago'?'lateasia-monroe-chicago-taylor-street':'lateasia-monroe-tampa-beauty-house'} position={position??[LATEASIA_CHICAGO.position.x,0,LATEASIA_CHICAGO.position.z]} userData={{characterId:'lateasia-monroe',city,assetState:realModel?'loaded-rig-preview-not-likeness-certified':'temporary-placeholder'}}>
   <group ref={group}/>
   {!realModel&&<group name="lateasia-preview-only-not-certified-rig">
    <mesh position={[0,1.04,0]} castShadow><capsuleGeometry args={[.31,1.05,5,12]}/><meshStandardMaterial color="#8a4f91"/></mesh>
