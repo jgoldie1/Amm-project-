@@ -4,6 +4,7 @@ import MusicCreatorStudio from './MusicCreatorStudio'
 import {ANIYAH_64_TRACK_BUSINESS,ANIYAH_64_TRACK_OFFERS,ANIYAH_STUDIO_REVENUE_CHANNELS,formatUsd,type AniyahStudioSku} from '../data/Aniyah64TrackBusiness'
 
 const RecordingStudio=lazy(()=>import('./RecordingStudio'))
+const ProAudioSuite=lazy(()=>import('./ProAudioSuite'))
 type StudioVoiceBrief={version:number;source:string;project:string;mode:string;character:string;script:string;recordingStatus:string;performanceRightsStatus:string;publishAuthorized:boolean;distributionAuthorized:boolean}
 const ANIYAH_VOICE_HANDOFF_KEY='tryamm.aniyah.voice-session-handoff.v1'
 function readStudioVoiceBrief():StudioVoiceBrief|null{
@@ -13,7 +14,7 @@ function readStudioVoiceBrief():StudioVoiceBrief|null{
   return b as StudioVoiceBrief
  }catch{return null}
 }
-type Mode='create'|'engineer'|'earn'
+type Mode='create'|'engineer'|'beats'|'earn'
 
 export default function Aniyah64TrackStudio({onClose}:{onClose?:()=>void}){
  const [mode,setMode]=useState<Mode>('create')
@@ -37,7 +38,7 @@ export default function Aniyah64TrackStudio({onClose}:{onClose?:()=>void}){
   <header style={{position:'sticky',top:0,zIndex:5,display:'flex',alignItems:'center',gap:10,flexWrap:'wrap',padding:'12px 14px',background:'#05060de8',borderBottom:'1px solid #6a5cff55',backdropFilter:'blur(12px)'}}>
    {onClose&&<button onClick={onClose} style={back}>← STAR STUDIO</button>}
    <div><div style={{fontSize:9,letterSpacing:2.4,color:'#ff91dc',fontWeight:950}}>ANIYAH • MUSIC BUSINESS</div><div style={{fontSize:20,fontWeight:950}}>64-Track Studio</div><div style={{fontSize:9,color:'#8fa2b8'}}>AI Create Mode + full 64-track Engineer Mode + verified commerce</div></div>
-   <div style={{marginLeft:'auto',display:'flex',gap:6}}>{(['create','engineer','earn'] as Mode[]).map(m=><button key={m} onClick={()=>setMode(m)} style={{...tab,borderColor:mode===m?'#ffd75e':'#344156',color:mode===m?'#ffd75e':'#a6b2c0'}}>{m.toUpperCase()}</button>)}</div>
+   <div style={{marginLeft:'auto',display:'flex',gap:6}}>{(['create','engineer','beats','earn'] as Mode[]).map(m=><button key={m} onClick={()=>setMode(m)} style={{...tab,borderColor:mode===m?'#ffd75e':'#344156',color:mode===m?'#ffd75e':'#a6b2c0'}}>{m.toUpperCase()}</button>)}</div>
   </header>
   {voiceBrief&&<section aria-label="Incoming human voice recording brief" style={{maxWidth:1080,margin:'14px auto',border:'1px solid #65d8ff',borderRadius:16,padding:16,background:'#061725'}}>
     <div style={{fontSize:11,color:'#95e6ff',fontWeight:900}}>INCOMING MYCELIUM RECORDING BRIEF · HUMAN PERFORMANCE REQUIRED</div>
@@ -52,6 +53,7 @@ export default function Aniyah64TrackStudio({onClose}:{onClose?:()=>void}){
   </section>}
   {mode==='create'&&<MusicCreatorStudio/>}
   {mode==='engineer'&&<div style={{height:'calc(100dvh - 78px)'}}><Suspense fallback={<div style={{padding:24}}>Loading 64-track Engineer Mode…</div>}><RecordingStudio onClose={()=>setMode('create')}/></Suspense></div>}
+  {mode==='beats'&&<div style={{height:'calc(100dvh - 78px)'}}><Suspense fallback={<div style={{padding:24}}>Loading MPC pads and chord keyboard…</div>}><ProAudioSuite onClose={()=>setMode('engineer')}/></Suspense></div>}
   {mode==='earn'&&<main style={{maxWidth:1080,margin:'0 auto',padding:'18px 14px 80px'}}>
    <section style={panel}><div style={eyebrow}>HOW THE BUSINESS EARNS</div><h2 style={{margin:'6px 0'}}>Aniyah owns the studio business. TRYAMM provides the platform.</h2><div style={{display:'flex',gap:6,flexWrap:'wrap',margin:'8px 0'}}><span style={pill}>CHARGING: {readiness?.readyForCharges?'READY':'GATED'}</span><span style={pill}>PAYOUT: {readiness?.readyForPayout?'READY':'GATED'}</span></div>{readiness?.message&&<p style={{...copy,color:'#ffd9a0'}}>{readiness.message}</p>}<p style={copy}>For the launch studio services below, the server catalog allocates <b>{split.aniyah}%</b> to the Aniyah 64-Track Studio seller allocation and <b>{split.tryamm}%</b> to TRYAMM platform revenue. Payable money still requires verified payment, fulfillment/entitlement, reconciliation and seller-transfer eligibility.</p><p style={{...copy,color:'#ffd9a0'}}>{ANIYAH_64_TRACK_BUSINESS.ageAndPayoutRule}</p></section>
    <section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(235px,1fr))',gap:10,marginTop:12}}>{ANIYAH_64_TRACK_OFFERS.map(o=><article key={o.id} style={panel}><div style={eyebrow}>{o.kind.toUpperCase()}</div><h3 style={{margin:'6px 0'}}>{o.name}</h3><div style={{fontSize:28,fontWeight:950,color:'#ffd75e'}}>{formatUsd(o.priceMinor)}</div><p style={copy}>{o.description}</p><div style={{fontSize:9,color:'#8fa2b8'}}>At launch split: {formatUsd(Math.floor(o.priceMinor*ANIYAH_64_TRACK_BUSINESS.sellerShareBasisPoints/10000))} seller allocation • {formatUsd(Math.floor(o.priceMinor*ANIYAH_64_TRACK_BUSINESS.tryammShareBasisPoints/10000))} TRYAMM</div><button disabled={busy===o.id} onClick={()=>buy(o.id)} style={buyBtn}>{busy===o.id?'PREPARING…':'BUY / BOOK'}</button></article>)}</section>
