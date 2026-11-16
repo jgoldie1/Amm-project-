@@ -24,9 +24,9 @@ const readMillis=(source,pattern,label)=>{
  required(Boolean(match),label+' must have a bounded deadline')
  return Number(match[1])
 }
-const fetchDeadline=readMillis(loader,/controller\\.abort\\(\\),(\\d+)\\)/,'V15 fetch')
-const decodeDeadline=readMillis(loader,/GLB decode timed out'\\)\\),(\\d+)\\)/,'V15 decode')
-const mountDeadline=readMillis(mobile,/BJ V15 TIMED OUT[\\s\\S]*?\\},(\\d+)\\)/,'iPhone hero load')
+const fetchDeadline=readMillis(loader,/controller\.abort\(\),(\d+)\)/,'V15 fetch')
+const decodeDeadline=readMillis(loader,/GLB decode timed out'[\s\S]*?\),(\d+)\)/,'V15 decode')
+const mountDeadline=readMillis(mobile,/BJ V15 TIMED OUT[\s\S]*?\},(\d+)\)/,'iPhone hero load')
 required(mountDeadline>fetchDeadline+decodeDeadline,
  'iPhone hero deadline must exceed bounded fetch + GLB decode (do not discard valid models)')
 required(mountDeadline<=60000,'iPhone hero attempt must still terminate within 60 seconds')
