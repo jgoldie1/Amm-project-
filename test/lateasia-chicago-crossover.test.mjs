@@ -31,4 +31,7 @@ test('LaTeasia remains referenced by Tampa Riverwalk even as Chicago is added',(
  assert.match(character,/skinnedMeshes===0/)
  assert.match(character,/hasExpectedAnimations/)
  assert.match(character,/loaded-rig-preview-not-likeness-certified/)
+ assert.match(character,/fingerprintMatchesVerifiedAsset\('lateasia',buffer\.byteLength,hash\)/)
+ assert.match(character,/crypto\.subtle\.digest\('SHA-256',buffer\)/)
+ assert.match(character,/loader\.parse\(buffer/)
 })
