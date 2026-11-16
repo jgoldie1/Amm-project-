@@ -1,0 +1,65 @@
+name: TRYAMM One-Button Whole-App Audit
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/whole-app-journey-audit.mjs'
+      - '.github/workflows/tryamm-one-button.yml'
+      - 'lib/**'
+      - 'amm-omniverse/**'
+
+permissions:
+  contents: read
+
+jobs:
+  end-to-end-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install root dependencies
+        run: npm install --no-audit --no-fund
+      - name: Install Omniverse dependencies
+        run: npm --prefix amm-omniverse install --no-audit --no-fund
+      - name: Platform syntax, tests and contracts
+        id: platform
+        continue-on-error: true
+        run: npm run syntax && npm test
+      - name: Omniverse lint, security, typecheck, smoke and build
+        id: omniverse
+        continue-on-error: true
+        run: |
+          npm --prefix amm-omniverse run lint
+          npm --prefix amm-omniverse run security
+          npm --prefix amm-omniverse run typecheck
+          npm --prefix amm-omniverse run smoke
+          npm --prefix amm-omniverse run build
+      - name: Whole-app readiness inventory
+        id: readiness
+        continue-on-error: true
+        run: node scripts/whole-app-journey-audit.mjs
+      - name: Publish evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tryamm-whole-app-evidence
+          path: release-evidence/whole-app-readiness.*
+          if-no-files-found: warn
+      - name: Release safety gate
+        if: always()
+        env:
+          PLATFORM: ${{ steps.platform.outcome }}
+          OMNIVERSE: ${{ steps.omniverse.outcome }}
+          READINESS: ${{ steps.readiness.outcome }}
+        run: |
+          echo "Root: $PLATFORM; Omniverse: $OMNIVERSE; Readiness: $READINESS"
+          test "$PLATFORM" = "success"
+          test "$OMNIVERSE" = "success"
+          test "$READINESS" = "success"
+          echo "Code regression gates passed. BLOCKED readiness items still require live acceptance testing."
