@@ -8,6 +8,7 @@ export type MyceliumTimelineEvent={id:string;missionId:string;checkpoint:Myceliu
 export type MyceliumTimelineSnapshot={schema:1;missionId:string;events:MyceliumTimelineEvent[];branchChoices:MyceliumBranch[];completed:boolean;receipt?:string}
 export const STREETVERSE_MYCELIUM_TIMELINE_KEY='tryamm.streetverse.mycelium-timeline.v1'
 export const STREETVERSE_WAREHOUSE_SAVE_KEY='tryamm.warehouse.delivery.chapter.v1'
+export const STREETVERSE_MYCELIUM_BRANCH_SAVE_KEY='tryamm.streetverse.mycelium-choice.v1'
 export const STREETVERSE_WAREHOUSE_MISSION_ID='all-american-merch-route-001'
 export const MYCELIUM_CHECKPOINTS:readonly MyceliumCheckpoint[]=['accept','inspect','verify','load','deliver','receipt']
 export const MYCELIUM_BRANCHES:readonly MyceliumBranch[]=['storefront-community','musicverse-showcase','warehouse-training']
@@ -64,10 +65,10 @@ export function installStreetVerseMyceliumTimelineRuntime(){
  const persist=(state:MyceliumTimelineSnapshot)=>{try{localStorage.setItem(STREETVERSE_MYCELIUM_TIMELINE_KEY,JSON.stringify(state))}catch{}}
  let state=safeTimeline((()=>{try{return JSON.parse(read(STREETVERSE_MYCELIUM_TIMELINE_KEY)||'null')}catch{return null}})())
  const broadcast=()=>window.dispatchEvent(new CustomEvent('tryamm:mycelium-timeline-updated',{detail:{...state,source:'streetverse-mycelium-timeline',authoritative:false,realMoney:false}}))
- const sync=()=>{const next=syncMyceliumFromWarehouseSave(state,read(STREETVERSE_WAREHOUSE_SAVE_KEY));if(JSON.stringify(next)!==JSON.stringify(state)){state=next;persist(state);broadcast()}}
+ const sync=()=>{let next=syncMyceliumFromWarehouseSave(state,read(STREETVERSE_WAREHOUSE_SAVE_KEY));const savedChoice=read(STREETVERSE_MYCELIUM_BRANCH_SAVE_KEY);if(savedChoice&&MYCELIUM_BRANCHES.includes(savedChoice as MyceliumBranch))next=chooseMyceliumBranch(next,savedChoice as MyceliumBranch);if(JSON.stringify(next)!==JSON.stringify(state)){state=next;persist(state);broadcast()}}
  const onProjection=(event:Event)=>{const next=applyMyceliumProjection(state,(event as CustomEvent).detail);if(next.events.length===state.events.length)return;state=next;persist(state);broadcast()}
- const onStorage=(event:StorageEvent)=>{if(event.key===STREETVERSE_WAREHOUSE_SAVE_KEY)sync()}
- const chooseBranch=(branch:MyceliumBranch)=>{const next=chooseMyceliumBranch(state,branch);if(next.branchChoices.length!==state.branchChoices.length){state=next;persist(state);broadcast()}return state}
+ const onStorage=(event:StorageEvent)=>{if(event.key===STREETVERSE_WAREHOUSE_SAVE_KEY||event.key===STREETVERSE_MYCELIUM_BRANCH_SAVE_KEY)sync()}
+ const chooseBranch=(branch:MyceliumBranch)=>{const next=chooseMyceliumBranch(state,branch);if(next.branchChoices.length!==state.branchChoices.length){state=next;try{localStorage.setItem(STREETVERSE_MYCELIUM_BRANCH_SAVE_KEY,branch)}catch{}persist(state);broadcast()}return state}
  const onChoose=(e:Event)=>{const b=(e as CustomEvent<{branch?:MyceliumBranch}>).detail?.branch;if(b)chooseBranch(b)}
  window.addEventListener('tryamm:mycelium-mission-projection',onProjection)
  window.addEventListener('storage',onStorage)
