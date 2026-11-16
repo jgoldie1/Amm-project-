@@ -38,3 +38,14 @@ test('LaTeasia remains referenced by Tampa Riverwalk even as Chicago is added',(
  assert.match(character,/crypto\.subtle\.digest\('SHA-256',buffer\)/)
  assert.match(character,/loader\.parse\(buffer/)
 })
+
+test('recovered original character installer is verify-only unless explicitly authorized',()=>{
+ const installer=read('scripts/verify_streetverse_original_heroes.py')
+ const manifest=read('amm-omniverse/src/data/streetVerseRecoveredHeroAssets.ts')
+ assert.match(installer,/if not args\.install:/)
+ assert.match(installer,/VERIFY ONLY/)
+ assert.match(installer,/Won\\'t overwrite different existing asset/)
+ assert.match(installer,/verify_archive\(args\.archive\.resolve\(\)\)/)
+ assert.match(manifest,/96faef46205295d16cdf6c8d21a0e216438141f053cf0601800d62d3020998af/)
+ assert.match(manifest,/122e77b243bb9feac9c6e835a500207d034ef8ee710f52751a89ee917e685258/)
+})
