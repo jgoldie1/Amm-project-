@@ -81,6 +81,10 @@ jobs:
         id: creator_discovery
         continue-on-error: true
         run: node --test test/music-video-creator-discovery.test.mjs
+      - name: Independent licensed audio streaming regression
+        id: licensed_audio
+        continue-on-error: true
+        run: node --test test/independent-audio-streaming.test.mjs
       - name: Whole-app readiness inventory
         id: readiness
         continue-on-error: true
@@ -108,6 +112,7 @@ jobs:
           MUSIC_VIDEO: ${{ steps.music_video.outcome }}
           WORLD_ENTRY: ${{ steps.world_entry.outcome }}
           CREATOR_DISCOVERY: ${{ steps.creator_discovery.outcome }}
+          LICENSED_AUDIO: ${{ steps.licensed_audio.outcome }}
         run: |
           echo "Root: $PLATFORM; Omniverse: $OMNIVERSE; Readiness: $READINESS"
           test "$PLATFORM" = "success"
@@ -123,4 +128,5 @@ jobs:
           test "$MUSIC_VIDEO" = "success"
           test "$WORLD_ENTRY" = "success"
           test "$CREATOR_DISCOVERY" = "success"
+          test "$LICENSED_AUDIO" = "success"
           echo "Code and readiness gates passed without unresolved critical blockers."
