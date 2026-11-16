@@ -20,11 +20,11 @@ export async function runStreetVerseSubmissionTest(cityId:string):Promise<Submis
  const errors=validateStarterDistrict(district);
  if(errors.length)return {status:'failed',cityId,checks,missing:errors,featureCount:district.features.length,eventNodes:[]};
  checks.push('District plan generated and validated: roads, bridge, transit, mission and buildings');
- const network=createStreetVerseMyceliumNetwork();
+ const network=createStreetVerseMyceliumNetwork({persistLocal:true});
  const event={id:`district-preview:${cityId}:${district.seed}`,kind:'district-preview' as const,cityId,source:'streetverse' as const,payload:{features:district.features.length,starter:city.starterDistrict}};
  const receipt=network.publish(event),duplicate=network.publish(event);
  if(!duplicate.duplicate||receipt.delivered.length!==8)return {status:'failed',cityId,checks,missing:['Mycelium event routing/replay check failed'],featureCount:district.features.length,eventNodes:[...receipt.delivered]};
- checks.push('Mycelium event fanout and duplicate suppression passed (simulation only)');
+ checks.push('Mycelium event routing and replay receipts saved locally (simulation only)');
  const timeline=createMyceliumTimeline('streetverse:'+cityId);
  const inserted=timeline.record({id:event.id,kind:event.kind,payload:{featureCount:district.features.length},at:0});
  if(!inserted||timeline.history().length!==1||timeline.record({id:event.id,kind:event.kind,payload:{featureCount:district.features.length},at:0}))return {status:'failed',cityId,checks,missing:['Mycelium timeline replay failed'],featureCount:district.features.length,eventNodes:[...receipt.delivered]};
