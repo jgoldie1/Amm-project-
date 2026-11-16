@@ -1,5 +1,5 @@
 import {useState} from 'react'
-import {DISCOVERY_PLAYLIST_KEY,MUSIC_VIDEO_GENRES,searchApprovedVideos,listArtistChannels,readLocalWatchlist,saveLocalWatchlist} from '../lib/music/musicDiscoveryFeatures.mjs'
+import {MUSIC_VIDEO_GENRES,searchApprovedVideos,listArtistChannels,readLocalWatchlist,saveLocalWatchlist} from '../lib/music/musicDiscoveryFeatures.mjs'
 import {PUBLIC_MUSIC_VIDEO_CATALOG,MUSIC_VIDEO_DISCOVERY_POLICY,VIDEO_RIGHTS_REQUIREMENTS,listApprovedMusicVideos,createMusicVideoSubmissionDraft} from '../lib/music/musicVideoDiscoveryPolicy.mjs'
 const inputStyle:React.CSSProperties={width:'100%',boxSizing:'border-box',borderRadius:9,minHeight:48,padding:'8px 12px',color:'#fff',background:'#121d2e',border:'1px solid #56718b',fontSize:15}
 const buttonStyle:React.CSSProperties={borderRadius:11,minHeight:50,padding:'10px 14px',fontWeight:800,fontSize:14,color:'#fff',background:'#13293d',border:'1px solid #63cde7',cursor:'pointer'}
