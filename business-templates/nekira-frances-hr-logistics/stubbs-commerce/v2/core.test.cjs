@@ -1,0 +1,16 @@
+const test=require('node:test'),assert=require('node:assert/strict'),{Engine}=require('./core.cjs');
+function setup(){const c=new Engine();c.register('owner1','password-long-owner','stubbs','owner');c.register('buyer1','password-long-buyer','buyer','buyer');c.register('agent1','password-long-agent','nekira','partner');const owner=c.login('owner1','password-long-owner'),buyer=c.login('buyer1','password-long-buyer'),agent=c.login('agent1','password-long-agent');c.addPartner(owner,'nekira','Nekira');c.addProduct(owner,'LOGISTICS','Site',19900);return{c,owner,buyer,agent};}
+test('catalog',()=>assert.equal(setup().c.catalog().length,1));
+test('buyer permissions',()=>{const{c,buyer}=setup();assert.throws(()=>c.addProduct(buyer,'OTHER','Other',1000))});
+test('partner attribution',()=>{const{c,buyer}=setup();assert.equal(c.createOrder(buyer,'LOGISTICS','nekira','scout1').scoutId,'scout1')});
+test('Stubbs merchant',()=>{const{c,buyer}=setup();assert.equal(c.createOrder(buyer,'LOGISTICS').merchant,'Stubbs AI')});
+test('pending no license',()=>{const{c,buyer}=setup();c.createOrder(buyer,'LOGISTICS');assert.equal(c.myLicenses(buyer).length,0)});
+test('verification required',()=>{const{c,buyer}=setup(),o=c.createOrder(buyer,'LOGISTICS');assert.throws(()=>c.confirmFromVerifiedAdapter({id:'event1',orderId:o.id,merchant:'Stubbs AI',amountCents:19900,currency:'USD'}))});
+test('merchant mismatch',()=>{const{c,buyer}=setup(),o=c.createOrder(buyer,'LOGISTICS');assert.throws(()=>c.confirmFromVerifiedAdapter({id:'event1',verified:true,orderId:o.id,merchant:'Frances AI',amountCents:19900,currency:'USD'}))});
+test('amount mismatch',()=>{const{c,buyer}=setup(),o=c.createOrder(buyer,'LOGISTICS');assert.throws(()=>c.confirmFromVerifiedAdapter({id:'event1',verified:true,orderId:o.id,merchant:'Stubbs AI',amountCents:10,currency:'USD'}))});
+test('settlement and idempotency',()=>{const{c,buyer}=setup(),o=c.createOrder(buyer,'LOGISTICS'),e={id:'event1',verified:true,orderId:o.id,merchant:'Stubbs AI',amountCents:19900,currency:'USD'};assert.equal(c.confirmFromVerifiedAdapter(e).duplicate,false);assert.equal(c.confirmFromVerifiedAdapter(e).duplicate,true);assert.equal(c.myLicenses(buyer).length,1)});
+test('refund revoke',()=>{const{c,buyer}=setup(),o=c.createOrder(buyer,'LOGISTICS');c.confirmFromVerifiedAdapter({id:'event1',verified:true,orderId:o.id,merchant:'Stubbs AI',amountCents:19900,currency:'USD'});c.revokeFromVerifiedAdapter({id:'refund1',verified:true,orderId:o.id,merchant:'Stubbs AI'});assert.equal(c.myLicenses(buyer).length,0)});
+test('license only owner',()=>{const{c,buyer,agent}=setup(),o=c.createOrder(buyer,'LOGISTICS');const l=c.confirmFromVerifiedAdapter({id:'event1',verified:true,orderId:o.id,merchant:'Stubbs AI',amountCents:19900,currency:'USD'}).license;assert.throws(()=>c.licenseManifest(agent,l.id))});
+test('partner dashboard isolation',()=>{const{c,agent}=setup();assert.throws(()=>c.partnerDashboard(agent,'stubbs'))});
+test('subscriptions unbilled',()=>{const{c,buyer}=setup();assert.equal(c.planSubscription(buyer,'hosting',1000).status,'draft-not-billed')});
+test('commission unapproved',()=>{const{c,owner,buyer}=setup();c.createOrder(buyer,'LOGISTICS');assert.equal(c.financials(owner)[0].commissionCents,0)});
