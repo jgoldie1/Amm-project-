@@ -3,6 +3,7 @@ import {installWarehouseMyceliumBridge} from './warehouse-mycelium-bridge.mjs';
 import {MYCELIUM_SCENES,readMyceliumScene,selectMyceliumScene,resetMyceliumScene} from './warehouse-mycelium-scenes.mjs';
 import {initialDialogue,advanceDialogue,getDialogueNode,loadDialogue,storeDialogue,resetDialogue} from './warehouse-dialogue-director.mjs';
 import {resolveHumanVoiceAsset,validateLocalVoicePreview} from './warehouse-human-voice.mjs';
+import {buildAniyahStudioBrief,saveAniyahStudioBrief} from './aniyah-voice-handoff.mjs';
 import {exportCueSheetText} from './warehouse-vocal-studio-handoff.mjs';
 installWarehouseMyceliumBridge(window);
 const $=id=>document.getElementById(id);
@@ -112,6 +113,15 @@ $('npcCueSheet').addEventListener('click',()=>{
   URL.revokeObjectURL(uri);
   $('npcStudioStatus').textContent='Actor cue sheet generated. Record the lines in Aniyah Studio, then preview your approved takes here.';
  }catch{$('npcStudioStatus').textContent='Could not generate actor script.';}
+});
+$('npcStudioHandoff').addEventListener('click',()=>{
+ const node=dialogue&&getDialogueNode(dialogue);
+ if(!node){$('npcStudioStatus').textContent='Select a story and dialogue line first.';return;}
+ const brief=buildAniyahStudioBrief({branch:dialogue.branch,nodeId:dialogue.node,speaker:node.speaker,line:node.line});
+ try{
+  saveAniyahStudioBrief(localStorage,brief);
+  $('npcStudioStatus').textContent='Recording brief saved locally. Open Aniyah Studio to see the script. No recording was uploaded or published.';
+ }catch{ $('npcStudioStatus').textContent='Could not save the brief. Check browser storage settings.';}
 });
 $('npcStop').addEventListener('click',stopVoice);
 $('npcRepeat').addEventListener('click',()=>{
