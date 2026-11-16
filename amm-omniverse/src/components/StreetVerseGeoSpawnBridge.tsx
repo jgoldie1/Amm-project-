@@ -6,6 +6,7 @@ import {installStreetVerseHydeParkMissionRuntime} from '../runtime/StreetVerseHy
 import {installStreetVerseAfterDarkAlphaRuntime} from '../runtime/StreetVerseAfterDarkAlphaRuntime'
 import {installStreetVerseMissionLedgerBridge} from '../runtime/StreetVerseMissionLedgerBridge'
 import {installStreetVerseMissionDiscoveryRuntime} from '../runtime/StreetVerseMissionDiscoveryRuntime'
+import {installStreetVerseMyceliumTimelineRuntime} from '../runtime/StreetVerseMyceliumTimelineRuntime'
 import {installStreetVerseFameRuntime} from '../runtime/StreetVerseFameRuntime'
 import {installStreetVerseVehicleRepairStreamerRuntime} from '../runtime/StreetVerseVehicleRepairStreamerRuntime'
 import {installStreetVerseFirstRideLoveStoryRuntime} from '../runtime/StreetVerseFirstRideLoveStoryRuntime'
@@ -182,6 +183,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  useLayoutEffect(()=>installStreetVerseAfterDarkAlphaRuntime(),[])
  useLayoutEffect(()=>{installStreetVerseMissionLedgerBridge()},[])
  useLayoutEffect(()=>{installStreetVerseMissionDiscoveryRuntime()},[])
+ useLayoutEffect(()=>installStreetVerseMyceliumTimelineRuntime(),[])
  useLayoutEffect(()=>{installStreetVerseFameRuntime()},[])
  useLayoutEffect(()=>{installStreetVerseVehicleRepairStreamerRuntime()},[])
  useLayoutEffect(()=>{installStreetVerseFirstRideLoveStoryRuntime()},[])
