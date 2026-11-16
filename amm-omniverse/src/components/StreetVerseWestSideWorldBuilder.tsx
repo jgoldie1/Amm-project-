@@ -113,6 +113,14 @@ export default function StreetVerseWestSideWorldBuilder(){
  const [middleverseRepairs,setMiddleverseRepairs]=useState<MiddleverseRepairStateView>({items:[],activeTicketId:null})
  const [layers,setLayers]=useState({neighborhood:true,school:true,faith:true,campus:true,medical:true,transit:true})
  const visible=useMemo(()=>ZONES.filter(z=>layers[z.group]),[layers])
+ useEffect(()=>{
+  if(typeof window==='undefined')return
+  const params=new URLSearchParams(window.location.search)
+  if(params.get('builder')!=='1')return
+  setScale('west');setTab('build');setOpen(true)
+  params.delete('builder')
+  window.history.replaceState(window.history.state,'',window.location.pathname+(params.size?'?'+params.toString():'')+window.location.hash)
+ },[])
 
  useEffect(()=>{
   // Report only models actually attached to a Three.js group. Asset recipes and
