@@ -32,6 +32,18 @@ test('Mycelium fans out once per unique event, resists cycles and duplicate deli
  assert.equal(network.receipts().length,1)
  assert.throws(()=>network.publish({...event,id:'not valid'}))
 })
+test('Mycelium local simulation receipt survives network rebuild without double delivery',()=>{
+ const disk=new Map()
+ const prior=globalThis.localStorage
+ globalThis.localStorage={getItem:k=>disk.get(k)||null,setItem:(k,v)=>disk.set(k,v)}
+ try{
+  const event={id:'district-preview:chicago:1',kind:'district-preview',cityId:'chicago',source:'streetverse',payload:{features:4}}
+  assert.equal(mycelium.createStreetVerseMyceliumNetwork({persistLocal:true}).publish(event).duplicate,false)
+  const next=mycelium.createStreetVerseMyceliumNetwork({persistLocal:true})
+  assert.equal(next.publish(event).duplicate,true)
+  assert.equal(next.receipts().length,1)
+ }finally{if(prior===undefined)delete globalThis.localStorage;else globalThis.localStorage=prior}
+})
 test('Recovered Mycelium timeline keeps forked world history separate',()=>{
  const timeline=timelineModule.createMyceliumTimeline('streetverse:chicago')
  assert.equal(timeline.record({id:'e1',kind:'district-preview',payload:{city:'chicago'},at:1}),true)
@@ -56,7 +68,10 @@ test('frontend button is connected to backend, AI Café and world builder, witho
  const panel=readFileSync(new URL('../src/components/StreetVerseMyceliumSubmissionPanel.tsx',import.meta.url),'utf8')
  const builder=readFileSync(new URL('../src/components/StreetVerseWestSideWorldBuilder.tsx',import.meta.url),'utf8')
  const runner=readFileSync(new URL('../src/runtime/StreetVerseOneButtonSubmissionTest.ts',import.meta.url),'utf8')
- assert.match(panel,/RUN ONE-BUTTON SUBMISSION TEST/)
+ assert.match(panel,/BUILD VISIBLE CHICAGO \+ TEST CONNECTIONS/)
+ assert.match(panel,/tryamm:streetverse-forge-placement-request/)
+ assert.match(panel,/tryamm:open-hologpt/)
+ assert.match(panel,/tryamm:open-middleverse-ai/)
  assert.match(builder,/<StreetVerseMyceliumSubmissionPanel\s*\/>/)
  assert.match(runner,/\/api\/agents\/jobs/)
  assert.match(runner,/tryamm:ai-cafe-task/)
