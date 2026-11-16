@@ -48,6 +48,7 @@ const StreetVerseTouchDriveControls=lazy(()=>import('./StreetVerseTouchDriveCont
 const HoloMobilityLauncher=lazy(()=>import('./HoloMobilityLauncher'))
 const StreetVerseFaithChronoPortal=lazy(()=>import('./StreetVerseFaithChronoPortal'))
 const StreetVerseNearWest3D=lazy(()=>import('./StreetVerseNearWest3D'))
+const TampaRiverwalkWorld=lazy(()=>import('./TampaRiverwalkWorld'))
 
 const DESTINATION_KEY_V2='tryamm.streetverse.chicago-destination.v2'
 const DESTINATION_KEY_V1='tryamm.streetverse.chicago-destination.v1'
@@ -167,6 +168,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  const mobile=useMemo(()=>typeof navigator!=='undefined'&&/iPhone|iPad|iPod|Android/i.test(navigator.userAgent||''),[])
  const [enhancementsReady,setEnhancementsReady]=useState(false)
  const [nearWestOpen,setNearWestOpen]=useState(false)
+ const [tampaOpen,setTampaOpen]=useState(false)
  const [demoDestination,setDemoDestination]=useState<'chicago'|'greenville'>('chicago')
  const [quantumMode,setQuantumMode]=useState<QuantumSpeedMode>('balanced')
  const setLocationContext=useGameStore(state=>state.setLocationContext)
@@ -294,10 +296,12 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
 
  return <>
   <BuildSwarmControl/>
+  {tampaOpen&&<Suspense fallback={<div role="status" style={{position:'fixed',inset:0,zIndex:16000,background:'#091525',color:'#fff',display:'grid',placeItems:'center'}}>LOADING TAMPA RIVERWALK 3D…</div>}><TampaRiverwalkWorld onReturn={()=>setTampaOpen(false)}/></Suspense>}
   {nearWestOpen&&<div style={{position:'fixed',inset:0,zIndex:14980,background:'#07101d'}}><Suspense fallback={null}><StreetVerseNearWest3D key={demoDestination} initialDestination={demoDestination}/></Suspense><button aria-label="Return to StreetVerse Chicago" onClick={()=>setNearWestOpen(false)} style={{position:'fixed',top:76,right:12,zIndex:14990,border:'1px solid #6ee7ff',borderRadius:12,background:'#07131f',color:'#fff',padding:'10px 12px',fontWeight:900}}>← CHICAGO</button></div>}
-  {!nearWestOpen&&<div role="group" aria-label="StreetVerse one-tap 3D world demos" style={{position:'fixed',left:10,top:112,zIndex:14975,display:'grid',gap:8,maxWidth:'min(46vw,230px)'}}>
+  {!nearWestOpen&&!tampaOpen&&<div role="group" aria-label="StreetVerse one-tap 3D world demos" style={{position:'fixed',left:10,top:112,zIndex:14975,display:'grid',gap:8,maxWidth:'min(46vw,230px)'}}>
     <button data-streetverse-demo="chicago" aria-label="Launch Chicago West Side 3D world" onClick={()=>{setDemoDestination('chicago');setNearWestOpen(true)}} style={{minHeight:58,borderRadius:12,border:'2px solid #94dbff',background:'#08314c',color:'#fff',fontSize:13,fontWeight:900,padding:'8px 10px',touchAction:'manipulation'}}>🏙️ WEST SIDE 3D</button>
     <button data-streetverse-demo="greenville" aria-label="Launch Greenville CampusVerse 3D world" onClick={()=>{setDemoDestination('greenville');setNearWestOpen(true)}} style={{minHeight:58,borderRadius:12,border:'2px solid #f3d17c',background:'#3b2b0c',color:'#fff',fontSize:13,fontWeight:900,padding:'8px 10px',touchAction:'manipulation'}}>🎓 GREENVILLE 3D</button>
+    <button data-streetverse-demo="tampa" aria-label="Launch Tampa Riverwalk BeautyVerse 3D world" onClick={()=>setTampaOpen(true)} style={{minHeight:58,borderRadius:12,border:"2px solid #f4c3d5",background:"#57394e",color:"#fff",fontSize:13,fontWeight:900,padding:"8px 10px",touchAction:"manipulation"}}>🌴 TAMPA RIVERWALK 3D</button>
     <span style={{padding:5,background:'#030e19dc',color:'#d0e1ef',fontSize:10}}>DEVELOPMENT DEMOS • placeholder geometry and licensed GLBs may differ</span>
   </div>}
   {!nearWestOpen&&<button data-streetverse-travel="true" aria-label="Travel to Taylor Street UIC Medical District" onClick={()=>{if(mobile){window.dispatchEvent(new CustomEvent('tryamm:west-side-route-request',{detail:{x:24,z:-8,missionId:'taylor-single-canvas',source:'streetverse-main-travel-shortcut'}}))}else setNearWestOpen(true)}} style={{position:'fixed',top:118,right:12,zIndex:14970,border:'1px solid #6ee7ff',borderRadius:12,background:'#062333e8',color:'#fff',padding:'10px 12px',fontWeight:900}}>TAYLOR / UIC</button>}
