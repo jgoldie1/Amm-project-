@@ -397,6 +397,31 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
     const mixer=clips.length?new THREE.AnimationMixer(object):null
     const animations=materializeAnimationMap(clips)
     const morphs=collectMorphMeshes(object)
+    // Report structural proof, not a likeness or playable-game certification.
+    // Hidden/zero-scale meshes and empty tracks must not count as animated BJ.
+    let skeletalMeshes=0,renderableSkinnedMeshes=0,bones=0
+    object.traverse(node=>{
+      if(!(node instanceof THREE.SkinnedMesh))return
+      skeletalMeshes++
+      const geometry=node.geometry
+      const hasVertices=Boolean(geometry?.getAttribute('position')?.count)
+      const visibleScale=node.getWorldScale(new THREE.Vector3()).lengthSq()>1e-8
+      if(hasVertices&&visibleScale&&node.visible&&node.skeleton?.bones.length){
+        renderableSkinnedMeshes++
+        bones=Math.max(bones,node.skeleton.bones.length)
+      }
+    })
+    const trackCount=clips.reduce((n,clip)=>n+clip.tracks.length,0)
+    const idleAndWalk=Boolean(animations.idle&&animations.walk)
+    const rigReady=renderableSkinnedMeshes>0&&bones>0&&trackCount>0&&idleAndWalk
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-rig-audit',{detail:{
+      characterId:'bj-stubbs',source:'loaded-bj-glb',sourceUrl,
+      skeletalMeshes,renderableSkinnedMeshes,bones,clipCount:clips.length,
+      trackCount,idleAndWalk,rigReady,animatedPlaybackObserved:false,
+      productionCertified:false,likenessCertified:false,
+      reason:rigReady?'Rig structure found; device animation playback still needs a visual test':
+        'No verified visible skinned mesh, bones, idle/walk clips and animation tracks',
+    }}))
     if(usingV15Preview){
       let skins=0
       object.traverse(n=>{if(n instanceof THREE.SkinnedMesh)skins++})
