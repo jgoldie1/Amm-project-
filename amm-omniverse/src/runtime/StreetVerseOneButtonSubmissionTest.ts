@@ -1,5 +1,6 @@
 import {generateStarterDistrict,validateStarterDistrict,STREETVERSE_STARTER_CITIES} from '../data/StreetVerseLivingCityGenerator'
 import {createStreetVerseMyceliumNetwork} from './StreetVerseMyceliumNetwork'
+import {createMyceliumTimeline} from './StreetVerseMyceliumTimelineRuntime'
 import {getAccessToken} from '../services/supabaseClient'
 
 export type SubmissionTestResult = {
@@ -24,6 +25,10 @@ export async function runStreetVerseSubmissionTest(cityId:string):Promise<Submis
  const receipt=network.publish(event),duplicate=network.publish(event);
  if(!duplicate.duplicate||receipt.delivered.length!==8)return {status:'failed',cityId,checks,missing:['Mycelium event routing/replay check failed'],featureCount:district.features.length,eventNodes:[...receipt.delivered]};
  checks.push('Mycelium event fanout and duplicate suppression passed (simulation only)');
+ const timeline=createMyceliumTimeline('streetverse:'+cityId);
+ const inserted=timeline.record({id:event.id,kind:event.kind,payload:{featureCount:district.features.length},at:0});
+ if(!inserted||timeline.history().length!==1||timeline.record({id:event.id,kind:event.kind,payload:{featureCount:district.features.length},at:0}))return {status:'failed',cityId,checks,missing:['Mycelium timeline replay failed'],featureCount:district.features.length,eventNodes:[...receipt.delivered]};
+ checks.push('Recovered Mycelium timeline recorded one persistent-in-session event without replay');
  window.dispatchEvent(new CustomEvent('tryamm:streetverse-district-preview',{detail:{cityId,district,receipt,source:'one-button-integration-test',rendered:false}}));
  window.dispatchEvent(new CustomEvent('tryamm:ai-cafe-task',{detail:{workstream:'streetverse',title:`Review ${city.name} district preview and attach licensed assets / geometry`,priority:'normal',source:'mycelium-submission-test'}}));
  checks.push('Preview event emitted to StreetVerse and AI Café task queue');
