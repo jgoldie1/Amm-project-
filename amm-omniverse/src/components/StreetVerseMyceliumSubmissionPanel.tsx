@@ -39,6 +39,8 @@ export default function StreetVerseMyceliumSubmissionPanel(){
    const d=(e as CustomEvent<{renderer?:string;nativeAssets?:number;missingAssets?:number}>).detail||{}
    setRendererEvidence(`3D renderer event: ${d.renderer||'unknown'} • ${d.nativeAssets||0} loaded assets • device visual test pending`)
   }
+  const cachedBJ=(window as any).__TRYAMM_BJ_RIG_AUDIT__
+  if(cachedBJ)onBJ(new CustomEvent('tryamm:streetverse-bj-rig-audit',{detail:cachedBJ}))
   window.addEventListener('tryamm:streetverse-bj-rig-audit',onBJ)
   window.addEventListener('tryamm:streetverse-forge-renderer-ready',onRenderer)
   window.addEventListener('tryamm:streetverse-district-preview-result',onDistrictVisual)
