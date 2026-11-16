@@ -24,5 +24,11 @@ test('LaTeasia model never substitutes another anonymous Meshy NPC or asserts un
 })
 test('LaTeasia remains referenced by Tampa Riverwalk even as Chicago is added',()=>{
  const tampa=read('amm-omniverse/src/components/TampaRiverwalkWorld.tsx')
+ const character=read('amm-omniverse/src/components/StreetVerseLaTeasiaChicago.tsx')
  assert.match(tampa,/LaTeasia/)
+ assert.match(tampa,/<StreetVerseLaTeasiaChicago city="tampa" position=\{\[18,0,-\.7\]\}\/>/)
+ assert.match(character,/city\?:'chicago'\|'tampa'/)
+ assert.match(character,/skinnedMeshes===0/)
+ assert.match(character,/hasExpectedAnimations/)
+ assert.match(character,/loaded-rig-preview-not-likeness-certified/)
 })
