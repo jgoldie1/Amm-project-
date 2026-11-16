@@ -538,9 +538,9 @@ function PopulationMeshes({reaction,detailedIds}:{reaction:{id:string;reaction:'
   </group>
  })}
  </group>}
-export default function StreetVerseNearWest3D(){
+export default function StreetVerseNearWest3D({initialDestination='chicago'}:{initialDestination?:'chicago'|'greenville'}={}){
  const [collegeBookOpen,setCollegeBookOpen]=useState(false)
- const [greenvilleOpen,setGreenvilleOpen]=useState(false)
+ const [greenvilleOpen,setGreenvilleOpen]=useState(initialDestination==='greenville')
  const [remoteCampusId,setRemoteCampusId]=useState<CampusNetworkId|null>(null)
  const [dealerOpen,setDealerOpen]=useState(false)
  const [garageOpen,setGarageOpen]=useState(false)
