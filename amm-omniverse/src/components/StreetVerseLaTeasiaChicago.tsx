@@ -17,7 +17,7 @@ export const LATEASIA_CHICAGO = {
  intro:'I’m LaTeasia Monroe. Welcome to the Chicago creator district! We can plan a beauty showcase, an original music session, or a trip to my BeautyVerse project in Tampa.',
 } as const
 
-export default function StreetVerseLaTeasiaChicago({onStatus,city='chicago',position}:{onStatus?:(realGlbLoaded:boolean)=>void;city?:'chicago'|'tampa';position?:readonly [number,number,number]}){
+export default function StreetVerseLaTeasiaChicago({onStatus,city='chicago',position}:{onStatus?:(realGlbLoaded:boolean)=>void;city?:'chicago'|'tampa';position?:[number,number,number]}){
  const group=useRef<THREE.Group>(null)
  const mixer=useRef<THREE.AnimationMixer|null>(null)
  const installed=useRef<THREE.Object3D|null>(null)
