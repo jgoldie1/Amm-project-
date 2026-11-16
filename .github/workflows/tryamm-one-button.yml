@@ -45,6 +45,10 @@ jobs:
         id: holoverse
         continue-on-error: true
         run: node --test amm-omniverse/tests/holoverse-pilot-accounting.test.mjs amm-omniverse/tests/sample-clearance-submission.test.mjs
+      - name: 3PL quote and fulfillment safety regression
+        id: warehouse
+        continue-on-error: true
+        run: node --test amm-omniverse/tests/three-pl-quote-pilot.test.mjs
       - name: Whole-app readiness inventory
         id: readiness
         continue-on-error: true
@@ -63,10 +67,12 @@ jobs:
           OMNIVERSE: ${{ steps.omniverse.outcome }}
           READINESS: ${{ steps.readiness.outcome }}
           HOLOVERSE: ${{ steps.holoverse.outcome }}
+          WAREHOUSE: ${{ steps.warehouse.outcome }}
         run: |
           echo "Root: $PLATFORM; Omniverse: $OMNIVERSE; Readiness: $READINESS"
           test "$PLATFORM" = "success"
           test "$OMNIVERSE" = "success"
           test "$READINESS" = "success"
           test "$HOLOVERSE" = "success"
+          test "$WAREHOUSE" = "success"
           echo "Code and readiness gates passed without unresolved critical blockers."
