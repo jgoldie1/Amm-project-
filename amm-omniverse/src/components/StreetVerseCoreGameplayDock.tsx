@@ -74,8 +74,9 @@ export default function StreetVerseCoreGameplayDock(){
   const status=mission?'ACTIVE • '+mission.label:message
   return <><StreetVerseInGamePanels/><aside aria-label="StreetVerse core gameplay controls" style={{position:'fixed',left:8,right:8,bottom:'max(8px, env(safe-area-inset-bottom))',zIndex:47000,pointerEvents:'none',fontFamily:'system-ui,sans-serif'}}>
     <div style={{pointerEvents:'auto',margin:'0 auto',maxWidth:620,border:'1px solid #4fe3ff66',borderRadius:18,padding:7,background:'#030b12e8',boxShadow:'0 12px 36px #000b'}}>
-      <div style={{display:'grid',gridTemplateColumns:'repeat(5,minmax(0,1fr))',gap:5}}>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,minmax(0,1fr))',gap:5}}>
         <button onClick={missionAction} style={{...btn,color:'#ffe47f'}}>📍<br/>MISSION</button>
+        <button aria-label="Play Warehouse Delivery Mission" onClick={()=>{window.location.href='/warehouse-missions.html'}} style={{...btn,color:'#b0f5cc'}}>📦<br/>WAREHOUSE</button>
         <button onClick={repair} style={{...btn,color:'#ffb36b'}}>🔧<br/>REPAIR</button>
         <button onClick={ride} style={{...btn,color:'#8effb7'}}>🚕<br/>RIDE</button>
         <button onClick={reel} style={{...btn,color:'#f3a6ff'}}>🎥<br/>REEL</button>
