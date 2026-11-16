@@ -12,6 +12,7 @@ export default function StreetVerseMyceliumSubmissionPanel(){
  const [bjEvidence,setBjEvidence]=useState('BJ animated rig not verified on this device')
  const [rendererEvidence,setRendererEvidence]=useState('3D renderer not verified on this device')
  const [reportMessage,setReportMessage]=useState('')
+ const [gestureResult,setGestureResult]=useState('BJ gesture test not run')
  const awaitingRenderer=useRef(false)
  useEffect(()=>{
   const onPlacement=(e:Event)=>{
@@ -41,12 +42,17 @@ export default function StreetVerseMyceliumSubmissionPanel(){
   }
   const cachedBJ=(window as any).__TRYAMM_BJ_RIG_AUDIT__
   if(cachedBJ)onBJ(new CustomEvent('tryamm:streetverse-bj-rig-audit',{detail:cachedBJ}))
+  const onGestureResult=(e:Event)=>{
+   const d=(e as CustomEvent<{gesture?:string;clipFound?:boolean}>).detail||{}
+   setGestureResult(d.clipFound?`BJ ${d.gesture||'gesture'} clip started in game mixer • visually verify character movement`:`BJ ${d.gesture||'gesture'} unavailable • check V15 loading/clip mappings`)
+  }
+  window.addEventListener('tryamm:bj-gesture-result',onGestureResult)
   window.addEventListener('tryamm:streetverse-bj-rig-audit',onBJ)
   window.addEventListener('tryamm:streetverse-forge-renderer-ready',onRenderer)
   window.addEventListener('tryamm:streetverse-district-preview-result',onDistrictVisual)
   window.addEventListener('tryamm:streetverse-forge-placement-result',onPlacement)
   window.addEventListener('tryamm:streetverse-forge-renderer-ready',onRendererReady)
-  return()=>{window.removeEventListener('tryamm:streetverse-bj-rig-audit',onBJ);window.removeEventListener('tryamm:streetverse-forge-renderer-ready',onRenderer);window.removeEventListener('tryamm:streetverse-district-preview-result',onDistrictVisual);window.removeEventListener('tryamm:streetverse-forge-placement-result',onPlacement);window.removeEventListener('tryamm:streetverse-forge-renderer-ready',onRendererReady)}
+  return()=>{window.removeEventListener('tryamm:bj-gesture-result',onGestureResult);window.removeEventListener('tryamm:streetverse-bj-rig-audit',onBJ);window.removeEventListener('tryamm:streetverse-forge-renderer-ready',onRenderer);window.removeEventListener('tryamm:streetverse-district-preview-result',onDistrictVisual);window.removeEventListener('tryamm:streetverse-forge-placement-result',onPlacement);window.removeEventListener('tryamm:streetverse-forge-renderer-ready',onRendererReady)}
  },[])
  const runEngineDiagnostic=()=>{
    const kernel=createStreetVerseWorldKernel()
@@ -75,6 +81,15 @@ export default function StreetVerseMyceliumSubmissionPanel(){
   <strong>🌆 LIVING CITY × MYCELIUM × AI CAFÉ</strong>
   <div role="status" aria-live="polite" style={{fontSize:12,color:'#f4cc8c'}}>{rendererEvidence}</div>
   <div role="status" aria-live="polite" style={{fontSize:12,color:'#f4cc8c'}}>{bjEvidence}</div>
+  <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:8}}>
+   {([
+     ['greet','WAVE'],['nod','NOD'],['look-around','LOOK AROUND'],['acknowledge','CONVERSATION']
+   ] as const).map(([gesture,label])=><button key={gesture} type="button" style={control} onClick={()=>{
+    setGestureResult('Requesting BJ '+label+' in active game…')
+    window.dispatchEvent(new CustomEvent('tryamm:bj-gesture',{detail:{characterId:'bj-stubbs',gesture}}))
+   }}>BJ {label}</button>)}
+  </div>
+  <div role="status" aria-live="polite" style={{fontSize:12,color:'#e6d5fb'}}>{gestureResult}</div>
   <p style={{margin:0,fontSize:12,lineHeight:1.5}}>Chicago: request placement of four existing native 3D street objects, then run Mycelium, AI Café and backend verification. Other cities: generate a layout preview only. No paid generation or publishing.</p>
   <label htmlFor="mycelium-city-select" style={{fontSize:12}}>Starter city</label>
   <select id="mycelium-city-select" value={cityId} onChange={e=>setCityId(e.target.value)} style={{...control,background:'#071824'}}>
@@ -94,6 +109,7 @@ export default function StreetVerseMyceliumSubmissionPanel(){
     'Viewport: '+window.innerWidth+' × '+window.innerHeight,
     'Renderer event: '+rendererEvidence,
     'BJ rig structure: '+bjEvidence,
+    'BJ gesture event: '+gestureResult,
     'District preview: '+districtVisual,
     'Native placement: '+placement,
     'Driving simulation: '+engineCheck,
