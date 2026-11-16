@@ -28,14 +28,15 @@ export const INDEPENDENT_CHART_CATEGORIES=Object.freeze([
 ]);
 export function aggregateIndependentMusicCharts(events,{start,end}={}){
  if(!Array.isArray(events)||!Number.isFinite(start)||!Number.isFinite(end)||start>end)return [];
+ const reversedSaleIds=new Set(events.filter(e=>e&&['refunded','chargeback'].includes(e.status)).map(e=>String(e.saleId)));
  const saleIds=new Set(),totals=new Map();
  for(const e of events){
   if(!e||!['delivered','refunded','chargeback'].includes(e.status)||!e.trackId||!e.artistId||!e.saleId||!Number.isFinite(e.timestamp)||e.timestamp<start||e.timestamp>end)continue;
   // Candidate sales are verified non-refunded fulfillment records only.
-  // Order-level reversals must be applied upstream before chart publication.
+  // Entirely reversed sales in this event batch are excluded even if the delivery event arrived first.
   if(e.status!=='delivered'||e.paymentVerified!==true||e.fulfillmentVerified!==true||e.rightsApproved!==true||e.suspicious===true||e.artistOptIn!==true)continue;
   const dedupe=String(e.saleId);
-  if(saleIds.has(dedupe))continue;saleIds.add(dedupe);
+  if(reversedSaleIds.has(dedupe)||saleIds.has(dedupe))continue;saleIds.add(dedupe);
   const key=String(e.artistId)+'::'+String(e.trackId),now=totals.get(key)||{artistId:e.artistId,trackId:e.trackId,verifiedUnits:0};
   now.verifiedUnits+=1;totals.set(key,now);
  }
