@@ -38,3 +38,20 @@ Current branch comparisons versus `main`:
 ## What cleanup changes
 
 A smaller, verified PR queue reduces conflicting changes, duplicated fixes, CI load, and accidental overwrites. It does **not** automatically deploy the website, settle payments, fix accessibility, or clear 15 whole-app blockers. Every closure requires proof of merger/supersession, and every production release still requires test evidence.
+
+## November 16: smallest-change-first comparison (verified)
+
+**First candidate: PR #710** — one changed file, `amm-omniverse/src/components/StreetVerseCoreGameplayDock.tsx`. Its patch adds a conditional `tryamm:streetverse-first-journey-start` event when no mission is active, shows `STARTING STREETVERSE MISSION`, and retains the existing cinematic selector event when the mission button is pressed. The same file on `main` currently only opens the cinematic selector. This is a genuine unmerged behavior difference, not proof the listener/complete journey succeeds.
+
+Changed-file inventories checked directly on GitHub:
+
+| PR | Number of changed paths | Triage |
+|---|---:|---|
+| #710 | 1 | Smallest isolated candidate; verify event receiver and tests first |
+| #700 | 13 | BJ GLB, seating, NPC, vehicle, tests; keep separate |
+| #713 | 14 | Asset/HTTP 402 fallback, mobile visibility, tests; keep separate |
+| #696 | 77 | Broad LIVE, mobility, creative, radio, and gameplay changes; split before integration |
+
+The earlier overlapping candidates #685/#721/#723 still require exact diff comparison before declaring any redundant.
+
+**Release hold:** Issue #712 documents three failing mobile Playwright assertions (BJ owned GLB, resident asset proof, Taylor Street accessible travel button) and explicitly holds #710/#696/#700 unmerged until relevant regression evidence passes. Issue #714 documents incomplete BJ rig/animation proof. Do not merge #710 only because it is small. Verify the `first-journey-start` event consumer, mission-active behavior, no duplicate rewards, TypeScript/build, existing contracts and Playwright mobile mission controls; then cherry-pick the minimal patch and required tests into a fresh integration PR. No PRs closed, branches deleted, payments made, or production deployed during this comparison.
