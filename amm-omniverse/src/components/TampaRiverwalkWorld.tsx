@@ -2,6 +2,7 @@ import {Canvas,useFrame} from '@react-three/fiber'
 import {useEffect,useRef,useState} from 'react'
 import * as THREE from 'three'
 import {TAMPA_RIVERWALK_DISTRICTS,resolveTampaTravel,clampTampaWalk} from '../data/tampaRiverwalkScene.mjs'
+import StreetVerseLaTeasiaChicago from './StreetVerseLaTeasiaChicago'
 type Direction='forward'|'back'|'left'|'right'
 const button:React.CSSProperties={minHeight:56,border:'2px solid #82dafa',borderRadius:12,background:'#102f42',color:'#fff',fontSize:14,fontWeight:900,padding:'9px 13px',touchAction:'none',cursor:'pointer'}
 function Avatar({position}:{position:[number,number]}){return <group position={[position[0],0,position[1]]}>
@@ -38,6 +39,7 @@ function Scene({position}:{position:[number,number]}){
   <District x={0} z={7} tone="#9bbbd4" label="Riverwalk"/>
   {Array.from({length:12},(_,i)=><mesh key={i} castShadow position={[-23+(i%4)*3,.3,-13+Math.floor(i/4)*3]}><boxGeometry args={[1.9,.6,1.8]}/><meshStandardMaterial color={i%3===0?'#a2baca':'#e8cdb5'}/></mesh>)}
   <Avatar position={position}/>
+  <StreetVerseLaTeasiaChicago city="tampa" position={[18,0,-.7]}/>
   <gridHelper args={[78,13,'#a9e5e2','#6c9076']} position={[0,.06,0]}/>
  </>
 }
@@ -70,6 +72,6 @@ export default function TampaRiverwalkWorld({onReturn}:{onReturn:()=>void}){
   <div style={{position:'absolute',bottom:12,left:12,display:'grid',gap:4,gridTemplateColumns:'repeat(3,58px)',background:'#041b2cdd',padding:9,borderRadius:14}}>
    <span/>{control('forward')}<span/>{control('left')}{control('back')}{control('right')}
   </div>
-  <div role="status" aria-live="polite" style={{position:'absolute',bottom:10,right:10,maxWidth:'min(45vw,260px)',background:'#041b2ce8',padding:10,borderRadius:12,fontSize:12}}>{status}<p style={{marginBottom:0,color:'#ffdc97'}}>Visible avatar is a temporary stylized stand-in; LaTeasia's original rig not certified here.</p></div>
+  <div role="status" aria-live="polite" style={{position:'absolute',bottom:10,right:10,maxWidth:'min(45vw,260px)',background:'#041b2ce8',padding:10,borderRadius:12,fontSize:12}}>{status}<p style={{marginBottom:0,color:'#ffdc97'}}>Player avatar is temporary. LaTeasia appears separately at Beauty House; her recovered GLB loads only if the rig passes structural checks. Visual likeness and gameplay still need certification.</p></div>
  </div>
 }
