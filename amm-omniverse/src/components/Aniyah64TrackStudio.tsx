@@ -8,6 +8,7 @@ const ProAudioSuite=lazy(()=>import('./ProAudioSuite'))
 const DirectFanPhysicalMusic=lazy(()=>import('./DirectFanPhysicalMusic'))
 const MusicVideoDiscovery=lazy(()=>import('./MusicVideoDiscovery'))
 const IndependentMusicListening=lazy(()=>import('./IndependentMusicListening'))
+const MediaIntakePreflight=lazy(()=>import('./MediaIntakePreflight'))
 type StudioVoiceBrief={version:number;source:string;project:string;mode:string;character:string;script:string;recordingStatus:string;performanceRightsStatus:string;publishAuthorized:boolean;distributionAuthorized:boolean}
 const ANIYAH_VOICE_HANDOFF_KEY='tryamm.aniyah.voice-session-handoff.v1'
 function readStudioVoiceBrief():StudioVoiceBrief|null{
@@ -17,7 +18,7 @@ function readStudioVoiceBrief():StudioVoiceBrief|null{
   return b as StudioVoiceBrief
  }catch{return null}
 }
-type Mode='create'|'engineer'|'beats'|'physical'|'listen'|'videos'|'earn'
+type Mode='create'|'engineer'|'beats'|'physical'|'listen'|'videos'|'intake'|'earn'
 
 export default function Aniyah64TrackStudio({onClose}:{onClose?:()=>void}){
  const [mode,setMode]=useState<Mode>('create')
@@ -41,7 +42,7 @@ export default function Aniyah64TrackStudio({onClose}:{onClose?:()=>void}){
   <header style={{position:'sticky',top:0,zIndex:5,display:'flex',alignItems:'center',gap:10,flexWrap:'wrap',padding:'12px 14px',background:'#05060de8',borderBottom:'1px solid #6a5cff55',backdropFilter:'blur(12px)'}}>
    {onClose&&<button onClick={onClose} style={back}>← STAR STUDIO</button>}
    <div><div style={{fontSize:9,letterSpacing:2.4,color:'#ff91dc',fontWeight:950}}>ANIYAH • MUSIC BUSINESS</div><div style={{fontSize:20,fontWeight:950}}>64-Track Studio</div><div style={{fontSize:9,color:'#8fa2b8'}}>AI Create Mode + full 64-track Engineer Mode + verified commerce</div></div>
-   <div style={{marginLeft:'auto',display:'flex',gap:6}}>{(['create','engineer','beats','physical','listen','videos','earn'] as Mode[]).map(m=><button key={m} onClick={()=>setMode(m)} style={{...tab,borderColor:mode===m?'#ffd75e':'#344156',color:mode===m?'#ffd75e':'#a6b2c0'}}>{m.toUpperCase()}</button>)}</div>
+   <div style={{marginLeft:'auto',display:'flex',gap:6}}>{(['create','engineer','beats','physical','listen','videos','intake','earn'] as Mode[]).map(m=><button key={m} onClick={()=>setMode(m)} style={{...tab,borderColor:mode===m?'#ffd75e':'#344156',color:mode===m?'#ffd75e':'#a6b2c0'}}>{m.toUpperCase()}</button>)}</div>
   </header>
   {voiceBrief&&<section aria-label="Incoming human voice recording brief" style={{maxWidth:1080,margin:'14px auto',border:'1px solid #65d8ff',borderRadius:16,padding:16,background:'#061725'}}>
     <div style={{fontSize:11,color:'#95e6ff',fontWeight:900}}>INCOMING MYCELIUM RECORDING BRIEF · HUMAN PERFORMANCE REQUIRED</div>
@@ -58,6 +59,7 @@ export default function Aniyah64TrackStudio({onClose}:{onClose?:()=>void}){
   {mode==='engineer'&&<div style={{height:'calc(100dvh - 78px)'}}><Suspense fallback={<div style={{padding:24}}>Loading 64-track Engineer Mode…</div>}><RecordingStudio onClose={()=>setMode('create')}/></Suspense></div>}
   {mode==='beats'&&<div style={{height:'calc(100dvh - 78px)'}}><Suspense fallback={<div style={{padding:24}}>Loading MPC pads and chord keyboard…</div>}><ProAudioSuite onClose={()=>setMode('engineer')}/></Suspense></div>}
   {mode==='physical'&&<Suspense fallback={<div style={{padding:24}}>Loading direct-to-fan vinyl and CD planner…</div>}><DirectFanPhysicalMusic/></Suspense>}
+  {mode==='intake'&&<Suspense fallback={<div style={{padding:24}}>Loading original media intake checks…</div>}><MediaIntakePreflight/></Suspense>}
   {mode==='listen'&&<Suspense fallback={<div style={{padding:24}}>Loading licensed music listening…</div>}><IndependentMusicListening/></Suspense>}
   {mode==='videos'&&<Suspense fallback={<div style={{padding:24}}>Loading independent music videos…</div>}><MusicVideoDiscovery/></Suspense>}
   {mode==='earn'&&<main style={{maxWidth:1080,margin:'0 auto',padding:'18px 14px 80px'}}>
