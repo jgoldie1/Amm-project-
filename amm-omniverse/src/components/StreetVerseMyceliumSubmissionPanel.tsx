@@ -13,6 +13,7 @@ export default function StreetVerseMyceliumSubmissionPanel(){
  const [rendererEvidence,setRendererEvidence]=useState('3D renderer not verified on this device')
  const [reportMessage,setReportMessage]=useState('')
  const [gestureResult,setGestureResult]=useState('BJ gesture test not run')
+ const [localBJResult,setLocalBJResult]=useState('Optional: select your V15 GLB from Files to test inside the 3D game')
  const awaitingRenderer=useRef(false)
  useEffect(()=>{
   const onPlacement=(e:Event)=>{
@@ -54,6 +55,23 @@ export default function StreetVerseMyceliumSubmissionPanel(){
   window.addEventListener('tryamm:streetverse-forge-renderer-ready',onRendererReady)
   return()=>{window.removeEventListener('tryamm:bj-gesture-result',onGestureResult);window.removeEventListener('tryamm:streetverse-bj-rig-audit',onBJ);window.removeEventListener('tryamm:streetverse-forge-renderer-ready',onRenderer);window.removeEventListener('tryamm:streetverse-district-preview-result',onDistrictVisual);window.removeEventListener('tryamm:streetverse-forge-placement-result',onPlacement);window.removeEventListener('tryamm:streetverse-forge-renderer-ready',onRendererReady)}
  },[])
+ const loadBJFromDevice=async(file:File|undefined)=>{
+  if(!file)return
+  if(!/\.glb$/i.test(file.name)||file.size<20000||file.size>30000000){
+   setLocalBJResult('FILE BLOCKED • choose a 20 KB–30 MB .glb character model')
+   return
+  }
+  try{
+   const header=new DataView(await file.slice(0,12).arrayBuffer())
+   if(header.getUint32(0,true)!==0x46546c67||header.getUint32(4,true)!==2||header.getUint32(8,true)!==file.size)throw Error('GLB version or file length is invalid')
+   const prior=(window as any).__TRYAMM_BJ_LOCAL_PREVIEW_URL__
+   const next=URL.createObjectURL(file)
+   ;(window as any).__TRYAMM_BJ_LOCAL_PREVIEW_URL__=next
+   setLocalBJResult('LOCAL V15 SELECTED • loading through real StreetVerse GLB loader. No upload.')
+   window.dispatchEvent(new Event('tryamm:streetverse-bj-v15-preview'))
+   if(typeof prior==='string'&&prior.startsWith('blob:'))URL.revokeObjectURL(prior)
+  }catch(error){setLocalBJResult('LOCAL GLB REJECTED • '+String(error instanceof Error?error.message:'invalid asset'))}
+ }
  const runEngineDiagnostic=()=>{
    const kernel=createStreetVerseWorldKernel()
    kernel.startMission();kernel.step({enter:true})
@@ -90,6 +108,9 @@ export default function StreetVerseMyceliumSubmissionPanel(){
    }}>BJ {label}</button>)}
   </div>
   <div role="status" aria-live="polite" style={{fontSize:12,color:'#e6d5fb'}}>{gestureResult}</div>
+  <label htmlFor="bj-v15-local-preview-file" style={{...control,display:'block',cursor:'pointer',textAlign:'center'}}>SELECT BJ V15 GLB FROM FILES • LOCAL GAME TEST</label>
+  <input id="bj-v15-local-preview-file" type="file" accept=".glb,model/gltf-binary" aria-label="Choose your BJ V15 GLB for local StreetVerse preview" onChange={e=>{void loadBJFromDevice(e.currentTarget.files?.[0])}} style={{width:'100%',minHeight:44,fontSize:14}} />
+  <div role="status" aria-live="polite" style={{fontSize:12,color:'#d8f2c1'}}>{localBJResult}</div>
   <p style={{margin:0,fontSize:12,lineHeight:1.5}}>Chicago: request placement of four existing native 3D street objects, then run Mycelium, AI Café and backend verification. Other cities: generate a layout preview only. No paid generation or publishing.</p>
   <label htmlFor="mycelium-city-select" style={{fontSize:12}}>Starter city</label>
   <select id="mycelium-city-select" value={cityId} onChange={e=>setCityId(e.target.value)} style={{...control,background:'#071824'}}>
@@ -110,6 +131,7 @@ export default function StreetVerseMyceliumSubmissionPanel(){
     'Renderer event: '+rendererEvidence,
     'BJ rig structure: '+bjEvidence,
     'BJ gesture event: '+gestureResult,
+    'Local BJ asset test: '+localBJResult,
     'District preview: '+districtVisual,
     'Native placement: '+placement,
     'Driving simulation: '+engineCheck,
