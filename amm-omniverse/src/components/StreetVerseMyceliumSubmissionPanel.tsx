@@ -1,4 +1,4 @@
-import {useEffect,useState} from 'react'
+import {useEffect,useRef,useState} from 'react'
 import {STREETVERSE_STARTER_CITIES} from '../data/StreetVerseLivingCityGenerator'
 import {runStreetVerseSubmissionTest,type SubmissionTestResult} from '../runtime/StreetVerseOneButtonSubmissionTest'
 
@@ -6,15 +6,24 @@ const control:React.CSSProperties={minHeight:48,padding:'10px 12px',borderRadius
 export default function StreetVerseMyceliumSubmissionPanel(){
  const [cityId,setCityId]=useState('chicago'),[running,setRunning]=useState(false),[result,setResult]=useState<SubmissionTestResult|null>(null)
  const [placement,setPlacement]=useState('No actual 3D placement attempted')
+ const awaitingRenderer=useRef(false)
  useEffect(()=>{
   const onPlacement=(e:Event)=>{
    const detail=(e as CustomEvent<{preset?:string;status?:string;placed?:number;requested?:number;count?:number}>).detail||{}
    if(detail.preset!=='street')return
+   if(detail.status==='native-layer-loading'){awaitingRenderer.current=true;setPlacement('Waiting for native 3D asset layer to load; placement will retry once on renderer ready');return}
+   awaitingRenderer.current=false
    const n=detail.placed||0
    setPlacement(n>0?`${n}/${detail.requested||n} native assets placed into the live 3D scene • saved locally`:`3D placement unavailable: ${detail.status||'unknown'}; inspect renderer and native asset loading`)
   }
+  const onRendererReady=()=>{
+   if(!awaitingRenderer.current)return
+   awaitingRenderer.current=false
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-forge-placement-request',{detail:{preset:'street',source:'west-side-world-builder'}}))
+  }
   window.addEventListener('tryamm:streetverse-forge-placement-result',onPlacement)
-  return()=>window.removeEventListener('tryamm:streetverse-forge-placement-result',onPlacement)
+  window.addEventListener('tryamm:streetverse-forge-renderer-ready',onRendererReady)
+  return()=>{window.removeEventListener('tryamm:streetverse-forge-placement-result',onPlacement);window.removeEventListener('tryamm:streetverse-forge-renderer-ready',onRendererReady)}
  },[])
  const submit=async()=>{
   if(running)return
