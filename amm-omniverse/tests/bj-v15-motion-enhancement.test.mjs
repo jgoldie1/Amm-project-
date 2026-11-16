@@ -43,3 +43,20 @@ test('V15 live loader has an opt-in motion preview and falls back to unchanged V
  assert.match(source,/candidate===v15PreviewUrl\|\|candidate===motionPreviewUrl/)
  assert.match(source,/if\(!valid\)\{disposeObject/)
 })
+
+test('recovered V15 real animation clip names map to live gesture controls',async()=>{
+ const fs=await import('node:fs')
+ const source=fs.readFileSync(new URL('../src/runtime/StreetVerseMeshyBJHeroRuntime.ts',import.meta.url),'utf8')
+ const panel=fs.readFileSync(new URL('../src/components/StreetVerseMyceliumSubmissionPanel.tsx',import.meta.url),'utf8')
+ assert.match(source,/Observe_Left_Right/)
+ assert.match(source,/Conversational_Gesture/)
+ assert.match(source,/Listen(?:ing)?/)
+ assert.match(source,/BJ_Run_Cycle_Fallback_From_Walk_0p68x/)
+ assert.match(source,/usingRetimedRunProxy/)
+ assert.match(source,/tryamm:bj-gesture-result/)
+ for(const gesture of ['greet','nod','look-around','acknowledge']){
+  assert.ok(panel.includes("'"+gesture+"'"),'Missing in-game '+gesture+' test button')
+ }
+ assert.match(panel,/tryamm:bj-gesture-result/)
+ assert.match(panel,/gestureResult/)
+})
