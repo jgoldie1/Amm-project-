@@ -11,7 +11,7 @@ export const DIALOGUES=Object.freeze({
     {id:'plan',label:'Plan the next delivery route',next:'plan'}]},
    listen:{speaker:'Chicago shopkeeper',line:'That is how you build trust. The community center needs a reliable pickup window, and folks want to know who handles complaints.',choices:[{id:'confirm',label:'Write down the request and follow up',next:'close'}]},
    plan:{speaker:'Chicago shopkeeper',line:'Start with the community center. Keep a record of each handoff and make sure the driver can take an accessible route.',choices:[{id:'confirm',label:'Create a fictional route plan',next:'close'}]},
-   close:{speaker:'Chicago shopkeeper',line:'Then we have a plan. I'll introduce you to the neighborhood coordinator in the next chapter.',objective:'Meet the community coordinator (future mission preview)',end:true}
+   close:{speaker:'Chicago shopkeeper',line:'Then we have a plan. I’ll introduce you to the neighborhood coordinator in the next chapter.',objective:'Meet the community coordinator (future mission preview)',end:true}
   }
  },
  'musicverse-showcase':{
