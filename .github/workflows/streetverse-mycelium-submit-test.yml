@@ -3,6 +3,8 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
+      - 'amm-omniverse/scripts/rea-streetverse-evidence.mjs'
+      - 'amm-omniverse/src/runtime/StreetVerseMeshyBJHeroRuntime.ts'
       - 'amm-omniverse/src/runtime/StreetVerseMyceliumNetwork.ts'
       - 'amm-omniverse/src/runtime/StreetVerseOriginalOpenWorldKernel.ts'
       - 'amm-omniverse/src/runtime/StreetVerseOriginalDistrictPreview.ts'
@@ -35,5 +37,8 @@ jobs:
       - run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Run Mycelium, district and submission tests
         run: node --test tests/streetverse-mycelium-integration.test.mjs tests/streetverse-original-open-world-kernel.test.mjs tests/streetverse-original-district-preview.test.mjs
+      - name: REA source audit of original game integrations
+        run: node scripts/rea-streetverse-evidence.mjs --json | tee rea-evidence.json
       - name: Type-check frontend / bridge wiring
         run: npm run typecheck
+
