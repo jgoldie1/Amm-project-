@@ -57,6 +57,10 @@ jobs:
         id: vocal_pitch
         continue-on-error: true
         run: node --test test/vocal-pitch-guide.test.mjs
+      - name: Aniyah MPC and chord sound-bank regression
+        id: sound_bank
+        continue-on-error: true
+        run: node --test test/aniyah-sound-bank-cards.test.mjs
       - name: Whole-app readiness inventory
         id: readiness
         continue-on-error: true
@@ -78,6 +82,7 @@ jobs:
           WAREHOUSE: ${{ steps.warehouse.outcome }}
           WAREHOUSE_MISSION: ${{ steps.warehouse_mission.outcome }}
           VOCAL_PITCH: ${{ steps.vocal_pitch.outcome }}
+          SOUND_BANK: ${{ steps.sound_bank.outcome }}
         run: |
           echo "Root: $PLATFORM; Omniverse: $OMNIVERSE; Readiness: $READINESS"
           test "$PLATFORM" = "success"
@@ -87,4 +92,5 @@ jobs:
           test "$WAREHOUSE" = "success"
           test "$WAREHOUSE_MISSION" = "success"
           test "$VOCAL_PITCH" = "success"
+          test "$SOUND_BANK" = "success"
           echo "Code and readiness gates passed without unresolved critical blockers."
