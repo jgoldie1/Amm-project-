@@ -414,14 +414,16 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
     const trackCount=clips.reduce((n,clip)=>n+clip.tracks.length,0)
     const idleAndWalk=Boolean(animations.idle&&animations.walk)
     const rigReady=renderableSkinnedMeshes>0&&bones>0&&trackCount>0&&idleAndWalk
-    window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-rig-audit',{detail:{
+    const rigAuditDetail={
       characterId:'bj-stubbs',source:'loaded-bj-glb',sourceUrl,
       skeletalMeshes,renderableSkinnedMeshes,bones,clipCount:clips.length,
       trackCount,idleAndWalk,rigReady,animatedPlaybackObserved:false,
       productionCertified:false,likenessCertified:false,
       reason:rigReady?'Rig structure found; device animation playback still needs a visual test':
         'No verified visible skinned mesh, bones, idle/walk clips and animation tracks',
-    }}))
+    }
+    ;(window as any).__TRYAMM_BJ_RIG_AUDIT__=rigAuditDetail
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-rig-audit',{detail:rigAuditDetail}))
     if(usingV15Preview){
       let skins=0
       object.traverse(n=>{if(n instanceof THREE.SkinnedMesh)skins++})
