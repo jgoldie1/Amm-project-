@@ -1,4 +1,6 @@
 import * as THREE from 'three'
+import {buildStreetVerseDistrictPreview,validateStreetVersePreview} from './StreetVerseOriginalDistrictPreview'
+import type {GeneratedDistrict} from '../data/StreetVerseLivingCityGenerator'
 import type {TryammNativeRuntimeAssetKey} from '../data/TryammNativeRuntimeAssetCatalog'
 
 const KEY='tryamm.streetverse.forge-placements.v1'
@@ -40,6 +42,7 @@ export function installStreetVerseVisibleForgeBridge(opts:{
 }){
  let records:ForgeRecord[]=[]
  let active=true
+ let districtPreview:ReturnType<typeof buildStreetVerseDistrictPreview>|null=null
  const instances=new Map<string,THREE.Object3D>()
  function sourceObject(key:TryammNativeRuntimeAssetKey){
   const layer=opts.getNativeLayer()
@@ -101,6 +104,28 @@ export function installStreetVerseVisibleForgeBridge(opts:{
   const layer=opts.getNativeLayer()
   broadcast({status:layer?(layer.children.some(child=>allowed.has(child.userData.tryammNativeAsset))?'ready':'native-models-unavailable'):'native-layer-loading',requested:0,placed:0,count:instances.size,missing:[]})
  }
+ const preview=(event:Event)=>{
+  if(!active)return
+  const detail=(event as CustomEvent<{district?:GeneratedDistrict;cityId?:string;source?:string}>).detail||{}
+  if(detail.source!=='one-button-integration-test'||detail.cityId!=='chicago'||!detail.district)return
+  const issues=validateStreetVersePreview(detail.district)
+  const layer=opts.getNativeLayer()
+  if(issues.length||!layer){
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-district-preview-result',{detail:{rendered:false,reason:issues.join(',')||'native-layer-not-ready',count:0}}))
+   return
+  }
+  districtPreview?.dispose()
+  districtPreview=buildStreetVerseDistrictPreview(detail.district,opts.getPlayerPosition())
+  layer.add(districtPreview.group)
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-district-preview-result',{detail:{rendered:true,visualOnly:true,collisions:false,cityId:'chicago',count:districtPreview.count}}))
+ }
+ const clearPreview=()=>{
+  const count=districtPreview?.count||0
+  districtPreview?.dispose();districtPreview=null
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-district-preview-result',{detail:{rendered:false,cleared:true,count}}))
+ }
+ window.addEventListener('tryamm:streetverse-district-preview',preview)
+ window.addEventListener('tryamm:streetverse-district-preview-clear',clearPreview)
  window.addEventListener('tryamm:streetverse-forge-request-state',report)
  window.addEventListener('tryamm:streetverse-forge-placement-request',forge)
  window.addEventListener('tryamm:streetverse-forge-placement-undo',undo)
@@ -108,6 +133,9 @@ export function installStreetVerseVisibleForgeBridge(opts:{
   hydrate,
   dispose:()=>{
    active=false
+   districtPreview?.dispose();districtPreview=null
+   window.removeEventListener('tryamm:streetverse-district-preview',preview)
+   window.removeEventListener('tryamm:streetverse-district-preview-clear',clearPreview)
    window.removeEventListener('tryamm:streetverse-forge-request-state',report)
    window.removeEventListener('tryamm:streetverse-forge-placement-request',forge)
    window.removeEventListener('tryamm:streetverse-forge-placement-undo',undo)
