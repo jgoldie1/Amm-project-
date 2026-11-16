@@ -7,6 +7,7 @@ on:
       - 'scripts/whole-app-journey-audit.mjs'
       - '.github/workflows/tryamm-one-button.yml'
       - 'lib/**'
+      - 'config/business-factory/**'
       - 'amm-omniverse/**'
 
 permissions:
@@ -43,7 +44,7 @@ jobs:
       - name: Whole-app readiness inventory
         id: readiness
         continue-on-error: true
-        run: node scripts/whole-app-journey-audit.mjs
+        run: node scripts/whole-app-journey-audit.mjs --strict
       - name: Publish evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -62,4 +63,4 @@ jobs:
           test "$PLATFORM" = "success"
           test "$OMNIVERSE" = "success"
           test "$READINESS" = "success"
-          echo "Code regression gates passed. BLOCKED readiness items still require live acceptance testing."
+          echo "Code and readiness gates passed without unresolved critical blockers."
