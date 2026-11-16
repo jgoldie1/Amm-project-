@@ -2,6 +2,7 @@ import {useEffect,useRef,useState} from 'react'
 import {STREETVERSE_STARTER_CITIES} from '../data/StreetVerseLivingCityGenerator'
 import {runStreetVerseSubmissionTest,type SubmissionTestResult} from '../runtime/StreetVerseOneButtonSubmissionTest'
 import {createStreetVerseWorldKernel} from '../runtime/StreetVerseOriginalOpenWorldKernel'
+import {preflightBJLocalGLB} from '../runtime/StreetVerseBJLocalAssetPreflight'
 
 const control:React.CSSProperties={minHeight:48,padding:'10px 12px',borderRadius:10,border:'1px solid #6cd8ec',background:'#123d51',color:'white',fontWeight:800}
 export default function StreetVerseMyceliumSubmissionPanel(){
@@ -62,12 +63,11 @@ export default function StreetVerseMyceliumSubmissionPanel(){
    return
   }
   try{
-   const header=new DataView(await file.slice(0,12).arrayBuffer())
-   if(header.getUint32(0,true)!==0x46546c67||header.getUint32(4,true)!==2||header.getUint32(8,true)!==file.size)throw Error('GLB version or file length is invalid')
+   const evidence=preflightBJLocalGLB(await file.arrayBuffer())
    const prior=(window as any).__TRYAMM_BJ_LOCAL_PREVIEW_URL__
    const next=URL.createObjectURL(file)
    ;(window as any).__TRYAMM_BJ_LOCAL_PREVIEW_URL__=next
-   setLocalBJResult('LOCAL V15 SELECTED • loading through real StreetVerse GLB loader. No upload.')
+   setLocalBJResult(`LOCAL BJ GLB VALIDATED • ${evidence.joints} joints, ${evidence.animationNames.length} clips • loading without upload`)
    window.dispatchEvent(new Event('tryamm:streetverse-bj-v15-preview'))
    if(typeof prior==='string'&&prior.startsWith('blob:'))URL.revokeObjectURL(prior)
   }catch(error){setLocalBJResult('LOCAL GLB REJECTED • '+String(error instanceof Error?error.message:'invalid asset'))}
