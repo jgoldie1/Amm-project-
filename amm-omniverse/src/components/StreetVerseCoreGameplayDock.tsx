@@ -78,6 +78,7 @@ export default function StreetVerseCoreGameplayDock(){
       <div style={{display:'grid',gridTemplateColumns:'repeat(3,minmax(0,1fr))',gap:5}}>
         <button onClick={missionAction} style={{...btn,color:'#ffe47f'}}>📍<br/>MISSION</button>
         <button aria-label="Play Warehouse Delivery Mission" onClick={()=>{window.location.href='/warehouse-missions.html'}} style={{...btn,color:'#b0f5cc'}}>📦<br/>WAREHOUSE</button>
+        <button aria-label="Open Aniyah vocal recording and AutoTune studio" onClick={()=>{window.location.href='/aniyah-studio'}} style={{...btn,color:'#ffb6e7'}}>🎤<br/>STUDIO</button>
         <button onClick={repair} style={{...btn,color:'#ffb36b'}}>🔧<br/>REPAIR</button>
         <button onClick={ride} style={{...btn,color:'#8effb7'}}>🚕<br/>RIDE</button>
         <button onClick={reel} style={{...btn,color:'#f3a6ff'}}>🎥<br/>REEL</button>
