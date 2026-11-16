@@ -5,6 +5,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useGameStore } from '../game/state/useGameStore'
+import {CHORD_CARD_TYPES,MUSIC_NOTE_NAMES,DRUM_BANKS,makeChordNotes,getBeatPattern,beatEventsForStep,clampBeatBpm} from '../lib/music/musicSoundBank.mjs'
 
 // ── WEB AUDIO CONTEXT SINGLETON ──────────────────────────────────────────────
 let _ctx: AudioContext | null = null
@@ -415,7 +416,7 @@ function getSmartNPCResponse(npc: SmartNPC, input: string): string {
 }
 
 // ── MAIN COMPONENT ────────────────────────────────────────────────────────────
-type ProMode = 'mpc' | 'vocalfx' | 'bot' | 'npcs'
+type ProMode = 'mpc' | 'chords' | 'vocalfx' | 'bot' | 'npcs'
 
 export default function ProAudioSuite({ onClose }: { onClose: () => void }) {
   const store = useGameStore()
@@ -432,6 +433,9 @@ export default function ProAudioSuite({ onClose }: { onClose: () => void }) {
   const [padActivity, setPadActivity] = useState<Record<number, boolean>>({})
   const [currentKey, setCurrentKey] = useState('C')
   const [bpm, setBpm] = useState(90)
+  const [selectedBeat,setSelectedBeat] = useState('rnb-pocket')
+  const [chordKind,setChordKind] = useState('m9')
+  const [soundStatus,setSoundStatus] = useState('Tap a pad, chord or beat preset to preview the original synthesized sound.')
   const [recording, setRecording] = useState(false)
   const [sequence, setSequence] = useState<number[]>([])
   const [playing, setPlaying] = useState(false)
@@ -468,6 +472,44 @@ export default function ProAudioSuite({ onClose }: { onClose: () => void }) {
       seqIdx.current++
     }, interval)
   }
+
+  // The original MPC uses these same 16 pads; bank presets add timed polyphonic hits.
+  const playPattern = () => {
+    if(seqRef.current) {clearInterval(seqRef.current);seqRef.current=null}
+    if(playing){setPlaying(false);setSoundStatus('Pattern stopped.');return}
+    const preset=getBeatPattern(selectedBeat)
+    if(!preset)return
+    const safeBpm=clampBeatBpm(bpm)
+    setBpm(safeBpm);setPlaying(true)
+    let step=0
+    const tick=()=>{
+      for(const padId of beatEventsForStep(preset,step%16)){
+        const pad=MPC_PADS.find(p=>p.id===padId)
+        if(pad)firePad(pad)
+      }
+      step++
+    }
+    tick()
+    seqRef.current=setInterval(tick,60000/safeBpm/4)
+    setSoundStatus(`Playing ${preset.title} · ${safeBpm} BPM · original synthesized pad sounds.`)
+  }
+  const playChordCard = (kind:string) => {
+    const notes=makeChordNotes(currentKey,kind,4)
+    if(!notes)return
+    const ctx=getAudioCtx();const now=ctx.currentTime
+    for(const note of notes){
+      const osc=ctx.createOscillator(),gain=ctx.createGain()
+      osc.type='triangle';osc.frequency.value=note.freq
+      gain.gain.setValueAtTime(0.0001,now)
+      gain.gain.exponentialRampToValueAtTime(0.08/notes.length,now+0.035)
+      gain.gain.exponentialRampToValueAtTime(0.0001,now+1.5)
+      osc.connect(gain);gain.connect(ctx.destination)
+      osc.start(now);osc.stop(now+1.55)
+    }
+    setChordKind(kind)
+    setSoundStatus(`${currentKey} ${CHORD_CARD_TYPES.find(c=>c.id===kind)?.label}: ${notes.map(n=>n.name).join(' · ')} · preview only.`)
+  }
+  useEffect(()=>()=>{if(seqRef.current)clearInterval(seqRef.current)},[])
 
   const sendBotMessage = () => {
     if (!botInput.trim()) return
@@ -511,6 +553,7 @@ export default function ProAudioSuite({ onClose }: { onClose: () => void }) {
       <div style={{ display:'flex',borderBottom:'1px solid #0a0a20' }}>
         {([
           ['mpc',    '🎛 MPC Pads','#ff4400'],
+          ['chords', '🎹 Chord Cards','#7de8ff'],
           ['vocalfx','⚡ Vocal FX','#ff00ff'],
           ['bot',    '💬 Gen Bot','#00ffcc'],
           ['npcs',   '🧠 Smart NPCs','#ffd700'],
@@ -534,7 +577,7 @@ export default function ProAudioSuite({ onClose }: { onClose: () => void }) {
                   style={{ background:currentKey===k?'rgba(255,68,0,.2)':'transparent',border:`1px solid ${currentKey===k?'#ff4400':'#333'}`,color:currentKey===k?'#ff4400':'#666',borderRadius:4,padding:'3px 8px',cursor:'pointer',fontFamily:'monospace',fontSize:10 }}>{k}</button>
               ))}
               <span style={{ color:'#555',fontSize:10,marginLeft:8 }}>BPM:</span>
-              <input type="number" value={bpm} onChange={e=>setBpm(Number(e.target.value))} style={{ width:45,background:'#111',border:'1px solid #333',color:'#ffd700',borderRadius:4,padding:'3px',fontFamily:'monospace',fontSize:11,textAlign:'center' }}/>
+              <input type="number" value={bpm} onChange={e=>setBpm(clampBeatBpm(e.target.value))} style={{ width:45,background:'#111',border:'1px solid #333',color:'#ffd700',borderRadius:4,padding:'3px',fontFamily:'monospace',fontSize:11,textAlign:'center' }}/>
             </div>
             {/* Transport */}
             <div style={{ display:'flex',gap:8,marginBottom:14 }}>
@@ -550,6 +593,20 @@ export default function ProAudioSuite({ onClose }: { onClose: () => void }) {
                 style={{ background:'transparent',border:'1px solid #333',color:'#555',borderRadius:6,padding:'7px 10px',cursor:'pointer',fontFamily:'monospace',fontSize:11 }}>🗑</button>
               <span style={{ color:'#555',fontSize:10,marginLeft:4,paddingTop:8 }}>{sequence.length} hits</span>
             </div>
+            <section aria-label="Drum pattern sound banks" style={{border:'1px solid #ff884455',borderRadius:12,padding:10,marginBottom:12}}>
+              <strong style={{color:'#ffd1a8'}}>🥁 ORIGINAL BEAT PATTERN CARDS</strong>
+              <p style={{fontSize:11,color:'#aaa'}}>Five playable 16-step grooves using the existing MPC-style pad sounds. Tap a card, then PLAY BEAT. These are not Akai sample libraries.</p>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(145px,1fr))',gap:8}}>
+                {DRUM_BANKS.map(p=><button key={p.id} type="button" aria-pressed={selectedBeat===p.id} onClick={()=>{
+                  if(seqRef.current){clearInterval(seqRef.current);seqRef.current=null;setPlaying(false)}
+                  setSelectedBeat(p.id);setBpm(p.bpm);setSoundStatus(p.description)
+                }} style={{minHeight:56,textAlign:'left',padding:9,borderRadius:9,background:selectedBeat===p.id?'#493018':'#17121b',color:'#fff',border:'1px solid #b87a43'}}>
+                  <strong>{p.title}</strong><div style={{fontSize:11}}>{p.bpm} BPM</div>
+                </button>)}
+              </div>
+              <button type="button" onClick={playPattern} style={{minHeight:52,width:'100%',marginTop:9,borderRadius:9,background:'#45310f',color:'#fff',border:'1px solid #eab65b',fontWeight:800}}>{playing?'■ STOP BEAT':'▶ PLAY BEAT'}</button>
+              <p role="status" aria-live="polite" style={{fontSize:11,color:'#f6d6a7'}}>{soundStatus}</p>
+            </section>
             {/* 16 Pads */}
             <div style={{ display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8 }}>
               {MPC_PADS.map(pad=>(
@@ -565,6 +622,26 @@ export default function ProAudioSuite({ onClose }: { onClose: () => void }) {
           </div>
         )}
 
+        {mode==='chords'&&(
+          <section aria-label="Chord keyboard sound bank" style={{padding:14}}>
+            <h3 style={{color:'#7de8ff'}}>🎹 CHORD KEYBOARD · SOUND BANK CARDS</h3>
+            <p style={{fontSize:12,color:'#aaa'}}>Korg-style chord workflow using original browser oscillators; not licensed Korg patches or hardware emulation. Choose a root and tap a chord to hear its notes.</p>
+            <label style={{display:'block',marginBottom:12}}>Root note
+              <select aria-label="Chord root note" value={currentKey} onChange={e=>setCurrentKey(e.target.value)} style={{display:'block',width:'100%',minHeight:50,fontSize:16,background:'#16192b',color:'#fff'}}>
+                {MUSIC_NOTE_NAMES.map(n=><option key={n} value={n}>{n}</option>)}
+              </select>
+            </label>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(135px,1fr))',gap:9}}>
+              {CHORD_CARD_TYPES.map(c=><button key={c.id} type="button" aria-pressed={chordKind===c.id} onClick={()=>playChordCard(c.id)}
+                style={{minHeight:76,padding:12,textAlign:'left',borderRadius:12,background:chordKind===c.id?'#16384a':'#10182b',border:'1px solid #49b1e2',color:'#fff'}}>
+                <strong style={{fontSize:18}}>{currentKey} {c.label}</strong>
+                <div style={{fontSize:11,color:'#b8cfda'}}>▶ HEAR CHORD</div>
+              </button>)}
+            </div>
+            <p role="status" aria-live="polite" style={{color:'#a4e5f1',marginTop:12}}>{soundStatus}</p>
+            <p style={{color:'#aaa',fontSize:12}}>Chord notes are mapped to frequencies for playable demonstrations; no real audio stems or paid keyboard sound libraries are bundled.</p>
+          </section>
+        )}
         {/* ── VOCAL FX ─── */}
         {mode==='vocalfx'&&(
           <div style={{ padding:12 }}>
