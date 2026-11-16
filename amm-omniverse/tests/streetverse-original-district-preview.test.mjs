@@ -32,7 +32,7 @@ test('malformed and excessive districts are denied without meshes',()=>{
  assert.throws(()=>preview.buildStreetVerseDistrictPreview(invalid,new THREE.Vector3()))
 })
 
-test('renderer bridge consumes simulation event and supports explicit cleanup',()=>{
+test('renderer bridge consumes simulation event and supports explicit cleanup',async()=>{
  const fs=await import('node:fs')
  const bridge=fs.readFileSync(new URL('../src/runtime/StreetVerseVisibleForgeBridge.ts',import.meta.url),'utf8')
  const panel=fs.readFileSync(new URL('../src/components/StreetVerseMyceliumSubmissionPanel.tsx',import.meta.url),'utf8')
