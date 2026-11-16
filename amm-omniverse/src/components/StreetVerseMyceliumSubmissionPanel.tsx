@@ -1,11 +1,13 @@
 import {useEffect,useRef,useState} from 'react'
 import {STREETVERSE_STARTER_CITIES} from '../data/StreetVerseLivingCityGenerator'
 import {runStreetVerseSubmissionTest,type SubmissionTestResult} from '../runtime/StreetVerseOneButtonSubmissionTest'
+import {createStreetVerseWorldKernel} from '../runtime/StreetVerseOriginalOpenWorldKernel'
 
 const control:React.CSSProperties={minHeight:48,padding:'10px 12px',borderRadius:10,border:'1px solid #6cd8ec',background:'#123d51',color:'white',fontWeight:800}
 export default function StreetVerseMyceliumSubmissionPanel(){
  const [cityId,setCityId]=useState('chicago'),[running,setRunning]=useState(false),[result,setResult]=useState<SubmissionTestResult|null>(null)
  const [placement,setPlacement]=useState('No actual 3D placement attempted')
+ const [engineCheck,setEngineCheck]=useState('Engine test not run')
  const awaitingRenderer=useRef(false)
  useEffect(()=>{
   const onPlacement=(e:Event)=>{
@@ -43,6 +45,20 @@ export default function StreetVerseMyceliumSubmissionPanel(){
   </select>
   <button type="button" onClick={submit} disabled={running} style={{...control,background:'#145b43',opacity:running?.65:1}}>{running?'RUNNING CHECKS…':'BUILD VISIBLE CHICAGO + TEST CONNECTIONS'}</button>
   <div role="status" aria-live="polite" style={{fontSize:12,color:'#b8f4e3'}}>{placement}</div>
+  <button type="button" style={control} onClick={()=>{
+   const kernel=createStreetVerseWorldKernel()
+   kernel.startMission();kernel.step({enter:true})
+   for(let i=0;i<120;i++)kernel.step({throttle:1,steer:.1})
+   const moving=kernel.snapshot()
+   const blockedExit=kernel.step({exit:true}).mode==='driving'
+   for(let i=0;i<150;i++)kernel.step({brake:1})
+   kernel.step({exit:true})
+   const completed=kernel.finishMission()
+   const report=blockedExit&&completed&&kernel.snapshot().missionRewards===1
+   setEngineCheck(report?'PASS • 60Hz vehicle / brake / safe exit / mission simulation':'FAIL • investigate kernel inputs and events')
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-engine-diagnostic',{detail:{source:'streetverse-open-world-kernel',kind:'offline-simulation',passed:report,vehicleMovementMeters:Number(moving.distanceMeters.toFixed(2)),actual3DVerified:false,physicsVerified:false}}))
+  }}>TEST OUR OPEN WORLD ENGINE</button>
+  <div role="status" aria-live="polite" style={{fontSize:12,color:'#cbeaf9'}}>{engineCheck}</div>
   <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
    <button type="button" style={control} onClick={()=>window.dispatchEvent(new Event('tryamm:open-hologpt'))}>ASK HOLOGPT</button>
    <button type="button" style={control} onClick={()=>window.dispatchEvent(new Event('tryamm:open-middleverse-ai'))}>MIDDLEVERSE AI</button>
