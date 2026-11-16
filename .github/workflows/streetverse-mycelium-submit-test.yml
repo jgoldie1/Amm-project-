@@ -5,7 +5,10 @@ on:
     paths:
       - 'amm-omniverse/src/runtime/StreetVerseMyceliumNetwork.ts'
       - 'amm-omniverse/src/runtime/StreetVerseOriginalOpenWorldKernel.ts'
-      - 'amm-omniverse/tests/streetverse-original-open-world-kernel.test.mjs'
+      - 'amm-omniverse/src/runtime/StreetVerseOriginalDistrictPreview.ts'
+      - 'amm-omniverse/src/runtime/StreetVerseVisibleForgeBridge.ts'
+      - 'amm-omniverse/tests/streetverse-original-district-preview.test.mjs'
+      - 'amm-omniverse/tests/streetverse-original-open-world-kernel.test.mjs tests/streetverse-original-district-preview.test.mjs'
       - 'amm-omniverse/src/runtime/StreetVerseOneButtonSubmissionTest.ts'
       - 'amm-omniverse/src/components/StreetVerseMyceliumSubmissionPanel.tsx'
       - 'amm-omniverse/src/components/StreetVerseWestSideWorldBuilder.tsx'
