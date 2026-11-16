@@ -85,6 +85,10 @@ jobs:
         id: licensed_audio
         continue-on-error: true
         run: node --test test/independent-audio-streaming.test.mjs
+      - name: Music media intake and three city Tampa demo regression
+        id: media_city
+        continue-on-error: true
+        run: node --test test/music-media-intake-and-tampa-three-city.test.mjs
       - name: Whole-app readiness inventory
         id: readiness
         continue-on-error: true
@@ -113,6 +117,7 @@ jobs:
           WORLD_ENTRY: ${{ steps.world_entry.outcome }}
           CREATOR_DISCOVERY: ${{ steps.creator_discovery.outcome }}
           LICENSED_AUDIO: ${{ steps.licensed_audio.outcome }}
+          MEDIA_CITY: ${{ steps.media_city.outcome }}
         run: |
           echo "Root: $PLATFORM; Omniverse: $OMNIVERSE; Readiness: $READINESS"
           test "$PLATFORM" = "success"
@@ -129,4 +134,5 @@ jobs:
           test "$WORLD_ENTRY" = "success"
           test "$CREATOR_DISCOVERY" = "success"
           test "$LICENSED_AUDIO" = "success"
+          test "$MEDIA_CITY" = "success"
           echo "Code and readiness gates passed without unresolved critical blockers."
