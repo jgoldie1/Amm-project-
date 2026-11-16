@@ -1,0 +1,34 @@
+name: StreetVerse Mycelium One-Button Submission Test
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'amm-omniverse/src/runtime/StreetVerseMyceliumNetwork.ts'
+      - 'amm-omniverse/src/runtime/StreetVerseOneButtonSubmissionTest.ts'
+      - 'amm-omniverse/src/components/StreetVerseMyceliumSubmissionPanel.tsx'
+      - 'amm-omniverse/src/components/StreetVerseWestSideWorldBuilder.tsx'
+      - 'amm-omniverse/src/data/StreetVerseLivingCityGenerator.ts'
+      - 'amm-omniverse/tests/streetverse-mycelium-integration.test.mjs'
+      - '.github/workflows/streetverse-mycelium-submit-test.yml'
+permissions:
+  contents: read
+jobs:
+  submission-test:
+    name: Offline simulation and API plan contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Run Mycelium, district and submission tests
+        run: node --test tests/streetverse-mycelium-integration.test.mjs
+      - name: Type-check frontend / bridge wiring
+        run: npm run typecheck
