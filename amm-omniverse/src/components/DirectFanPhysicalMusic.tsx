@@ -1,5 +1,6 @@
 import {useState} from 'react'
 import {PHYSICAL_RELEASE_FORMATS,FAN_MARKETING_STAGES,calculateDirectMusicMargin} from '../lib/music/directFanPhysicalMusic.mjs'
+import {SUGGESTED_DISTRIBUTION_FEE_PERCENT,quoteDistributionFee,INDEPENDENT_CHART_CATEGORIES,CHART_GOVERNANCE} from '../lib/music/independentDistributionCharts.mjs'
 
 type MoneyKey='units'|'pricePerUnit'|'manufacturingTotal'|'artworkTotal'|'packagingPerUnit'|'postagePerUnit'|'paymentFeePercent'|'paymentFeeFixed'|'marketingTotal'|'royaltyPerUnit'|'refundReservePerUnit'
 const fieldLabels:Record<MoneyKey,string>={units:'Expected orders',pricePerUnit:'Fan price per order ($)',manufacturingTotal:'Manufacturing total ($)',artworkTotal:'Art and proof budget ($)',packagingPerUnit:'Packaging per order ($)',postagePerUnit:'Shipping cost per order ($)',paymentFeePercent:'Processor fee (%)',paymentFeeFixed:'Processor fixed fee ($)',marketingTotal:'Advertising budget ($)',royaltyPerUnit:'Royalties per order ($)',refundReservePerUnit:'Returns reserve per order ($)'}
@@ -18,13 +19,16 @@ export default function DirectFanPhysicalMusic(){
  const [title,setTitle]=useState('')
  const [values,setValues]=useState<Record<MoneyKey,string>>(empty)
  const [showMarketing,setShowMarketing]=useState(false)
+ const [distributionPercent,setDistributionPercent]=useState(String(SUGGESTED_DISTRIBUTION_FEE_PERCENT))
+ const [alreadyPlatformCharged,setAlreadyPlatformCharged]=useState(false)
  const [status,setStatus]=useState('Planning only — no provider connected, charge made or pressing order submitted.')
  const selected=PHYSICAL_RELEASE_FORMATS.find(x=>x.id===format)!
  const filled=costFields.every(k=>values[k].trim()!=='')
  const estimate=filled?calculateDirectMusicMargin(values):null
+ const distribution=values.pricePerUnit.trim()?quoteDistributionFee({itemSubtotal:Number(values.pricePerUnit),feePercent:Number(distributionPercent),alreadyPlatformCharged}):null
  const exportBrief=()=>{
   if(!title.trim()){setStatus('Enter an album or single title before exporting.');return}
-  const payload={schema:1,title:title.trim(),format,route,inputs:values,estimate,pressAuthorized:false,chargeAuthorized:false,shipmentAuthorized:false,rightsVerified:false,status:'DRAFT_ONLY',timestamp:new Date().toISOString()}
+  const payload={schema:1,title:title.trim(),format,route,inputs:values,estimate,proposedDistributionFee:distribution,chartsNotVerified:true,pressAuthorized:false,chargeAuthorized:false,shipmentAuthorized:false,rightsVerified:false,status:'DRAFT_ONLY',timestamp:new Date().toISOString()}
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob)
   const a=document.createElement('a');a.href=url;a.download='all-american-records-direct-to-fan-draft.json';a.click()
   setTimeout(()=>URL.revokeObjectURL(url),3000)
@@ -55,6 +59,25 @@ export default function DirectFanPhysicalMusic(){
     {costFields.map(k=><label key={k} style={{fontSize:12}}>{fieldLabels[k]}<input aria-label={fieldLabels[k]} type="number" min={k==='units'?'1':'0'} max={k==='units'?'100000':undefined} step={k==='units'?'1':'0.01'} style={inputStyle} value={values[k]} onChange={e=>setValues(s=>({...s,[k]:e.target.value}))}/></label>)}
    </div>
    <p aria-live="polite" style={{fontSize:15,color:'#ffde9d'}}>{estimate?`Estimated sales: $${estimate.gross.toFixed(2)} · Total costs: $${estimate.totalCost.toFixed(2)} · Before-tax result: $${estimate.netBeforeTax.toFixed(2)} · Break-even: ${estimate.breakEvenUnits??'not feasible'} orders`:'Enter every quote/fee field to calculate; zero is allowed only when confirmed.'}</p>
+  </section>
+  <section aria-label="Proposed direct distribution and independent charts" style={{border:'1px solid #35546b',borderRadius:15,padding:14,marginBottom:14}}>
+    <h3>4. Nationwide distribution and independent charts</h3>
+    <p style={{fontSize:12,color:'#cde1eb'}}>Suggested TRYAMM physical distribution fee: 7% of item price, excluding taxes and fan-paid shipping. The fee is a proposal, not a live charge. Supplier coverage, manufacturing, artist royalty agreements and refunds require verification.</p>
+    <label style={{display:'block',marginBottom:10}}>Proposed physical distribution fee (%)
+      <input aria-label="Proposed physical distribution fee percent" type="number" min="0" max="15" step=".5" value={distributionPercent} onChange={e=>setDistributionPercent(e.target.value)} style={inputStyle}/>
+    </label>
+    <label style={{display:'flex',gap:10,alignItems:'center',marginBottom:12,minHeight:48,fontSize:13}}>
+      <input aria-label="Existing platform share already applies" type="checkbox" checked={alreadyPlatformCharged} onChange={e=>setAlreadyPlatformCharged(e.target.checked)} style={{width:24,height:24}}/>
+      Existing TRYAMM platform share already applies — do not charge the distribution fee again
+    </label>
+    <p role="status" aria-live="polite" style={{color:'#ffde9d',fontSize:13}}>{distribution?`Estimated distribution fee per item: ${distribution.distributionFee.toFixed(2)}. Artist/merchant item proceeds before production, shipping, processor, royalty and other costs: ${distribution.artistMerchantItemProceedsBeforeOtherCosts.toFixed(2)}.`:'Enter a valid item price and distribution percentage (0–15%) to calculate.'}</p>
+    <h4>All American Independent Music Charts</h4>
+    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(170px,1fr))',gap:10}}>
+      {INDEPENDENT_CHART_CATEGORIES.map(chart=><div key={chart.id} style={{border:'1px solid #48687b',padding:12,borderRadius:10,background:'#142234'}}>
+        <strong>{chart.title}</strong><p style={{fontSize:11,color:'#b8cedd'}}>{chart.metric}</p><span style={{fontSize:11,color:'#f2c992'}}>PLANNED • NO VERIFIED RANKINGS YET</span>
+      </div>)}
+    </div>
+    <p style={{fontSize:12,color:'#b8cedd'}}>Separate paid advertisements from rankings. Charts require independently reconciled sales, artist opt-in, anti-fraud checks, refund removal and a public methodology. {CHART_GOVERNANCE.branding}.</p>
   </section>
   <section style={{border:'1px solid #35546b',borderRadius:15,padding:14,marginBottom:14}}>
    <button onClick={()=>setShowMarketing(x=>!x)} aria-expanded={showMarketing} style={{...btn,width:'100%',textAlign:'left'}}>📣 {showMarketing?'HIDE':'SHOW'} DIRECT FAN MARKETING CHECKLIST</button>
