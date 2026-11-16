@@ -402,10 +402,10 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
     // The recovered BJ V15 has a walk clip but no verified captured run.
     // Build a runtime-only retimed proxy for movement until a true run is approved.
     // Do not mutate the GLB or claim a captured running animation.
-    const hasNativeRun=clips.some(clip=>/run|jog|sprint/i.test(clip.name))
+    const naturalRunClipPresent=clips.some(clip=>/run|jog|sprint/i.test(clip.name)&&!/fallback|proxy|retimed/i.test(clip.name))
     const runWalkSource=clips.find(clip=>/walk|locomotion/i.test(clip.name)&&clip.tracks.length>0)
-    let usingRetimedRunProxy=false
-    if(usingV15Preview&&!hasNativeRun&&runWalkSource){
+    let usingRetimedRunProxy=clips.some(clip=>/BJ_Run_Cycle_Fallback_From_Walk_0p68x/i.test(clip.name))
+    if(usingV15Preview&&!naturalRunClipPresent&&!usingRetimedRunProxy&&runWalkSource){
       const proxy=runWalkSource.clone()
       proxy.name='BJ_Run_Cycle_Fallback_From_Walk_0p68x'
       for(const track of proxy.tracks)track.scale(.68)
@@ -652,7 +652,8 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       url:sourceUrl,
       clipNames:clips.map(clip=>clip.name),
       retimedRunProxy:usingRetimedRunProxy,
-      actualRunMotionCaptured:hasNativeRun,
+      naturalRunClipPresent,
+      actualRunMotionCaptured:false,
       morphTargetNames:morphs.names,
       faceChannels:BJ_FACE_MORPHS.map(([channel])=>channel),
       targetHeightMeters:BJ_MESHY_V6_ASSET.targetHeightMeters,
