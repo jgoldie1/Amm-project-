@@ -22,9 +22,11 @@ const scan=[
  {id:'middleverse',name:'MiddleVerse workstation',file:'src/components/MiddleverseAIHub.tsx',required:['Middleverse AI']},
  {id:'websites',name:'Website business builder',file:'src/components/AIWebsiteBusinessBuilder.tsx',required:['AIWebsiteBusinessBuilder']},
  {id:'open-world-kernel',name:'StreetVerse original 60Hz fixed-step world kernel',file:'src/runtime/StreetVerseOriginalOpenWorldKernel.ts',required:['createStreetVerseWorldKernel','STREETVERSE_KERNEL_DT']},
- {id:'kernel-ui',name:'Visible RAGE-style engine self-test button',file:'src/components/StreetVerseMyceliumSubmissionPanel.tsx',required:['TEST OUR OPEN WORLD ENGINE','createStreetVerseWorldKernel']},
- {id:'mycelium',name:'Mycelium integration pending merge',file:'src/runtime/StreetVerseMyceliumNetwork.ts',required:['createStreetVerseMyceliumNetwork'],optional:true},
- {id:'submission',name:'One-button integration pending merge',file:'src/runtime/StreetVerseOneButtonSubmissionTest.ts',required:['runStreetVerseSubmissionTest'],optional:true}
+ {id:'kernel-ui',name:'Visible RAGE-style engine self-test button',file:'src/components/StreetVerseMyceliumSubmissionPanel.tsx',required:['RETEST OPEN WORLD DRIVING SIMULATION','createStreetVerseWorldKernel']},
+ {id:'mycelium',name:'Mycelium simulation integration',file:'src/runtime/StreetVerseMyceliumNetwork.ts',required:['createStreetVerseMyceliumNetwork']},
+ {id:'submission',name:'One-button integration',file:'src/runtime/StreetVerseOneButtonSubmissionTest.ts',required:['runStreetVerseSubmissionTest']},
+ {id:'rig-evidence',name:'Loaded BJ GLB skeletal evidence',file:'src/runtime/StreetVerseMeshyBJHeroRuntime.ts',required:['tryamm:streetverse-bj-rig-audit','renderableSkinnedMeshes','rigReady']},
+ {id:'district-mesh',name:'Generated native 3D district geometry',file:'src/runtime/StreetVerseOriginalDistrictPreview.ts',required:['buildStreetVerseDistrictPreview','visualOnly']}
 ];
 const systems=scan.map(s=>{
  const full=path.join(root,s.file);
