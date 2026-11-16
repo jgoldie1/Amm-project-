@@ -11,6 +11,7 @@ export default function StreetVerseMyceliumSubmissionPanel(){
  const [districtVisual,setDistrictVisual]=useState('District 3D preview not requested')
  const [bjEvidence,setBjEvidence]=useState('BJ animated rig not verified on this device')
  const [rendererEvidence,setRendererEvidence]=useState('3D renderer not verified on this device')
+ const [reportMessage,setReportMessage]=useState('')
  const awaitingRenderer=useRef(false)
  useEffect(()=>{
   const onPlacement=(e:Event)=>{
@@ -83,6 +84,24 @@ export default function StreetVerseMyceliumSubmissionPanel(){
   <button type="button" style={{...control,background:'#34304d'}} onClick={()=>window.dispatchEvent(new Event('tryamm:streetverse-district-preview-clear'))}>CLEAR GENERATED 3D DISTRICT PREVIEW</button>
   <button type="button" style={control} onClick={runEngineDiagnostic}>RETEST OPEN WORLD DRIVING SIMULATION</button>
   <div role="status" aria-live="polite" style={{fontSize:12,color:'#cbeaf9'}}>{engineCheck}</div>
+  <button type="button" style={control} onClick={async()=>{
+   const lines=[
+    'STREETVERSE DEVICE QA • user-observed report',
+    'Timestamp: '+new Date().toISOString(),
+    'Browser: '+navigator.userAgent.slice(0,240),
+    'Viewport: '+window.innerWidth+' × '+window.innerHeight,
+    'Renderer event: '+rendererEvidence,
+    'BJ rig structure: '+bjEvidence,
+    'District preview: '+districtVisual,
+    'Native placement: '+placement,
+    'Driving simulation: '+engineCheck,
+    'Backend test: '+(result?.status||'not-run'),
+    'This report does not certify iPhone, Chromebook, live server, gameplay or paid integrations.',
+   ]
+   try{await navigator.clipboard.writeText(lines.join('\n'));setReportMessage('DEVICE REPORT COPIED • paste it into ChatGPT for QA')}
+   catch{setReportMessage('CLIPBOARD UNAVAILABLE • use browser copy or screenshot the results above')}
+  }}>COPY DEVICE QA REPORT</button>
+  {reportMessage&&<div role="status" style={{fontSize:12,color:'#ffddad'}}>{reportMessage}</div>}
   <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
    <button type="button" style={control} onClick={()=>window.dispatchEvent(new Event('tryamm:open-hologpt'))}>ASK HOLOGPT</button>
    <button type="button" style={control} onClick={()=>window.dispatchEvent(new Event('tryamm:open-middleverse-ai'))}>MIDDLEVERSE AI</button>
