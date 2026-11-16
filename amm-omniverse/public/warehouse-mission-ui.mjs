@@ -2,11 +2,14 @@ import {WAREHOUSE_MISSION_STAGES,WAREHOUSE_MISSION_ID,readWarehouseMission,saveW
 import {installWarehouseMyceliumBridge} from './warehouse-mycelium-bridge.mjs';
 import {MYCELIUM_SCENES,readMyceliumScene,selectMyceliumScene,resetMyceliumScene} from './warehouse-mycelium-scenes.mjs';
 import {initialDialogue,advanceDialogue,getDialogueNode,loadDialogue,storeDialogue,resetDialogue} from './warehouse-dialogue-director.mjs';
+import {resolveHumanVoiceAsset,validateLocalVoicePreview} from './warehouse-human-voice.mjs';
 installWarehouseMyceliumBridge(window);
 const $=id=>document.getElementById(id);
 let state=readWarehouseMission(localStorage);
 let dialogue=null;
-function stopVoice(){if('speechSynthesis' in window)window.speechSynthesis.cancel();}
+let voicePreviewUrl=null;
+function stopVoice(){const p=$('npcVoicePlayer');p.pause();p.currentTime=0;}
+function clearVoicePreview(){stopVoice();if(voicePreviewUrl){URL.revokeObjectURL(voicePreviewUrl);voicePreviewUrl=null;} $('npcVoicePlayer').removeAttribute('src');$('npcVoicePlayer').load();$('npcVoiceFile').value='';$('npcVoiceConsent').checked=false;}
 function startDialogue(branch){dialogue=loadDialogue(localStorage,branch,state.completed);renderDialogue();}
 function renderDialogue(){
  const panel=$('npcConversation');
@@ -15,6 +18,8 @@ function renderDialogue(){
  const node=getDialogueNode(dialogue);
  if(!node){panel.hidden=true;return;}
  panel.hidden=false;
+ const asset=resolveHumanVoiceAsset(dialogue.branch,dialogue.node);
+ $('npcVoiceStatus').textContent=asset?'Approved human recording available. Tap Play Human Voice.':voicePreviewUrl?'Local human-recorded preview ready; tap the player.':'No licensed actor recording for this line yet. Captions are available.';
  $('npcSpeaker').textContent=node.speaker;
  $('npcLine').textContent=node.line;
  $('npcObjective').textContent=dialogue.completed?'NEXT OBJECTIVE (PREVIEW): '+(dialogue.objective||'Story complete'):'Choose BJ’s response below.';
@@ -24,7 +29,7 @@ function renderDialogue(){
   const button=document.createElement('button');
   button.type='button';button.textContent='BJ: '+choice.label;
   button.addEventListener('click',()=>{
-   try{stopVoice();dialogue=advanceDialogue(dialogue,choice.id);storeDialogue(localStorage,dialogue);
+   try{clearVoicePreview();dialogue=advanceDialogue(dialogue,choice.id);storeDialogue(localStorage,dialogue);
     if(dialogue.completed)emit('tryamm:mycelium-dialogue-complete',{branch:dialogue.branch,objective:dialogue.objective,simulated:true,affectsInventory:false,createsBlockchainAnchor:false});
     renderDialogue();
    }catch{ $('npcObjective').textContent='Unable to save conversation; retry.'; }
@@ -62,28 +67,39 @@ $('next').addEventListener('click',()=>{
   render(state.completed?'SIX-MISSION CHAPTER COMPLETE — DEMO RECEIPT READY':`✓ ${step.title.toUpperCase()}`);
  }catch(err){render(err.message||'Unable to save mission');}
 });
-$('replay').addEventListener('click',()=>{try{state=resetWarehouseMission(localStorage);resetMyceliumScene(localStorage);resetDialogue(localStorage);dialogue=null;stopVoice();render('Chapter reset; no real inventory or earned credits changed.')}catch(e){render('Browser storage unavailable.')}});
+$('replay').addEventListener('click',()=>{try{state=resetWarehouseMission(localStorage);resetMyceliumScene(localStorage);resetDialogue(localStorage);dialogue=null;clearVoicePreview();render('Chapter reset; no real inventory or earned credits changed.')}catch(e){render('Browser storage unavailable.')}});
 document.querySelectorAll('[data-mycelium-branch]').forEach(button=>button.addEventListener('click',()=>{
  try{
   const scene=selectMyceliumScene(localStorage,button.dataset.myceliumBranch,state.completed);
   if(!scene){render('Complete all six checkpoints to unlock follow-up stories.');return;}
-  stopVoice();resetDialogue(localStorage);startDialogue(scene.branch);
+  clearVoicePreview();resetDialogue(localStorage);startDialogue(scene.branch);
   emit('tryamm:mycelium-choose-branch',{branch:scene.branch,fictional:true});
   render(`✓ ${scene.label.toUpperCase()} STORY SELECTED`);
  }catch{render('Cannot save scene choice on this device.')}
 }));
-$('npcSpeak').addEventListener('click',()=>{
- const node=dialogue&&getDialogueNode(dialogue);
- if(!node||!('speechSynthesis' in window)||!('SpeechSynthesisUtterance' in window)){ $('npcObjective').textContent='Spoken dialogue is unavailable. Read the text above.';return; }
- stopVoice();const speech=new SpeechSynthesisUtterance(node.line);speech.lang='en-US';speech.rate=.92;window.speechSynthesis.speak(speech);
+$('npcSpeak').addEventListener('click',async()=>{
+ const url=dialogue&&resolveHumanVoiceAsset(dialogue.branch,dialogue.node);
+ if(!url){$('npcVoiceStatus').textContent='No approved recording for this NPC line yet. You can locally preview an actor recording below.';return;}
+ clearVoicePreview();const p=$('npcVoicePlayer');p.src=url;
+ try{await p.play();$('npcVoiceStatus').textContent='Playing approved actor recording.';}catch{$('npcVoiceStatus').textContent='Tap the audio player to begin playback.';}
+});
+$('npcVoiceFile').addEventListener('change',()=>{
+ clearVoicePreview();
+ const file=$('npcVoiceFile').files?.[0],valid=validateLocalVoicePreview(file,$('npcVoiceConsent').checked);
+ if(!valid.ok){$('npcVoiceStatus').textContent=valid.reason;return;}
+ voicePreviewUrl=URL.createObjectURL(file);$('npcVoicePlayer').src=voicePreviewUrl;
+ $('npcVoiceStatus').textContent='Local performer recording ready. Play with the audio control. This does not publish or license the recording.';
+});
+$('npcVoiceConsent').addEventListener('change',()=>{
+ if(!$('npcVoiceConsent').checked&&voicePreviewUrl)clearVoicePreview();
 });
 $('npcStop').addEventListener('click',stopVoice);
 $('npcRepeat').addEventListener('click',()=>{
  if(!state.completed||!dialogue)return;
- stopVoice();dialogue=initialDialogue(dialogue.branch);
+ clearVoicePreview();dialogue=initialDialogue(dialogue.branch);
  try{storeDialogue(localStorage,dialogue)}catch{}
  renderDialogue();
 });
-window.addEventListener('pagehide',stopVoice);
+window.addEventListener('pagehide',clearVoicePreview);
 emit('tryamm:streetverse-mission-start',{missionId:WAREHOUSE_MISSION_ID,label:'All American Warehouse Delivery',simulated:true});
 render();
