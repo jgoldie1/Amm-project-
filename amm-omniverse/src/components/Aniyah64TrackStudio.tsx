@@ -4,10 +4,20 @@ import MusicCreatorStudio from './MusicCreatorStudio'
 import {ANIYAH_64_TRACK_BUSINESS,ANIYAH_64_TRACK_OFFERS,ANIYAH_STUDIO_REVENUE_CHANNELS,formatUsd,type AniyahStudioSku} from '../data/Aniyah64TrackBusiness'
 
 const RecordingStudio=lazy(()=>import('./RecordingStudio'))
+type StudioVoiceBrief={version:number;source:string;project:string;mode:string;character:string;script:string;recordingStatus:string;performanceRightsStatus:string;publishAuthorized:boolean;distributionAuthorized:boolean}
+const ANIYAH_VOICE_HANDOFF_KEY='tryamm.aniyah.voice-session-handoff.v1'
+function readStudioVoiceBrief():StudioVoiceBrief|null{
+ try{
+  const b=JSON.parse(localStorage.getItem(ANIYAH_VOICE_HANDOFF_KEY)||'null')
+  if(b?.version!==1||b?.source!=='streetverse-mycelium'||typeof b?.script!=='string'||!b.script.trim()||b.script.length>1200||typeof b.character!=='string'||b.character.length>120||typeof b.project!=='string'||b.project.length>150||!['npc-dialogue','music-show'].includes(b.mode)||b.recordingStatus!=='not-recorded'||b.performanceRightsStatus!=='not-reviewed'||b.publishAuthorized!==false||b.distributionAuthorized!==false)return null
+  return b as StudioVoiceBrief
+ }catch{return null}
+}
 type Mode='create'|'engineer'|'earn'
 
 export default function Aniyah64TrackStudio({onClose}:{onClose?:()=>void}){
  const [mode,setMode]=useState<Mode>('create')
+ const [voiceBrief,setVoiceBrief]=useState<StudioVoiceBrief|null>(()=>readStudioVoiceBrief())
  const [status,setStatus]=useState('Aniyah 64-Track Studio is ready.')
  const [readiness,setReadiness]=useState<{readyForCharges?:boolean;readyForPayout?:boolean;message?:string}|null>(null)
  const [busy,setBusy]=useState<string>('')
@@ -29,6 +39,17 @@ export default function Aniyah64TrackStudio({onClose}:{onClose?:()=>void}){
    <div><div style={{fontSize:9,letterSpacing:2.4,color:'#ff91dc',fontWeight:950}}>ANIYAH • MUSIC BUSINESS</div><div style={{fontSize:20,fontWeight:950}}>64-Track Studio</div><div style={{fontSize:9,color:'#8fa2b8'}}>AI Create Mode + full 64-track Engineer Mode + verified commerce</div></div>
    <div style={{marginLeft:'auto',display:'flex',gap:6}}>{(['create','engineer','earn'] as Mode[]).map(m=><button key={m} onClick={()=>setMode(m)} style={{...tab,borderColor:mode===m?'#ffd75e':'#344156',color:mode===m?'#ffd75e':'#a6b2c0'}}>{m.toUpperCase()}</button>)}</div>
   </header>
+  {voiceBrief&&<section aria-label="Incoming human voice recording brief" style={{maxWidth:1080,margin:'14px auto',border:'1px solid #65d8ff',borderRadius:16,padding:16,background:'#061725'}}>
+    <div style={{fontSize:11,color:'#95e6ff',fontWeight:900}}>INCOMING MYCELIUM RECORDING BRIEF · HUMAN PERFORMANCE REQUIRED</div>
+    <h3>{voiceBrief.project}</h3>
+    <p><b>Performer role:</b> {voiceBrief.character}</p><p><b>Session:</b> {voiceBrief.mode==='music-show'?'Music show / vocal booth':'NPC dialogue / vocal booth'}</p>
+    <blockquote style={{borderLeft:'3px solid #c7a65e',paddingLeft:12,whiteSpace:'pre-wrap'}}>{voiceBrief.script}</blockquote>
+    <p style={{fontSize:12,color:'#ffc984'}}>Not recorded · Performance license not reviewed · No publishing or distribution authorized.</p>
+    <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
+      <button onClick={()=>setMode('engineer')} style={back}>OPEN ENGINEER MODE TO RECORD</button>
+      <button onClick={()=>{try{localStorage.removeItem(ANIYAH_VOICE_HANDOFF_KEY)}catch{}setVoiceBrief(null)}} style={back}>DISMISS BRIEF</button>
+    </div>
+  </section>}
   {mode==='create'&&<MusicCreatorStudio/>}
   {mode==='engineer'&&<div style={{height:'calc(100dvh - 78px)'}}><Suspense fallback={<div style={{padding:24}}>Loading 64-track Engineer Mode…</div>}><RecordingStudio onClose={()=>setMode('create')}/></Suspense></div>}
   {mode==='earn'&&<main style={{maxWidth:1080,margin:'0 auto',padding:'18px 14px 80px'}}>
