@@ -19,7 +19,17 @@ required(loader.includes('parseAsync(bytes,basePath)'),'V15 must decode fetched 
 required(loader.includes('BJ GLB decode timed out'),'decoder must fail rather than spin forever')
 required(mobile.includes("bjLoadStatus==='downloading'?'BJ NATIVE ACTIVE · V15 DOWNLOAD'"),'show the download stage')
 required(mobile.includes("bjLoadStatus==='decoding'?'BJ NATIVE ACTIVE · V15 DECODING'"),'show the GPU/GLB preparation stage')
-required(mobile.includes('},16000)'),'iPhone hero attempt must not hang forever')
+const readMillis=(source,pattern,label)=>{
+ const match=source.match(pattern)
+ required(Boolean(match),label+' must have a bounded deadline')
+ return Number(match[1])
+}
+const fetchDeadline=readMillis(loader,/controller\\.abort\\(\\),(\\d+)\\)/,'V15 fetch')
+const decodeDeadline=readMillis(loader,/GLB decode timed out'\\)\\),(\\d+)\\)/,'V15 decode')
+const mountDeadline=readMillis(mobile,/BJ V15 TIMED OUT[\\s\\S]*?\\},(\\d+)\\)/,'iPhone hero load')
+required(mountDeadline>fetchDeadline+decodeDeadline,
+ 'iPhone hero deadline must exceed bounded fetch + GLB decode (do not discard valid models)')
+required(mountDeadline<=60000,'iPhone hero attempt must still terminate within 60 seconds')
 required(mobile.includes("setMessage('BJ V15 TIMED OUT • tap RETRY BJ')"),'time-out must expose user retry')
 
 required(loader.includes('daa5234c-5fbf-4b52-9c45-e82e36156153.glb'),'stable externally hosted asset')
