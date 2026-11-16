@@ -8,7 +8,7 @@ on:
       - 'amm-omniverse/src/runtime/StreetVerseOriginalDistrictPreview.ts'
       - 'amm-omniverse/src/runtime/StreetVerseVisibleForgeBridge.ts'
       - 'amm-omniverse/tests/streetverse-original-district-preview.test.mjs'
-      - 'amm-omniverse/tests/streetverse-original-open-world-kernel.test.mjs tests/streetverse-original-district-preview.test.mjs'
+      - 'amm-omniverse/tests/streetverse-original-open-world-kernel.test.mjs'
       - 'amm-omniverse/src/runtime/StreetVerseOneButtonSubmissionTest.ts'
       - 'amm-omniverse/src/components/StreetVerseMyceliumSubmissionPanel.tsx'
       - 'amm-omniverse/src/components/StreetVerseWestSideWorldBuilder.tsx'
@@ -34,6 +34,6 @@ jobs:
           cache-dependency-path: amm-omniverse/package-lock.json
       - run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Run Mycelium, district and submission tests
-        run: node --test tests/streetverse-mycelium-integration.test.mjs tests/streetverse-original-open-world-kernel.test.mjs
+        run: node --test tests/streetverse-mycelium-integration.test.mjs tests/streetverse-original-open-world-kernel.test.mjs tests/streetverse-original-district-preview.test.mjs
       - name: Type-check frontend / bridge wiring
         run: npm run typecheck
