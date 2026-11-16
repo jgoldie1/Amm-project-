@@ -20,7 +20,7 @@ export function saveAniyahStudioBrief(storage,brief){
 export function readAniyahStudioBrief(storage){
  try{
   const b=JSON.parse(storage.getItem(ANIYAH_VOICE_HANDOFF_KEY)||'null');
-  const verified=buildAniyahStudioBrief(b);
+  const verified=buildAniyahStudioBrief({...b,speaker:b.character,line:b.script});
   if(!verified||b.version!==1)return null;
   return JSON.stringify(verified)===JSON.stringify(b)?verified:null;
  }catch{return null}
