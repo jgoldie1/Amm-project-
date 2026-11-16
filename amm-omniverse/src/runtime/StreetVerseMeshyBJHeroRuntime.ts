@@ -68,6 +68,8 @@ export function getBJPreviewV15Url():string|null{
   return new URLSearchParams(window.location.search).get('bj')==='legacy' ? null : BJ_V15_PREVIEW.url
 }
 
+// Optional locally deployed motion-enhanced V15, never replaces default V15.
+export const BJ_V15_MOTION_PREVIEW_URL='/tryamm-assets/meshy/characters/BJ_STUBBS_V15_MOTION_ENHANCED.glb'
 const loader=new GLTFLoader()
 const availability=new Map<string,Promise<boolean>>()
 
@@ -223,6 +225,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   // On slow iPhone connections that unbounded manifest request left the UI at
   // "BJ V15 LOADING" even though the V15 asset itself was healthy.
   const v15PreviewUrl=getBJPreviewV15Url()
+  const motionPreviewUrl=v15PreviewUrl&&new URLSearchParams(window.location.search).get('bj')==='motion'?BJ_V15_MOTION_PREVIEW_URL:null
   const published=v15PreviewUrl?null:await Promise.race([
     resolvePublishedMeshyAsset('sv-bj-stubbs-v6',cityScope),
     new Promise<null>(resolve=>window.setTimeout(()=>resolve(null),3000)),
@@ -230,7 +233,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   // Never load a MetaHuman candidate by default; preview is explicitly opted-in.
   const metaHumanPreviewUrl=getPreviewBJMetaHumanUrl()
   // Default to the actual V15 hero; ?bj=legacy preserves a manual fallback.
-  const candidates=[v15PreviewUrl,metaHumanPreviewUrl,published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
+  const candidates=[motionPreviewUrl,v15PreviewUrl,metaHumanPreviewUrl,published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
   let sourceUrl=''
   let publishedGlb:Awaited<ReturnType<typeof loader.loadAsync>>|null=null
   let usingMetaHumanPreview=false
@@ -251,7 +254,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       let candidateGlb:Awaited<ReturnType<typeof loader.loadAsync>>
       try{
         window.dispatchEvent(new CustomEvent('tryamm:bj-model-progress',{detail:{
-          stage:'fetching',source:candidate===v15PreviewUrl?'v15':'fallback',
+          stage:'fetching',source:candidate===v15PreviewUrl||candidate===motionPreviewUrl?'v15':'fallback',
         }}))
         const response=await fetch(candidate,{signal:controller.signal,mode:'cors'})
         if(!response.ok)throw new Error('BJ GLB HTTP '+response.status)
@@ -282,7 +285,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
         if(!audit.ok){disposeObject(candidateGlb.scene);continue}
         usingMetaHumanPreview=true
       }
-      if(candidate===v15PreviewUrl){
+      if(candidate===v15PreviewUrl||candidate===motionPreviewUrl){
         const faceNames=new Set<string>()
         candidateGlb.scene.traverse(n=>{
           if(n instanceof THREE.Mesh)for(const name of Object.keys(n.morphTargetDictionary||{}))faceNames.add(name)
@@ -291,7 +294,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
         const valid=animations.some(a=>/idle/i.test(a.name))&&animations.some(a=>/walk/i.test(a.name))
           &&faceNames.has('eyeBlinkLeft')&&faceNames.has('jawOpen')
         window.dispatchEvent(new CustomEvent('tryamm:bj-v15-asset-audit',{detail:{
-          characterId:'bj-stubbs',sourceUrl:candidate,valid,
+          characterId:'bj-stubbs',sourceUrl:candidate,valid,motionPreview:candidate===motionPreviewUrl,
           animationCount:animations.length,facialMorphCount:faceNames.size,likenessCertified:false,
         }}))
         if(!valid){disposeObject(candidateGlb.scene);continue}
