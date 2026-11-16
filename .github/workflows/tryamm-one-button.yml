@@ -77,6 +77,10 @@ jobs:
         id: world_entry
         continue-on-error: true
         run: node --test test/streetverse-two-world-demo-entry.test.mjs
+      - name: Rights-only music video discovery and watchlist regression
+        id: creator_discovery
+        continue-on-error: true
+        run: node --test test/music-video-creator-discovery.test.mjs
       - name: Whole-app readiness inventory
         id: readiness
         continue-on-error: true
@@ -103,6 +107,7 @@ jobs:
           INDEPENDENT_MUSIC: ${{ steps.independent_music.outcome }}
           MUSIC_VIDEO: ${{ steps.music_video.outcome }}
           WORLD_ENTRY: ${{ steps.world_entry.outcome }}
+          CREATOR_DISCOVERY: ${{ steps.creator_discovery.outcome }}
         run: |
           echo "Root: $PLATFORM; Omniverse: $OMNIVERSE; Readiness: $READINESS"
           test "$PLATFORM" = "success"
@@ -117,4 +122,5 @@ jobs:
           test "$INDEPENDENT_MUSIC" = "success"
           test "$MUSIC_VIDEO" = "success"
           test "$WORLD_ENTRY" = "success"
+          test "$CREATOR_DISCOVERY" = "success"
           echo "Code and readiness gates passed without unresolved critical blockers."
