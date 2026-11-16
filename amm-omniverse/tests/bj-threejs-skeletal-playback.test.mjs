@@ -24,6 +24,7 @@ test('original BJ standby GLB can be parsed, skinned and animated by real Three.
  mixer.clipAction(clip).reset().play()
  mixer.update(.16)
  root.updateMatrixWorld(true)
+ for(const mesh of skins)mesh.skeleton.update()
  assert.ok(before.angleTo(leftLeg.quaternion)>.02,'walk clip must rotate an actual rig bone')
  assert.ok(skins.some(mesh=>mesh.skeleton.boneMatrices.some(n=>Math.abs(n)>1e-6)),
   'skin matrices should update after motion')
