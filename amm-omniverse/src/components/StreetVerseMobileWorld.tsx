@@ -336,14 +336,15 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
       const activateBJHero=()=>{
         const request=++bjHeroLoadEpoch
         setBJLoadStatus('loading')
-        // Every request terminates visibly, even if a browser or API hangs.
+        // The GLB loader permits 25s fetch + 20s decode; the outer guard must
+        // exceed that combined ceiling so a valid slow iPhone load is not discarded.
         const guard=window.setTimeout(()=>{
           if(!nativeCancelled&&request===bjHeroLoadEpoch){
             ++bjHeroLoadEpoch
             setBJLoadStatus('error')
             setMessage('BJ V15 TIMED OUT • tap RETRY BJ')
           }
-        },16000)
+        },50000)
         void loadStreetVerseMeshyBJHero().then(handle=>{
           window.clearTimeout(guard)
           if(!handle){if(request===bjHeroLoadEpoch){setBJLoadStatus('error');setMessage('BJ V15 NOT AVAILABLE • retry from the BJ button')}return}
@@ -384,7 +385,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
           window.dispatchEvent(new CustomEvent('tryamm:streetverse-hero-visual-authority',{detail}))
           window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-hero-mounted',{detail}))
           if(isV15){
-            setMessage('BJ V15 LOADED • animated 3D model active')
+            setMessage('BJ V15 GLB MOUNTED • use animation test controls to verify playback')
             window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-showcase',{detail:{source:'bj-v15-mounted'}}))
           }else if(new URLSearchParams(window.location.search).get('bj')==='v15'){
             setMessage('BJ V15 DID NOT LOAD • previous model restored')
