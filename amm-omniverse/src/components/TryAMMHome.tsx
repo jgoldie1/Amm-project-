@@ -16,6 +16,7 @@ const navButton={border:0,background:'transparent',color:'#aebdca',padding:'10px
 export default function TryAMMHome(){
  const store=useGameStore();const enter=(screen:'login'|'city'|'sports'|'marketplace'|'music'|'faith'|'blockchain')=>store.setScreen(screen)
  const ecosystem=[
+  {icon:'📦',title:'Warehouse Delivery',copy:'Play the six-stage All American Records merch-to-Chicago virtual warehouse mission. Offline checkpoints, no live purchases.',action:()=>{window.location.href='/warehouse-missions.html'},label:'NEW'},
   {icon:'◈',title:'Middleverse',copy:'Context-preserving orchestration connecting Holoverse, Stubbs AI, Workforce, Commerce, LIVE, Safety and Living Worlds.',action:()=>openGlobal('__showMiddleverseWorkstation'),label:'NEW'},
   {icon:'🎧',title:'AI Workforce + WFH',copy:'Approved scripts, rebuttals, DNC checks, interaction logging, QA, supervisor/compliance escalation and AI assistance.',action:()=>openGlobal('__showMiddleverseWorkstation'),label:'NEW'},
   {icon:'🎓',title:'All American University',copy:'AI-assisted classes with real teachers, trade school, career academy, supervised labs, apprenticeships, portfolios and workforce pathways.',action:openAAU,label:'NEW'},
