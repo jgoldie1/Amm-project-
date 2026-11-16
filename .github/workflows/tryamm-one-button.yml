@@ -65,6 +65,10 @@ jobs:
         id: physical_music
         continue-on-error: true
         run: node --test test/direct-fan-physical-music.test.mjs
+      - name: Independent music distribution fee and chart regressions
+        id: independent_music
+        continue-on-error: true
+        run: node --test test/independent-music-distribution-charts.test.mjs
       - name: Whole-app readiness inventory
         id: readiness
         continue-on-error: true
@@ -88,6 +92,7 @@ jobs:
           VOCAL_PITCH: ${{ steps.vocal_pitch.outcome }}
           SOUND_BANK: ${{ steps.sound_bank.outcome }}
           PHYSICAL_MUSIC: ${{ steps.physical_music.outcome }}
+          INDEPENDENT_MUSIC: ${{ steps.independent_music.outcome }}
         run: |
           echo "Root: $PLATFORM; Omniverse: $OMNIVERSE; Readiness: $READINESS"
           test "$PLATFORM" = "success"
@@ -99,4 +104,5 @@ jobs:
           test "$VOCAL_PITCH" = "success"
           test "$SOUND_BANK" = "success"
           test "$PHYSICAL_MUSIC" = "success"
+          test "$INDEPENDENT_MUSIC" = "success"
           echo "Code and readiness gates passed without unresolved critical blockers."
