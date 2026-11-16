@@ -41,6 +41,10 @@ jobs:
           npm --prefix amm-omniverse run typecheck
           npm --prefix amm-omniverse run smoke
           npm --prefix amm-omniverse run build
+      - name: HoloVerse music rights and royalty pilot regression
+        id: holoverse
+        continue-on-error: true
+        run: node --test amm-omniverse/tests/holoverse-pilot-accounting.test.mjs
       - name: Whole-app readiness inventory
         id: readiness
         continue-on-error: true
@@ -58,9 +62,11 @@ jobs:
           PLATFORM: ${{ steps.platform.outcome }}
           OMNIVERSE: ${{ steps.omniverse.outcome }}
           READINESS: ${{ steps.readiness.outcome }}
+          HOLOVERSE: ${{ steps.holoverse.outcome }}
         run: |
           echo "Root: $PLATFORM; Omniverse: $OMNIVERSE; Readiness: $READINESS"
           test "$PLATFORM" = "success"
           test "$OMNIVERSE" = "success"
           test "$READINESS" = "success"
+          test "$HOLOVERSE" = "success"
           echo "Code and readiness gates passed without unresolved critical blockers."
