@@ -2,6 +2,7 @@ import {useEffect,useMemo,useRef,useState} from 'react'
 import {useFrame} from '@react-three/fiber'
 import * as THREE from 'three'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js'
+import {STREETVERSE_RECOVERED_HERO_ASSETS,fingerprintMatchesVerifiedAsset} from '../data/streetVerseRecoveredHeroAssets'
 
 /**
  * LaTeasia Monroe is a named cross-city creator character, not one of the
@@ -13,7 +14,7 @@ export const LATEASIA_CHICAGO = {
  id:'lateasia-monroe',name:'LaTeasia Monroe',city:'chicago',
  location:'Taylor Street creator district',
  position:{x:-560,y:0,z:690},
- modelUrl:'/tryamm-assets/meshy/characters/LaTeasia_RIGGED_DIAGNOSTIC.glb',
+ modelUrl:STREETVERSE_RECOVERED_HERO_ASSETS.lateasia.publicUrl,
  intro:'I’m LaTeasia Monroe. Welcome to the Chicago creator district! We can plan a beauty showcase, an original music session, or a trip to my BeautyVerse project in Tampa.',
 } as const
 
@@ -32,7 +33,8 @@ export default function StreetVerseLaTeasiaChicago({onStatus,city='chicago',posi
  useEffect(()=>{
   let cancelled=false
   const loader=new GLTFLoader()
-  loader.load(LATEASIA_CHICAGO.modelUrl,glb=>{
+  const installVerifiedGlb=(buffer:ArrayBuffer)=>{
+   loader.parse(buffer,'',glb=>{
    if(cancelled)return
    let meshes=0,skinnedMeshes=0
    glb.scene.traverse(o=>{if((o as THREE.Mesh).isMesh)meshes++;if((o as THREE.SkinnedMesh).isSkinnedMesh)skinnedMeshes++})
@@ -47,7 +49,20 @@ export default function StreetVerseLaTeasiaChicago({onStatus,city='chicago',posi
     mixer.current=m
    }
    setRealModel(true);notify.current?.(true)
-  },undefined,()=>{if(!cancelled){setRealModel(false);notify.current?.(false)}})
+   },()=>{if(!cancelled){setRealModel(false);notify.current?.(false)}})
+  }
+  void (async()=>{
+   try{
+    const response=await fetch(LATEASIA_CHICAGO.modelUrl,{cache:'force-cache'})
+    if(!response.ok)throw new Error('LaTeasia GLB source unavailable')
+    const buffer=await response.arrayBuffer()
+    if(!crypto?.subtle)throw new Error('SHA-256 browser hashing unavailable')
+    const digest=await crypto.subtle.digest('SHA-256',buffer)
+    const hash=Array.from(new Uint8Array(digest)).map(byte=>byte.toString(16).padStart(2,'0')).join('')
+    if(!fingerprintMatchesVerifiedAsset('lateasia',buffer.byteLength,hash))throw new Error('LaTeasia GLB digest mismatch')
+    if(!cancelled)installVerifiedGlb(buffer)
+   }catch{if(!cancelled){setRealModel(false);notify.current?.(false)}}
+  })()
   return()=>{cancelled=true;installed.current?.removeFromParent();installed.current=null;mixer.current?.stopAllAction();mixer.current=null;notify.current?.(false)}
  },[])
  useFrame((_,dt)=>{mixer.current?.update(Math.min(dt,.05))})
