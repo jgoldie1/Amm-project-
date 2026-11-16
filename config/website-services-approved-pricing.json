@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "brand": "TRYAMM Website Services",
+  "currency": "USD",
+  "approvedDate": "2026-10-24",
+  "approvalBasis": "Owner confirmation in ChatGPT conversation",
+  "offersApproved": true,
+  "pricesApproved": true,
+  "packages": [
+    {
+      "id": "starter",
+      "name": "Starter Website",
+      "oneTimePriceCents": 19900
+    },
+    {
+      "id": "pro",
+      "name": "Business Pro",
+      "oneTimePriceCents": 49900
+    },
+    {
+      "id": "premium",
+      "name": "AI Business Premium",
+      "oneTimePriceCents": 99900
+    }
+  ],
+  "optionalSupport": {
+    "name": "AI and Support",
+    "monthlyPriceCents": 4900,
+    "requiresDefinedUsageLimits": true
+  },
+  "checkoutEnabled": false,
+  "notes": [
+    "Approval records advertised prices only; no live charges or Stripe price objects created.",
+    "Publish after confirmed scope, refund and fulfillment terms, tax handling, Stripe account verification and test checkout."
+  ]
+}
