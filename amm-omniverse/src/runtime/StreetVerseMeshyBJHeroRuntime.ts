@@ -397,6 +397,20 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       }catch{}
     }
     const clips=[...(gltf.animations||[]),...companionClips]
+    // The recovered BJ V15 has a walk clip but no verified captured run.
+    // Build a runtime-only retimed proxy for movement until a true run is approved.
+    // Do not mutate the GLB or claim a captured running animation.
+    const hasNativeRun=clips.some(clip=>/run|jog|sprint/i.test(clip.name))
+    const runWalkSource=clips.find(clip=>/walk|locomotion/i.test(clip.name)&&clip.tracks.length>0)
+    let usingRetimedRunProxy=false
+    if(usingV15Preview&&!hasNativeRun&&runWalkSource){
+      const proxy=runWalkSource.clone()
+      proxy.name='BJ_Run_Cycle_Fallback_From_Walk_0p68x'
+      for(const track of proxy.tracks)track.scale(.68)
+      proxy.resetDuration()
+      clips.push(proxy)
+      usingRetimedRunProxy=true
+    }
     const mixer=clips.length?new THREE.AnimationMixer(object):null
     const animations=materializeAnimationMap(clips)
     const morphs=collectMorphMeshes(object)
@@ -509,9 +523,9 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
     let gestureUntil=0
     let previousNow=performance.now()
     const gesturePatterns:Record<BJGesture,RegExp>={
-      'nod':/BJ_V15_ListenAndNod/i,
-      'look-around':/BJ_V15_LookAround/i,
-      'acknowledge':/BJ_V15_AcknowledgeAndSmile/i,
+      'nod':/BJ_V15_(?:Listen(?:ing)?[_ -]?Nod|ListenAndNod)/i,
+      'look-around':/BJ_V15_(?:Observe_Left_Right|LookAround)/i,
+      'acknowledge':/BJ_V15_(?:Conversational_Gesture|AcknowledgeAndSmile)/i,
       'converse':/BJ_V14_Speaking_Visemes/i,
       'greet':/BJ_Greeting_Wave/i,
     }
@@ -537,7 +551,14 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       const detail=(event as CustomEvent<{characterId?:string;gesture?:BJGesture}>).detail||{}
       if(detail.characterId&&detail.characterId!==BJ_MESHY_V6_ASSET.characterId)return
       if(!detail.gesture||!Object.prototype.hasOwnProperty.call(gesturePatterns,detail.gesture))return
-      playGesture(detail.gesture)
+      const success=playGesture(detail.gesture)
+      window.dispatchEvent(new CustomEvent('tryamm:bj-gesture-result',{detail:{
+        characterId:BJ_MESHY_V6_ASSET.characterId,
+        gesture:detail.gesture,
+        clipFound:success,
+        motionAppliedToMixer:success,
+        deviceVisualVerified:false,
+      }}))
     }
     window.addEventListener('tryamm:bj-gesture',onGesture)
     let lastLifeStateAt=0
@@ -628,6 +649,8 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       assetId:BJ_MESHY_V6_ASSET.id,
       url:sourceUrl,
       clipNames:clips.map(clip=>clip.name),
+      retimedRunProxy:usingRetimedRunProxy,
+      actualRunMotionCaptured:hasNativeRun,
       morphTargetNames:morphs.names,
       faceChannels:BJ_FACE_MORPHS.map(([channel])=>channel),
       targetHeightMeters:BJ_MESHY_V6_ASSET.targetHeightMeters,
