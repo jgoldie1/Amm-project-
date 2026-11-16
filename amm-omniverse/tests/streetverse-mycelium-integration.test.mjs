@@ -10,6 +10,7 @@ const loadTs=async file=>{
 }
 const generator=await loadTs('../src/data/StreetVerseLivingCityGenerator.ts')
 const mycelium=await loadTs('../src/runtime/StreetVerseMyceliumNetwork.ts')
+const timelineModule=await loadTs('../src/runtime/StreetVerseMyceliumTimelineRuntime.ts')
 test('every city produces stable, valid roads, bridges, transit, buildings and welcome mission',()=>{
  assert.ok(generator.STREETVERSE_STARTER_CITIES.length>=14)
  for(const city of generator.STREETVERSE_STARTER_CITIES){
@@ -30,6 +31,18 @@ test('Mycelium fans out once per unique event, resists cycles and duplicate deli
  assert.equal(network.publish(event).duplicate,true)
  assert.equal(network.receipts().length,1)
  assert.throws(()=>network.publish({...event,id:'not valid'}))
+})
+test('Recovered Mycelium timeline keeps forked world history separate',()=>{
+ const timeline=timelineModule.createMyceliumTimeline('streetverse:chicago')
+ assert.equal(timeline.record({id:'e1',kind:'district-preview',payload:{city:'chicago'},at:1}),true)
+ assert.equal(timeline.record({id:'e1',kind:'district-preview',payload:{city:'chicago'},at:1}),false)
+ timeline.fork('pocket:1','pocket-dimension',2)
+ timeline.travel('pocket:1')
+ assert.equal(timeline.history().length,1)
+ assert.equal(timeline.record({id:'e2',kind:'arrival',payload:{},at:3}),true)
+ assert.equal(timeline.history().length,2)
+ timeline.travel('streetverse:chicago')
+ assert.equal(timeline.history().length,1)
 })
 test('existing AI Café backend accepts only a nonpublishing, cost-free city plan',()=>{
  const result=buildCityPlan({cityId:'sv-us-chicago',district:'Circle Park / Taylor Street',assets:[],publish:false,allowPaidGeneration:false})
