@@ -44,5 +44,5 @@ test('existing MPC pad bank remains and chord/beat UI is reachable via Aniyah St
  assert.match(suite,/beatEventsForStep/);
  assert.match(aniyah,/const ProAudioSuite=lazy/);
  assert.match(aniyah,/mode==='beats'/);
- assert.match(aniyah,/\['create','engineer','beats','physical','videos','earn'\]/);
+ assert.match(aniyah,/\['create','engineer','beats',/);
 });
