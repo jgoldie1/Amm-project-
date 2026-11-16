@@ -84,10 +84,16 @@ $('npcSpeak').addEventListener('click',async()=>{
  try{await p.play();$('npcVoiceStatus').textContent='Playing approved actor recording.';}catch{$('npcVoiceStatus').textContent='Tap the audio player to begin playback.';}
 });
 $('npcVoiceFile').addEventListener('change',()=>{
- clearVoicePreview();
- const file=$('npcVoiceFile').files?.[0],valid=validateLocalVoicePreview(file,$('npcVoiceConsent').checked);
+ const file=$('npcVoiceFile').files?.[0];
+ const consent=$('npcVoiceConsent').checked;
+ const valid=validateLocalVoicePreview(file,consent);
+ stopVoice();
+ if(voicePreviewUrl){URL.revokeObjectURL(voicePreviewUrl);voicePreviewUrl=null;}
+ $('npcVoicePlayer').removeAttribute('src');
+ $('npcVoicePlayer').load();
  if(!valid.ok){$('npcVoiceStatus').textContent=valid.reason;return;}
- voicePreviewUrl=URL.createObjectURL(file);$('npcVoicePlayer').src=voicePreviewUrl;
+ voicePreviewUrl=URL.createObjectURL(file);
+ $('npcVoicePlayer').src=voicePreviewUrl;
  $('npcVoiceStatus').textContent='Local performer recording ready. Play with the audio control. This does not publish or license the recording.';
 });
 $('npcVoiceConsent').addEventListener('change',()=>{
