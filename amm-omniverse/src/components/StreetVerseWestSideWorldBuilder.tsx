@@ -6,6 +6,7 @@ import {ILLINOIS_CAMPUSVERSE_NETWORK} from '../data/campusVerseIllinoisUniversit
 import {CHICAGO_77_SLICES,streetVerseCommunitySpawn} from '../config/streetverseCommunitySlices'
 import {ILLINOIS_STREETVERSE_HUBS,US_STREETVERSE_STATES} from '../data/StreetVerseExpansionHierarchy'
 import {STREETVERSE_GLOBAL_CITIES} from '../data/StreetVerseGlobalRegistry'
+import StreetVerseMyceliumSubmissionPanel from './StreetVerseMyceliumSubmissionPanel'
 
 type Tab='map'|'build'|'missions'|'campuses'
 type Scale='west'|'chicago'|'illinois'|'usa'|'world'
@@ -422,6 +423,7 @@ export default function StreetVerseWestSideWorldBuilder(){
     </>}
 
     {tab==='build'&&<>
+     <StreetVerseMyceliumSubmissionPanel />
      <article style={{...card,borderColor:'#72ffb080'}} aria-label="West Side existing asset delivery status">
        <b>EXISTING TRYAMM FORGE ASSETS · DELIVERY PROOF</b>
        <p style={muted}>Foundry defines {Object.keys(TRYAMM_NATIVE_RUNTIME_ASSETS).length} native asset types. A recipe, blueprint or saved GLB link is not proof of an asset appearing on-screen. The counters below show real loaded geometry only when the 3D loader reports it.</p>
