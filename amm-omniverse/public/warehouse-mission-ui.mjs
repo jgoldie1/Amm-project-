@@ -3,6 +3,7 @@ import {installWarehouseMyceliumBridge} from './warehouse-mycelium-bridge.mjs';
 import {MYCELIUM_SCENES,readMyceliumScene,selectMyceliumScene,resetMyceliumScene} from './warehouse-mycelium-scenes.mjs';
 import {initialDialogue,advanceDialogue,getDialogueNode,loadDialogue,storeDialogue,resetDialogue} from './warehouse-dialogue-director.mjs';
 import {resolveHumanVoiceAsset,validateLocalVoicePreview} from './warehouse-human-voice.mjs';
+import {exportCueSheetText} from './warehouse-vocal-studio-handoff.mjs';
 installWarehouseMyceliumBridge(window);
 const $=id=>document.getElementById(id);
 let state=readWarehouseMission(localStorage);
@@ -98,6 +99,19 @@ $('npcVoiceFile').addEventListener('change',()=>{
 });
 $('npcVoiceConsent').addEventListener('change',()=>{
  if(!$('npcVoiceConsent').checked&&voicePreviewUrl)clearVoicePreview();
+});
+$('npcCueSheet').addEventListener('click',()=>{
+ if(!state.completed||!dialogue){$('npcStudioStatus').textContent='Complete the delivery chapter and select an NPC story first.';return;}
+ try{
+  const script=exportCueSheetText(dialogue.branch);
+  const blob=new Blob([script],{type:'text/plain;charset=utf-8'});
+  const uri=URL.createObjectURL(blob);
+  const anchor=document.createElement('a');
+  anchor.href=uri;anchor.download=`streetverse-${dialogue.branch}-actor-script.txt`;
+  document.body.appendChild(anchor);anchor.click();anchor.remove();
+  URL.revokeObjectURL(uri);
+  $('npcStudioStatus').textContent='Actor cue sheet generated. Record the lines in Aniyah Studio, then preview your approved takes here.';
+ }catch{$('npcStudioStatus').textContent='Could not generate actor script.';}
 });
 $('npcStop').addEventListener('click',stopVoice);
 $('npcRepeat').addEventListener('click',()=>{
