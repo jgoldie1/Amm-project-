@@ -48,6 +48,7 @@ export default function TampaRiverwalkWorld({onReturn}:{onReturn:()=>void}){
  const held=useRef<Direction|null>(null)
  const [active,setActive]=useState('riverwalk')
  const [status,setStatus]=useState('Tampa Riverwalk 3D prototype loaded. Use arrows to walk, or select a district.')
+ const [laTeasiaTalkOpen,setLaTeasiaTalkOpen]=useState(false)
  useEffect(()=>{
   let timer:number|undefined
   const move=()=>{const d=held.current;if(!d)return;setPos(([x,z])=>{const p=clampTampaWalk(x+(d==='right'?.65:d==='left'?-.65:0),z+(d==='back'?.65:d==='forward'?-.65:0));return [p.x,p.z]})}
@@ -66,6 +67,13 @@ export default function TampaRiverwalkWorld({onReturn}:{onReturn:()=>void}){
    <button style={button} aria-label="Return to StreetVerse main world" onClick={onReturn}>← BACK</button>
    <div><strong>🌴 TAMPA RIVERWALK 3D</strong><div style={{fontSize:11}}>BeautyVerse · stylized prototype, not surveyed geographic reconstruction</div></div>
   </header>
+  <button aria-label="Meet LaTeasia Monroe at Tampa Beauty House" onClick={()=>{setPos([18,2]);setActive('beauty');setLaTeasiaTalkOpen(true);setStatus('LaTeasia Monroe · Tampa Beauty House')}} style={{...button,position:'absolute',right:10,top:118,zIndex:5,minHeight:50,background:'#5e304c',maxWidth:'min(55vw,260px)'}}>💄 MEET LATEASIA • TAMPA</button>
+  {laTeasiaTalkOpen&&<div role="dialog" aria-label="LaTeasia Monroe Tampa BeautyVerse conversation" style={{position:'absolute',right:10,bottom:105,zIndex:5,maxWidth:'min(82vw,340px)',padding:14,border:'2px solid #ffaddd',borderRadius:14,background:'#20122cef',lineHeight:1.55}}>
+   <strong>LaTeasia Monroe · BeautyVerse Tampa</strong>
+   <p>Welcome to my Beauty House on the Riverwalk. You can explore this district and return to the Chicago creator scene for our music and beauty projects.</p>
+   <p style={{fontSize:11,color:'#ffdd9e'}}>Character model loads only if the verified recovered GLB is published. This is fictional roleplay, not a real salon booking.</p>
+   <button aria-label="Close LaTeasia Tampa conversation" style={button} onClick={()=>setLaTeasiaTalkOpen(false)}>CLOSE CONVERSATION</button>
+  </div>}
   <nav aria-label="Tampa scene districts" style={{position:'absolute',top:165,left:9,right:9,display:'flex',gap:7,overflowX:'auto',paddingBottom:8}}>
    {TAMPA_RIVERWALK_DISTRICTS.map(d=><button aria-pressed={active===d.id} key={d.id} onClick={()=>travel(d.id)} style={{...button,minWidth:135,background:active===d.id?'#375749':'#102f42',fontSize:12}}>{d.label.toUpperCase()}</button>)}
   </nav>
