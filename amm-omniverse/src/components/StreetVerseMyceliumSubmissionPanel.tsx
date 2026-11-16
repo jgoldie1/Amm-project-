@@ -9,6 +9,8 @@ export default function StreetVerseMyceliumSubmissionPanel(){
  const [placement,setPlacement]=useState('No actual 3D placement attempted')
  const [engineCheck,setEngineCheck]=useState('Engine test not run')
  const [districtVisual,setDistrictVisual]=useState('District 3D preview not requested')
+ const [bjEvidence,setBjEvidence]=useState('BJ animated rig not verified on this device')
+ const [rendererEvidence,setRendererEvidence]=useState('3D renderer not verified on this device')
  const awaitingRenderer=useRef(false)
  useEffect(()=>{
   const onPlacement=(e:Event)=>{
@@ -28,10 +30,20 @@ export default function StreetVerseMyceliumSubmissionPanel(){
    const d=(e as CustomEvent<{rendered?:boolean;reason?:string;count?:number;cleared?:boolean}>).detail||{}
    setDistrictVisual(d.cleared?'PREVIEW CLEARED':d.rendered?`VISIBLE 3D • ${d.count||0} original mesh objects in active renderer • collision-free preview`:`3D PREVIEW BLOCKED • ${d.reason||'renderer unavailable'}`)
   }
+  const onBJ=(e:Event)=>{
+   const d=(e as CustomEvent<{rigReady?:boolean;renderableSkinnedMeshes?:number;bones?:number;clipCount?:number;trackCount?:number;reason?:string}>).detail||{}
+   setBjEvidence(d.rigReady?`BJ rig structure FOUND • ${d.bones||0} bones, ${d.clipCount||0} clips • visual playback still unverified`:`BJ RIG BLOCKED • ${d.reason||'missing verified skeleton/animation'}`)
+  }
+  const onRenderer=(e:Event)=>{
+   const d=(e as CustomEvent<{renderer?:string;nativeAssets?:number;missingAssets?:number}>).detail||{}
+   setRendererEvidence(`3D renderer event: ${d.renderer||'unknown'} • ${d.nativeAssets||0} loaded assets • device visual test pending`)
+  }
+  window.addEventListener('tryamm:streetverse-bj-rig-audit',onBJ)
+  window.addEventListener('tryamm:streetverse-forge-renderer-ready',onRenderer)
   window.addEventListener('tryamm:streetverse-district-preview-result',onDistrictVisual)
   window.addEventListener('tryamm:streetverse-forge-placement-result',onPlacement)
   window.addEventListener('tryamm:streetverse-forge-renderer-ready',onRendererReady)
-  return()=>{window.removeEventListener('tryamm:streetverse-district-preview-result',onDistrictVisual);window.removeEventListener('tryamm:streetverse-forge-placement-result',onPlacement);window.removeEventListener('tryamm:streetverse-forge-renderer-ready',onRendererReady)}
+  return()=>{window.removeEventListener('tryamm:streetverse-bj-rig-audit',onBJ);window.removeEventListener('tryamm:streetverse-forge-renderer-ready',onRenderer);window.removeEventListener('tryamm:streetverse-district-preview-result',onDistrictVisual);window.removeEventListener('tryamm:streetverse-forge-placement-result',onPlacement);window.removeEventListener('tryamm:streetverse-forge-renderer-ready',onRendererReady)}
  },[])
  const submit=async()=>{
   if(running)return
@@ -44,12 +56,14 @@ export default function StreetVerseMyceliumSubmissionPanel(){
  }
  return <section data-streetverse-mycelium-submit="preview-only" aria-label="StreetVerse one-button city submission test" style={{border:'1px solid #6cd8ec88',padding:12,borderRadius:12,background:'#071e2a',color:'#fff',display:'grid',gap:10,margin:'10px 0'}}>
   <strong>🌆 LIVING CITY × MYCELIUM × AI CAFÉ</strong>
+  <div role="status" aria-live="polite" style={{fontSize:12,color:'#f4cc8c'}}>{rendererEvidence}</div>
+  <div role="status" aria-live="polite" style={{fontSize:12,color:'#f4cc8c'}}>{bjEvidence}</div>
   <p style={{margin:0,fontSize:12,lineHeight:1.5}}>Chicago: request placement of four existing native 3D street objects, then run Mycelium, AI Café and backend verification. Other cities: generate a layout preview only. No paid generation or publishing.</p>
   <label htmlFor="mycelium-city-select" style={{fontSize:12}}>Starter city</label>
   <select id="mycelium-city-select" value={cityId} onChange={e=>setCityId(e.target.value)} style={{...control,background:'#071824'}}>
    {STREETVERSE_STARTER_CITIES.map(c=><option key={c.id} value={c.id}>{c.name} — {c.starterDistrict}</option>)}
   </select>
-  <button type="button" onClick={submit} disabled={running} style={{...control,background:'#145b43',opacity:running?.65:1}}>{running?'RUNNING CHECKS…':'BUILD VISIBLE CHICAGO + TEST CONNECTIONS'}</button>
+  <button type="button" onClick={submit} disabled={running} aria-label="One-button StreetVerse build and integration test" style={{...control,background:'#145b43',opacity:running?.65:1}}>{running?'RUNNING CHECKS…':'ONE BUTTON • BUILD 3D + TEST MYCELIUM / AI / BACKEND'}</button>
   <div role="status" aria-live="polite" style={{fontSize:12,color:'#b8f4e3'}}>{placement}</div>
   <div role="status" aria-live="polite" style={{fontSize:12,color:'#9ee7ff'}}>{districtVisual}</div>
   <button type="button" style={{...control,background:'#34304d'}} onClick={()=>window.dispatchEvent(new Event('tryamm:streetverse-district-preview-clear'))}>CLEAR GENERATED 3D DISTRICT PREVIEW</button>
