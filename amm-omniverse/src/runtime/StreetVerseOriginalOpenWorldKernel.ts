@@ -34,7 +34,7 @@ export function createStreetVerseWorldKernel(){
    if(state.mode==='on-foot')return copy(state);
    const drag=.35,accel=4.5,braking=8;
    let speed=clamp(state.speedMps+(input.throttle*accel-input.brake*braking-drag)*STREETVERSE_KERNEL_DT,0,STREETVERSE_KERNEL_MAX_SPEED);
-   if(speed<.1)speed=0;
+   if(speed<.1&&input.throttle===0)speed=0;
    const heading=state.headingRad+input.steer*Math.min(1,speed/8)*1.1*STREETVERSE_KERNEL_DT;
    const dx=Math.sin(heading)*speed*STREETVERSE_KERNEL_DT,dz=Math.cos(heading)*speed*STREETVERSE_KERNEL_DT;
    state={...state,speedMps:speed,mode:speed>0?'driving':'parked',headingRad:heading,x:state.x+dx,z:state.z+dz,distanceMeters:state.distanceMeters+Math.hypot(dx,dz)};
