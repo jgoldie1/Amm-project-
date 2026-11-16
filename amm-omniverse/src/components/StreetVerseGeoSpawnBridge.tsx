@@ -167,6 +167,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  const mobile=useMemo(()=>typeof navigator!=='undefined'&&/iPhone|iPad|iPod|Android/i.test(navigator.userAgent||''),[])
  const [enhancementsReady,setEnhancementsReady]=useState(false)
  const [nearWestOpen,setNearWestOpen]=useState(false)
+ const [demoDestination,setDemoDestination]=useState<'chicago'|'greenville'>('chicago')
  const [quantumMode,setQuantumMode]=useState<QuantumSpeedMode>('balanced')
  const setLocationContext=useGameStore(state=>state.setLocationContext)
  const applyCityConsequence=useGameStore(state=>state.applyCityConsequence)
@@ -293,7 +294,12 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
 
  return <>
   <BuildSwarmControl/>
-  {nearWestOpen&&<div style={{position:'fixed',inset:0,zIndex:14980,background:'#07101d'}}><Suspense fallback={null}><StreetVerseNearWest3D/></Suspense><button aria-label="Return to StreetVerse Chicago" onClick={()=>setNearWestOpen(false)} style={{position:'fixed',top:76,right:12,zIndex:14990,border:'1px solid #6ee7ff',borderRadius:12,background:'#07131f',color:'#fff',padding:'10px 12px',fontWeight:900}}>← CHICAGO</button></div>}
+  {nearWestOpen&&<div style={{position:'fixed',inset:0,zIndex:14980,background:'#07101d'}}><Suspense fallback={null}><StreetVerseNearWest3D key={demoDestination} initialDestination={demoDestination}/></Suspense><button aria-label="Return to StreetVerse Chicago" onClick={()=>setNearWestOpen(false)} style={{position:'fixed',top:76,right:12,zIndex:14990,border:'1px solid #6ee7ff',borderRadius:12,background:'#07131f',color:'#fff',padding:'10px 12px',fontWeight:900}}>← CHICAGO</button></div>}
+  {!nearWestOpen&&<div role="group" aria-label="StreetVerse one-tap 3D world demos" style={{position:'fixed',left:10,top:112,zIndex:14975,display:'grid',gap:8,maxWidth:'min(46vw,230px)'}}>
+    <button data-streetverse-demo="chicago" aria-label="Launch Chicago West Side 3D world" onClick={()=>{setDemoDestination('chicago');setNearWestOpen(true)}} style={{minHeight:58,borderRadius:12,border:'2px solid #94dbff',background:'#08314c',color:'#fff',fontSize:13,fontWeight:900,padding:'8px 10px',touchAction:'manipulation'}}>🏙️ WEST SIDE 3D</button>
+    <button data-streetverse-demo="greenville" aria-label="Launch Greenville CampusVerse 3D world" onClick={()=>{setDemoDestination('greenville');setNearWestOpen(true)}} style={{minHeight:58,borderRadius:12,border:'2px solid #f3d17c',background:'#3b2b0c',color:'#fff',fontSize:13,fontWeight:900,padding:'8px 10px',touchAction:'manipulation'}}>🎓 GREENVILLE 3D</button>
+    <span style={{padding:5,background:'#030e19dc',color:'#d0e1ef',fontSize:10}}>DEVELOPMENT DEMOS • placeholder geometry and licensed GLBs may differ</span>
+  </div>}
   {!nearWestOpen&&<button data-streetverse-travel="true" aria-label="Travel to Taylor Street UIC Medical District" onClick={()=>{if(mobile){window.dispatchEvent(new CustomEvent('tryamm:west-side-route-request',{detail:{x:24,z:-8,missionId:'taylor-single-canvas',source:'streetverse-main-travel-shortcut'}}))}else setNearWestOpen(true)}} style={{position:'fixed',top:118,right:12,zIndex:14970,border:'1px solid #6ee7ff',borderRadius:12,background:'#062333e8',color:'#fff',padding:'10px 12px',fontWeight:900}}>TAYLOR / UIC</button>}
   <Suspense fallback={<div aria-label="StreetVerse playable world loading" style={{position:'fixed',inset:0,zIndex:14990,display:'grid',placeItems:'center',background:'#07101d',color:'#fff',fontFamily:'system-ui',fontWeight:900}}>STREETVERSE • LOADING PLAYABLE WORLD…</div>}>
    <StreetVersePlayableWorld onClose={closeStreetVerse}/>
