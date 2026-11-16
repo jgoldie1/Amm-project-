@@ -69,6 +69,10 @@ jobs:
         id: independent_music
         continue-on-error: true
         run: node --test test/independent-music-distribution-charts.test.mjs
+      - name: Music video discovery rights and publishing gate regression
+        id: music_video
+        continue-on-error: true
+        run: node --test test/music-video-discovery-guard.test.mjs
       - name: Whole-app readiness inventory
         id: readiness
         continue-on-error: true
@@ -93,6 +97,7 @@ jobs:
           SOUND_BANK: ${{ steps.sound_bank.outcome }}
           PHYSICAL_MUSIC: ${{ steps.physical_music.outcome }}
           INDEPENDENT_MUSIC: ${{ steps.independent_music.outcome }}
+          MUSIC_VIDEO: ${{ steps.music_video.outcome }}
         run: |
           echo "Root: $PLATFORM; Omniverse: $OMNIVERSE; Readiness: $READINESS"
           test "$PLATFORM" = "success"
@@ -105,4 +110,5 @@ jobs:
           test "$SOUND_BANK" = "success"
           test "$PHYSICAL_MUSIC" = "success"
           test "$INDEPENDENT_MUSIC" = "success"
+          test "$MUSIC_VIDEO" = "success"
           echo "Code and readiness gates passed without unresolved critical blockers."
