@@ -9,7 +9,7 @@ export default function StreetVerseIntegrationTestHUD(){
  const [visited,setVisited]=useState(false)
  useEffect(()=>{
   const onStage=(e:Event)=>setStage((e as CustomEvent<{stage:RescueStage}>).detail?.stage||'idle')
-  const onHealth=(e:Event)=>{const h=(e as CustomEvent<{health?:number}>).detail?.health;if(Number.isFinite(h))setHealth(Number(h))}
+  const onHealth=(e:Event)=>{const h=(e as CustomEvent<{health?:number}>).detail?.health;if(typeof h==='number'&&Number.isFinite(h))setHealth(h)}
   const onPosition=(e:Event)=>{const d=(e as CustomEvent<{x:number;z:number}>).detail;if(d&&Number.isFinite(d.x)&&Number.isFinite(d.z))setPosition({x:d.x,z:d.z})}
   const onMini=(e:Event)=>{const d=(e as CustomEvent<{reason?:string;ok?:boolean;state?:{visited?:boolean}}>).detail;setNote(d?.reason||'Mini-city check-in not verified');if(d?.ok)setVisited(Boolean(d.state?.visited))}
   window.addEventListener('tryamm:streetverse-bj-rescue-stage',onStage)
