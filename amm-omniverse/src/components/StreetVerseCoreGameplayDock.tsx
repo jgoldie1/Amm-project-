@@ -36,8 +36,11 @@ export default function StreetVerseCoreGameplayDock(){
   },[])
 
   const missionAction=()=>{
+    // Keep the first-journey quick-start bridge wired to the always-visible mission button.
+    // Opening the cinematic selector remains a separate, backward-compatible action.
+    dispatchEvent(new CustomEvent('tryamm:streetverse-first-journey-start',{detail:{missionId:mission?.id||'',source:'streetverse-core-dock'}}))
     dispatchEvent(new CustomEvent('tryamm:streetverse-cinematic-mission-open',{detail:{missionId:mission?.id,source:'streetverse-core-dock'}}))
-    setMessage('SCRIPTED MISSION SELECTOR OPENED')
+    setMessage('MISSION QUICK START OPENED')
   }
 
   const repair=()=>{
