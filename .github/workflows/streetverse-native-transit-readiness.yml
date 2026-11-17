@@ -1,0 +1,38 @@
+name: StreetVerse Native Transit Rig and LIVE Readiness
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'amm-omniverse/src/runtime/StreetVerseTransitDirector.*'
+      - 'amm-omniverse/src/runtime/StreetVerseProceduralHandBridge.ts'
+      - 'amm-omniverse/src/runtime/TryammCrossPlatformRuntime.ts'
+      - 'amm-omniverse/src/components/StreetVerseTransitQADock.tsx'
+      - 'amm-omniverse/src/components/StreetVerseGeoSpawnBridge.tsx'
+      - 'amm-omniverse/src/components/StreetVerseMobileWorld.tsx'
+      - 'amm-omniverse/api/live/status.js'
+      - 'amm-omniverse/tests/streetverse-transit-procedural-native.test.mjs'
+      - 'amm-omniverse/src/runtime/StreetVerseChicagoElJourney.*'
+      - 'amm-omniverse/src/components/StreetVerseChicagoElJourneyDock.tsx'
+      - 'amm-omniverse/tests/streetverse-chicago-el-journey-acceptance.test.mjs'
+      - '.github/workflows/streetverse-native-transit-readiness.yml'
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: node --test tests/streetverse-transit-procedural-native.test.mjs tests/streetverse-chicago-el-journey-acceptance.test.mjs
+      - run: npm run typecheck
+      - run: npm run build

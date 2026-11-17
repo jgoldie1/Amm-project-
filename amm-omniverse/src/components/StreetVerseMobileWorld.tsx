@@ -10,6 +10,7 @@ import {createStreetVerseCameraClearance,resolveStreetVerseThirdPersonCameraSafe
 import {createStreetVerseWestSideVisibleWorld} from '../runtime/StreetVerseWestSideVisibleWorldRuntime'
 import {installStreetVerseVisibleForgeBridge} from '../runtime/StreetVerseVisibleForgeBridge'
 import * as THREE from 'three'
+import {inspectStreetVerseInteractionRig} from '../runtime/StreetVerseProceduralHandBridge'
 import {installStreetVerseBJAnatomy} from '../runtime/StreetVerseBJAnatomyRuntime'
 import {createBJHapticRuntime,type BJHapticCue} from '../runtime/StreetVerseBJHapticRuntime'
 import {applyBJInjury,initialBJInjuryState,type BJInjuryKind} from '../runtime/StreetVerseBJInjuryBridgeRuntime'
@@ -357,6 +358,14 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
           nativeHeroFallback!.visible=false
           nativeLayer.add(handle.object)
           nativeHero=handle.object
+          // Test the actual mounted skinned GLB. A model preview or animation clip
+          // count does NOT establish functional procedural IK or gripping.
+          const handAudit=inspectStreetVerseInteractionRig(nativeHero)
+          window.dispatchEvent(new CustomEvent('tryamm:streetverse-procedural-hand-rig-audit',{detail:{
+            asset:'bj-mounted',valid:handAudit.valid,mode:handAudit.mode,
+            missing:handAudit.missing,skinnedMeshCount:handAudit.skinnedMeshCount,
+            proceduralIKCertified:false,gripAnimationPlayed:false,
+          }}))
           nativeHero.position.copy(avatar.position)
           nativeHero.rotation.y=avatar.rotation.y
           const isV15=handle.object.userData.bjV15RealGlbPreview===true
