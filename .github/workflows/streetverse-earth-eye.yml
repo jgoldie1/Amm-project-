@@ -6,6 +6,7 @@ on:
     paths:
       - 'amm-omniverse/src/runtime/StreetVerseEarthEyeDirector.ts'
       - 'amm-omniverse/src/components/StreetVerseEarthEyeDock.tsx'
+      - 'amm-omniverse/src/components/StreetVerseEarthEyeMap.tsx'
       - 'amm-omniverse/src/components/StreetVerseGeoSpawnBridge.tsx'
       - 'amm-omniverse/tests/streetverse-earth-eye-director.test.mjs'
       - '.github/workflows/streetverse-earth-eye.yml'
