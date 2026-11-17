@@ -109,7 +109,7 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await expect(enterStore).toBeHidden();
     await quickMenu.click();
     await expect(menu).toBeVisible();
-    const bjView=page.getByRole('menuitem',{name:/BJ V12 VIEW/});
+    const bjView=page.getByRole('menuitem',{name:/BJ CLOSE-UP/});
     await expect(bjView).toBeVisible();
     await bjView.click();
     await page.waitForTimeout(1400);
@@ -131,7 +131,11 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await menu.screenshot({path:testInfo.outputPath('streetverse-compact-quick-menu.png')});
 
     await quickMenu.click();
-    // Switching hands must mirror the external shop launchers away from the joystick.
+    // Turn on the full HUD before checking external launchers; clear view hides them.
+    await quickMenu.click();
+    await page.getByRole('menuitem',{name:/SHOW FULL HUD/}).click();
+    await expect(stores).toBeVisible();
+    await expect(enterStore).toBeVisible();
     await quickMenu.click();
     await page.getByRole('menuitem',{name:/RIGHT HAND/}).click();
     await expect(page.locator('[data-streetverse-world-root]')).toHaveAttribute('data-control-side','right');
