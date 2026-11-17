@@ -11,6 +11,7 @@ on:
       - 'amm-omniverse/src/runtime/GameVerseSpadesTrick.*'
       - 'amm-omniverse/src/components/GameVerseSpadesPractice.tsx'
       - 'amm-omniverse/tests/gameverse-spades-practice.test.mjs'
+      - 'amm-omniverse/scripts/gameverse-release-evidence.mjs'
       - '.github/workflows/gameverse-entertainment-freeplay.yml'
 permissions:
   contents: read
@@ -30,5 +31,14 @@ jobs:
           cache-dependency-path: amm-omniverse/package-lock.json
       - run: npm ci --ignore-scripts --no-audit --no-fund
       - run: node --test tests/gameverse-entertainment-freeplay.test.mjs tests/gameverse-spades-practice.test.mjs
+      - name: Export source-and-launch audit
+        run: node scripts/gameverse-release-evidence.mjs ../release-evidence/gameverse.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gameverse-evidence-json
+          path: release-evidence/gameverse.json
+          if-no-files-found: warn
+          retention-days: 30
       - run: npm run typecheck
       - run: npm run build
