@@ -27,6 +27,11 @@ export default function StreetVerseEarthEyeDock(){
    <button style={button} onClick={()=>issue('inspect')}>INSPECT CITY</button>
    <button style={button} onClick={()=>issue('time-preview')}>TIME MACHINE PLAN</button>
    <button style={button} onClick={()=>issue('tile-export-plan')}>MAP TILE PLAN</button>
+   <strong>Connected World Building</strong>
+   <button style={button} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:west-side-builder-open',{detail:{source:'earth-eye',cityId:selected}}))}>OPEN WEST SIDE BUILDER</button>
+   <button style={button} onClick={()=>{const launch=(window as Window & {__showAICafe?:()=>void}).__showAICafe;if(typeof launch==='function')launch();else setResult({ok:false,source:'original-static-catalog',authority:'read-only',status:'invalid-command',productionMutation:false,liveData:false,playableTravel:false,notes:['AI Café launcher is not available on this page.']})}}>OPEN AI CAFÉ</button>
+   <button style={button} onClick={()=>{const launch=(window as Window & {__showHoloLab?:()=>void}).__showHoloLab;if(typeof launch==='function')launch();else setResult({ok:false,source:'original-static-catalog',authority:'read-only',status:'invalid-command',productionMutation:false,liveData:false,playableTravel:false,notes:['HoloLab launcher is not available on this page.']})}}>OPEN HOLOLAB</button>
+   <button style={button} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:holoforge-request',{detail:{kind:'building',prompt:'Original fictional '+(EARTH_EYE_CITIES.find(c=>c.id===selected)?.label||selected)+' small community gallery building, accessibility-first layout, simple doorway, no copyrighted brand or real-person likeness; produce holographic preview for human review only.',qualityTier:'mobile',previewOnly:true,tags:['earth-eye','review-required','community-gallery'],requirements:{reviewRequired:true,noAutomaticPlacement:true,cityId:selected}}}))}>REQUEST ASSET PREVIEW</button>
    <small aria-live="polite">{result?result.notes.join(' '):'Read-only preview. No satellite feed, tracking, automatic teleport or production build.'}</small>
    <button style={button} onClick={()=>setOpen(false)}>CLOSE</button>
   </section>}
