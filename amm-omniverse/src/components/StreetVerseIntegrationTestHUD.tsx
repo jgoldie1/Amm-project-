@@ -37,6 +37,9 @@ export default function StreetVerseIntegrationTestHUD(){
    <button style={button} onClick={()=>injury('stab')}>TEST STAB → HOSPITAL</button>
    <button style={button} disabled={stage==='idle'||stage==='recovered'} onClick={advance}>NEXT MEDICAL STAGE</button>
    <button style={button} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-anatomy-mode',{detail:{xray:false,tearApart:false,source:'integration-test'}}))}>HIDE X-RAY</button>
+   <button style={button} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:open-hologpt',{detail:{source:'streetverse-integration-test'}}))}>OPEN HOLOGPT</button>
+   <button style={button} onClick={()=>{const open=(window as Window & {__showHoloGallery?:()=>void}).__showHoloGallery;if(typeof open==='function')open();else window.location.assign('/holo-gallery')}}>HOLOGRAPHIC GALLERY</button>
+   <button style={button} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:media-studio-open',{detail:{source:'streetverse-integration-test'}}))}>OPEN CREATOR STUDIO</button>
    <button style={button} onClick={checkIn}>CHECK IN MINI CITY</button>
    <small>Mini-city courtyard: (62,62). Walk there in the real 3D world. Saved locally: {visited?'yes':'not confirmed'}. No free credits or teleport.</small>
    <div aria-live="polite" role="status">{note}</div>
