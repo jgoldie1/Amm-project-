@@ -3,7 +3,7 @@ export default function handler(req,res){
     res.setHeader('Allow','GET')
     return res.status(405).json({error:'Method not allowed'})
   }
-  const url=process.env.LIVEKIT_URL||process.env.LIVEKIT_WS_URL||''
+  const url=process.env.LIVEKIT_URL||''
   const apiKey=process.env.LIVEKIT_API_KEY||''
   const apiSecret=process.env.LIVEKIT_API_SECRET||''
   const checks={url:Boolean(url),apiKey:Boolean(apiKey),apiSecret:Boolean(apiSecret)}
