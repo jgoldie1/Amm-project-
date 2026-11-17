@@ -9,6 +9,15 @@ export default function GameVerseEntertainmentDistrict({onClose}:{onClose:()=>vo
  const [selected,setSelected]=useState<string|null>(null)
  const [dialogue,setDialogue]=useState('')
  const save=useCallback((next:ReturnType<typeof safeDistrictState>)=>{setState(next);try{localStorage.setItem(ENTERTAINMENT_DISTRICT_KEY,JSON.stringify(next))}catch{setMessage('Visit recorded for this session, but local save was unavailable.')}},[])
+ const runOnePushTest=()=>{
+  let next=state
+  const receipts=ENTERTAINMENT_VENUES.map(venue=>{const result=visitEntertainmentVenue(next,venue.id);next=result.state;return {venueId:venue.id,ok:result.ok,duplicate:result.duplicate,currencyAwarded:0,transactionCreated:false}})
+  save(next)
+  setSelected(next.lastVenue);setDialogue('Four venue conversations and visits simulated without payments.')
+  setMessage('ONE PUSH TEST: '+receipts.filter(r=>r.ok).length+'/4 free-play visits recorded locally. No purchases or prizes.')
+  const payload={schema:'tryamm.gameverse.entertainment-smoke.v1',testedAt:new Date().toISOString(),receipts,gameplay3DVerified:false,serverVerified:false,allFinancialActionsDisabled:true}
+  try{const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='all-american-gameverse-one-push-test.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}catch{setMessage('Tests ran, but JSON export was not available on this device.')}
+ }
  const enter=(id:string)=>{
   const result=visitEntertainmentVenue(state,id)
   if(!result.ok||!result.venue)return
@@ -30,6 +39,7 @@ export default function GameVerseEntertainmentDistrict({onClose}:{onClose:()=>vo
     <div role="status" aria-live="polite" style={{fontSize:13,color:'#a8edcf'}}>{message}</div>
     <p style={{fontSize:12,color:'#bcd1e5'}}>Visited {state.visited.length} of {ENTERTAINMENT_VENUES.length} • Last venue: {selected||state.lastVenue||'none'}</p>
     <button style={action} onClick={()=>{try{save(safeDistrictState(JSON.parse(localStorage.getItem(ENTERTAINMENT_DISTRICT_KEY)||'{}')));setMessage('Local tour data reloaded.')}catch{setMessage('Local data could not be reloaded.')}}}>RELOAD VISITS</button>
+    <button style={action} onClick={runOnePushTest}>ONE PUSH • TEST 4 VENUES + EXPORT JSON</button>
    </section>
    <small>Safety policy: {ENTERTAINMENT_MONEY_RULES.mode}. Visits are device-local and cannot authorize payments or claim cloud synchronization.</small>
   </div>
