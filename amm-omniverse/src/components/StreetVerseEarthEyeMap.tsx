@@ -23,7 +23,7 @@ export default function StreetVerseEarthEyeMap({selected,onSelect}:{selected:str
  const [error,setError]=useState('')
  useEffect(()=>{
   let disposed=false
-  let map:{on:(name:string,fn:()=>void)=>void;addSource:(id:string,source:unknown)=>void;addLayer:(layer:unknown)=>void;onClickMarker?:(id:string)=>void;flyTo:(opts:{center:[number,number];zoom:number;essential:boolean})=>void;remove:()=>void}|null=null
+  let map:{remove:()=>void}|null=null
   const run=async()=>{
    if(!mount.current)return
    try{
