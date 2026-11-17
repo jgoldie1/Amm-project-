@@ -1,5 +1,5 @@
 import {useCallback,useEffect,useState} from 'react'
-import {ENTERTAINMENT_DISTRICT_KEY,ENTERTAINMENT_VENUES,ENTERTAINMENT_MONEY_RULES,safeDistrictState,visitEntertainmentVenue} from '../runtime/GameVerseEntertainmentDistrict'
+import {ENTERTAINMENT_DISTRICT_KEY,ENTERTAINMENT_VENUES,ENTERTAINMENT_MONEY_RULES,safeDistrictState,visitEntertainmentVenue} from '../runtime/GameVerseEntertainmentDistrict.mjs'
 
 const action:React.CSSProperties={minHeight:48,padding:'10px 14px',borderRadius:12,border:'1px solid #7edfff',background:'#113049',color:'#fff',fontWeight:800,fontSize:14,touchAction:'manipulation',cursor:'pointer'}
 
