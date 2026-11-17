@@ -57,3 +57,13 @@
 - Can a creator publish a 15-second replay and open a HoloVerse exhibit without losing game progress?
 - Do customer inquiries, LIVE participation and subscriptions work with accessible UI and verified payment paths?
 - Avoid marketing "full Earth clone", "photorealistic live satellites", "working five-city gameplay" until supported by actual data and multi-device tests.
+
+## Existing World Factory handoffs added to Earth Eye dock
+- **West Side Builder:** sends existing `tryamm:west-side-builder-open` event to its mounted controller, allowing neighborhood/map/build/mission inspection. This is not an automatic newly certified city.
+- **AI Café:** opens the already-existing `__showAICafe` launcher for creator/business conversation; no cross-city state mutation.
+- **HoloLab:** opens existing `__showHoloLab` UI, which can receive foundry plans and hologram preview manifests.
+- **HoloForge World Asset Generator:** issues a **previewOnly:true** `tryamm:holoforge-request` for an original accessible community-gallery building for the selected city. The existing HoloForge runtime routes previews to HoloLab; output is provider-dependent and neither placement nor an approved/rigged/collidable mesh is guaranteed. Human review is required before any placement.
+- **World Builder staged pipeline:** queued/seeded/compiled/simulated/validated/certified/playable stages remain distinct. This controller does not falsely advance stages, award credits, or publish models.
+
+## Status note
+The MapLibre globe is an *opt-in* geographic route preview. NASA Blue Marble is an *opt-in historical mosaic* with attribution, not a live feed. No licensed planet-sized source bundle or photorealistic city geometry was shipped in this PR. First city-to-city authoritative gameplay requires verified scene assets, collision, NPCs, state persistence and exact-SHA device tests.
