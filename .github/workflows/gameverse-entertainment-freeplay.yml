@@ -13,6 +13,7 @@ on:
       - 'amm-omniverse/tests/gameverse-spades-practice.test.mjs'
       - 'amm-omniverse/src/runtime/GameVersePoolPractice.*'
       - 'amm-omniverse/src/components/GameVersePoolPractice.tsx'
+      - 'amm-omniverse/src/components/GameVerseEvidenceRecorder.tsx'
       - 'amm-omniverse/tests/gameverse-pool-practice.test.mjs'
       - 'amm-omniverse/tests/gameverse-practice-cloud.test.mjs'
       - 'amm-omniverse/api/gameverse/practice-session.js'
