@@ -39,3 +39,21 @@
 - Device: one-hand Chromebook/mobile controls and no blocked character, NPC or city travel.
 - Data: visible timestamps/provenance on every real environmental overlay; no false LIVE labels.
 - Security: no named-person surveillance, biometric tracking, commercial API secrets or unauthorized location monitoring.
+
+## MapLibre GL JS globe preview added (same PR)
+- The existing application already depends on `maplibre-gl@6.7.0`; no additional paid renderer or map provider was installed.
+- An optional user-opened `VIEW FIVE-CITY GLOBE` button lazy-loads the MapLibre WebGL context. ChromeOS may show an explicit text-selector fallback when additional graphics contexts are unavailable.
+- Draws a *schematic* globe, GeoJSON city markers and the Chicago → Detroit → Tampa → Memphis → Atlanta route from the original fixed city catalog. It is not a satellite image, full Earth terrain model, licensed street basemap, travel simulation, or playable 3D scene.
+- It makes **no external imagery requests**, GPS requests, payments, asset releases or player teleports. The map is destroyed when closed and opening is user-controlled.
+- Add a reviewed/licensed regional tile provider later, e.g. Planetiler-generated PMTiles + a compatible PMTiles MapLibre source/protocol adapter. Test content rights, hosting, cache, network cost, attribution and performance before any switch.
+- NASA GIBS may provide sourced/time-stamped imagery on an independent opt-in layer once its attribution/service details, tile projection, freshness and rates are verified; "live satellite video" must not be advertised without an actual current feed and permissions.
+- Actual five-city transfer remains blocked until those city scenes exist, valid spawns are confirmed and Mycelium persistence/replay are authoritative. Plan is not evidence of transfer.
+
+## Public reception / acceptance research questions
+- Can a new player enter Chicago, move BJ and finish a mission before seeing feature overload?
+- Does the globe run smoothly on Chromebook and iPhone? Does the text fallback preserve all navigation?
+- Can users distinguish a preview destination from a playable city, and simulated weather from a live observation?
+- Are character likeness rights, archival reconstruction uncertainty and music/video licenses communicated clearly?
+- Can a creator publish a 15-second replay and open a HoloVerse exhibit without losing game progress?
+- Do customer inquiries, LIVE participation and subscriptions work with accessible UI and verified payment paths?
+- Avoid marketing "full Earth clone", "photorealistic live satellites", "working five-city gameplay" until supported by actual data and multi-device tests.
