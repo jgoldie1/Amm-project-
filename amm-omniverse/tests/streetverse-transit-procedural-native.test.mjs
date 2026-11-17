@@ -5,7 +5,7 @@ import {build} from 'esbuild'
 import * as THREE from 'three'
 import {STREETVERSE_TRANSIT_STOPS,STREETVERSE_TRANSIT_RECOMMENDED_ROUTE,STREETVERSE_TRANSIT_CONTRACT,planStreetVerseTransit,smokeTestTransit} from '../src/runtime/StreetVerseTransitDirector.mjs'
 async function importBundled(file){
- const buildResult=await build({entryPoints:[new URL(file,import.meta.url).pathname],bundle:true,platform:'node',format:'esm',packages:'external',write:false,logLevel:'silent'})
+ const buildResult=await build({entryPoints:[new URL(file,import.meta.url).pathname],bundle:true,platform:'node',format:'esm',write:false,logLevel:'silent'})
  return import('data:text/javascript;base64,'+Buffer.from(buildResult.outputFiles[0].text).toString('base64'))
 }
 test('CTA L and intercity catalog maintains preview truth labels and safe ticket rules',()=>{
