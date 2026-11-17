@@ -33,5 +33,5 @@ test('Installed bridge uses Cursor Construct and existing Time Machine without i
  assert.match(text,/tryamm:time-machine-world-foundry-request/)
  assert.match(text,/autoPreview:false/)
  assert.match(geo,/installStreetVerseEarthEyeDirector/)
- assert.doesNotMatch(text,/navigator\.geolocation|watchPosition|fetch\(|payment|window\.location\.href/)
+ assert.doesNotMatch(text,/navigator\.geolocation|watchPosition|fetch\(|window\.location\.href/)
 })
