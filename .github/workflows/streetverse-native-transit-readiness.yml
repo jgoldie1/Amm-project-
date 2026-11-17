@@ -12,6 +12,9 @@ on:
       - 'amm-omniverse/src/components/StreetVerseMobileWorld.tsx'
       - 'amm-omniverse/api/live/status.js'
       - 'amm-omniverse/tests/streetverse-transit-procedural-native.test.mjs'
+      - 'amm-omniverse/src/runtime/StreetVerseChicagoElJourney.*'
+      - 'amm-omniverse/src/components/StreetVerseChicagoElJourneyDock.tsx'
+      - 'amm-omniverse/tests/streetverse-chicago-el-journey-acceptance.test.mjs'
       - '.github/workflows/streetverse-native-transit-readiness.yml'
 permissions:
   contents: read
@@ -30,6 +33,6 @@ jobs:
           cache: npm
           cache-dependency-path: amm-omniverse/package-lock.json
       - run: npm ci --ignore-scripts --no-audit --no-fund
-      - run: node --test tests/streetverse-transit-procedural-native.test.mjs
+      - run: node --test tests/streetverse-transit-procedural-native.test.mjs tests/streetverse-chicago-el-journey-acceptance.test.mjs
       - run: npm run typecheck
       - run: npm run build
