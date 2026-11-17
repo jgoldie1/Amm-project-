@@ -2,6 +2,7 @@ import { lazy, Suspense, useMemo, useState } from 'react'
 const GameVerseEntertainmentDistrict=lazy(()=>import('./GameVerseEntertainmentDistrict'))
 const GameVerseSpadesPractice=lazy(()=>import('./GameVerseSpadesPractice'))
 const GameVersePoolPractice=lazy(()=>import('./GameVersePoolPractice'))
+const GameVerseEvidenceRecorder=lazy(()=>import('./GameVerseEvidenceRecorder'))
 import SportVerseWorldGamesHub from './SportVerseWorldGamesHub'
 import HoloCreditChannelShop from './HoloCreditChannelShop'
 
@@ -33,8 +34,9 @@ export default function GameVerseHub({onClose,onEnterSports,onEnterCity,initialW
   const [entertainmentOpen,setEntertainmentOpen]=useState(false)
   const [spadesOpen,setSpadesOpen]=useState(false)
   const [poolOpen,setPoolOpen]=useState(false)
+  const [captureOpen,setCaptureOpen]=useState(false)
   const enter=()=>{ if(selected.entry==='sports')onEnterSports(); else if(selected.entry==='city')onEnterCity() }
-  return <>{poolOpen&&<Suspense fallback={<div role="status">Loading pool practice…</div>}><GameVersePoolPractice onClose={()=>setPoolOpen(false)}/></Suspense>}{spadesOpen&&<Suspense fallback={<div role="status">Loading Spades practice…</div>}><GameVerseSpadesPractice onClose={()=>setSpadesOpen(false)}/></Suspense>}{entertainmentOpen&&<Suspense fallback={<div role="status">Loading entertainment district…</div>}><GameVerseEntertainmentDistrict onClose={()=>setEntertainmentOpen(false)}/></Suspense>}{worldGamesOpen&&<SportVerseWorldGamesHub onClose={()=>setWorldGamesOpen(false)}/>}<div role="dialog" aria-label="TRYAMM GameVerse" style={{position:'fixed',inset:0,zIndex:12000,background:'radial-gradient(circle at 50% 0,#12263b,#04050e 48%,#010205)',color:'#fff',overflowY:'auto',fontFamily:'Inter,system-ui,sans-serif'}}>
+  return <>{captureOpen&&<Suspense fallback={<div role="status">Loading video recorder…</div>}><GameVerseEvidenceRecorder onClose={()=>setCaptureOpen(false)}/></Suspense>}{poolOpen&&<Suspense fallback={<div role="status">Loading pool practice…</div>}><GameVersePoolPractice onClose={()=>setPoolOpen(false)}/></Suspense>}{spadesOpen&&<Suspense fallback={<div role="status">Loading Spades practice…</div>}><GameVerseSpadesPractice onClose={()=>setSpadesOpen(false)}/></Suspense>}{entertainmentOpen&&<Suspense fallback={<div role="status">Loading entertainment district…</div>}><GameVerseEntertainmentDistrict onClose={()=>setEntertainmentOpen(false)}/></Suspense>}{worldGamesOpen&&<SportVerseWorldGamesHub onClose={()=>setWorldGamesOpen(false)}/>}<div role="dialog" aria-label="TRYAMM GameVerse" style={{position:'fixed',inset:0,zIndex:12000,background:'radial-gradient(circle at 50% 0,#12263b,#04050e 48%,#010205)',color:'#fff',overflowY:'auto',fontFamily:'Inter,system-ui,sans-serif'}}>
     <div style={{maxWidth:1240,margin:'0 auto',padding:'20px 18px 90px'}}>
       <header style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:12,marginBottom:22}}><div><div style={{fontSize:10,color:cyan,fontWeight:950,letterSpacing:3}}>TRYAMM • VOLCANO LIVING GAMES</div><h1 style={{margin:'5px 0 0',fontSize:'clamp(30px,5vw,54px)'}}>GameVerse Nexus</h1><div style={{fontSize:11,color:'#8ca0b8',marginTop:5}}>11 standalone games • bridged through the Living Worlds ecosystem</div></div><button onClick={onClose} aria-label="Close GameVerse" style={{width:42,height:42,borderRadius:'50%',border:'1px solid #40516a',background:'#0c1320',color:'#fff',fontSize:22,cursor:'pointer'}}>×</button></header>
       <div style={{display:'grid',gridTemplateColumns:'minmax(260px,.8fr) minmax(0,1.2fr)',gap:16}} className="gameverse-layout">
@@ -45,7 +47,7 @@ export default function GameVerseHub({onClose,onEnterSports,onEnterCity,initialW
           <div style={{marginTop:26,padding:16,border:'1px solid #2b3341',borderRadius:16,background:'#090c12',fontSize:12,color:'#98a9bd',lineHeight:1.55}}><strong style={{color:'#fff'}}>Shared-world contract:</strong> the long-term design uses one TRYAMM Passport for identity, progression, safety settings, creator attribution and backend-authoritative owned items/rankings/purchases. Prototype/planned labels are readiness indicators, not claims of complete online multiplayer.</div>
           <div style={{marginTop:14}}><HoloCreditChannelShop channel="GAMEVERSE" title="GameVerse Credit Utilities"/></div>
           <div style={{marginTop:14,padding:13,border:'1px solid #40516a',borderRadius:14,background:'#081521'}}>
-            <strong>Creator Business Desk • AI Hall Pass readiness</strong>
+            <strong>Creator Business Desk • AI Hall Pass readiness</strong><div style={{marginTop:8}}><button onClick={()=>setCaptureOpen(true)} style={{minHeight:48,padding:'10px 14px',border:'1px solid #8bdfff',borderRadius:10,background:'#12344a',color:'#fff',fontWeight:900}}>🎥 RECORD GAMEVERSE TEST + EXPORT</button></div>
             <p style={{fontSize:12,color:'#a9c2d7',lineHeight:1.55}}>Use existing AI Café for lead work, HoloLab for approved previews, and TRYAMM LIVE for streaming tests. AI Hall Pass sales, SMS, subscriptions and automatic payouts are not certified here.</p>
             <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
               {([
