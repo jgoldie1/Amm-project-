@@ -32,3 +32,11 @@ test('GameVerse launcher uses separate free-play component with no casino paymen
  assert.match(ui,/currencyAwarded:0,transactionCreated:false/)
  assert.doesNotMatch(ui,/\/api\/commerce\/checkout|\/api\/credits\/spend|\/api\/payments\/route/)
 })
+
+test('GameVerse evidence recorder is explicit opt-in and exports only local WebM',()=>{
+ const hub=fs.readFileSync(new URL('../src/components/GameVerseHub.tsx',import.meta.url),'utf8')
+ const recorder=fs.readFileSync(new URL('../src/components/GameVerseEvidenceRecorder.tsx',import.meta.url),'utf8')
+ assert.match(hub,/RECORD GAMEVERSE TEST \+ EXPORT/)
+ for(const fragment of ['getDisplayMedia','MediaRecorder','DOWNLOAD VIDEO','video\/webm','45000','URL.createObjectURL','aria-live'])assert.ok(recorder.includes(fragment),fragment)
+ assert.doesNotMatch(recorder,/\/api\/payments|\/api\/credits|fetch\(|localStorage\.setItem/)
+})
