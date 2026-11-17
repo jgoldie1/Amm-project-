@@ -9,15 +9,26 @@ export default function handler(req,res){
   const checks={url:Boolean(url),apiKey:Boolean(apiKey),apiSecret:Boolean(apiSecret)}
   const configured=Object.values(checks).every(Boolean)
   const missing=Object.entries(checks).filter(([,ok])=>!ok).map(([key])=>key)
+  // A configured account is not a certified two-device LIVE service. These flags
+  // must be set only after real acceptance evidence is collected and reviewed.
+  const verified=name=>String(process.env[name]||'').toLowerCase()==='true'
+  const proof={
+    hostViewer:verified('TRYAMM_LIVE_HOST_VIEWER_VERIFIED'),
+    reconnect:verified('TRYAMM_LIVE_RECONNECT_VERIFIED'),
+    moderation:verified('TRYAMM_LIVE_MODERATION_VERIFIED'),
+  }
+  const readyForPublic=configured&&Object.values(proof).every(Boolean)
   res.setHeader('Cache-Control','no-store')
   return res.status(200).json({
     configured,
-    readyForPublic:configured,
+    readyForPublic,
     provider:'livekit',
     url:configured?url:undefined,
     tokenEndpoint:'/api/live/token',
     checks,
     missing,
+    proof,
+    evidence:'Credentials are presence-only checks, not a network connection or agent health probe.',
     capabilities:{
       hostViewerRooms:true,
       cameraMic:true,
@@ -30,7 +41,8 @@ export default function handler(req,res){
       liveShoppingHook:true,
       youthViewerMode:true
     },
-    activation:configured?{
+    activation:readyForPublic?{state:'verified-for-public-by-operator',next:['Continue host/viewer monitoring','Track service errors and verify fresh deployments']}:
+    configured?{
       state:'provider-configured',
       next:['two-device host/viewer verification','PK and panel verification','moderation verification','mobile reconnect/background interruption verification','load test']
     }:{
