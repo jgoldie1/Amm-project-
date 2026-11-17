@@ -32,6 +32,9 @@ const required=[
  ['aniyah-cross-border-pay','src/components/AniyahPayCenter.tsx'],
  ['aniyah-corridor-map','src/services/aniyahPay.ts'],
  ['omni-payment-rails','src/services/paymentRails.ts'],
+ ['omnicash-ui','src/components/OmniCashLauncher.tsx'],
+ ['earth-twin-cesium','src/components/StreetVerseTwinWorld.tsx'],
+ ['holo-district-twin','src/runtime/StreetVerseHoloCityBridgeRuntime.ts'],
  ['holo-credit-wallet','api/credits/wallet.js'],
  ['holo-credit-spend','api/credits/spend.js'],
  ['holo-credit-policy','src/data/TryammHoloPlayCreditEconomy.ts'],
@@ -48,6 +51,8 @@ const studio=read('api/studio/aniyah-readiness.js')
 const holoCredits=read('src/data/TryammHoloPlayCreditEconomy.ts')
 const crossBorder=read('src/components/AniyahPayCenter.tsx')
 const weatherSync=read('src/components/StreetVerseWeatherSync.tsx')
+const cash=read('src/components/OmniCashLauncher.tsx')
+const earth=read('src/components/StreetVerseTwinWorld.tsx')
 const safety=[
  {id:'livekit-provider-config-not-public-proof',passed:live.includes('readyForPublic=configured&&Object.values(proof).every(Boolean)')},
  {id:'livekit-status-matches-token-url',passed:live.includes("const url=process.env.LIVEKIT_URL||''")},
@@ -57,6 +62,8 @@ const safety=[
  {id:'credits-never-real-money',passed:holoCredits.includes('withdrawable:false')&&holoCredits.includes('cashValueMinor:0')&&holoCredits.includes('peerToPeerTransfer:false')},
  {id:'aniyah-crossborder-sandbox-not-live-money',passed:crossBorder.includes('No real money moved')&&crossBorder.includes('Sandbox transfer intent verified')},
  {id:'weather-labels-simulation-and-unavailable',passed:weatherSync.includes('simulated:true')&&weatherSync.includes('unavailable:true')},
+ {id:'omnicash-has-distinct-crossborder-entry',passed:cash.includes('__showOmniCash')&&cash.includes('__showAniyahCrossBorder')},
+ {id:'earth-twin-map-is-provider-backed-not-synthetic-world',passed:earth.includes('Cesium')&&earth.includes('VITE_GOOGLE_MAP_TILES_API_KEY')},
 ]
 const blockers=[
  'Published BJ V12 GLB must have verified skin and usable animation clips; source presence is not sufficient',
