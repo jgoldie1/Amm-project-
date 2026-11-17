@@ -60,13 +60,13 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await expect(mission).toBeVisible({ timeout: 20_000 });
 
     type Rect={x:number;y:number;width:number;height:number};
-    const travel=page.getByRole('button',{name:'Travel to Taylor Street UIC Medical District'});
+    // Travel is intentionally collapsed into the accessible quick menu on narrow screens.
+    // Verify it below after opening the menu, not as a permanently overlaid button.
     const stores=page.locator('#sv-retail-open');
     const enterStore=page.locator('#sv-store-open');
-    await expect(travel).toBeVisible();
     await expect(stores).toBeVisible();
     await expect(enterStore).toBeVisible();
-    const visibleCore=[joystick,quickMenu,page.getByRole('button',{name:'Open Holo FON'}),mission,travel,stores,enterStore];
+    const visibleCore=[joystick,quickMenu,page.getByRole('button',{name:'Open Holo FON'}),mission,stores,enterStore];
     const boxes:Rect[]=[];
     for(const locator of visibleCore){
       const box=await locator.boundingBox();
@@ -95,6 +95,7 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await quickMenu.click();
     const menu=page.getByRole('menu',{name:'StreetVerse quick navigation'});
     await expect(menu).toBeVisible();
+    await expect(page.getByRole('menuitem',{name:/TAYLOR \/ UIC/})).toBeVisible();
     const bjView=page.getByRole('menuitem',{name:/BJ V12 VIEW/});
     await expect(bjView).toBeVisible();
     await bjView.click();
