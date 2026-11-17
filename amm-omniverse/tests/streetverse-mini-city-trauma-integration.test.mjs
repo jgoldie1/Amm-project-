@@ -1,0 +1,48 @@
+import assert from 'node:assert/strict'
+import {test} from 'node:test'
+import fs from 'node:fs'
+import {build} from 'esbuild'
+const compiled=await build({entryPoints:[new URL('../src/runtime/StreetVerseMiniCityState.ts',import.meta.url).pathname],bundle:true,platform:'node',format:'esm',write:false,logLevel:'silent'})
+const mini=await import('data:text/javascript;base64,'+Buffer.from(compiled.outputFiles[0].text).toString('base64'))
+const {MINI_CITY_SAVE_KEY,defaultMiniCityState,miniCityCollision,canCheckInMiniCity,recordMiniCityVisit,restoreMiniCityState}=mini
+test('mini city excludes actual building footprints and invalid coordinates',()=>{
+ assert.equal(miniCityCollision(56,59),true)
+ assert.equal(miniCityCollision(69,59),true)
+ assert.equal(miniCityCollision(62,62),false)
+ assert.equal(miniCityCollision(Number.NaN,0),true)
+ assert.equal(canCheckInMiniCity(62,62),true)
+ assert.equal(canCheckInMiniCity(56,59),false)
+ assert.equal(canCheckInMiniCity(-24,48),false)
+})
+test('mini-city checkin saves only once and does not unlock by remote spoofed location',()=>{
+ const first=defaultMiniCityState()
+ assert.equal(recordMiniCityVisit(first,-24,48,new Date().toISOString()).ok,false)
+ const v=recordMiniCityVisit(first,62,62,'2026-11-17T12:00:00Z')
+ assert.equal(v.ok,true)
+ assert.equal(v.state.visitCount,1)
+ const again=recordMiniCityVisit(v.state,62,62,'2026-11-17T13:00:00Z')
+ assert.equal(again.state.visitCount,1)
+ assert.deepEqual(restoreMiniCityState(JSON.stringify(v.state)),v.state)
+ assert.deepEqual(restoreMiniCityState('{oops'),defaultMiniCityState())
+ assert.match(MINI_CITY_SAVE_KEY,/mini-city/)
+})
+test('mini city is actually mounted to renderer movement, driving and disposal',()=>{
+ const world=fs.readFileSync(new URL('../src/components/StreetVerseMobileWorld.tsx',import.meta.url),'utf8')
+ const scene=fs.readFileSync(new URL('../src/runtime/StreetVerseMiniCityScene.ts',import.meta.url),'utf8')
+ const hud=fs.readFileSync(new URL('../src/components/StreetVerseIntegrationTestHUD.tsx',import.meta.url),'utf8')
+ assert.match(world,/const miniCity=mountStreetVerseMiniCity\(scene\)/)
+ assert.match(world,/if\(miniCity\.blocked\(x,z\)\)return false/)
+ assert.match(world,/if\(miniCity\.blocked\(x,z,1\.4\)\)return false/)
+ assert.match(world,/miniCity\.dispose\(\)/)
+ assert.match(world,/<StreetVerseIntegrationTestHUD\/>/)
+ assert.match(scene,/scene\.add\(root\)/)
+ assert.match(scene,/tryamm:streetverse-mini-city-checkin-request/)
+ assert.match(scene,/localStorage\.setItem\(MINI_CITY_SAVE_KEY/)
+ assert.match(scene,/recordMiniCityVisit\(state,Number\(d\.x\),Number\(d\.z\)/)
+ assert.match(hud,/tryamm:streetverse-bj-injury/)
+ assert.match(hud,/tryamm:streetverse-bj-rescue-request/)
+ assert.match(hud,/tryamm:streetverse-bj-rescue-advance/)
+ assert.match(hud,/tryamm:streetverse-bj-anatomy-mode/)
+ assert.match(hud,/CHECK IN MINI CITY/)
+ assert.match(hud,/no real medical advice/)
+})
