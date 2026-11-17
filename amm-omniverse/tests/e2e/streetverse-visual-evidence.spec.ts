@@ -64,9 +64,10 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     // Verify it below after opening the menu, not as a permanently overlaid button.
     const stores=page.locator('#sv-retail-open');
     const enterStore=page.locator('#sv-store-open');
-    await expect(stores).toBeVisible();
-    await expect(enterStore).toBeVisible();
-    const visibleCore=[joystick,quickMenu,page.getByRole('button',{name:'Open Holo FON'}),mission,stores,enterStore];
+    await expect(page.locator('[data-streetverse-world-root]')).toHaveAttribute('data-hud-focus','true');
+    await expect(stores).toBeHidden();
+    await expect(enterStore).toBeHidden();
+    const visibleCore=[joystick,quickMenu,page.getByRole('button',{name:'Open Holo FON'}),mission];
     const boxes:Rect[]=[];
     for(const locator of visibleCore){
       const box=await locator.boundingBox();
@@ -96,6 +97,18 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     const menu=page.getByRole('menu',{name:'StreetVerse quick navigation'});
     await expect(menu).toBeVisible();
     await expect(page.getByRole('menuitem',{name:/TAYLOR \/ UIC/})).toBeVisible();
+    // Full HUD must restore store buttons. Return to clear view for compact-view screenshots.
+    await page.getByRole('menuitem',{name:/SHOW FULL HUD/}).click();
+    await expect(page.locator('[data-streetverse-world-root]')).toHaveAttribute('data-hud-focus','false');
+    await expect(stores).toBeVisible();
+    await expect(enterStore).toBeVisible();
+    await quickMenu.click();
+    await expect(menu).toBeVisible();
+    await page.getByRole('menuitem',{name:/CLEAR VIEW/}).click();
+    await expect(stores).toBeHidden();
+    await expect(enterStore).toBeHidden();
+    await quickMenu.click();
+    await expect(menu).toBeVisible();
     const bjView=page.getByRole('menuitem',{name:/BJ V12 VIEW/});
     await expect(bjView).toBeVisible();
     await bjView.click();
