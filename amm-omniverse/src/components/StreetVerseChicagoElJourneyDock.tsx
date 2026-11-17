@@ -64,6 +64,11 @@ export default function StreetVerseChicagoElJourneyDock({onClose}:{onClose:()=>v
    <div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button style={btn} onClick={deviceTest}>TEST DEVICE + EXPORT JSON</button><button style={btn} onClick={micTest}>ASK MICROPHONE PERMISSION</button></div>
    <small aria-live="polite">Detected shell: {runtime.shell} • WebGL context available: {runtime.webgl?'YES':'NO'} • Mic: {evidence?.micPermission||'not requested'} • Native streaming: NOT VERIFIED</small>
    <small>Reference geography: <a style={{color:'#9be3ff'}} href="https://www.transitchicago.com/station/polk/" target="_blank" rel="noreferrer">Polk Pink Line</a> and <a style={{color:'#9be3ff'}} href="https://www.transitchicago.com/station/ilmd/" target="_blank" rel="noreferrer">Illinois Medical District Blue Line</a>. The illustrated game stops are fictional, and the train route shown is not an actual CTA service.</small>
+   <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
+    <a target="_blank" rel="noopener noreferrer" style={{color:'#9be3ff',minHeight:44}} href="https://www.google.com/maps/search/?api=1&amp;query=1713+W+Polk+St+Chicago+IL+60612">VIEW POLK ON GOOGLE MAPS</a>
+    <a target="_blank" rel="noopener noreferrer" style={{color:'#9be3ff',minHeight:44}} href="https://www.google.com/maps/search/?api=1&amp;query=430+S+Damen+Ave+Chicago+IL+60612">VIEW MEDICAL DISTRICT ON GOOGLE MAPS</a>
+   </div>
+   <small>Google Maps opens separately for real-world reference only; its map tiles, imagery and road geometry are not copied into StreetVerse.</small>
   </div>
  </div>
  </section>
