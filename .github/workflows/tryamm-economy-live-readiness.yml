@@ -1,0 +1,47 @@
+name: TRYAMM Economy and LIVE Readiness
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'amm-omniverse/api/live/status.js'
+      - 'amm-omniverse/src/components/Aniyah64TrackStudio.tsx'
+      - 'amm-omniverse/src/data/TryammEconomyEarthReadiness.mjs'
+      - 'amm-omniverse/tests/tryamm-economy-earth-boundary.test.mjs'
+      - 'amm-omniverse/scripts/tryamm-super-app-source-audit.mjs'
+      - '.github/workflows/tryamm-economy-live-readiness.yml'
+permissions:
+  contents: read
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Run source and money boundary tests
+        run: |
+          node --test tests/tryamm-economy-earth-boundary.test.mjs
+          node tests/aniyah-64-track-business-contract.mjs
+          node tests/aniyah-pay-contract.mjs
+          node tests/holo-play-credit-economy-contract.mjs
+          node tests/global-africa-payment-gateway-contract.mjs
+      - name: Write source inventory
+        run: node scripts/tryamm-super-app-source-audit.mjs ../release-evidence/tryamm-super-app-source-audit.json
+      - name: Typecheck
+        run: npm run typecheck
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tryamm-economy-live-readiness-source-evidence
+          path: release-evidence/tryamm-super-app-source-audit.json
+          if-no-files-found: warn
+          retention-days: 30

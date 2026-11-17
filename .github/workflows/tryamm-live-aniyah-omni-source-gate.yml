@@ -1,0 +1,43 @@
+name: TRYAMM LIVE Aniyah Omni Source Gate
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'amm-omniverse/api/live/status.js'
+      - 'amm-omniverse/src/components/Aniyah64TrackStudio.tsx'
+      - 'amm-omniverse/scripts/tryamm-super-app-source-audit.mjs'
+      - 'amm-omniverse/tests/tryamm-live-omni-readiness.test.mjs'
+      - '.github/workflows/tryamm-live-aniyah-omni-source-gate.yml'
+permissions:
+  contents: read
+jobs:
+  source-audit:
+    name: LiveKit, Aniyah, credits and Cross Borders safety
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Test LIVE and global finance fail-closed rules
+        run: node --test tests/tryamm-live-omni-readiness.test.mjs
+      - name: Export full-app source inventory
+        run: node scripts/tryamm-super-app-source-audit.mjs ../release-evidence/super-app-source-audit.json
+      - name: TypeScript gate
+        run: npm run typecheck
+      - name: Upload launch blocker evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tryamm-live-aniyah-omni-source-evidence
+          path: release-evidence/super-app-source-audit.json
+          if-no-files-found: warn
