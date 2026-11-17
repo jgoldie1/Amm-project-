@@ -7,6 +7,7 @@ export default function StreetVerseEarthEyeDock(){
  const [open,setOpen]=useState(false),[selected,setSelected]=useState('chicago')
  const [result,setResult]=useState<EarthEyeReceipt|null>(null)
  const [mapOpen,setMapOpen]=useState(false)
+ const [imageryEnabled,setImageryEnabled]=useState(false)
  useEffect(()=>{
   const onResult=(e:Event)=>setResult((e as CustomEvent<EarthEyeReceipt>).detail)
   window.addEventListener('tryamm:streetverse-earth-eye-result',onResult)
@@ -22,7 +23,7 @@ export default function StreetVerseEarthEyeDock(){
     {EARTH_EYE_CITIES.map(city=><option key={city.id} value={city.id}>{city.label} — {city.region}</option>)}
    </select>
    <button style={button} aria-expanded={mapOpen} onClick={()=>setMapOpen(v=>!v)}>{mapOpen?'HIDE GLOBE PREVIEW':'VIEW FIVE-CITY GLOBE'}</button>
-   {mapOpen&&<Suspense fallback={<small>Loading the bundled MapLibre preview…</small>}><StreetVerseEarthEyeMap selected={selected} onSelect={id=>{setSelected(id);setResult(null)}}/></Suspense>}
+   {mapOpen&&<><button style={button} aria-pressed={imageryEnabled} onClick={()=>setImageryEnabled(v=>!v)}>{imageryEnabled?'USE SCHEMATIC GLOBE':'SHOW NASA EARTH IMAGERY'}</button><Suspense fallback={<small>Loading the bundled MapLibre preview…</small>}><StreetVerseEarthEyeMap key={imageryEnabled?'nasa':'outline'} imageryEnabled={imageryEnabled} selected={selected} onSelect={id=>{setSelected(id);setResult(null)}}/></Suspense></>}
    <button style={button} onClick={()=>issue('inspect')}>INSPECT CITY</button>
    <button style={button} onClick={()=>issue('time-preview')}>TIME MACHINE PLAN</button>
    <button style={button} onClick={()=>issue('tile-export-plan')}>MAP TILE PLAN</button>
