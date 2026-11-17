@@ -8,6 +8,9 @@ on:
       - 'amm-omniverse/src/components/GameVerseEntertainmentDistrict.tsx'
       - 'amm-omniverse/src/components/GameVerseHub.tsx'
       - 'amm-omniverse/tests/gameverse-entertainment-freeplay.test.mjs'
+      - 'amm-omniverse/src/runtime/GameVerseSpadesTrick.*'
+      - 'amm-omniverse/src/components/GameVerseSpadesPractice.tsx'
+      - 'amm-omniverse/tests/gameverse-spades-practice.test.mjs'
       - '.github/workflows/gameverse-entertainment-freeplay.yml'
 permissions:
   contents: read
@@ -26,6 +29,6 @@ jobs:
           cache: npm
           cache-dependency-path: amm-omniverse/package-lock.json
       - run: npm ci --ignore-scripts --no-audit --no-fund
-      - run: node --test tests/gameverse-entertainment-freeplay.test.mjs
+      - run: node --test tests/gameverse-entertainment-freeplay.test.mjs tests/gameverse-spades-practice.test.mjs
       - run: npm run typecheck
       - run: npm run build
