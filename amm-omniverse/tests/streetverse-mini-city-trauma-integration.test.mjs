@@ -44,5 +44,5 @@ test('mini city is actually mounted to renderer movement, driving and disposal',
  assert.match(hud,/tryamm:streetverse-bj-rescue-advance/)
  assert.match(hud,/tryamm:streetverse-bj-anatomy-mode/)
  assert.match(hud,/CHECK IN MINI CITY/)
- assert.match(hud,/no real medical advice/)
+ assert.match(hud,/No real medical advice/)
 })
