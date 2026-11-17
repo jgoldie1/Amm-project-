@@ -19,6 +19,8 @@ import {installStreetVerseAbracadabraGeniiRuntime} from '../runtime/StreetVerseA
 import {installStreetVerseSoundBankRuntime} from '../runtime/StreetVerseSoundBankRuntime'
 import {installHoloForgeRuntime} from '../runtime/HoloForgeAssetRuntime'
 import {installBennyCursorConstructBridge} from '../runtime/BennyCursorConstructBridge'
+import {installStreetVerseTransitDirector} from '../runtime/StreetVerseTransitDirector.mjs'
+import StreetVerseTransitQADock from './StreetVerseTransitQADock'
 import {installUniversalLanguageBridge} from '../runtime/UniversalLanguageSignBridge'
 import {installAccessibleConversationBridge} from '../runtime/AccessibleConversationBridge'
 import {installUniversalAccessOrchestrator} from '../runtime/UniversalAccessOrchestrator'
@@ -194,6 +196,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  useLayoutEffect(()=>installStreetVerseSoundBankRuntime(),[])
  useLayoutEffect(()=>{installHoloForgeRuntime()},[])
  useLayoutEffect(()=>installBennyCursorConstructBridge(),[])
+ useLayoutEffect(()=>installStreetVerseTransitDirector(),[])
  useLayoutEffect(()=>installUniversalLanguageBridge(),[])
  useLayoutEffect(()=>installAccessibleConversationBridge(),[])
  useLayoutEffect(()=>installUniversalAccessOrchestrator(),[])
@@ -282,6 +285,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
     {graphicsStatus&&<div role="status" style={{fontSize:11,marginTop:7}}>{graphicsStatus}</div>}
   </div>}
   <StreetVerseWestSideWorldBuilder/>
+  <StreetVerseTransitQADock/>
   <BuildSwarmControl/>
   <StreetVerseWeatherSync/>
   <StreetVerseSafeWorld onClose={closeStreetVerse} communityAreaNumber={prepared.destination?.communityAreaNumber}/>
@@ -290,6 +294,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  </>
 
  return <>
+  <StreetVerseTransitQADock/>
   <BuildSwarmControl/>
   {nearWestOpen&&<div style={{position:'fixed',inset:0,zIndex:14980,background:'#07101d'}}><Suspense fallback={null}><StreetVerseNearWest3D/></Suspense><button aria-label="Return to StreetVerse Chicago" onClick={()=>setNearWestOpen(false)} style={{position:'fixed',top:76,right:12,zIndex:14990,border:'1px solid #6ee7ff',borderRadius:12,background:'#07131f',color:'#fff',padding:'10px 12px',fontWeight:900}}>← CHICAGO</button></div>}
   {!nearWestOpen&&<button data-streetverse-travel="true" aria-label="Travel to Taylor Street UIC Medical District" onClick={()=>{if(mobile){window.dispatchEvent(new CustomEvent('tryamm:west-side-route-request',{detail:{x:24,z:-8,missionId:'taylor-single-canvas',source:'streetverse-main-travel-shortcut'}}))}else setNearWestOpen(true)}} style={{position:'fixed',top:118,right:12,zIndex:14970,border:'1px solid #6ee7ff',borderRadius:12,background:'#062333e8',color:'#fff',padding:'10px 12px',fontWeight:900}}>TAYLOR / UIC</button>}
