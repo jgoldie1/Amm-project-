@@ -1,6 +1,6 @@
 import {importOriginalCastZip} from './StreetVerseLocalCastImport'
 
-type CharacterProof={status:'not_loaded'|'mounted'|'failed';animationCount:number;rigged:boolean;reason?:string}
+type CharacterProof={status:'not_loaded'|'mounted'|'failed';animationCount:number;rigged:boolean;rigQuality?:'production'|'prototype'|'incomplete';boneCount?:number;reason?:string}
 export type CastOnePushReport={
  schema:'tryamm.streetverse.cast-one-push.v1'
  generatedAt:string
@@ -46,11 +46,13 @@ export async function runCastOnePushReport(file:File):Promise<CastOnePushReport>
   finish('bj')
  }
  const onCast=(event:Event)=>{
-  const d=(event as CustomEvent<{characterId?:string;localSession?:boolean;rigAudit?:unknown}>).detail
+  const d=(event as CustomEvent<{characterId?:string;localSession?:boolean;rigAudit?:{animationCount?:number;skinnedMeshes?:number;boneCount?:number;quality?:'production'|'prototype'|'incomplete'}}>).detail
   if(d?.localSession!==true)return
   const role=d.characterId==='jacobie-stubbs'?'jacobie':d.characterId==='lateasia-monroe'?'lateasia':null
   if(!role)return
-  proof.characters[role]={status:'mounted',animationCount:role==='jacobie'?12:7,rigged:true}
+  const audit=d.rigAudit
+  const rigged=Boolean(audit&&Number(audit.skinnedMeshes)>0&&Number(audit.boneCount)>0)
+  proof.characters[role]={status:'mounted',animationCount:Number(audit?.animationCount)||0,rigged,rigQuality:audit?.quality,boneCount:audit?.boneCount}
   finish(role)
  }
  const onUnavailable=(event:Event)=>{
@@ -91,4 +93,22 @@ export function exportCastOnePushReport(report:CastOnePushReport):string{
  anchor.href=url;anchor.download=name;document.body.appendChild(anchor);anchor.click();anchor.remove()
  window.setTimeout(()=>URL.revokeObjectURL(url),5000)
  return name
+}
+
+/**
+ * Owner-directed share of a JSON report. Native device share sheets (when
+ * available) are not delivery receipts; selection/receipt remain external.
+ * Explicit user tap required. Never uploads the GLB or original photos.
+ */
+export async function shareCastOnePushReport(report:CastOnePushReport):Promise<'handed_to_device'|'unsupported'|'cancelled'>{
+ const name='StreetVerse_One_Push_Cast_Report_'+new Date(report.generatedAt).toISOString().replace(/[:.]/g,'-')+'.json'
+ const file=new File([JSON.stringify(report,null,2)],name,{type:'application/json'})
+ if(typeof navigator.share!=='function'||typeof navigator.canShare!=='function'||!navigator.canShare({files:[file]}))return 'unsupported'
+ try{
+  await navigator.share({title:'StreetVerse cast test report',text:'TRYAMM StreetVerse one-push diagnostic report (not production acceptance)',files:[file]})
+  return 'handed_to_device'
+ }catch(error){
+  if(error instanceof DOMException&&error.name==='AbortError')return 'cancelled'
+  throw error
+ }
 }
