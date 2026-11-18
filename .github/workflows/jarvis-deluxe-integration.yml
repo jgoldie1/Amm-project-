@@ -1,0 +1,33 @@
+name: JARVIS Deluxe Integration Gate
+on:
+  pull_request:
+    paths:
+      - 'amm-omniverse/src/runtime/JarvisDeluxeRuntime.ts'
+      - 'amm-omniverse/src/components/HoloGPTAssistant.tsx'
+      - 'amm-omniverse/api/ai/answer.js'
+      - 'amm-omniverse/tests/jarvis-deluxe-integration.test.mjs'
+      - '.github/workflows/jarvis-deluxe-integration.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  jarvis-deluxe-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: JARVIS Deluxe HoloGPT/Mycelium/authority tests
+        run: node --test tests/jarvis-deluxe-integration.test.mjs
+      - name: Verify AI API JavaScript
+        run: node --check api/ai/answer.js
+      - name: TypeScript
+        run: npm run typecheck
