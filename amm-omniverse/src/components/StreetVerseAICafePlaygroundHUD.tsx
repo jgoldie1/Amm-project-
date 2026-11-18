@@ -1,3 +1,4 @@
+import AICafeCommons from './AICafeCommons'
 import {useEffect,useState} from 'react'
 import AICafePlayground from './AICafePlayground'
 
@@ -21,6 +22,7 @@ export default function StreetVerseAICafePlaygroundHUD(){
      style={{minWidth:100,minHeight:48,borderRadius:12,border:'1px solid #77e4dc',background:'#102c38',color:'#fff',fontWeight:900,fontSize:14}}>✕ CLOSE</button>
    </div>
    <AICafePlayground/>
+   <AICafeCommons/>
   </div>
  </div>
 }
