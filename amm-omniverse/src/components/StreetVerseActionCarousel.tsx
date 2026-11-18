@@ -32,9 +32,10 @@ export default function StreetVerseActionCarousel(){
  const [sort,setSort]=useState<SortMode>('smart')
  const [page,setPage]=useState(0)
  const startInRP=typeof window!=='undefined'&&new URLSearchParams(window.location.search).get('open')==='rp'
- const [open,setOpen]=useState(()=>!mobile||startInRP)
+ const [open,setOpen]=useState(()=>startInRP)
  const [rpOpen,setRpOpen]=useState(startInRP)
  const [rpgState,setRpgState]=useState<{level?:number;xp?:number;activeQuestIds?:string[]}|null>(null)
+ useEffect(()=>{const onEscape=(event:KeyboardEvent)=>{if(event.key==='Escape'){setOpen(false);setRpOpen(false)}};window.addEventListener('keydown',onEscape);return()=>window.removeEventListener('keydown',onEscape)},[])
  useEffect(()=>{
   const onRpg=(event:Event)=>setRpgState((event as CustomEvent<{level?:number;xp?:number;activeQuestIds?:string[]}>).detail||null)
   const onRpOpen=()=>{setOpen(true);setRpOpen(true)}
@@ -46,8 +47,8 @@ export default function StreetVerseActionCarousel(){
   return()=>{window.clearTimeout(timer);window.removeEventListener('tryamm:rpg-state',onRpg);window.removeEventListener('tryamm:streetverse-rp-open',onRpOpen)}
  },[])
  useEffect(()=>{
-  const onContext=(event:Event)=>{setCtx((event as CustomEvent<Context>).detail||{});setPage(0);if(!mobile)setOpen(true)}
-  const onBreakdown=(event:Event)=>{const d=(event as CustomEvent<Context>).detail||{};setCtx({...d,kind:'vehicle',broken:true,drivable:false});setPage(0);if(!mobile)setOpen(true)}
+  const onContext=(event:Event)=>{setCtx((event as CustomEvent<Context>).detail||{});setPage(0)}
+  const onBreakdown=(event:Event)=>{const d=(event as CustomEvent<Context>).detail||{};setCtx({...d,kind:'vehicle',broken:true,drivable:false});setPage(0)}
   const onRepaired=(event:Event)=>{const d=(event as CustomEvent<Context>).detail||{};setCtx(current=>current.vehicleId===d.vehicleId?{...current,broken:false,drivable:true,repairKit:false}:current)}
   const onOpen=()=>setOpen(true)
   const onClose=()=>{setOpen(false);setRpOpen(false)}
@@ -59,7 +60,7 @@ export default function StreetVerseActionCarousel(){
    if(event.type==='tryamm:streetverse-vehicle-input'&&Number(detail.throttle||0)===0&&Number(detail.steer||0)===0)return
    setOpen(false);setRpOpen(false)
   }
-  const onVehicleInteract=(event:Event)=>{const d=(event as CustomEvent<Context>).detail||{};setCtx(current=>({...current,...d,kind:'vehicle'}));setPage(0);if(!mobile)setOpen(true)}
+  const onVehicleInteract=(event:Event)=>{const d=(event as CustomEvent<Context>).detail||{};setCtx(current=>({...current,...d,kind:'vehicle'}));setPage(0)}
   addEventListener('tryamm:streetverse-interaction-context',onContext)
   addEventListener('tryamm:streetverse-vehicle-breakdown',onBreakdown)
   addEventListener('tryamm:streetverse-vehicle-repaired',onRepaired)
@@ -100,17 +101,17 @@ export default function StreetVerseActionCarousel(){
   }
   dispatchEvent(new CustomEvent('tryamm:streetverse-context-action',{detail:{action:id,...ctx,sort}}))
  }
- if(mobile&&!open)return <div aria-label="StreetVerse compact action launchers" style={{position:'fixed',right:'max(8px,env(safe-area-inset-right))',bottom:'calc(env(safe-area-inset-bottom, 0px) + 150px)',zIndex:39950,display:'grid',gap:7}}>
+ if(!open)return <div aria-label="StreetVerse compact action launchers" style={{position:'fixed',right:'max(8px,env(safe-area-inset-right))',bottom:'calc(env(safe-area-inset-bottom, 0px) + 150px)',zIndex:39950,display:'grid',gap:7}}>
   <button aria-label="Open StreetVerse RP RPG emoji and GIF actions" onClick={()=>{setOpen(true);setRpOpen(true)}} style={{minHeight:46,borderRadius:12,border:'2px solid #c4a3ff',background:'#1a0a35ee',color:'#fff',font:'950 11px system-ui',padding:'0 12px'}}>🎭 RP / GIF</button>
   <button
   aria-label={ctx.broken?'Open repair actions':'Open StreetVerse actions'}
   onClick={()=>setOpen(true)}
   style={{minHeight:44,padding:'0 12px',borderRadius:12,border:`2px solid ${ctx.broken?'#fb923c':'#67e8f9'}`,background:'rgba(4,15,24,.92)',color:'#fff',font:'950 10px system-ui',boxShadow:`0 0 20px ${ctx.broken?'#fb923c55':'#67e8f944'}`,touchAction:'manipulation'}}
  >{ctx.broken?'🔧 REPAIR':'⚡ ACTIONS'}</button></div>
-  return <div aria-label="StreetVerse action carousel" style={{position:'fixed',left:'50%',bottom:'calc(env(safe-area-inset-bottom, 0px) + 74px)',transform:'translateX(-50%)',zIndex:39950,width:'min(94vw,620px)',maxHeight:mobile?(rpOpen?'62dvh':'42dvh'):'78dvh',overflowY:'auto',padding:'10px',borderRadius:22,background:'linear-gradient(180deg,rgba(12,19,35,.92),rgba(3,7,18,.98))',backdropFilter:'blur(12px)',boxShadow:'0 18px 55px #000b, inset 0 1px #ffffff22',border:'1px solid #67e8f955',color:'#fff',fontFamily:'system-ui,sans-serif'}}>
-  <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,marginBottom:8}}>
+  return <div data-holo-actions-panel="open" aria-label="StreetVerse action carousel" style={{position:'fixed',left:'50%',bottom:'calc(env(safe-area-inset-bottom, 0px) + 74px)',transform:'translateX(-50%)',zIndex:39950,width:'min(94vw,620px)',maxHeight:mobile?(rpOpen?'62dvh':'42dvh'):'78dvh',overflowY:'auto',padding:'10px',borderRadius:22,background:'linear-gradient(180deg,rgba(12,19,35,.92),rgba(3,7,18,.98))',backdropFilter:'blur(12px)',boxShadow:'0 18px 55px #000b, inset 0 1px #ffffff22',border:'1px solid #67e8f955',color:'#fff',fontFamily:'system-ui,sans-serif'}}>
+  <div style={{position:'sticky',top:0,zIndex:3,display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,marginBottom:8,padding:'8px 2px 10px',background:'#071323',borderRadius:12}}>
    <div><div style={{fontSize:9,fontWeight:950,letterSpacing:1.4,color:'#67e8f9'}}>HOLO ACTIONS</div><div style={{fontSize:11,fontWeight:900}}>{ctx.label||'WORLD INTERACTION'}{ctx.broken?' • REPAIR REQUIRED':''}</div></div>
-   {mobile?<div style={{display:'flex',gap:5}}><button aria-label="Return to gameplay" onClick={()=>{setOpen(false);setRpOpen(false)}} style={playBtn}>🎮 PLAY</button><button aria-label="Close actions" onClick={()=>{setOpen(false);setRpOpen(false)}} style={closeBtn}>×</button></div>:<label style={{fontSize:8,fontWeight:900,color:'#cbd5e1'}}>SORT <select aria-label="Sort actions" value={sort} onChange={e=>{setSort(e.target.value as SortMode);setPage(0)}} style={{marginLeft:5,borderRadius:999,padding:'5px 7px',background:'#101827',color:'#fff',border:'1px solid #ffffff33',fontSize:9,fontWeight:900}}><option value="smart">SMART</option><option value="nearby">NEARBY</option><option value="mission">MISSION</option><option value="price">PRICE</option><option value="owned">OWNED</option></select></label>}
+   <div style={{display:'flex',gap:8,flexShrink:0}}><button type="button" aria-label="Return to gameplay and collapse Holo Actions" onClick={()=>{setOpen(false);setRpOpen(false)}} style={playBtn}>🎮 PLAY</button><button type="button" aria-label="Close Holo Actions panel" onClick={()=>{setOpen(false);setRpOpen(false)}} style={closeBtn}>✕ CLOSE</button></div>
   </div>
   {mobile&&<div style={{display:'flex',gap:5,marginBottom:7}}><select aria-label="Sort actions" value={sort} onChange={e=>{setSort(e.target.value as SortMode);setPage(0)}} style={{flex:1,borderRadius:10,padding:'7px 8px',background:'#101827',color:'#fff',border:'1px solid #ffffff33',fontSize:9,fontWeight:900}}><option value="smart">SMART</option><option value="nearby">NEARBY</option><option value="mission">MISSION</option><option value="price">PRICE</option><option value="owned">OWNED</option></select><button onClick={()=>setRpOpen(v=>!v)} style={toolBtn}>{rpOpen?'HIDE RP':'🎭 RP / GENII'}</button></div>}
   <div style={{display:'grid',gridTemplateColumns:'28px repeat(5,minmax(0,1fr)) 28px',gap:5,alignItems:'stretch'}}>
@@ -125,6 +126,6 @@ export default function StreetVerseActionCarousel(){
 }
 const nav:React.CSSProperties={border:'1px solid #67e8f944',borderRadius:12,background:'#0b1220dd',color:'#fff',fontSize:22,fontWeight:900}
 
-const playBtn:React.CSSProperties={minHeight:34,padding:'0 9px',borderRadius:9,border:'1px solid #8effb777',background:'#0a2d20',color:'#fff',fontSize:9,fontWeight:950,touchAction:'manipulation'}
-const closeBtn:React.CSSProperties={width:34,height:34,borderRadius:9,border:'1px solid #ffffff44',background:'#141b25',color:'#fff',fontSize:20,fontWeight:950,touchAction:'manipulation'}
+const playBtn:React.CSSProperties={minHeight:56,minWidth:72,padding:'0 10px',borderRadius:12,border:'2px solid #8effb7',background:'#0a5535',color:'#fff',fontSize:12,fontWeight:950,touchAction:'manipulation'}
+const closeBtn:React.CSSProperties={minWidth:88,minHeight:56,padding:'0 10px',borderRadius:12,border:'2px solid #fff',background:'#852525',color:'#fff',fontSize:12,fontWeight:950,touchAction:'manipulation'}
 const toolBtn:React.CSSProperties={minHeight:34,padding:'0 9px',borderRadius:9,border:'1px solid #9d6bff66',background:'#171027',color:'#fff',fontSize:9,fontWeight:950,touchAction:'manipulation'}
