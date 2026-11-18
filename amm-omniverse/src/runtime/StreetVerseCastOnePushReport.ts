@@ -6,7 +6,7 @@ export type CastOnePushReport={
  generatedAt:string
  archive:{filename:string;verified:boolean;error?:string}
  characters:{bj:CharacterProof;jacobie:CharacterProof;lateasia:CharacterProof}
- checks:{hashesVerified:boolean;threeMounted:boolean;recoveredNpcMixerAdvanced:{jacobie:boolean;lateasia:boolean};realAnimationPlaybackProven:false;chromebookVisualAcceptanceProven:false}
+ checks:{hashesVerified:boolean;threeMounted:boolean;threeRiggedAndAnimated:boolean;recoveredNpcMixerAdvanced:{jacobie:boolean;lateasia:boolean};realAnimationPlaybackProven:false;chromebookVisualAcceptanceProven:false}
  result:'mounted_not_visual_verified'|'incomplete'|'archive_rejected'
  submission:{status:'not_submitted';destination:null}
 }
@@ -26,7 +26,7 @@ export async function runCastOnePushReport(file:File):Promise<CastOnePushReport>
    jacobie:{status:'not_loaded',animationCount:0,rigged:false},
    lateasia:{status:'not_loaded',animationCount:0,rigged:false},
   },
-  checks:{hashesVerified:false,threeMounted:false,recoveredNpcMixerAdvanced:{jacobie:false,lateasia:false},realAnimationPlaybackProven:false,chromebookVisualAcceptanceProven:false},
+  checks:{hashesVerified:false,threeMounted:false,threeRiggedAndAnimated:false,recoveredNpcMixerAdvanced:{jacobie:false,lateasia:false},realAnimationPlaybackProven:false,chromebookVisualAcceptanceProven:false},
   result:'incomplete',
   submission:{status:'not_submitted',destination:null},
  }
@@ -81,7 +81,9 @@ export async function runCastOnePushReport(file:File):Promise<CastOnePushReport>
   // Allow the real world renderer's next frame to advance loaded mixers.
   if(pending.size===0)await new Promise<void>(resolve=>setTimeout(resolve,150))
   proof.checks.threeMounted=Object.values(proof.characters).every(character=>character.status==='mounted')
-  proof.result=proof.checks.threeMounted?'mounted_not_visual_verified':'incomplete'
+  // A mesh in the scene is not a playable animated character without its actual rig and clips.
+  proof.checks.threeRiggedAndAnimated=Object.values(proof.characters).every(character=>character.status==='mounted'&&character.rigged&&character.animationCount>0)
+  proof.result=proof.checks.threeMounted&&proof.checks.threeRiggedAndAnimated?'mounted_not_visual_verified':'incomplete'
  }catch(error){
   proof.archive.error=error instanceof Error?error.message:'Archive verification failed'
   proof.result='archive_rejected'
