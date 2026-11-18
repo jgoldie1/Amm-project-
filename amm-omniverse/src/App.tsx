@@ -6,6 +6,7 @@ import InstallPrompt from './components/InstallPrompt'
 import { BennieButton } from './components/BennieChatbot'
 import { SwipeNavigator, SwipeTutorial } from './components/SwipeNavigator'
 import LivingWorldsBridge from './components/LivingWorldsBridge'
+import StreetVerseMobileErrorBoundary from './components/StreetVerseMobileErrorBoundary'
 import './styles.css'
 
 const CityView = lazy(() => import('./components/CityView'))
@@ -346,7 +347,7 @@ export default function App() {
       <div style={{ width: '100%', minHeight: '100dvh', height: isGameplay ? '100dvh' : 'auto', overflowX: 'hidden', overflowY: isGameplay ? 'hidden' : 'auto', WebkitOverflowScrolling: 'touch', background: '#020212' }}>
         <LivingWorldsBridge />
         {screen === 'intro' && <TryAMMHome />}
-        {screen === 'city' && <CityView />}
+        {screen === 'city' && <StreetVerseMobileErrorBoundary name="StreetVerse City"><CityView /></StreetVerseMobileErrorBoundary>}
         {screen === 'sports' && <SportsRealm />}
         {screen === 'marketplace' && <MarketplaceRealm />}
         {screen === 'music' && <MusicRealm />}
