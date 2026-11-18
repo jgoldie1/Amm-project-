@@ -3,7 +3,7 @@ import {useEffect,useRef,useState} from 'react'
 type Shape='vertical'|'landscape'
 type VideoWithCapture=HTMLVideoElement&{captureStream?:()=>MediaStream}
 
-const LIMIT_SECONDS=30
+const LIMIT_SECONDS=300
 const MAX_FILE_BYTES=300*1024*1024
 const aspect={vertical:{width:480,height:854},landscape:{width:854,height:480}} as const
 
@@ -15,7 +15,7 @@ export default function CrossVerseClipCutter(){
   const [shape,setShape]=useState<Shape>('vertical')
   const [fileName,setFileName]=useState('')
   const [start,setStart]=useState(0)
-  const [seconds,setSeconds]=useState(15)
+  const [seconds,setSeconds]=useState(60)
   const [duration,setDuration]=useState(0)
   const [busy,setBusy]=useState(false)
   const [output,setOutput]=useState('')
@@ -125,7 +125,7 @@ export default function CrossVerseClipCutter(){
   const button:React.CSSProperties={minHeight:48,borderRadius:12,padding:'10px 16px',background:'#17475a',color:'#fff',border:'1px solid #58b6d1',fontWeight:800}
   return <section aria-label="CrossVerse local clip generator" style={{background:'#07111bd9',border:'1px solid #244156',borderRadius:18,padding:16,marginTop:14}}>
     <h2 style={{margin:'0 0 8px'}}>CROSSVERSE CLIP GENERATOR</h2>
-    <p style={{color:'#b2c5d0',fontSize:13}}>Trim your own recording into a vertical 9:16 or horizontal 16:9 WebM. Local export; no automatic upload, captions, or publishing.</p>
+    <p style={{color:'#b2c5d0',fontSize:13}}>Trim your own recording into a vertical 9:16 or horizontal 16:9 WebM. Local WebM export up to 5 minutes; no automatic upload, captions, or publishing. Longer clips need more memory and may export in real time.</p>
     <label style={{display:'block',marginBottom:12}}>Choose recording (maximum 300 MB)
       <input type="file" accept="video/*" onChange={e=>chooseFile(e.target.files?.[0])} disabled={busy} style={{display:'block',marginTop:8,maxWidth:'100%'}}/>
     </label>
@@ -136,7 +136,7 @@ export default function CrossVerseClipCutter(){
     </div>
     <div style={{display:'flex',flexWrap:'wrap',gap:12,marginTop:12}}>
       <label>Start (seconds)<input type="number" min={0} max={Math.max(0,duration-1)} step={1} disabled={busy} value={start} onChange={e=>setStart(Math.min(Math.max(0,Number(e.target.value)||0),Math.max(0,duration-1)))} style={{display:'block',width:120,padding:12,borderRadius:8}}/></label>
-      <label>Length (1–30 seconds)<input type="number" min={1} max={LIMIT_SECONDS} step={1} disabled={busy} value={seconds} onChange={e=>setSeconds(Math.min(LIMIT_SECONDS,Math.max(1,Number(e.target.value)||1)))} style={{display:'block',width:120,padding:12,borderRadius:8}}/></label>
+      <label>Length (1–300 seconds / 5 minutes)<input type="number" min={1} max={LIMIT_SECONDS} step={1} disabled={busy} value={seconds} onChange={e=>setSeconds(Math.min(LIMIT_SECONDS,Math.max(1,Number(e.target.value)||1)))} style={{display:'block',width:120,padding:12,borderRadius:8}}/></label>
     </div>
     <button type="button" disabled={!fileName||!duration||busy} onClick={()=>void exportClip()} style={{...button,marginTop:14,width:'100%'}}>{busy?'EXPORTING CLIP…':'GENERATE CLIP ON THIS DEVICE'}</button>
     <p role="status" aria-live="polite" style={{color:'#d4eaf4',fontSize:13}}>{message}</p>
