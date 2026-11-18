@@ -3,6 +3,7 @@ import fs from 'node:fs'
 import {fileURLToPath} from 'node:url'
 import path from 'node:path'
 import handler from '../api/live/crossverse-distribution-status.js'
+import {liveHostDecision} from '../api/_lib/live-host-authorization.js'
 
 const root=path.resolve(fileURLToPath(new URL('..',import.meta.url)))
 const read=file=>fs.readFileSync(path.join(root,file),'utf8')
@@ -15,6 +16,11 @@ const xr=read('src/components/CrossVerseXRPortal.tsx')
 const liveCenter=read('src/components/LiveCenter.tsx')
 const liveService=read('src/services/live.ts')
 const broadcast=read('src/runtime/TryammBroadcastOSRuntime.ts')
+const liveToken=read('api/live/token.js')
+const ageGate=read('src/components/SocialAgeSafetyGate.tsx')
+const aau=read('src/components/AllAmericanUniversity.tsx')
+const school=read('src/components/SchoolNetworkPortal.tsx')
+const family=read('src/components/StaysAgencyFamilyHub.tsx')
 
 function fakeRes(){
   return {
@@ -89,4 +95,25 @@ assert.match(xr,/path:'\/streetverse'/,'world portal required')
 assert.match(studio,/<CrossVerseClipCutter\/>/,'cutter must mount to real studio')
 assert.match(studio,/<CrossVerseDistributionStatus\/>/,'OBS control must mount to studio')
 assert.match(studio,/<CrossVerseXRPortal\/>/,'XR entry must mount to studio')
+// Existing K-12, AAU and family creator access must stay attached to LIVE.
+assert.match(liveToken,/liveHostDecision\(user\)/,'publishing must consult server-held permission')
+assert.match(ageGate,/\/api\/live\/host-eligibility/,'teen creator permissions must be checked at server')
+assert.match(ageGate,/getAccessToken/,'host eligibility must use signed-in authorization')
+assert.match(ageGate,/youthViewerOnly:!canHost/,'unapproved teens must have safe viewing')
+assert.match(ageGate,/OPEN K–12 LEARNING/,'younger learners must retain school access')
+assert.match(ageGate,/TEEN CREATOR ACADEMY/,'teen creators must retain academy access')
+assert.match(aau,/\['k12','K–12'\]/,'existing K-12 division must remain')
+assert.match(aau,/\['undergraduate','College \/ Undergraduate'\]/,'existing college division must remain')
+assert.match(school,/AllAmericanUniversity/,'School Network must use existing AAU')
+assert.match(family,/__showSchoolNetwork/,'family and agency must open existing School Network')
+assert.match(family,/StreetVerse age-appropriate gameplay/,'family pathway must preserve StreetVerse gameplay')
+const adult={id:'a',app_metadata:{tryamm_age_band:'adult',tryamm_live_host_approved:true}}
+const teen={id:'t',app_metadata:{tryamm_age_band:'teen',tryamm_live_host_approved:true,tryamm_guardian_live_approved:true,tryamm_live_moderation_approved:true}}
+assert.equal(liveHostDecision(adult).allowed,true,'verified adult host is allowed')
+assert.equal(liveHostDecision(teen).allowed,true,'verified guardian-approved teen host is allowed')
+assert.equal(liveHostDecision({...teen,app_metadata:{...teen.app_metadata,tryamm_guardian_live_approved:false}}).allowed,false,'missing guardian approval blocks teen publishing')
+assert.equal(liveHostDecision({...teen,app_metadata:{...teen.app_metadata,tryamm_live_moderation_approved:false}}).allowed,false,'missing moderation blocks teen publishing')
+assert.equal(liveHostDecision({id:'t',user_metadata:teen.app_metadata}).allowed,false,'self-editable profile may not authorize hosting')
+for(const band of ['under-12','age-12'])assert.equal(liveHostDecision({id:'t',app_metadata:{tryamm_age_band:band,tryamm_live_host_approved:true}}).allowed,false,'younger learners cannot host')
+assert.equal(liveHostDecision({id:'n',app_metadata:{tryamm_age_band:'adult'}}).allowed,false,'adult host needs trusted approval')
 console.log('CROSSVERSE LIVE RELEASE CONTRACT PASS: server secrecy, owner-only ingress gates, editor+XR wiring. Hardware clip/OBS tests still required.')
