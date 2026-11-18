@@ -67,6 +67,11 @@ must(reader.includes('READ ALOUD'),'accessible scripture read-aloud missing')
 
 must(world.includes("LOAD ORIGINAL 3-CHARACTER ZIP"),'one-hand menu must permit user-selected original cast ZIP')
 must(world.includes('ONE-PUSH CAST TEST + EXPORT REPORT'),'one-hand test launcher must exist')
+must(castRuntime.includes('isCurrent()')&&castRuntime.includes('generations.get(role)===generation'),'recovered character status must ignore stale remote fetch results')
+must(castRuntime.includes('character.root.userData.localSession=Boolean(localUrl)'),'animation proof must track source of actually mounted character')
+must(castRuntime.includes('localSession:character.root.userData.localSession===true'),'animation tick evidence must not be attributed to a previous remote model')
+must(castReport.includes("d.localSession!==true"),'one-push report must ignore failure statuses from old remote character requests')
+
 must(castRuntime.includes("publishStatus(role,'ready')")&&castRuntime.indexOf("publishStatus(role,'ready')")>castRuntime.indexOf("scene.add(character.root)"),'show recovered character as ready only after being mounted in the scene')
 must(castRuntime.includes("tryamm:streetverse-cast-animation-tick"),'scene runtime must publish evidence only after animation mixer advances')
 must(castReport.includes("recoveredNpcMixerAdvanced"),'one-push report must contain observed animation mixer evidence')
