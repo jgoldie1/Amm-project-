@@ -10,10 +10,11 @@ const readEvents = (): Event[] => {
   } catch { return [] }
 }
 
-export default function AICommonsOnePush({ onClose, onOpenAgent, onStartMission }: {
+export default function AICommonsOnePush({ onClose, onOpenAgent, onStartMission, onOpenCare }: {
   onClose: () => void
   onOpenAgent: () => void
   onStartMission: () => void
+  onOpenCare: () => void
 }) {
   const [events, setEvents] = useState<Event[]>(readEvents)
   const [notice, setNotice] = useState('AI Commons is ready for a guided integration check. External services are not automatically certified.')
@@ -70,7 +71,8 @@ export default function AICommonsOnePush({ onClose, onOpenAgent, onStartMission 
         <button style={buttonStyle} onClick={() => { record('conversation', 'user_confirmed', 'User reported an agent conversation'); setNotice('Your conversation confirmation was recorded; this is not an automatic agent-response test.') }}>3. I spoke with the agent</button>
         <button style={buttonStyle} onClick={() => { record('saved', 'requested', 'Attempted local checkpoint save'); setNotice('Local checkpoint updated where browser storage permits. This does not verify backend saves.') }}>4. Save checkpoint locally</button>
         <button style={buttonStyle} onClick={() => { record('mission', 'requested', 'Requested existing StreetVerse city gameplay'); onStartMission() }}>5. Launch existing StreetVerse mission area</button>
-        <button style={buttonStyle} onClick={exportReport}>6. Export JSON test report</button>
+        <button style={buttonStyle} onClick={onOpenCare}>6. Open OmniCare360 care access (nonclinical preview)</button>
+        <button style={buttonStyle} onClick={exportReport}>7. Export JSON test report</button>
         <p style={{ color: '#bad0dc', lineHeight: 1.6 }}>To export a report after visiting StreetVerse, reopen AI Commons. The checkpoint is saved in this browser when storage is available. The mission must be played and separately verified in the existing game.</p>
         <div style={{ fontSize: 14, background: '#211b1b', padding: 14, borderRadius: 12 }}>Production gates still open: character render, NPC interaction, LiveKit, mission completion, backend save, and Chromebook/iPhone end-to-end verification.</div>
       </div>
