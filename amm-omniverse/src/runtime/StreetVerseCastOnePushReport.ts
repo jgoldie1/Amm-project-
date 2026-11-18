@@ -40,8 +40,8 @@ export async function runCastOnePushReport(file:File):Promise<CastOnePushReport>
   if(d?.sourceUrl?.startsWith('blob:')&&d.valid===true){bjValidated=true;bjClips=Number(d.animationCount)||0}
  }
  const onHero=(event:Event)=>{
-  const d=(event as CustomEvent<{version?:string;skeletonAnimationCount?:number}>).detail
-  if(d?.version!=='V15'||!bjValidated)return
+  const d=(event as CustomEvent<{version?:string;skeletonAnimationCount?:number;localSession?:boolean}>).detail
+  if(d?.version!=='V15'||d.localSession!==true||!bjValidated)return
   proof.characters.bj={status:'mounted',animationCount:Number(d.skeletonAnimationCount)||bjClips,rigged:true}
   finish('bj')
  }
