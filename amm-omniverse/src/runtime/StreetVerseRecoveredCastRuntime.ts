@@ -9,23 +9,23 @@ export type RecoveredCastRole='jacobie'|'lateasia'
 type LoadedCast={root:THREE.Object3D;mixer:THREE.AnimationMixer|null;idle:THREE.AnimationAction|null;clips:readonly THREE.AnimationClip[];dispose:()=>void}
 const CAST_COORDINATES:Record<RecoveredCastRole,[number,number,number]>={jacobie:[-8,0,9],lateasia:[8,0,9]}
 
-function publishStatus(role:RecoveredCastRole,state:'loading'|'ready'|'unavailable'|'invalid',reason?:string){
+function publishStatus(role:RecoveredCastRole,state:'loading'|'ready'|'unavailable'|'invalid',reason?:string,localSession=false){
  const detail={characterId:STREETVERSE_RECOVERED_CAST[role].id,role,state,
    filename:STREETVERSE_RECOVERED_CAST[role].filename,
    textureReady:STREETVERSE_RECOVERED_CAST[role].textured,
    diagnostic:STREETVERSE_RECOVERED_CAST[role].diagnostic,
-   likenessCertified:false,reason}
+   likenessCertified:false,reason,localSession}
  window.dispatchEvent(new CustomEvent('tryamm:streetverse-recovered-character-status',{detail}))
 }
-async function loadRecoveredCharacter(role:RecoveredCastRole):Promise<LoadedCast|null>{
+async function loadRecoveredCharacter(role:RecoveredCastRole,localUrl:string|null,isCurrent:()=>boolean):Promise<LoadedCast|null>{
  const asset=STREETVERSE_RECOVERED_CAST[role]
- publishStatus(role,'loading')
+ if(isCurrent())publishStatus(role,'loading',undefined,Boolean(localUrl))
  try{
   const controller=new AbortController()
   const timer=setTimeout(()=>controller.abort(),18000)
   let bytes:ArrayBuffer
   try{
-   const response=await fetch(localRecoveredCastUrl(role)||recoveredCastUrl(role),{signal:controller.signal,cache:'no-store'})
+   const response=await fetch(localUrl||recoveredCastUrl(role),{signal:controller.signal,cache:'no-store'})
    if(!response.ok)throw new Error('HTTP '+response.status)
    if((response.headers.get('content-type')||'').includes('text/html'))throw new Error('HTML fallback is not a GLB')
    bytes=await response.arrayBuffer()
@@ -55,7 +55,7 @@ async function loadRecoveredCharacter(role:RecoveredCastRole):Promise<LoadedCast
   }
   // Do not publish READY before the world actually mounts the mesh.
   return {root,mixer,idle,clips:gltf.animations,dispose}
- }catch(e){publishStatus(role,'unavailable',e instanceof Error?e.message:'load failed');return null}
+ }catch(e){if(isCurrent())publishStatus(role,'unavailable',e instanceof Error?e.message:'load failed',Boolean(localUrl));return null}
 }
 /** Load recovered user-owned characters from protected URLs or an explicitly chosen local ZIP. */
 export function mountRecoveredStreetVerseCast(scene:THREE.Scene){
@@ -69,22 +69,24 @@ export function mountRecoveredStreetVerseCast(scene:THREE.Scene){
  const loadRole=async(role:RecoveredCastRole)=>{
    const generation=(generations.get(role)||0)+1
    generations.set(role,generation)
-   const character=await loadRecoveredCharacter(role)
+   const localUrl=localRecoveredCastUrl(role)
+   const character=await loadRecoveredCharacter(role,localUrl,()=>!disposed&&generations.get(role)===generation)
    if(!character)return
    if(disposed||generations.get(role)!==generation){character.dispose();return}
    controllers.get(role)?.dispose()
    characters.get(role)?.dispose()
    character.root.position.set(...CAST_COORDINATES[role])
+   character.root.userData.localSession=Boolean(localUrl)
    // Keep the actual recovered armature; no fabricated morph targets or likeness claims.
    scene.add(character.root)
    characters.set(role,character)
    medical.register(STREETVERSE_RECOVERED_CAST[role].id,character.root)
    const rig=createUniversalInjuryAnimationController(STREETVERSE_RECOVERED_CAST[role].id,character.root,character.clips)
    controllers.set(role,rig)
-   publishStatus(role,'ready')
+   publishStatus(role,'ready',undefined,Boolean(localUrl))
    window.dispatchEvent(new CustomEvent('tryamm:streetverse-character-registered',{detail:{
      characterId:STREETVERSE_RECOVERED_CAST[role].id,fictional:true,
-     quality:rig.audit.quality,rigAudit:rig.audit,localSession:Boolean(localRecoveredCastUrl(role))
+     quality:rig.audit.quality,rigAudit:rig.audit,localSession:Boolean(localUrl)
    }}))
  }
  const onMotion=(event:Event)=>{
@@ -112,7 +114,7 @@ export function mountRecoveredStreetVerseCast(scene:THREE.Scene){
          mixerTickReported.add(role)
          window.dispatchEvent(new CustomEvent('tryamm:streetverse-cast-animation-tick',{detail:{
            characterId:STREETVERSE_RECOVERED_CAST[role].id,
-           localSession:Boolean(localRecoveredCastUrl(role)),
+           localSession:character.root.userData.localSession===true,
            animationClipCount:character.clips.length,
            deltaSeconds:dt,
            mixerAdvanced:true,
