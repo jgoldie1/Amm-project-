@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { lazy,Suspense,useState } from 'react'
+const CommonsStreetVerseCharacterStudio=lazy(()=>import('./CommonsStreetVerseCharacterStudio'))
+const TRYAMMPrintStudio=lazy(()=>import('./TRYAMMPrintStudio'))
 
 type Step = 'commons' | 'jarvis' | 'conversation' | 'mission' | 'saved'
 type Event = { step: Step; at: string; status: 'opened' | 'user_confirmed' | 'requested'; detail: string }
@@ -17,6 +19,8 @@ export default function AICommonsOnePush({ onClose, onOpenAgent, onStartMission,
   onOpenCare: () => void
 }) {
   const [events, setEvents] = useState<Event[]>(readEvents)
+  const [openCharacters,setOpenCharacters]=useState(false)
+  const [openPrinter,setOpenPrinter]=useState(false)
   const [notice, setNotice] = useState('AI Commons is ready for a guided integration check. External services are not automatically certified.')
   const record = (step: Step, status: Event['status'], detail: string) => {
     const next = [...events, { step, status, detail, at: new Date().toISOString() }]
@@ -72,7 +76,11 @@ export default function AICommonsOnePush({ onClose, onOpenAgent, onStartMission,
         <button style={buttonStyle} onClick={() => { record('saved', 'requested', 'Attempted local checkpoint save'); setNotice('Local checkpoint updated where browser storage permits. This does not verify backend saves.') }}>4. Save checkpoint locally</button>
         <button style={buttonStyle} onClick={() => { record('mission', 'requested', 'Requested existing StreetVerse city gameplay'); onStartMission() }}>5. Launch existing StreetVerse mission area</button>
         <button style={buttonStyle} onClick={onOpenCare}>6. Open OmniCare360 care access (nonclinical preview)</button>
-        <button style={buttonStyle} onClick={exportReport}>7. Export JSON test report</button>
+        <button style={buttonStyle} aria-expanded={openCharacters} onClick={()=>setOpenCharacters(v=>!v)}>7. AI PLAYGROUND → STREETVERSE CHARACTER STUDIO</button>
+        {openCharacters&&<Suspense fallback={<p>Loading AI character tools…</p>}><CommonsStreetVerseCharacterStudio onOpenStreetVerse={onStartMission}/></Suspense>}
+        <button style={buttonStyle} aria-expanded={openPrinter} onClick={()=>setOpenPrinter(v=>!v)}>8. 2D CREATOR PRINT STUDIO</button>
+        {openPrinter&&<Suspense fallback={<p>Loading original print templates…</p>}><TRYAMMPrintStudio/></Suspense>}
+        <button style={buttonStyle} onClick={exportReport}>9. Export JSON test report</button>
         <p style={{ color: '#bad0dc', lineHeight: 1.6 }}>To export a report after visiting StreetVerse, reopen AI Commons. The checkpoint is saved in this browser when storage is available. The mission must be played and separately verified in the existing game.</p>
         <div style={{ fontSize: 14, background: '#211b1b', padding: 14, borderRadius: 12 }}>Production gates still open: character render, NPC interaction, LiveKit, mission completion, backend save, and Chromebook/iPhone end-to-end verification.</div>
       </div>
