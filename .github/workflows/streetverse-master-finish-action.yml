@@ -43,6 +43,7 @@ jobs:
           node tests/streetverse-vehicle-control-contract.mjs
           node tests/streetverse-mobile-repair-visibility-contract.mjs
           node tests/streetverse-mobile-mission-completion-bridge-contract.mjs
+          node tests/streetverse-three-character-injury-organs-contract.mjs
           node tests/streetverse-authoritative-reward-contract.mjs
           node tests/streetverse-mission-reel-handoff-contract.mjs
           node tests/streetverse-reel-return-to-world-contract.mjs
