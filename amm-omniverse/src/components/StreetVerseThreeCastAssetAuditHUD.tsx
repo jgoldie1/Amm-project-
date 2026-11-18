@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import {useEffect,useState} from 'react'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js'
 import * as THREE from 'three'
 
@@ -11,6 +11,12 @@ export default function StreetVerseThreeCastAssetAuditHUD(){
  const [open,setOpen]=useState(false)
  const [loading,setLoading]=useState(false)
  const [results,setResults]=useState<CastResult[]>([])
+ const [stageResult,setStageResult]=useState<{status:string;results?:Array<{name:string;status:string;error?:string}>;allThreeMounted?:boolean}|null>(null)
+ useEffect(()=>{
+  const onResult=(e:Event)=>setStageResult((e as CustomEvent<{status:string;results?:Array<{name:string;status:string;error?:string}>;allThreeMounted?:boolean}>).detail)
+  window.addEventListener('tryamm:streetverse-cast-stage-result',onResult)
+  return()=>window.removeEventListener('tryamm:streetverse-cast-stage-result',onResult)
+ },[])
  const test=async()=>{
   if(loading)return
   setLoading(true)
@@ -46,6 +52,7 @@ export default function StreetVerseThreeCastAssetAuditHUD(){
     {results.map(r=><div key={r.id} style={{borderBottom:'1px solid #33546a',paddingBottom:7,fontSize:13}}><b>{r.name}: {r.status.toUpperCase()}</b><div>{r.meshes} meshes · {r.skins} skinned meshes · {r.clips.length} animations</div>{r.error&&<div>{r.error}</div>}</div>)}
     <button style={btn} disabled={!results.length||loading} onClick={exportReport}>EXPORT CHARACTER REPORT</button>
     <button style={btn} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-cast-stage-open'))}>LOAD ALL THREE IN 3D SCENE</button>
+    {stageResult&&<div role="status" aria-live="polite"><strong>3D scene: {stageResult.status}</strong>{stageResult.results?.map(x=><div key={x.name}>{x.name}: {x.status}{x.error?' — '+x.error:''}</div>)}{stageResult.status==='done'&&<div>{stageResult.allThreeMounted?'Three characters mounted; visual device acceptance still pending.':'One or more original GLBs not installed or failed to decode.'}</div>}</div>}
    </section>}
  </aside>
 }
