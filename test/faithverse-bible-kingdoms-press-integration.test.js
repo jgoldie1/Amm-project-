@@ -18,6 +18,8 @@ for(const t of ['Genesis 1:1','Matthew 6:33','1 Peter 4:10','1 Corinthians 4:2',
 assert.ok(press.includes('listMyPublications'))
 assert.ok(press.includes('updatePublicationRights'))
 assert.ok(press.includes('isSupabaseConfigured'))
+assert.ok(press.includes('Publishing backend is not connected'))
+assert.ok(press.includes("href='/metaverse-bible'"))
 assert.ok(faith.includes('export function FaithRealm'))
 assert.ok(chrono.includes('/metaverse-bible'))
 const engine=src('runtime/FaithVerseBibleEdition.ts')
