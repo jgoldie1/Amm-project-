@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
-type LaneId = 'commons'|'showcase'|'academy'|'care'
-type ActionId = 'ai'|'streetverse'|'showcase'|'soul'|'tv'|'live'|'music'|'aau'|'simulator'|'care'|'compliance'
+type LaneId = 'commons'|'showcase'|'academy'|'faith'|'care'
+type ActionId = 'ai'|'streetverse'|'showcase'|'soul'|'tv'|'live'|'music'|'aau'|'simulator'|'care'|'compliance'|'faithbible'|'kingdompress'
 type Card = { name:string; detail:string; action:ActionId; label:string }
 const GROUPS: {id:LaneId; title:string; subtitle:string; cards:Card[]}[] = [
   {id:'commons',title:'AI Commons + Living Worlds',subtitle:'One accessible front door to approved AI services, worlds and business tools',cards:[
@@ -19,6 +19,10 @@ const GROUPS: {id:LaneId; title:string; subtitle:string; cards:Card[]}[] = [
     {name:'Financial Academy',detail:'Kevon Forex, World Markets, Jacobie DRIP and V92 finance education belong in a paper-trading-only lane. An executable verified simulator route has not been established here.',action:'simulator',label:'Education only'},
     {name:'Music & Creator Learning',detail:'Existing production, music and creator tools',action:'music',label:'Creator tools'}
   ]},
+  {id:'faith',title:'FaithVerse + Kingdoms Press',subtitle:'Faith Realm, accessible Metaverse Bible reading and existing Kingdoms Press publishing workflows',cards:[
+    {name:'FaithVerse + Metaverse Bible',detail:'Read selected scripture passages, use device voice and bookmarks, enter the existing Faith Realm',action:'faithbible',label:'Reading preview'},
+    {name:'Kingdoms Press',detail:'Existing editorial, author, rights, translation, print-on-demand and publication operations; configuration required',action:'kingdompress',label:'Publishing workspace'}
+  ]},
   {id:'care',title:'OmniCare360 + Compliance',subtitle:'Care access and accessibility separate from gaming, trading and marketing data',cards:[
     {name:'OmniCare360',detail:'Nonclinical preview only. No bookings, PHI intake or clinical video enabled.',action:'care',label:'Not clinical'},
     {name:'AI Law + Compliance',detail:'Privacy/security evidence matrix and independent signoffs; release blocked',action:'compliance',label:'Not certified'}
@@ -30,7 +34,7 @@ export default function TryAMMOrganizedHub({onAction}:{onAction:(action:ActionId
   const section=GROUPS.find(item=>item.id===active)||GROUPS[0]
   return <section aria-label="TRYAMM organized services" style={{marginTop:18,border:'1px solid #36516a',borderRadius:22,padding:'clamp(12px,3vw,22px)',background:'#071321'}}>
     <div style={{fontWeight:900,letterSpacing:2,color:'#8ce4ff',fontSize:12}}>TRYAMM SUPER APP · ORGANIZED SERVICES</div>
-    <h2 style={{fontSize:'clamp(19px,3vw,28px)',margin:'8px 0 12px'}}>One platform. Four clear destinations.</h2>
+    <h2 style={{fontSize:'clamp(19px,3vw,28px)',margin:'8px 0 12px'}}>One platform. Five clear destinations.</h2>
     <nav aria-label="Choose TRYAMM department" style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(145px,1fr))',gap:8}}>
       {GROUPS.map(group=><button key={group.id} type="button" aria-pressed={group.id===active} onClick={()=>setActive(group.id)} style={{minHeight:58,textAlign:'left',background:group.id===active?'#194967':'#142333',border:group.id===active?'2px solid #8ce4ff':'1px solid #48647b',borderRadius:14,padding:12,color:'#fff',fontWeight:800,fontSize:14,cursor:'pointer'}}>{group.title}</button>)}
     </nav>
