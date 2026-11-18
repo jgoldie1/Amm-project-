@@ -5,6 +5,8 @@ const FaithVerseWebReader = lazy(() => import('./FaithVerseWebReader'))
 const FaithVerseLanguageAcademy = lazy(() => import('./FaithVerseLanguageAcademy'))
 const FaithVerseScrollsApocrypha = lazy(() => import('./FaithVerseScrollsApocrypha'))
 const FaithVerseBusinessFunnel = lazy(() => import('./FaithVerseBusinessFunnel'))
+const FaithChronoLauncher = lazy(() => import('./FaithChronoLauncher'))
+const FaithGalileeRoleplay = lazy(() => import('./FaithGalileeRoleplay'))
 const EthiopianBibleMetaverse = lazy(() => import('./EthiopianBibleMetaverse'))
 import {validateBibleEdition,type BibleEdition} from '../runtime/FaithVerseBibleEdition'
 
@@ -21,10 +23,11 @@ const PASSAGES:readonly Passage[]=[
 ]
 // Short KJV excerpts, public domain in the US. This is not a complete Bible text.
 const KEY='tryamm:faithverse:bible:bookmark:v1'
-type Tab='landing'|'read'|'web'|'chapters'|'study'|'languages'|'scrolls'|'immersive'|'world'|'press'|'library'|'edition'
+type Tab='landing'|'read'|'web'|'chapters'|'study'|'languages'|'scrolls'|'chrono'|'immersive'|'world'|'press'|'library'|'edition'
 function readBookmark(){try{return localStorage.getItem(KEY)||'matthew-6-33'}catch{return'matthew-6-33'}}
 export default function FaithVerseBibleHub({onClose,onOpenFaith,onOpenPress}:{onClose:()=>void;onOpenFaith:()=>void;onOpenPress:()=>void}){
  const [tab,setTab]=useState<Tab>('landing')
+ const [showGalilee,setShowGalilee]=useState(false)
  const [selected,setSelected]=useState(readBookmark)
  const [large,setLarge]=useState(false)
  const [query,setQuery]=useState('')
@@ -60,7 +63,7 @@ export default function FaithVerseBibleHub({onClose,onOpenFaith,onOpenPress}:{on
  <p style={{fontSize:14,color:'#d2dbeb',lineHeight:1.6,margin:0}}>One accessible reading and roleplay entrance connected to the existing Faith Realm and Kingdoms Press publishing tools.</p>
  <p role="status" aria-live="polite" style={{background:'#222d35',borderRadius:12,padding:12,lineHeight:1.55,margin:0}}>{notice}</p>
  <nav aria-label="FaithVerse sections" style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:8}}>
- {(['landing','web','read','chapters','study','languages','scrolls','immersive','world','press','library','edition'] as Tab[]).map(k=><button key={k} style={{...btn,background:tab===k?'#435d64':'#132a40'}} aria-pressed={tab===k} onClick={()=>setTab(k)}>{k==='landing'?'Start Here · Study':k==='web'?'Full WEB Bible':k==='read'?'Starter Verses':k==='chapters'?'Full KJV Chapters':k==='study'?'Ethiopian Canon + 88':k==='languages'?'Paleo-Hebrew · Strong’s':k==='scrolls'?'Dead Sea Scrolls + Apocrypha':k==='immersive'?'Metaverse Bible World':k==='world'?'FaithVerse RP':k==='press'?'Kingdoms Press':k==='library'?'Edition Library':'Import & Read Edition'}</button>)}
+ {(['landing','web','read','chapters','study','languages','scrolls','chrono','immersive','world','press','library','edition'] as Tab[]).map(k=><button key={k} style={{...btn,background:tab===k?'#435d64':'#132a40'}} aria-pressed={tab===k} onClick={()=>setTab(k)}>{k==='landing'?'Start Here · Study':k==='web'?'Full WEB Bible':k==='read'?'Starter Verses':k==='chapters'?'Full KJV Chapters':k==='study'?'Ethiopian Canon + 88':k==='languages'?'Paleo-Hebrew · Strong’s':k==='scrolls'?'Dead Sea Scrolls + Apocrypha':k==='chrono'?'Time Machine · Yeshua & Fishing':k==='immersive'?'Metaverse Bible World':k==='world'?'FaithVerse RP':k==='press'?'Kingdoms Press':k==='library'?'Edition Library':'Import & Read Edition'}</button>)}
  </nav>
  {tab==='read'&&<section style={{display:'grid',gap:12}}>
  <label htmlFor="tryamm-bible-search">Find a passage in the available starter selections</label>
@@ -79,6 +82,8 @@ export default function FaithVerseBibleHub({onClose,onOpenFaith,onOpenPress}:{on
  {tab==='chapters'&&<section aria-label="Existing complete chapter reader"><p style={{lineHeight:1.6}}>Existing live KJV chapter reader. Chapters load from its existing Bible API when internet access is available; offline text packs are a separate import.</p><Suspense fallback={<p>Loading chapter reader…</p>}><FaithScriptureReader /></Suspense></section>}
  {tab==='study'&&<section aria-label="Existing Ethiopian canon and study layers"><Suspense fallback={<p>Loading existing FaithVerse HoloBook…</p>}><FaithHoloBook /></Suspense></section>}
  {tab==='languages'&&<section aria-label="Paleo-Hebrew Strong's and etymology classroom"><Suspense fallback={<p>Loading Hebrew language classroom…</p>}><FaithVerseLanguageAcademy onOpenHoloBook={()=>setTab('study')} /></Suspense></section>}
+ {tab==='chrono'&&<Suspense fallback={<p>Loading existing Faith Chrono portal…</p>}><FaithChronoLauncher onOpenGalilee={()=>setShowGalilee(true)} /></Suspense>}
+ {showGalilee&&<Suspense fallback={<p>Loading Galilee fishing mission…</p>}><FaithGalileeRoleplay onClose={()=>setShowGalilee(false)} onOpenScripture={()=>{setShowGalilee(false);setTab('chapters')}} onReturnStreetVerse={()=>{window.location.href='/streetverse'}} /></Suspense>}
  {tab==='immersive'&&<section aria-label="Original Ethiopian Bible Metaverse"><Suspense fallback={<p>Loading existing Bible Metaverse…</p>}><EthiopianBibleMetaverse /></Suspense></section>}
  {tab==='world'&&<section style={{display:'grid',gap:12,lineHeight:1.65}}><h2 style={{fontSize:23}}>Continue your existing FaithVerse world</h2><p>The existing Faith Realm has sanctuary, prayer, ministry and other roleplay views. The StreetVerse Faith Chrono portal also points to Metaverse Bible. The next milestone is verifying the entire StreetVerse-to-FaithVerse handoff and save/reload.</p><button style={btn} onClick={onOpenFaith}>Open existing Faith Realm</button><p>FaithVerse conversations, prayers, donations and ministry activity must respect participants' privacy and consent. No claims of real human ministry moderation or permanent cloud storage until verified.</p></section>}
  {tab==='press'&&<section style={{display:'grid',gap:12,lineHeight:1.65}}><h2>Kingdoms Press publishing</h2><p>Open the existing editorial rights, translation, accessibility, print editions, royalty and author-event module. Its operations require configured Supabase and an authenticated user. They are not automatically complete when you open this page.</p><button style={btn} onClick={onOpenPress}>Open existing Kingdoms Press</button><p>Before publishing the complete Metaverse Bible, verify the text edition's rights, canonical table of contents, scripture source, editorial review, cross-references, audio licensing and print/export proof.</p></section>}
