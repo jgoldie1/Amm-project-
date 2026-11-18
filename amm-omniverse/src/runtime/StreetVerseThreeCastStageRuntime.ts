@@ -100,7 +100,7 @@ export function installStreetVerseThreeCastStage(scene:THREE.Scene,cityCollision
   for(const [i,entry] of STREETVERSE_RECOVERED_THREE_CAST.entries()){
    if(disposed)break
    try{
-    let data=await readLocalCastAsset(entry.id)
+    let data=await readLocalCastAsset(entry.id).catch(()=>null)
     if(!data){
      const response=await fetch(entry.url,{cache:'no-store'})
      if(!response.ok||(response.headers.get('content-type')||'').includes('text/html'))throw new Error('Original GLB missing in app. Import the recovered ZIP or GLB files.')
