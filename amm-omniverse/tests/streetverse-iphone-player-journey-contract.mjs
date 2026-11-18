@@ -64,6 +64,11 @@ must(reader.includes('bible-api.com'),'working online KJV reader provider missin
 must(reader.includes('READ ALOUD'),'accessible scripture read-aloud missing')
 
 must(world.includes("LOAD ORIGINAL 3-CHARACTER ZIP"),'one-hand menu must permit user-selected original cast ZIP')
+must(world.includes('data-streetverse-cast-mount-status'),'one-hand menu must distinguish loaded characters from archive verification')
+must(world.includes("castStatus.jacobie==='ready'")&&world.includes("castStatus.lateasia==='ready'"),'each recovered NPC must expose its actual 3D mount status')
+must(world.includes("bjLoadStatus==='ready'"),'BJ loaded status must use the authoritative hero loader')
+must(world.includes('tryamm:streetverse-recovered-character-status'),'local cast 3D scene must report per-character load outcomes')
+
 must(world.includes("importOriginalCastZip(file)"),'user-selected archive must be verified before import')
 must(localCast.includes("crypto.subtle.digest('SHA-256'"),'local cast importer must verify SHA-256')
 must(localCast.includes("asset.sha256"),'local cast importer must compare the original expected hash')
