@@ -11,7 +11,7 @@ import {createStreetVerseCameraClearance,resolveStreetVerseThirdPersonCameraSafe
 import {createStreetVerseWestSideVisibleWorld} from '../runtime/StreetVerseWestSideVisibleWorldRuntime'
 import {installStreetVerseVisibleForgeBridge} from '../runtime/StreetVerseVisibleForgeBridge'
 import * as THREE from 'three'
-import {newVehicle,stepVehicle,collisionStop,type VehicleState,type RoadSurface} from '../runtime/StreetVerseVehicleDynamics'
+import {newVehicle,stepVehicle,collisionStop,type VehicleState,type RoadSurface} from '../runtime/StreetVerseVehicleDynamics.ts'
 import {installStreetVerseBJAnatomy} from '../runtime/StreetVerseBJAnatomyRuntime'
 import {createBJHapticRuntime,type BJHapticCue} from '../runtime/StreetVerseBJHapticRuntime'
 import {applyBJInjury,initialBJInjuryState,type BJInjuryKind} from '../runtime/StreetVerseBJInjuryBridgeRuntime'
