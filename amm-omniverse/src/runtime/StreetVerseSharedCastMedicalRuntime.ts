@@ -12,7 +12,7 @@ export type CastMedicalStatus={characterId:CastMedicalId;health:number;injured:b
 
 type CharacterMedicalHandle={
  object:THREE.Object3D;anatomy:BJAnatomyHandle;health:BJInjuryState;reaction:ReturnType<typeof createBJInjuryReaction>;
- mode:CastMedicalMode;reactionUntil:number;lastTilt:number
+ mode:CastMedicalMode;reactionUntil:number;lastTilt:number;lastPose:string
 }
 const VALID_INJURIES=new Set<BJInjuryKind>(['shot','stab','blunt','fall','recovery','hospital-discharge'])
 const VALID_MODES=new Set<CastMedicalMode>(['hidden','xray','tear-apart'])
@@ -42,7 +42,7 @@ export function createSharedCastMedicalRuntime(){
   anatomy.root.userData.fittedToBody=false
   anatomy.setCondition(health.injured?'injured':'healthy')
   anatomy.setVisible(false)
-  const handle:CharacterMedicalHandle={object,anatomy,health,reaction:createBJInjuryReaction(),mode:'hidden',reactionUntil:0,lastTilt:0}
+  const handle:CharacterMedicalHandle={object,anatomy,health,reaction:createBJInjuryReaction(),mode:'hidden',reactionUntil:0,lastTilt:0,lastPose:'neutral'}
   characters.set(id,handle);publish(id,handle)
  }
  const onInjury=(event:Event)=>{
@@ -87,6 +87,11 @@ export function createSharedCastMedicalRuntime(){
    for(const h of characters.values()){
     h.anatomy.tick(nowMs*.001)
     const frame=h.reaction.frame(h.health,nowMs)
+    if(frame.pose!==h.lastPose){
+     h.lastPose=frame.pose
+     const characterId=h.object.userData.characterId
+     if(typeof characterId==='string')window.dispatchEvent(new CustomEvent('tryamm:streetverse-character-reaction-request',{detail:{characterId,pose:frame.pose,fictional:true}}))
+    }
     // Light, non-graphic posture effects only; preserve animation/vehicle handling.
     const target=h.mode!=='hidden'?0:frame.tilt
     h.object.rotation.z=THREE.MathUtils.lerp(h.object.rotation.z,target,.16)
