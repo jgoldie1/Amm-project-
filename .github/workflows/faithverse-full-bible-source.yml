@@ -5,6 +5,10 @@ on:
       - 'amm-omniverse/scripts/faithverse_import_web.py'
       - 'amm-omniverse/tests/test_faithverse_import_web.py'
       - 'amm-omniverse/src/components/FaithVerseWebReader.tsx'
+      - 'amm-omniverse/src/components/FaithVerseBusinessFunnel.tsx'
+      - 'amm-omniverse/src/components/FaithVerseScrollsApocrypha.tsx'
+      - 'amm-omniverse/src/components/FaithVerseLanguageAcademy.tsx'
+      - 'test/faithverse-bible-kingdoms-press-integration.test.js'
       - 'amm-omniverse/src/components/FaithVerseBibleHub.tsx'
       - 'amm-omniverse/src/runtime/FaithVerseBibleEdition.ts'
       - '.github/workflows/faithverse-full-bible-source.yml'
@@ -22,6 +26,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Validate TRYAMM FaithVerse landing funnel, Scrolls and Apocrypha integration
+        run: node test/faithverse-bible-kingdoms-press-integration.test.js
       - name: Run source parser, completeness guard and EPUB structure unit tests
         run: python3 amm-omniverse/tests/test_faithverse_import_web.py
       - name: Download official public-domain World English Bible USFM and generate 66-book asset bundle
