@@ -71,6 +71,8 @@ must(castRuntime.includes('isCurrent()')&&castRuntime.includes('generations.get(
 must(castRuntime.includes('character.root.userData.localSession=Boolean(localUrl)'),'animation proof must track source of actually mounted character')
 must(castRuntime.includes('localSession:character.root.userData.localSession===true'),'animation tick evidence must not be attributed to a previous remote model')
 must(castReport.includes("d.localSession!==true"),'one-push report must ignore failure statuses from old remote character requests')
+must(world.includes("localSession:isV15&&handle.object.userData.visualAuthority==='bj-recovered-v15-local-asset'"),'BJ scene-mount evidence must prove it is the locally selected original')
+must(castReport.includes("d?.version!=='V15'||d.localSession!==true||!bjValidated"),'one-push report cannot mistake a remotely loaded V15 as the locally tested model')
 
 must(castRuntime.includes("publishStatus(role,'ready',undefined,Boolean(localUrl))")&&castRuntime.indexOf("publishStatus(role,'ready',undefined,Boolean(localUrl))")>castRuntime.indexOf("scene.add(character.root)"),'show recovered character as ready only after actual scene mount and preserve local GLB source')
 must(castRuntime.includes("tryamm:streetverse-cast-animation-tick"),'scene runtime must publish evidence only after animation mixer advances')
