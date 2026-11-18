@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import {readLocalCastAsset} from './StreetVerseCharacterLocalRecovery'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js'
 import {normalizeStreetVerseHumanHeight} from './StreetVerseHumanScale'
 import {BJ_STUBBS_BODY_PROFILE} from '../data/StreetVerseBJBodyProfile'
@@ -236,8 +237,10 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   // Never load a MetaHuman candidate by default; preview is explicitly opted-in.
   const metaHumanPreviewUrl=getPreviewBJMetaHumanUrl()
   // Default to the actual V15 hero; ?bj=legacy preserves a manual fallback.
-  const candidates=[...v15LocalUrls,v15PreviewUrl,metaHumanPreviewUrl,published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
-  const v15Candidates=new Set<string>([...v15LocalUrls,...(v15PreviewUrl?[v15PreviewUrl]:[])])
+  const localImportedBJ=await readLocalCastAsset('bj-stubbs').catch(()=>null)
+  const localBJMarker='local-device:bj-stubbs-v15'
+  const candidates=[...(localImportedBJ?[localBJMarker]:[]),...v15LocalUrls,v15PreviewUrl,metaHumanPreviewUrl,published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
+  const v15Candidates=new Set<string>([localBJMarker,...v15LocalUrls,...(v15PreviewUrl?[v15PreviewUrl]:[])])
   let sourceUrl=''
   let publishedGlb:Awaited<ReturnType<typeof loader.loadAsync>>|null=null
   let usingMetaHumanPreview=false
@@ -260,13 +263,15 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
         window.dispatchEvent(new CustomEvent('tryamm:bj-model-progress',{detail:{
           stage:'fetching',source:v15Candidates.has(candidate)?'v15':'fallback',
         }}))
-        const response=await fetch(candidate,{signal:controller.signal,mode:'cors'})
-        if(!response.ok)throw new Error('BJ GLB HTTP '+response.status)
-        const bytes=await response.arrayBuffer()
+        const bytes= candidate===localBJMarker&&localImportedBJ ? localImportedBJ : await (async()=>{
+          const response=await fetch(candidate,{signal:controller.signal,mode:'cors'})
+          if(!response.ok)throw new Error('BJ GLB HTTP '+response.status)
+          return response.arrayBuffer()
+        })()
         window.dispatchEvent(new CustomEvent('tryamm:bj-model-progress',{detail:{
           stage:'decoding',sizeBytes:bytes.byteLength,source:v15Candidates.has(candidate)?'v15':'fallback',
         }}))
-        const basePath=new URL('.',new URL(candidate,window.location.href)).href
+        const basePath=candidate===localBJMarker?window.location.origin+'/':new URL('.',new URL(candidate,window.location.href)).href
         let decodeTimer=0
         try{
           candidateGlb=await Promise.race([
