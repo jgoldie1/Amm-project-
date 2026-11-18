@@ -1,0 +1,24 @@
+{
+  "schema": "tryamm.streetverse.original-three-cast.v1",
+  "basePath": "public/tryamm-assets/meshy/characters",
+  "models": [
+    {
+      "id": "bj-stubbs",
+      "filename": "BJ_Stubbs_V15_Black_Suit_Purple_Shirt_Restore.glb",
+      "sizeBytes": 6220868,
+      "sha256": "310c56801f32760d79679242c6dee10631957ca29a42d9c8e10f4934df8a8439"
+    },
+    {
+      "id": "jacobie-stubbs",
+      "filename": "Jacobie_Stubbs_12_Motions_Restore.glb",
+      "sizeBytes": 7860680,
+      "sha256": "f0b0ada28cf343a58668d5adfd8a42aadd12f867ae87c7a24d9b749f4370ed13"
+    },
+    {
+      "id": "lateasia-monroe",
+      "filename": "LaTeasia_Monroe_7_Motions_Diagnostic.glb",
+      "sizeBytes": 871880,
+      "sha256": "96faef46205295d16cdf6c8d21a0e216438141f053cf0601800d62d3020998af"
+    }
+  ]
+}
