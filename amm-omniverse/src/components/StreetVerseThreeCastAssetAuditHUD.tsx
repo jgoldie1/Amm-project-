@@ -4,12 +4,15 @@ import * as THREE from 'three'
 
 /** Approved local publication paths. These are checks, NOT evidence that binaries were deployed. */
 import {STREETVERSE_RECOVERED_THREE_CAST} from '../data/StreetVerseRecoveredThreeCast'
+import {importStreetVerseCharacterFiles,readLocalCastAsset} from '../runtime/StreetVerseCharacterLocalRecovery'
 export const STREETVERSE_THREE_CAST=STREETVERSE_RECOVERED_THREE_CAST
 type CastResult={id:string;name:string;status:'passed'|'missing'|'invalid';meshes:number;skins:number;clips:string[];url:string;error?:string}
 const btn:React.CSSProperties={minHeight:54,background:'#17465b',color:'white',padding:'10px 13px',borderRadius:12,border:'1px solid #7fc8df',fontWeight:800,touchAction:'manipulation'}
 export default function StreetVerseThreeCastAssetAuditHUD(){
  const [open,setOpen]=useState(false)
  const [loading,setLoading]=useState(false)
+ const [importing,setImporting]=useState(false)
+ const [importMessage,setImportMessage]=useState('Import the recovery ZIP or original GLB files to load the real cast without server assets.')
  const [selectedActor,setSelectedActor]=useState<'bj-stubbs'|'jacobie-stubbs'|'lateasia-monroe'>('jacobie-stubbs')
  const [actionLog,setActionLog]=useState<Array<{actor?:string;action?:string;status:string;reason?:string;matchingMotionClip?:boolean;time:string}>>([])
  const [results,setResults]=useState<CastResult[]>([])
@@ -29,9 +32,12 @@ export default function StreetVerseThreeCastAssetAuditHUD(){
   const next:CastResult[]=[]
   for(const candidate of STREETVERSE_THREE_CAST){
    try{
-    const res=await fetch(candidate.url,{cache:'no-store'})
-    if(!res.ok||/text\/html/i.test(res.headers.get('content-type')||''))throw Error('asset unavailable: HTTP '+res.status)
-    const bytes=await res.arrayBuffer()
+    let bytes=await readLocalCastAsset(candidate.id)
+    if(!bytes){
+     const res=await fetch(candidate.url,{cache:'no-store'})
+     if(!res.ok||/text\\/html/i.test(res.headers.get('content-type')||''))throw Error('Missing published GLB. Import recovery ZIP or GLB files.')
+     bytes=await res.arrayBuffer()
+    }
     if(bytes.byteLength<20||new DataView(bytes).getUint32(0,true)!==0x46546c67)throw Error('not a GLB binary')
     const gltf=await new GLTFLoader().parseAsync(bytes,new URL('.',new URL(candidate.url,window.location.href)).href)
     let meshes=0,skins=0
@@ -55,6 +61,20 @@ export default function StreetVerseThreeCastAssetAuditHUD(){
    {open&&<section role="region" aria-label="Verify all three original character assets" style={{background:'#091928f6',padding:12,borderRadius:14,border:'1px solid #75adbf',width:'min(400px,calc(100vw - 16px))',maxHeight:'60dvh',overflowY:'auto',display:'grid',gap:9}}>
     <strong>Three-Character Production Check</strong>
     <p style={{fontSize:13,margin:0}}>Checks whether the restored GLBs actually load from this deployment and contain meshes, skinning and motion clips. Not a likeness or visual gameplay certification.</p>
+    <label style={{display:'block',fontSize:14,fontWeight:700}}>IMPORT ORIGINAL 3D CHARACTERS (ZIP or GLB)
+      <input aria-label="Import recovered three-character ZIP or GLB files" type="file" accept=".zip,.glb,model/gltf-binary,application/zip" multiple disabled={importing} onChange={async e=>{
+       const files=e.target.files
+       if(!files?.length)return
+       setImporting(true)
+       try{
+        const results=await importStreetVerseCharacterFiles(files)
+        setImportMessage(results.map(x=>x.name+': '+(x.stored?'saved on device':x.error)).join(' • '))
+        window.dispatchEvent(new CustomEvent('tryamm:streetverse-cast-stage-open'))
+       }catch(error){setImportMessage(String(error))}
+       finally{setImporting(false);e.target.value=''}
+      }} style={{display:'block',maxWidth:'100%',minHeight:52}}/>
+    </label>
+    <p role="status" style={{fontSize:12,margin:0}}>{importing?'Importing original model files…':importMessage}</p>
     <button style={btn} disabled={loading} onClick={()=>{void test()}}>{loading?'CHECKING…':'ONE PUSH — VERIFY ALL 3'}</button>
     {results.map(r=><div key={r.id} style={{borderBottom:'1px solid #33546a',paddingBottom:7,fontSize:13}}><b>{r.name}: {r.status.toUpperCase()}</b><div>{r.meshes} meshes · {r.skins} skinned meshes · {r.clips.length} animations</div>{r.error&&<div>{r.error}</div>}</div>)}
     <button style={btn} disabled={!results.length||loading} onClick={exportReport}>EXPORT CHARACTER REPORT</button>
