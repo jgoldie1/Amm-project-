@@ -71,6 +71,12 @@ must(castReport.includes('importOriginalCastZip(file)'),'one-push report must va
 must(castReport.includes("threeMounted=Object.values(proof.characters).every"),'three-character mount verdict must require all three')
 must(castReport.includes("realAnimationPlaybackProven:false"),'do not falsely claim actual rendered animation playback')
 must(castReport.includes("status:'not_submitted'"),'never claim report submitted without a verified backend receipt')
+must(castReport.includes('Number(audit?.animationCount)||0'),'report must use runtime rig audit animation count, not invented per-character numbers')
+must(castReport.includes("rigQuality:audit?.quality"),'export must preserve honest rig quality from runtime audit')
+must(castReport.includes('navigator.canShare({files:[file]})'),'native device share must check file support')
+must(world.includes('SHARE LAST EXPORTED REPORT'),'compact menu must expose share action after JSON export')
+must(world.includes('NO SUBMISSION RECEIPT'),'device sharing alone cannot be described as confirmed report submission')
+
 must(castReport.includes("tryamm:streetverse-bj-hero-mounted")&&castReport.includes("tryamm:streetverse-character-registered"),'report must observe active scene mount events')
 
 must(world.includes('data-streetverse-cast-mount-status'),'one-hand menu must distinguish loaded characters from archive verification')
