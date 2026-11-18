@@ -28,7 +28,7 @@
     "asset:optimize": "gltf-transform optimize",
     "asset:inspect": "gltf-transform inspect",
     "check": "npm run lint && npm run security && npm run readiness && npm run typecheck && npm run smoke && npm run build",
-    "native:assets": "node scripts/tryamm-native-asset-foundry.mjs public/generated-assets/native",
+    "native:assets": "node scripts/tryamm-native-asset-foundry.mjs public/generated-assets/native && node scripts/import-recovered-cast.mjs",
     "bj:v7:publish": "node scripts/publish-bj-owned-v7-glb.mjs",
     "mind:assets": "node scripts/mind-over-matter-clean-room-foundry.mjs public/generated-assets/mind-over-matter",
     "test:industry-resilience": "node tests/tryamm-industry-resilience-contract.mjs",
