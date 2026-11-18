@@ -1,10 +1,11 @@
 import {importOriginalCastZip} from './StreetVerseLocalCastImport'
+import {STREETVERSE_RECOVERED_CAST} from '../data/StreetVerseRecoveredCastAssets'
 
 type CharacterProof={status:'not_loaded'|'mounted'|'failed';animationCount:number;rigged:boolean;rigQuality?:'production'|'prototype'|'incomplete';boneCount?:number;reason?:string}
 export type CastOnePushReport={
  schema:'tryamm.streetverse.cast-one-push.v1'
  generatedAt:string
- archive:{filename:string;verified:boolean;error?:string}
+ archive:{filename:string;verified:boolean;error?:string;validatedAssets:readonly {role:string;filename:string;bytes:number;sha256:string;skins:number;animations:number;diagnostic:boolean}[]}
  characters:{bj:CharacterProof;jacobie:CharacterProof;lateasia:CharacterProof}
  checks:{hashesVerified:boolean;threeMounted:boolean;threeRiggedAndAnimated:boolean;recoveredNpcMixerAdvanced:{jacobie:boolean;lateasia:boolean};realAnimationPlaybackProven:false;chromebookVisualAcceptanceProven:false}
  result:'mounted_not_visual_verified'|'incomplete'|'archive_rejected'
@@ -20,7 +21,7 @@ export async function runCastOnePushReport(file:File):Promise<CastOnePushReport>
  const proof:CastOnePushReport={
   schema:'tryamm.streetverse.cast-one-push.v1',
   generatedAt:new Date().toISOString(),
-  archive:{filename:file.name,verified:false},
+  archive:{filename:file.name,verified:false,validatedAssets:[]},
   characters:{
    bj:{status:'not_loaded',animationCount:0,rigged:false},
    jacobie:{status:'not_loaded',animationCount:0,rigged:false},
@@ -76,6 +77,9 @@ export async function runCastOnePushReport(file:File):Promise<CastOnePushReport>
   await importOriginalCastZip(file)
   proof.archive.verified=true
   proof.checks.hashesVerified=true
+  proof.archive.validatedAssets=(Object.entries(STREETVERSE_RECOVERED_CAST) as Array<[keyof typeof STREETVERSE_RECOVERED_CAST,(typeof STREETVERSE_RECOVERED_CAST)[keyof typeof STREETVERSE_RECOVERED_CAST]]>).map(([role,asset])=>({
+   role,filename:asset.filename,bytes:asset.bytes,sha256:asset.sha256,skins:asset.skins,animations:asset.animationCount,diagnostic:asset.diagnostic
+  }))
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-v15-preview',{detail:{source:'cast-one-push-report'}}))
   await Promise.race([done,new Promise<void>(resolve=>setTimeout(resolve,35000))])
   // Allow the real world renderer's next frame to advance loaded mixers.
