@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js'
 import {STREETVERSE_RECOVERED_THREE_CAST} from '../data/StreetVerseRecoveredThreeCast'
+import {readLocalCastAsset} from './StreetVerseCharacterLocalRecovery'
 
 type Action='walk'|'run'|'jump'|'hop'|'vault'
 type CastKey=typeof STREETVERSE_RECOVERED_THREE_CAST[number]['id']
@@ -97,9 +98,12 @@ export function installStreetVerseThreeCastStage(scene:THREE.Scene,cityCollision
   for(const [i,entry] of STREETVERSE_RECOVERED_THREE_CAST.entries()){
    if(disposed)break
    try{
-    const response=await fetch(entry.url,{cache:'no-store'})
-    if(!response.ok||/text\/html/i.test(response.headers.get('content-type')||''))throw new Error('GLB unavailable HTTP '+response.status)
-    const data=await response.arrayBuffer()
+    let data=await readLocalCastAsset(entry.id)
+    if(!data){
+     const response=await fetch(entry.url,{cache:'no-store'})
+     if(!response.ok||/text\\/html/i.test(response.headers.get('content-type')||''))throw new Error('Original GLB missing in app. Import the recovered ZIP or GLB files.')
+     data=await response.arrayBuffer()
+    }
     if(data.byteLength<20||new DataView(data).getUint32(0,true)!==0x46546c67)throw new Error('Not a GLB')
     const gltf=await loader.parseAsync(data,new URL('.',new URL(entry.url,window.location.href)).href)
     const skins=gltf.scene.getObjectsByProperty('type','SkinnedMesh').length
