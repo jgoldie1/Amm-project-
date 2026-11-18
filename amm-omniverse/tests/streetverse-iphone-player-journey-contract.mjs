@@ -72,7 +72,7 @@ must(castRuntime.includes('character.root.userData.localSession=Boolean(localUrl
 must(castRuntime.includes('localSession:character.root.userData.localSession===true'),'animation tick evidence must not be attributed to a previous remote model')
 must(castReport.includes("d.localSession!==true"),'one-push report must ignore failure statuses from old remote character requests')
 
-must(castRuntime.includes("publishStatus(role,'ready')")&&castRuntime.indexOf("publishStatus(role,'ready')")>castRuntime.indexOf("scene.add(character.root)"),'show recovered character as ready only after being mounted in the scene')
+must(castRuntime.includes("publishStatus(role,'ready',undefined,Boolean(localUrl))")&&castRuntime.indexOf("publishStatus(role,'ready',undefined,Boolean(localUrl))")>castRuntime.indexOf("scene.add(character.root)"),'show recovered character as ready only after actual scene mount and preserve local GLB source')
 must(castRuntime.includes("tryamm:streetverse-cast-animation-tick"),'scene runtime must publish evidence only after animation mixer advances')
 must(castReport.includes("recoveredNpcMixerAdvanced"),'one-push report must contain observed animation mixer evidence')
 must(castRuntime.includes("renderedMotionVerified:false"),'one-push mixer tick must never be represented as visually confirmed playback')
