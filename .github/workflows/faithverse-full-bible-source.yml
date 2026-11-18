@@ -11,6 +11,7 @@ on:
       - 'test/faithverse-bible-kingdoms-press-integration.test.js'
       - 'amm-omniverse/src/components/FaithGalileeRoleplay.tsx'
       - 'amm-omniverse/src/components/FaithVerseAncientQuestControls.tsx'
+      - 'amm-omniverse/src/components/FaithVerseAncientCreature3D.tsx'
       - 'amm-omniverse/src/components/FaithVerseAncientStoriesTheater.tsx'
       - 'amm-omniverse/src/data/FaithVerseCreatureArtDirection.ts'
       - 'test/faithverse-creature-canon-contract.test.js'
