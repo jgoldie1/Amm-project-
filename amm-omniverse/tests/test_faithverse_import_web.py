@@ -49,9 +49,10 @@ class TestFaithVerseWebParser(unittest.TestCase):
         books=module.load_archive(example_zip())
         self.assertEqual(set(books),{"GEN","MAT"})
 
-    def test_missing_verse_is_error(self):
-        with self.assertRaisesRegex(ValueError,"missing verse"):
-            module.parse_book("\\id GEN\n\\c 1\n\\v 1 first\n\\v 3 third")
+    def test_omitted_verse_keeps_reference_number_without_fake_text(self):
+        code,chapters=module.parse_book("\\id LUK\n\\c 17\n\\v 1 first\n\\v 3 third")
+        self.assertEqual(code,"LUK")
+        self.assertEqual(chapters[0],["first",None,"third"])
 
     def test_reject_incomplete_edition_before_writing(self):
         with tempfile.TemporaryDirectory() as temp:
