@@ -1,6 +1,7 @@
 import {useMemo,useState} from 'react'
 import {DotLottieReact} from '@lottiefiles/dotlottie-react'
 import CrossVerseClipCutter from './CrossVerseClipCutter'
+import CrossVerseDistributionStatus from './CrossVerseDistributionStatus'
 
 type Props={onClose:()=>void}
 type Effect={id:string;label:string;kind:'lottie'|'holo'|'gift'|'pk'|'portal';description:string}
@@ -56,6 +57,7 @@ export default function HoloClipStudio({onClose}:Props){
         <section style={card}><b>GIFT + TIP OVERLAY</b><div style={{display:'grid',gap:7,marginTop:10}}>{GIFTS.map(x=><button key={x.id} onClick={()=>sendGift(x)} style={{...btn(gift?.id===x.id),display:'flex',justifyContent:'space-between',alignItems:'center'}}><span>{x.icon} {x.label}</span><span style={{color:'#e8b944'}}>{x.credits} credits</span></button>)}</div><div style={{fontSize:10,color:'#9cafbb',marginTop:10,lineHeight:1.5}}>Gift animation can display instantly. Monetary settlement is deliberately separate and must pass the existing approval/step-up Money Engine path.</div></section>
       </div>
       <CrossVerseClipCutter/>
+      <CrossVerseDistributionStatus/>
       <div style={{...card,marginTop:14,display:'flex',gap:8,flexWrap:'wrap'}}><button onClick={openMedia} style={btn(true)}>RENDER / SAVE / PUBLISH</button><button onClick={returnToWorld} style={btn()}>RETURN TO WORLD</button><button onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:holo-social-open'))} style={btn()}>OPEN HOLO SOCIAL</button><div style={{width:'100%',fontSize:11,color:'#9db0bd',lineHeight:1.5}}>{message}</div></div>
     </div>
   </div>
