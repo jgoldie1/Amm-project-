@@ -48,6 +48,8 @@ try{
 }
 assert.match(endpoint,/TRYAMM_OBS_INGRESS_ENABLED/,'ingress must be disabled by default')
 assert.match(endpoint,/requireUser\(req,res\)/,'private ingest requires signed-in creator')
+assert.match(endpoint,/TRYAMM_OBS_ALLOWED_USER_IDS/,'private ingest requires a configured operator allowlist')
+assert.match(endpoint,/ownerIds.includes\(String\(user.id\)\)/,'authenticated non-operators cannot create billable inputs')
 assert.match(endpoint,/recentlyAuthenticated/,'fresh authentication required')
 assert.match(endpoint,/confirm!=='CREATE_PRIVATE_INGEST'/,'explicit creator approval required')
 assert.match(endpoint,/IngressInput\.RTMP_INPUT/,'real ingress SDK is used')
