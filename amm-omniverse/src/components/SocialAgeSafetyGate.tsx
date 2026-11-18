@@ -58,14 +58,13 @@ export default function SocialAgeSafetyGate({open,intent,onAllow,onClose}:{open:
   const [error,setError]=useState('')
   const [confirmed,setConfirmed]=useState(false)
   const [checkingHost,setCheckingHost]=useState(false)
-  const [hostNote,setHostNote]=useState('')
 
   useEffect(()=>{
     if(!open)return
     const stored=readStoredAudienceBand()
     setBand(stored)
     setConfirmed(stored?readAck(stored,intent):false)
-    setError('');setHostNote('')
+    setError('')
   },[open,intent])
 
   const copy=useMemo(()=>intent==='pk'?{
@@ -105,7 +104,6 @@ export default function SocialAgeSafetyGate({open,intent,onAllow,onClose}:{open:
       }catch{/* Viewer access does not require publisher eligibility. */}
     }
     saveAck(band,intent)
-    if(!canHost&&band!=='age-12')setHostNote('Viewer mode: publishing requires verified host approval. Academy and gameplay remain available.')
     setCheckingHost(false)
     onAllow({band,youthViewerOnly:!canHost})
   }
