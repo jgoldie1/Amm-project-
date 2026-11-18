@@ -1,7 +1,9 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
-const file=process.argv[2]||'public/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V12.glb'
+const restored='public/tryamm-assets/meshy/characters/BJ_Stubbs_V15_Black_Suit_Purple_Shirt_Restore.glb'
+const legacy='public/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V12.glb'
+const file=process.argv[2]||(fs.existsSync(restored)?restored:legacy)
 if(!fs.existsSync(file)){console.error('BJ RIG AUDIT FAIL: GLB missing:',file);process.exit(1)}
 const bytes=fs.readFileSync(file)
 if(bytes.length<20||bytes.toString('ascii',0,4)!=='glTF'||bytes.readUInt32LE(4)!==2||bytes.readUInt32LE(8)!==bytes.length){
