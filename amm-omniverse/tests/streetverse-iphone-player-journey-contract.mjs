@@ -67,6 +67,11 @@ must(reader.includes('READ ALOUD'),'accessible scripture read-aloud missing')
 
 must(world.includes("LOAD ORIGINAL 3-CHARACTER ZIP"),'one-hand menu must permit user-selected original cast ZIP')
 must(world.includes('ONE-PUSH CAST TEST + EXPORT REPORT'),'one-hand test launcher must exist')
+must(castRuntime.includes("publishStatus(role,'ready')")&&castRuntime.indexOf("publishStatus(role,'ready')")>castRuntime.indexOf("scene.add(character.root)"),'show recovered character as ready only after being mounted in the scene')
+must(castRuntime.includes("tryamm:streetverse-cast-animation-tick"),'scene runtime must publish evidence only after animation mixer advances')
+must(castReport.includes("recoveredNpcMixerAdvanced"),'one-push report must contain observed animation mixer evidence')
+must(castRuntime.includes("renderedMotionVerified:false"),'one-push mixer tick must never be represented as visually confirmed playback')
+
 must(world.includes('runCastOnePushReport(file)')&&world.includes('exportCastOnePushReport(report)'),'one-hand test must automatically export its report')
 must(castReport.includes('importOriginalCastZip(file)'),'one-push report must validate the original archive')
 must(castReport.includes("threeMounted=Object.values(proof.characters).every"),'three-character mount verdict must require all three')
