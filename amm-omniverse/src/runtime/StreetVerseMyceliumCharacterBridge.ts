@@ -1,5 +1,3 @@
-import {streetVerseLivingWorldRuntime} from './StreetVerseLivingWorldRuntime'
-
 /** Client-side, fictional Mycelium character state. Never send real medical data.
  * Versioned event ledger for NPC response, dispatch and saved conditions.
  */
