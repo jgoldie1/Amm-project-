@@ -13,6 +13,7 @@ const AICommonsOnePush = lazy(() => import('./components/AICommonsOnePush'))
 const OmniCare360CareAccess = lazy(() => import('./components/OmniCare360CareAccess'))
 const TRYAMMComplianceCenter = lazy(() => import('./components/TRYAMMComplianceCenter'))
 const AllAmericanShowcaseHub = lazy(() => import('./components/AllAmericanShowcaseHub'))
+const AllAmericanFinancialAcademyHub = lazy(() => import('./components/AllAmericanFinancialAcademyHub'))
 const SportsRealm = lazy(() => import('./components/RealmScreens').then(m => ({ default: m.SportsRealm })))
 const MarketplaceRealm = lazy(() => import('./components/RealmScreens').then(m => ({ default: m.MarketplaceRealm })))
 const MusicRealm = lazy(() => import('./components/RealmScreens').then(m => ({ default: m.MusicRealm })))
@@ -74,6 +75,7 @@ export default function App() {
   const [showOmniCare360, setShowOmniCare360] = useState(false)
   const [showCompliance, setShowCompliance] = useState(false)
   const [showAllAmericanShowcase, setShowAllAmericanShowcase] = useState(false)
+  const [showFinancialAcademy, setShowFinancialAcademy] = useState(false)
   const [showPricing, setShowPricing] = useState(false)
   const [showHoloverse, setShowHoloverse] = useState(false)
   const [showBennie, setShowBennie] = useState(false)
@@ -238,6 +240,7 @@ export default function App() {
   ;(window as any).__showIsaiahTV = () => setShowOTT(true)
   ;(window as any).__showStarStudio = () => setShowStarStudio(true)
   ;(window as any).__showAllAmericanShowcase = () => setShowAllAmericanShowcase(true)
+  ;(window as any).__showFinancialAcademy = () => setShowFinancialAcademy(true)
   ;(window as any).__showAICommons = () => setShowAICommons(true)
   ;(window as any).__showOmniCare360 = () => setShowOmniCare360(true)
   ;(window as any).__showCompliance = () => setShowCompliance(true)
@@ -358,6 +361,7 @@ export default function App() {
         {showAICommons && <AICommonsOnePush onClose={() => setShowAICommons(false)} onOpenAgent={() => { setShowAICommons(false); setShowHoloGPT(true) }} onStartMission={() => { setShowAICommons(false); setScreen('city') }} onOpenCare={() => {setShowAICommons(false); setShowOmniCare360(true)}} />}
         {showOmniCare360 && <OmniCare360CareAccess onClose={() => setShowOmniCare360(false)} />}
         {showCompliance && <TRYAMMComplianceCenter onClose={() => setShowCompliance(false)} />}
+        {showFinancialAcademy && <AllAmericanFinancialAcademyHub onClose={() => setShowFinancialAcademy(false)} onOpenUniversity={() => {setShowFinancialAcademy(false);setShowSchoolNetwork(true)}} />}
         {showAllAmericanShowcase && <AllAmericanShowcaseHub onClose={() => setShowAllAmericanShowcase(false)} onOpen={target => {
           setShowAllAmericanShowcase(false)
           if(target==='studio') setShowStarStudio(true)
