@@ -27,7 +27,14 @@ export default function StreetVerseLivingStoresHUD(){
   if(action.kind==='purchase'){
    const result=buyGameProduct(ledger,action.storeId,action.sku||'',action.quantity||1)
    setMessage(result.message)
-   if(result.ok){setLedger(result.ledger);window.dispatchEvent(new CustomEvent('tryamm:streetverse-store-demo-purchase',{detail:{...action,demo:true,fictional:true}}))}
+   if(result.ok){
+    setLedger(result.ledger)
+    const receipt=result.ledger.receipts[result.ledger.receipts.length-1]
+    const detail={...action,receiptId:receipt.id,credits:receipt.credits,demo:true,fictional:true,paymentStatus:'GAME_CREDITS_ONLY',fulfillmentStatus:'NOT_DISPATCHED'}
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-store-demo-purchase',{detail}))
+    // Gameplay-only fulfillment receipt. This does not submit an order or charge an account.
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-fulfillment-demo-order',{detail}))
+   }
    return
   }
   const result=applyStoreAction(ledger.world,action)
@@ -44,13 +51,13 @@ export default function StreetVerseLivingStoresHUD(){
     <div>{store.sku} • 🪙 {store.priceCredits} each</div>
     <div>Available: {store.stock} • In-game location ({store.x}, {store.z})</div>
     <label>Quantity <input aria-label={'Quantity for '+store.name} type="number" min={1} max={25} value={quantities[store.id]??1} onChange={e=>setQuantities(q=>({...q,[store.id]:Number(e.target.value)}))} style={{width:70,minHeight:44,margin:5}}/></label>
-    <div style={{display:'flex',gap:6,flexWrap:'wrap'}}><button style={button} onClick={()=>act({kind:'npc-visit',storeId:store.id})}>TALK TO VENDOR</button><button style={button} onClick={()=>act({kind:'purchase',storeId:store.id,sku:store.sku,quantity:quantities[store.id]??1})}>BUY WITH GAME CREDITS</button></div>
+    <div style={{display:'flex',gap:6,flexWrap:'wrap'}}><button style={button} onClick={()=>act({kind:'npc-visit',storeId:store.id})}>TALK TO NPC</button><button style={button} onClick={()=>act({kind:'purchase',storeId:store.id,sku:store.sku,quantity:quantities[store.id]??1})}>BUY DEMO ITEM</button></div>
    </section>)}
    <section aria-label="Living city director" style={{border:'1px solid #426e87',padding:8,borderRadius:9}}><strong>🌆 LIVING CITY • Day {city.day+1} • {String(city.hour).padStart(2,'0')}:00</strong><div>{city.actors.length} simulated NPCs • {city.deliveryDemand.length} delivery requests</div><div>NPC actions: {commerce.length} • Restock alerts: {commerce.filter(e=>e.kind==='restock-request').length}</div><button style={button} onClick={()=>{setCityTick(nextCityTick);setLedger(l=>({...l,world:advanceLivingWorld(l.world)}))}}>ADVANCE CITY TIME + NPC ACTIVITY</button><div aria-live="polite">{commerce.slice(0,3).map(e=><div key={e.id}>{e.kind} — {e.storeId}</div>)}</div></section>
    <strong>YOUR GAME RECEIPTS</strong>
    {ledger.receipts.slice(-5).reverse().map(r=><div key={r.id}>{r.id} • {r.quantity} × {r.sku} • 🪙 {r.credits}</div>)}
    <div role="status" aria-live="polite">{message}</div>
-   <small>All purchases, credits, inventory, vendor actions and delivery rewards here are fictional. No real goods, charges or shipments are created.</small>
+   <small>No real stores, seller approvals, payments or deliveries are connected. All purchases, credits, inventory, vendor actions and rewards here are fictional; no real goods, charges or shipments are created.</small>
   </div>}
  </aside>
 }
