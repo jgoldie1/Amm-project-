@@ -178,7 +178,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
      const report=await runCastOnePushReport(file)
      setLastCastReport(report)
      const filename=exportCastOnePushReport(report)
-     setMessage('REPORT EXPORTED • '+filename+' • '+(report.checks.threeMounted?'all three mounted':'check individual failures')+' • NOT SUBMITTED')
+     setMessage('REPORT EXPORTED • '+filename+' • '+(report.checks.threeRiggedAndAnimated?'all three rigs and clips verified in scene':report.checks.threeMounted?'models mounted • some rigs/clips incomplete':'check individual failures')+' • NOT SUBMITTED')
    }catch(error){
      setMessage('REPORT EXPORT FAILED • '+(error instanceof Error?error.message:'unknown error'))
    }finally{setOnePushReportBusy(false)}
