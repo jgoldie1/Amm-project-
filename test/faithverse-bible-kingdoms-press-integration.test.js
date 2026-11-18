@@ -22,6 +22,13 @@ assert.ok(press.includes('Publishing backend is not connected'))
 assert.ok(press.includes("href='/metaverse-bible'"))
 assert.ok(faith.includes('export function FaithRealm'))
 assert.ok(chrono.includes('/metaverse-bible'))
+const languages=src('components/FaithVerseLanguageAcademy.tsx')
+for(const token of ['PALEO_HEBREW_ALPHABET','STRONGS_STUDY','PALEO_HEBREW_STUDY_RULES','Etymology','validStrongId','H7225','G3056','tryamm:hologpt-study-context','Save Study Checkpoint'.toUpperCase()]) {
+ if(token==='SAVE STUDY CHECKPOINT')assert.ok(languages.includes('SAVE STUDY CHECKPOINT'))
+ else assert.ok(languages.includes(token),token)
+}
+assert.ok(portal.includes('<FaithVerseLanguageAcademy'))
+assert.ok(portal.includes("k==='languages'?'Paleo-Hebrew · Strong’s'"))
 const engine=src('runtime/FaithVerseBibleEdition.ts')
 for(const text of ['validateBibleEdition','title','source','rights','books','chapters'])assert.ok(engine.includes(text),text)
 for(const text of ['importEdition','accept=".json,application/json"','setEdition(valid.edition)','edition.books[bookIndex].chapters[chapterIndex]'])assert.ok(portal.includes(text),text)
