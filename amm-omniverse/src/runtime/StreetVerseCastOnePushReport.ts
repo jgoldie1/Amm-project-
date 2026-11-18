@@ -6,7 +6,7 @@ export type CastOnePushReport={
  generatedAt:string
  archive:{filename:string;verified:boolean;error?:string}
  characters:{bj:CharacterProof;jacobie:CharacterProof;lateasia:CharacterProof}
- checks:{hashesVerified:boolean;threeMounted:boolean;realAnimationPlaybackProven:false;chromebookVisualAcceptanceProven:false}
+ checks:{hashesVerified:boolean;threeMounted:boolean;recoveredNpcMixerAdvanced:{jacobie:boolean;lateasia:boolean};realAnimationPlaybackProven:false;chromebookVisualAcceptanceProven:false}
  result:'mounted_not_visual_verified'|'incomplete'|'archive_rejected'
  submission:{status:'not_submitted';destination:null}
 }
@@ -26,7 +26,7 @@ export async function runCastOnePushReport(file:File):Promise<CastOnePushReport>
    jacobie:{status:'not_loaded',animationCount:0,rigged:false},
    lateasia:{status:'not_loaded',animationCount:0,rigged:false},
   },
-  checks:{hashesVerified:false,threeMounted:false,realAnimationPlaybackProven:false,chromebookVisualAcceptanceProven:false},
+  checks:{hashesVerified:false,threeMounted:false,recoveredNpcMixerAdvanced:{jacobie:false,lateasia:false},realAnimationPlaybackProven:false,chromebookVisualAcceptanceProven:false},
   result:'incomplete',
   submission:{status:'not_submitted',destination:null},
  }
@@ -55,6 +55,12 @@ export async function runCastOnePushReport(file:File):Promise<CastOnePushReport>
   proof.characters[role]={status:'mounted',animationCount:Number(audit?.animationCount)||0,rigged,rigQuality:audit?.quality,boneCount:audit?.boneCount}
   finish(role)
  }
+ const onMixerTick=(event:Event)=>{
+  const d=(event as CustomEvent<{characterId?:string;localSession?:boolean;mixerAdvanced?:boolean}>).detail
+  if(!d||d.localSession!==true||d.mixerAdvanced!==true)return
+  if(d.characterId==='jacobie-stubbs')proof.checks.recoveredNpcMixerAdvanced.jacobie=true
+  if(d.characterId==='lateasia-monroe')proof.checks.recoveredNpcMixerAdvanced.lateasia=true
+ }
  const onUnavailable=(event:Event)=>{
   const d=(event as CustomEvent<{role?:string;state?:string;reason?:string}>).detail
   if(!d||(d.role!=='jacobie'&&d.role!=='lateasia')||d.state!=='unavailable')return
@@ -65,12 +71,15 @@ export async function runCastOnePushReport(file:File):Promise<CastOnePushReport>
  window.addEventListener('tryamm:streetverse-bj-hero-mounted',onHero)
  window.addEventListener('tryamm:streetverse-character-registered',onCast)
  window.addEventListener('tryamm:streetverse-recovered-character-status',onUnavailable)
+ window.addEventListener('tryamm:streetverse-cast-animation-tick',onMixerTick)
  try{
   await importOriginalCastZip(file)
   proof.archive.verified=true
   proof.checks.hashesVerified=true
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-v15-preview',{detail:{source:'cast-one-push-report'}}))
   await Promise.race([done,new Promise<void>(resolve=>setTimeout(resolve,35000))])
+  // Allow the real world renderer's next frame to advance loaded mixers.
+  if(pending.size===0)await new Promise<void>(resolve=>setTimeout(resolve,150))
   proof.checks.threeMounted=Object.values(proof.characters).every(character=>character.status==='mounted')
   proof.result=proof.checks.threeMounted?'mounted_not_visual_verified':'incomplete'
  }catch(error){
@@ -81,6 +90,7 @@ export async function runCastOnePushReport(file:File):Promise<CastOnePushReport>
   window.removeEventListener('tryamm:streetverse-bj-hero-mounted',onHero)
   window.removeEventListener('tryamm:streetverse-character-registered',onCast)
   window.removeEventListener('tryamm:streetverse-recovered-character-status',onUnavailable)
+  window.removeEventListener('tryamm:streetverse-cast-animation-tick',onMixerTick)
  }
  return proof
 }
