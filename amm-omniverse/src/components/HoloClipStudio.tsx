@@ -2,6 +2,7 @@ import {useMemo,useState} from 'react'
 import {DotLottieReact} from '@lottiefiles/dotlottie-react'
 import CrossVerseClipCutter from './CrossVerseClipCutter'
 import CrossVerseDistributionStatus from './CrossVerseDistributionStatus'
+import CrossVerseXRPortal from './CrossVerseXRPortal'
 
 type Props={onClose:()=>void}
 type Effect={id:string;label:string;kind:'lottie'|'holo'|'gift'|'pk'|'portal';description:string}
@@ -58,6 +59,7 @@ export default function HoloClipStudio({onClose}:Props){
       </div>
       <CrossVerseClipCutter/>
       <CrossVerseDistributionStatus/>
+      <CrossVerseXRPortal/>
       <div style={{...card,marginTop:14,display:'flex',gap:8,flexWrap:'wrap'}}><button onClick={openMedia} style={btn(true)}>RENDER / SAVE / PUBLISH</button><button onClick={returnToWorld} style={btn()}>RETURN TO WORLD</button><button onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:holo-social-open'))} style={btn()}>OPEN HOLO SOCIAL</button><div style={{width:'100%',fontSize:11,color:'#9db0bd',lineHeight:1.5}}>{message}</div></div>
     </div>
   </div>
