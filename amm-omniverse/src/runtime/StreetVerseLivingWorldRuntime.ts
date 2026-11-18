@@ -43,6 +43,7 @@ export type WorldBudget = {
 }
 
 export type LivingWorldSnapshot = {
+  characterConditions:Array<{characterId:string;condition:string;health:number;needsRescue:boolean}>
   hour:number
   period:WorldPeriod
   weather:WorldWeather
@@ -93,6 +94,7 @@ export class StreetVerseLivingWorldRuntime {
   private weather:WorldWeather='clear'
   private hour=12
   private npcs=new Map<string,LivingNPC>()
+  private characterConditions=new Map<string,{condition:string;health:number;needsRescue:boolean}>()
   private lastSnapshot:LivingWorldSnapshot|null=null
 
   setClock(hour:number){this.hour=((hour%24)+24)%24}
@@ -100,6 +102,12 @@ export class StreetVerseLivingWorldRuntime {
   setQuality(quality:WorldQuality){this.quality=quality}
   registerNPC(npc:LivingNPC){this.npcs.set(npc.id,npc)}
   unregisterNPC(id:string){this.npcs.delete(id)}
+  setCharacterCondition(characterId:string,condition:string,health:number,needsRescue:boolean){
+    if(!/^[a-zA-Z0-9][a-zA-Z0-9_-]{1,127}$/.test(characterId)||!Number.isFinite(health))return
+    this.characterConditions.set(characterId,{condition,health:Math.max(0,Math.min(100,health)),needsRescue})
+  }
+  getCharacterCondition(characterId:string){return this.characterConditions.get(characterId)||null}
+  getCharacterConditions(){return [...this.characterConditions].map(([characterId,c])=>({characterId,...c}))}
   getSnapshot(){return this.lastSnapshot}
 
   async tick(signal:PlayerSignal):Promise<LivingWorldSnapshot>{
@@ -119,6 +127,7 @@ export class StreetVerseLivingWorldRuntime {
 
     const result=await this.quantum.tick(signal,entities)
     const snapshot:LivingWorldSnapshot={
+      characterConditions:this.getCharacterConditions(),
       hour:this.hour,
       period,
       weather:this.weather,
@@ -137,6 +146,13 @@ let installed=false
 export const streetVerseLivingWorldRuntime=new StreetVerseLivingWorldRuntime()
 
 export function installStreetVerseLivingWorldRuntime(){
+  // Mirror character injuries and health emergencies into actual Living World snapshots.
+  if(typeof window!=='undefined')window.addEventListener('tryamm:living-world-character-condition',(event:Event)=>{
+    const detail=(event as CustomEvent<{characterId?:string;condition?:string;health?:number;needsRescue?:boolean;fictional?:boolean}>).detail
+    if(detail?.fictional!==true||typeof detail.characterId!=='string'||typeof detail.condition!=='string'||typeof detail.health!=='number')return
+    streetVerseLivingWorldRuntime.setCharacterCondition(detail.characterId,detail.condition,detail.health,Boolean(detail.needsRescue))
+  })
+
   if(installed||typeof window==='undefined')return
   installed=true
 
