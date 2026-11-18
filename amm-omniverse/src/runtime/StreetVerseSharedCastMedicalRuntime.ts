@@ -23,7 +23,7 @@ export function createSharedCastMedicalRuntime(){
  try{
   const source=JSON.parse(localStorage.getItem(key)||'{}') as Record<string,{health?:number;lastInjury?:string}>
   for(const id of ['jacobie-stubbs','lateasia-monroe'] as const){
-   const data=source[id];if(!data||!Number.isSafeInteger(data.health)||data.health<0||data.health>100)continue
+   const data=source[id];if(!data||typeof data.health!=='number'||!Number.isSafeInteger(data.health)||data.health<0||data.health>100)continue
    stored.set(id,{health:data.health,injured:data.health<100,lastInjury:VALID_INJURIES.has(data.lastInjury as BJInjuryKind)?data.lastInjury as BJInjuryKind:null})
   }
  }catch{/* New or untrusted saves use healthy defaults. */}
