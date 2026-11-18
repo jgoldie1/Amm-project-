@@ -24,6 +24,12 @@ const galilee=fs.readFileSync(path.join(dir,'components/FaithGalileeRoleplay.tsx
 const playfield=fs.readFileSync(path.join(dir,'components/FaithGalileePlayfield.tsx'),'utf8')
 for(const phrase of ['readPlayer','localStorage.setItem','onReach(close.id)','aria-label="Move north"','aria-label="Move south"','INTERACT','onKeyDown={onKey}'])assert.ok(playfield.includes(phrase),phrase)
 assert.ok(galilee.includes('<FaithGalileePlayfield onReach={go}/>'))
+const yeshuaPortrait=fs.readFileSync(path.join(dir,'components/FaithVerseYeshuaPortrait.tsx'),'utf8')
+const yeshuaDirection=fs.readFileSync(path.join(dir,'data/FaithVerseYeshuaCharacterDirection.ts'),'utf8')
+assert.ok(galilee.includes('<FaithVerseYeshuaPortrait />'))
+for(const phrase of ['Black / African-American Hebrew-inspired portrayal','rich deep brown','royal blue mantle','verifiedHistoricalLikeness:false','actualRiggedGLBVerified:false','not a verified voice'])assert.ok(yeshuaDirection.includes(phrase),phrase)
+for(const phrase of ['viewBox="0 0 320 330"','role="img"','dark-brown-skinned Hebrew high priest','Original stylized 2D concept'])assert.ok(yeshuaPortrait.includes(phrase),phrase)
+
 const bible=fs.readFileSync(path.join(dir,'components/FaithVerseBibleHub.tsx'),'utf8')
 const chrono=fs.readFileSync(path.join(dir,'components/FaithChronoLauncher.tsx'),'utf8')
 const continuity=fs.readFileSync(path.join(dir,'runtime/OmniWorldContinuityRuntime.ts'),'utf8')
