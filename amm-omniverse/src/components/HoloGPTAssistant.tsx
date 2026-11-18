@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { getAccessToken } from '../services/supabaseClient'
+import {installJarvisDeluxeRuntime,createJarvisDeluxeState,jarvisDeluxeContext,type JarvisDeluxeSnapshot} from '../runtime/JarvisDeluxeRuntime'
 
 type Msg={role:'user'|'assistant';content:string;provider?:string}
 type SourceMode='auto'|'holo'|'oracle'|'old-web'|'historical'
@@ -134,6 +135,7 @@ export default function HoloGPTAssistant({showLauncher=true,openOnMount=false}:P
   const [input,setInput]=useState(openOnMount && new URLSearchParams(window.location.search).get('context')==='mobility360'?'Help me explore the Stubbs Mobility 360 accessibility marketplace. I understand products are not approved for sale yet.':'')
   const [busy,setBusy]=useState(false)
   const [health,setHealth]=useState<Health|null>(null)
+  const [jarvis,setJarvis]=useState<JarvisDeluxeSnapshot>(()=>createJarvisDeluxeState())
   const [sourceMode,setSourceMode]=useState<SourceMode>('auto')
   const [retrievalStatus,setRetrievalStatus]=useState('')
   const [historyUrl,setHistoryUrl]=useState('')
@@ -143,6 +145,13 @@ export default function HoloGPTAssistant({showLauncher=true,openOnMount=false}:P
   const end=useRef<HTMLDivElement>(null)
   const history=useMemo(()=>messages.slice(-10).map(m=>({role:m.role,content:m.content})),[messages])
 
+  useEffect(()=>{
+    const onState=(event:Event)=>setJarvis((event as CustomEvent<JarvisDeluxeSnapshot>).detail)
+    window.addEventListener('tryamm:jarvis-deluxe-state',onState)
+    const runtime=installJarvisDeluxeRuntime()
+    setJarvis(runtime.get())
+    return()=>{window.removeEventListener('tryamm:jarvis-deluxe-state',onState);runtime.dispose()}
+  },[])
   useEffect(()=>{try{localStorage.setItem(KEY,JSON.stringify(messages.slice(-20)))}catch{};end.current?.scrollIntoView({behavior:'smooth'})},[messages])
   useEffect(()=>{
     const openAssistant=()=>setOpen(true)
@@ -165,7 +174,7 @@ export default function HoloGPTAssistant({showLauncher=true,openOnMount=false}:P
     setBusy(true)
     try{
       setRetrievalStatus('SEARCHING '+sourceMode.toUpperCase())
-      let retrievalContext:any={mode:sourceMode,holo:[],oracle:[],historical:[],crawler:null}
+      let retrievalContext:any={mode:sourceMode,holo:[],oracle:[],historical:[],crawler:null,jarvis:jarvisDeluxeContext(jarvis)}
       if(sourceMode==='holo'||sourceMode==='auto')retrievalContext.holo=compactRetrieval(await holoSearch(question))
       if(sourceMode==='oracle'||sourceMode==='old-web'||sourceMode==='auto'){
         const oracle=await oracleSearch(question)
@@ -199,10 +208,23 @@ export default function HoloGPTAssistant({showLauncher=true,openOnMount=false}:P
   const status=health?.ok?'INTELLIGENCE ONLINE':health?.degraded?'RECOVERY MODE':'CHECKING AI'
   const statusColor=health?.ok?'#78ffb4':'#e8b944'
   return <>
-    {showLauncher&&<button aria-label="Open HoloGPT" onClick={()=>setOpen(true)} style={{position:'fixed',right:12,bottom:18,zIndex:10030,border:'1px solid #4fe3ffaa',borderRadius:999,padding:'12px 16px',background:'linear-gradient(135deg,#061c29,#171128)',color:'#4fe3ff',fontFamily:'monospace',fontWeight:950,fontSize:11,cursor:'pointer',boxShadow:'0 0 28px #4fe3ff33'}}>◈ HOLOGPT</button>}
+    {showLauncher&&<button aria-label="Open JARVIS Deluxe HoloGPT" onClick={()=>setOpen(true)} style={{position:'fixed',right:12,bottom:18,zIndex:10030,border:'1px solid #4fe3ffaa',borderRadius:999,padding:'12px 16px',background:'linear-gradient(135deg,#061c29,#171128)',color:'#4fe3ff',fontFamily:'monospace',fontWeight:950,fontSize:11,cursor:'pointer',boxShadow:'0 0 28px #4fe3ff33'}}>◈ JARVIS DELUXE</button>}
     {open&&<div role="dialog" aria-label="HoloGPT" style={{position:'fixed',inset:0,zIndex:12000,background:'rgba(1,3,10,.82)',backdropFilter:'blur(8px)',display:'flex',alignItems:'flex-end',justifyContent:'flex-end',padding:12}} onClick={()=>setOpen(false)}>
       <div onClick={e=>e.stopPropagation()} style={{width:'min(96vw,460px)',height:'min(82vh,690px)',background:'linear-gradient(160deg,#06101a,#080615)',border:'1px solid #4fe3ff77',borderRadius:22,display:'flex',flexDirection:'column',overflow:'hidden',boxShadow:'0 28px 90px #000d'}}>
-        <header style={{padding:'14px 16px',borderBottom:'1px solid #4fe3ff22',display:'flex',alignItems:'center',gap:10}}><div style={{fontSize:27}}>◈</div><div style={{flex:1}}><div style={{color:'#fff',fontWeight:950}}>HoloGPT</div><div style={{fontSize:9,color:statusColor,fontFamily:'monospace'}}>{status}{health?.provider?` · ${health.provider}`:''}</div></div><button aria-label="Close HoloGPT" onClick={()=>setOpen(false)} style={{background:'transparent',border:'1px solid #334',color:'#fff',borderRadius:'50%',width:34,height:34,cursor:'pointer'}}>×</button></header>
+        <header style={{padding:'14px 16px',borderBottom:'1px solid #4fe3ff22',display:'flex',alignItems:'center',gap:10}}><div style={{fontSize:27}}>◈</div><div style={{flex:1}}><div style={{color:'#fff',fontWeight:950}}>JARVIS DELUXE · HoloGPT</div><div style={{fontSize:9,color:statusColor,fontFamily:'monospace'}}>{status}{health?.provider?` · ${health.provider}`:''}</div></div><button aria-label="Close HoloGPT" onClick={()=>setOpen(false)} style={{background:'transparent',border:'1px solid #334',color:'#fff',borderRadius:'50%',width:34,height:34,cursor:'pointer'}}>×</button></header>
+        <div aria-label="JARVIS Deluxe connections" style={{padding:'8px 12px',borderBottom:'1px solid #24404d',display:'grid',gap:7,fontSize:11,color:'#d7f7ff'}}>
+          <div style={{display:'flex',justifyContent:'space-between',gap:8,alignItems:'center',flexWrap:'wrap'}}>
+            <strong>JARVIS DELUXE</strong><span>AI: {jarvis.ai.toUpperCase()} · LIVEKIT: {jarvis.livekitConfigured?'CONFIGURED':'NOT CONNECTED'}</span>
+          </div>
+          <div style={{fontSize:10,color:'#9bc6d6'}}>Two-device live voice: NOT VERIFIED · Persona: simulated self-model, not proven consciousness.</div>
+          <div style={{display:'flex',gap:6,flexWrap:'wrap',alignItems:'center'}}>
+            {(['FAST','BALANCED','DEEP'] as const).map(mode=><button key={mode} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:jarvis-deluxe-preferences',{detail:{mode}}))} style={{minHeight:44,minWidth:75,padding:'6px 9px',borderRadius:9,border:jarvis.mode===mode?'1px solid #4fe3ff':'1px solid #375062',background:jarvis.mode===mode?'#0e3547':'#0b1720',color:'#fff',fontSize:11}}>{mode}</button>)}
+            <button onClick={()=>window.dispatchEvent(new Event('tryamm:jarvis-deluxe-refresh'))} style={{minHeight:44,padding:'6px 12px',borderRadius:9,background:'#16384a',color:'#fff',border:'1px solid #4b91a6'}}>CHECK CONNECTIONS</button>
+          </div>
+          <label>VOICE PREFERENCE <select aria-label="JARVIS Deluxe voice preference" value={jarvis.voice} onChange={e=>window.dispatchEvent(new CustomEvent('tryamm:jarvis-deluxe-preferences',{detail:{voice:e.target.value}}))} style={{marginLeft:7,minHeight:44,background:'#112c3b',color:'#fff',borderRadius:8,padding:'6px 9px'}}>
+            <option value="device-default">Device default</option><option value="british">British (if available)</option><option value="african-american">African American (if available)</option><option value="authorized-custom">Authorized custom (setup required)</option>
+          </select></label>
+        </div>
         {health?.degraded&&<div style={{margin:'10px 12px 0',padding:'9px 10px',border:'1px solid #e8b94455',borderRadius:11,background:'#e8b9440d',fontSize:10,color:'#ffe281',lineHeight:1.45}}>Generative AI is not connected on this deployment yet. Holo navigation remains usable and HoloGPT now fails softly instead of showing a raw runtime-error message.</div>}
         <div style={{display:'grid',gridTemplateColumns:'repeat(5,minmax(0,1fr))',gap:5,padding:'9px 12px 0'}}>
           {([['auto','AUTO'],['holo','HOLO'],['oracle','ORACLE'],['old-web','OLD WEB'],['historical','HISTORY']] as const).map(([id,label])=><button key={id} onClick={()=>setSourceMode(id)} style={{minHeight:34,borderRadius:9,border:sourceMode===id?'1px solid #4fe3ff':'1px solid #253647',background:sourceMode===id?'#0d3043':'#091019',color:'#dffaff',fontSize:8,fontWeight:950}}>{label}</button>)}
