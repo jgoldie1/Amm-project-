@@ -40,3 +40,25 @@ process.env.TRYAMM_EDGE_ORIGIN_SHIELD_ENFORCE='true'
   assert.equal(res.statusCode,403)
 }
 console.log('TRYAMM Origin Shield staged enforcement contract: PASS')
+
+// With enforcement enabled, an otherwise valid signed request cannot be replayed
+// within the same process. A different unique ID still succeeds.
+process.env.TRYAMM_EDGE_ORIGIN_SECRET='test-secret'
+{
+  const stamp=Date.now()
+  const signed=(id)=>{
+    const payload=Buffer.from('{"action":"read"}')
+    const hash=crypto.createHash('sha256').update(payload).digest('hex')
+    const sig=crypto.createHmac('sha256','test-secret').update(['POST','/api/checkout',String(stamp),id,hash].join('\\n')).digest('hex')
+    return {method:'POST',path:'/api/checkout',rawBody:payload,headers:{
+      'x-tryamm-edge-timestamp':String(stamp),'x-tryamm-edge-request-id':id,'x-tryamm-edge-signature':sig
+    }}
+  }
+  const first=signed('replay-test-unique-01')
+  assert.equal(verifyOriginShield(first).ok,true)
+  assert.equal(verifyOriginShield(first).reason,'replayed-or-overloaded-request')
+  assert.equal(verifyOriginShield(signed('replay-test-unique-02')).ok,true)
+}
+delete process.env.TRYAMM_EDGE_ORIGIN_SECRET
+console.log('TRYAMM Origin Shield local signed-request replay guard: PASS')
+
