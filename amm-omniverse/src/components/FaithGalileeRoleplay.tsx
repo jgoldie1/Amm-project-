@@ -1,4 +1,5 @@
 import {useEffect,useState,type CSSProperties} from 'react'
+import FaithGalileePlayfield from './FaithGalileePlayfield'
 
 type Moment='shore'|'boat'|'fishing'|'dialogue'|'reflection'
 type Question='calling'|'compassion'|'work'
@@ -47,6 +48,7 @@ export default function FaithGalileeRoleplay({onClose,onOpenScripture,onReturnSt
    <div aria-label="Roleplay scene" style={{minHeight:215,border:'2px solid #5e9caf',borderRadius:20,background:'linear-gradient(180deg,#233e58,#548696 60%,#174355 61%,#102c3e)',textAlign:'center',display:'grid',placeItems:'center',padding:20}}>
     <div><div style={{fontSize:56}} aria-hidden="true">{data.moment==='boat'||data.moment==='fishing'?'⛵':data.moment==='dialogue'?'📖':data.moment==='reflection'?'🕊️':'🌅'}</div><h2 style={{fontSize:23,margin:'8px 0'}}>{data.moment==='shore'?'The Galilee shoreline':data.moment==='boat'?'Board a reconstructed fishing boat':data.moment==='fishing'?'Cast a fishing net':data.moment==='dialogue'?'Ask a scripture-guided question':'Reflection and return'}</h2><p style={{margin:0}}>Fictional catch progress: {data.fishCaught} / 3</p></div>
    </div>
+   <FaithGalileePlayfield onReach={go}/>
    <nav aria-label="Time machine stages" style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(140px,1fr))',gap:8}}>
    {([{id:'shore',label:'Explore shore'},{id:'boat',label:'Board boat'},{id:'fishing',label:'Go fishing'},{id:'dialogue',label:'Talk / study'},{id:'reflection',label:'Reflect'}] as {id:Moment;label:string}[]).map(x=><button key={x.id} style={{...button,background:data.moment===x.id?'#386875':'#18374a'}} aria-pressed={data.moment===x.id} onClick={()=>go(x.id)}>{x.label}</button>)}</nav>
    {data.moment==='fishing'&&<button style={{...button,background:'#2a6358'}} onClick={cast}>{data.fishCaught>=3?'Fishing completed':'CAST NET · CATCH FISH'}</button>}
