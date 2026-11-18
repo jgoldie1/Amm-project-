@@ -34,6 +34,7 @@ export const REQUIRED_KINGDOM_STUDY_BOOKS=[
 export const FAITH_BOOK_SEARCH_ALIASES=new Map<string,string>([
  ['ester','Esther'],['book of ester','Esther'],['book of esther','Esther'],
  ['jubilees','Jubilee'],['book of jubilee','Jubilee'],['book of jubilees','Jubilee'],
+ ['tobias','Tobit'],['book of tobias','Tobit'],['tobit','Tobit'],['book of tobit','Tobit'],
 ])
 
 export const normalizeFaithBookQuery=(value:string)=>{
@@ -168,6 +169,13 @@ export const FEATURED_FAITHVERSE_BOOKS=[
   sourceDisplayTitle:'Jubilee',
   lanes:['Ethiopian Orthodox Tewahedo canon metadata'] as const,
   note:'Jubilees is studied through the Ethiopian-canon lane. It is not relabeled as a KJV 1611 Apocrypha book.'
+ },
+ {
+  id:'tobit',
+  title:'Tobit (Tobias)',
+  aliases:['Tobit','Tobias','Book of Tobit','Book of Tobias'] as const,
+  lanes:['KJV 1611 Apocrypha metadata','Ethiopian Orthodox Tewahedo canon metadata'] as const,
+  note:'Tobit is known as Tobias in some historical settings. The ancient story includes Tobit, his son Tobias and Raphael. A complete verified edition text is still required.'
  },
 ] as const
 
