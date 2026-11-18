@@ -36,8 +36,10 @@ export default function StreetVerseCoreGameplayDock(){
   },[])
 
   const missionAction=()=>{
+    // Existing first-journey flow expects this quick-start event; preserve the cinematic selector too.
+    dispatchEvent(new CustomEvent('tryamm:streetverse-first-journey-start',{detail:{source:'streetverse-core-dock',requestedMissionId:mission?.id||null}}))
     dispatchEvent(new CustomEvent('tryamm:streetverse-cinematic-mission-open',{detail:{missionId:mission?.id,source:'streetverse-core-dock'}}))
-    setMessage('SCRIPTED MISSION SELECTOR OPENED')
+    setMessage('MISSION START REQUESTED')
   }
 
   const repair=()=>{
