@@ -139,7 +139,7 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
         }
       }
       setConnected(true)
-      window.dispatchEvent(new CustomEvent('tryamm:live-session',{detail:{type:pkMode?'pk':'live',roomName:session.room,role:session.role,participant:session.participant,connected:true}}))
+      window.dispatchEvent(new CustomEvent('tryamm:live-session',{detail:{type:pkMode?'pk':'live',roomId:session.room,roomName:session.room,title,source:'tryamm-live',live:true,role:session.role,participant:session.participant,connected:true}}))
       if(pkMode)window.dispatchEvent(new CustomEvent('tryamm:pk-start',{detail:{mode:'livekit',roomName:session.room,participant:session.participant,role:session.role}}))
     } catch (e: any) {
       setError(e.message || 'Could not join LIVE room')
@@ -154,7 +154,7 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
     stageRef.current?.replaceChildren()
     setConnected(false)
     setParticipants(0)
-    window.dispatchEvent(new CustomEvent('tryamm:live-session-end',{detail:{roomName,role}}))
+    window.dispatchEvent(new CustomEvent('tryamm:live-session-end',{detail:{roomId:roomName,roomName,role}}))
     if(pkMode)window.dispatchEvent(new CustomEvent('tryamm:pk-end',{detail:{roomName,role,reason:'leave'}}))
   }
 
