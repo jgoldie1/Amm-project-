@@ -1,4 +1,5 @@
-import {useEffect,useMemo,useState,type CSSProperties} from 'react'
+import {lazy,Suspense,useEffect,useMemo,useState,type CSSProperties} from 'react'
+const FaithVerseWaterWalk3D=lazy(()=>import('./FaithVerseWaterWalk3D'))
 import FaithVerseYeshuaPortrait from './FaithVerseYeshuaPortrait'
 import {MIRACLE_SCENES,miracleById,sceneEvidence,type MiracleStage,type MiracleScene} from '../data/FaithVerseMiraclesCatalog'
 
@@ -32,6 +33,7 @@ export default function FaithVerseMiraclesTheater({onClose,onOpenBible,onReturnT
  const [filter,setFilter]=useState('All')
  const [captions,setCaptions]=useState(true)
  const [motion,setMotion]=useState(false)
+ const [show3D,setShow3D]=useState(false)
  const [notice,setNotice]=useState('Scripture-guided miracle scenes are devotional reconstructions, not historical footage or actual divine intervention.')
  const scene=miracleById(sceneId)||MIRACLE_SCENES[0]
  const stage=STAGES[stageIndex]
@@ -69,7 +71,8 @@ export default function FaithVerseMiraclesTheater({onClose,onOpenBible,onReturnT
    <label htmlFor="faith-miracle-coop-role">Choose a role in this chapter</label>
    <select id="faith-miracle-coop-role" style={button} value={scene.cast.includes(playerRole)?playerRole:'witness'} onChange={e=>{setPlayerRole(e.target.value);setNotice('Local role selection: '+e.target.value+'. Live multiplayer/co-op casting is not connected yet.')}}><option value="witness">Witness / learner</option>{scene.cast.map(x=><option key={x} value={x}>{x} (educational roleplay)</option>)}</select>
    <p style={{fontSize:12,color:'#d1dee0',margin:0}}>Co-op preparation: individual characters and participant roles are cataloged, but remote players, authoritative sessions and 3D animated performances are still awaiting integration.</p>
-   <StageVisual scene={scene} stage={stage} motion={motion}/>
+   {scene.effect==='walk-water'&&<button style={button} aria-pressed={show3D} onClick={()=>setShow3D(x=>!x)}>{show3D?'Return to 2D':'TRY 3D SKELETAL WATER WALK (PROTOTYPE)'}</button>}
+   {show3D&&scene.effect==='walk-water'?<Suspense fallback={<p>Loading lightweight 3D renderer…</p>}><FaithVerseWaterWalk3D active={motion}/></Suspense>:<StageVisual scene={scene} stage={stage} motion={motion}/>}
    <h3 style={{fontSize:22,margin:'4px 0'}}>{scene.title} · {stage==='event'?'Witness the account':stage[0].toUpperCase()+stage.slice(1)}</h3>
    {captions&&<p role="status" aria-live="polite" style={{fontSize:16,lineHeight:1.7,margin:0,borderLeft:'4px solid #d3b77d',padding:'8px 12px'}}>{narrative}</p>}
    <p style={{fontSize:14,margin:0,color:'#dce4e6'}}><strong>Scripture:</strong> {scene.primary}{scene.parallel.length?', compare '+scene.parallel.join(', '):''}. <strong>Setting:</strong> {scene.setting}.</p>
