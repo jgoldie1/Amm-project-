@@ -25,6 +25,15 @@ async function storeAsset(name:string,bytes:ArrayBuffer){
   })
  }finally{db.close()}
 }
+export async function storeLocalCastAsset(id:string,bytes:ArrayBuffer):Promise<void>{
+ const entry=CAST_FILES.find(x=>x.id===id)
+ if(!entry)throw Error('Unknown StreetVerse character')
+ if(!checkGLB(bytes))throw Error('Invalid GLB file')
+ await storeAsset(entry.file,bytes)
+ const stored=await readLocalCastAsset(id)
+ if(!stored||stored.byteLength!==bytes.byteLength)throw Error('Device storage verification failed')
+}
+
 export async function readLocalCastAsset(id:string):Promise<ArrayBuffer|null>{
  const entry=CAST_FILES.find(x=>x.id===id)
  if(!entry||typeof indexedDB==='undefined')return null
