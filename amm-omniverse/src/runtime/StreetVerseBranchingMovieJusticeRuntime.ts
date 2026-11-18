@@ -78,6 +78,6 @@ export function chooseFilm(state:FilmState,key:'A'|'B'|'C'|'D'):FilmState{
 export function validFilmState(value:unknown):value is FilmState{
  if(!value||typeof value!=='object')return false
  const s=value as Partial<FilmState>
- return typeof s.scene==='string'&&Object.hasOwn(FILM_SCENES,s.scene)&&Array.isArray(s.history)&&s.history.length<=40
+ return typeof s.scene==='string'&&Object.prototype.hasOwnProperty.call(FILM_SCENES,s.scene)&&Array.isArray(s.history)&&s.history.length<=40
  &&['community','caseEvidence','rightsAwareness','services'].every(k=>Number.isFinite((s as unknown as Record<string,unknown>)[k])&&Number((s as unknown as Record<string,unknown>)[k])>=0)
 }
