@@ -108,6 +108,8 @@ jobs:
         run: node tests/streetverse-food-economy-contract.mjs
       - name: Verify BJ rescue mission
         run: node tests/streetverse-bj-rescue-contract.mjs
+      - name: Verify parkour, movie ABCD decisions and justice roleplay
+        run: node tests/streetverse-parkour-movie-justice-contract.mjs
       - name: Verify BJ injury reactions
         run: node tests/streetverse-bj-injury-reaction-contract.mjs
       - name: Verify BJ injury and After Dark consent contracts
