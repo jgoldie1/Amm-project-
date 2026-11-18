@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js'
 import {STREETVERSE_RECOVERED_CAST,recoveredCastUrl} from '../data/StreetVerseRecoveredCastAssets'
+import {createSharedCastMedicalRuntime} from './StreetVerseSharedCastMedicalRuntime'
 
 export type RecoveredCastRole='jacobie'|'lateasia'
 type LoadedCast={root:THREE.Object3D;mixer:THREE.AnimationMixer|null;idle:THREE.AnimationAction|null;dispose:()=>void}
@@ -57,6 +58,7 @@ async function loadRecoveredCharacter(role:RecoveredCastRole):Promise<LoadedCast
 export function mountRecoveredStreetVerseCast(scene:THREE.Scene){
  let disposed=false
  const characters:LoadedCast[]=[]
+ const medical=createSharedCastMedicalRuntime()
  for(const role of ['jacobie','lateasia'] as const){
   void loadRecoveredCharacter(role).then(character=>{
    if(!character)return
@@ -64,11 +66,12 @@ export function mountRecoveredStreetVerseCast(scene:THREE.Scene){
    character.root.position.set(...CAST_COORDINATES[role])
    // Preserve native character armature and scale; do not fabricate body morph targets.
    scene.add(character.root);characters.push(character)
+   medical.register(STREETVERSE_RECOVERED_CAST[role].id,character.root)
   })
  }
  let lastMs=0
  return {
-  tick(nowMs:number){const dt=lastMs?Math.min(.1,Math.max(0,(nowMs-lastMs)/1000)):0;lastMs=nowMs;for(const character of characters)character.mixer?.update(dt)},
-  dispose(){disposed=true;for(const character of characters)character.dispose();characters.length=0}
+  tick(nowMs:number){const dt=lastMs?Math.min(.1,Math.max(0,(nowMs-lastMs)/1000)):0;lastMs=nowMs;for(const character of characters)character.mixer?.update(dt);medical.tick(nowMs)},
+  dispose(){disposed=true;medical.dispose();for(const character of characters)character.dispose();characters.length=0}
  }
 }
