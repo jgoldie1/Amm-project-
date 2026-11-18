@@ -20,6 +20,8 @@ export default function CrossVerseClipCutter(){
   const [duration,setDuration]=useState(0)
   const [busy,setBusy]=useState(false)
   const [output,setOutput]=useState('')
+  const [exportShape,setExportShape]=useState<Shape>('vertical')
+  const [exportBytes,setExportBytes]=useState(0)
   const [message,setMessage]=useState('Choose a video you own or are authorized to edit. Files stay on this device.')
   const clearOutput=()=>{if(resultRef.current){URL.revokeObjectURL(resultRef.current);resultRef.current=null}setOutput('')}
   useEffect(()=>()=>{activeRef.current=false;if(sourceRef.current)URL.revokeObjectURL(sourceRef.current);if(resultRef.current)URL.revokeObjectURL(resultRef.current)},[])
@@ -108,8 +110,24 @@ export default function CrossVerseClipCutter(){
       recorder.stop()
       const blob=await finished
       const url=URL.createObjectURL(blob)
-      resultRef.current=url;setOutput(url)
-      setMessage('Clip exported locally. Download it below; no stream or public post was started.'+(audioTracks.length?' Audio included when browser capture allows it.':' Audio unavailable from this browser source.'))
+      try{
+        await new Promise<void>((resolve,reject)=>{
+          const check=document.createElement('video')
+          let settled=false
+          const timer=window.setTimeout(()=>{if(!settled){settled=true;check.src='';reject(new Error('Exported WebM could not be verified on this device'))}},10000)
+          check.onloadedmetadata=()=>{
+            if(settled)return
+            settled=true;clearTimeout(timer)
+            const ok=check.videoWidth===width&&check.videoHeight===height
+            check.src=''
+            ok?resolve():reject(new Error('Exported WebM dimensions do not match '+width+'×'+height))
+          }
+          check.onerror=()=>{if(settled)return;settled=true;clearTimeout(timer);check.src='';reject(new Error('Exported WebM playback metadata could not be decoded'))}
+          check.preload='metadata';check.src=url;check.load()
+        })
+      }catch(error){URL.revokeObjectURL(url);throw error}
+      resultRef.current=url;setOutput(url);setExportShape(shape);setExportBytes(blob.size)
+      setMessage('Local '+width+'×'+height+' WebM metadata validated. Download and play the file on your device before marking the device test complete.'+(audioTracks.length?' Audio capture requested.':' Audio unavailable from this browser source.'))
     }catch(e){
       if(started&&recorder?.state==='recording')recorder.stop()
       setMessage(e instanceof Error?e.message:'Clip export failed')
@@ -142,6 +160,10 @@ export default function CrossVerseClipCutter(){
     </div>
     <button type="button" disabled={!fileName||!duration||busy} onClick={()=>void exportClip()} style={{...button,marginTop:14,width:'100%'}}>{busy?'EXPORTING CLIP…':'GENERATE CLIP ON THIS DEVICE'}</button>
     <p role="status" aria-live="polite" style={{color:'#d4eaf4',fontSize:13}}>{message}</p>
-    {output&&<a href={output} download={'tryamm-crossverse-'+shape+'.webm'} style={{display:'block',textAlign:'center',padding:16,background:'#12563b',color:'#fff',borderRadius:12,fontWeight:900}}>DOWNLOAD YOUR CLIP</a>}
+    {output&&<div>
+      <p style={{fontSize:12,color:'#badfd8'}}>Encoded {exportShape==='vertical'?'9:16':'16:9'} · {(exportBytes/1024/1024).toFixed(1)} MB · metadata checked</p>
+      <video controls playsInline preload="metadata" src={output} aria-label="Verify exported CrossVerse clip" style={{width:'100%',maxHeight:260,background:'#000',borderRadius:12}}/>
+      <a href={output} download={'tryamm-crossverse-'+exportShape+'.webm'} style={{display:'block',textAlign:'center',padding:16,background:'#12563b',color:'#fff',borderRadius:12,fontWeight:900}}>DOWNLOAD YOUR CLIP</a>
+    </div>}
   </section>
 }
