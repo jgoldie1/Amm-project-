@@ -1,0 +1,62 @@
+name: FaithVerse Public-Domain Full Bible Ingest and EPUB QA
+on:
+  pull_request:
+    paths:
+      - 'amm-omniverse/scripts/faithverse_import_web.py'
+      - 'amm-omniverse/tests/test_faithverse_import_web.py'
+      - 'amm-omniverse/src/components/FaithVerseWebReader.tsx'
+      - 'amm-omniverse/src/components/FaithVerseBibleHub.tsx'
+      - 'amm-omniverse/src/runtime/FaithVerseBibleEdition.ts'
+      - '.github/workflows/faithverse-full-bible-source.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-and-package-full-web:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run source parser, completeness guard and EPUB structure unit tests
+        run: python3 amm-omniverse/tests/test_faithverse_import_web.py
+      - name: Download official public-domain World English Bible USFM and generate 66-book asset bundle
+        run: python3 amm-omniverse/scripts/faithverse_import_web.py --download
+      - name: Independently verify edition counts and no Ethiopian mislabel
+        run: |
+          python3 - <<'PY'
+          import json, pathlib
+          root=pathlib.Path('amm-omniverse/public/faithverse-bibles/engwebp')
+          m=json.loads((root/'manifest.json').read_text())
+          assert m['bookCount']==66 and m['chapterCount']==1189 and 30000<=m['verseCount']<=33000
+          assert len(m['books'])==66 and 'Ethiopian' not in m['canon']
+          assert (root/m['epub']).is_file()
+          assert all((root/x['file']).is_file() for x in m['books'])
+          for x in m['books']:
+              book=json.loads((root/x['file']).read_text())
+              assert book['id']==x['id'] and len(book['chapters'])==x['chapterCount']
+              assert sum(map(len,book['chapters']))==x['verseCount']
+          print('FAITHVERSE FULL WEB SOURCE QA PASS',m['bookCount'],m['chapterCount'],m['verseCount'],m['sourceArchiveSHA256'])
+          PY
+      - name: Verify browser TypeScript and Vite output with full Bible bundled
+        working-directory: amm-omniverse
+        run: |
+          npm ci
+          npm run typecheck
+          npx vite build
+      - name: Archive complete Bible reader data and EPUB for approved release pipeline
+        uses: actions/upload-artifact@v4
+        with:
+          name: faithverse-world-english-bible-66-books-epub
+          path: amm-omniverse/public/faithverse-bibles/engwebp/
+          retention-days: 30
+      - name: Archive Vite built preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: faithverse-web-reader-vite-preview
+          path: amm-omniverse/dist/
+          retention-days: 7
