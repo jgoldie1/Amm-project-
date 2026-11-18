@@ -13,7 +13,7 @@ for(const label of ['hips','spine','chest','head','leftHand','rightHand','leftLo
 }
 assert.match(rig,/skinWeightErrors/);assert.match(rig,/zeroWeightVertices/)
 assert.match(rig,/requireReviewedSkinWeights:true/);assert.match(rig,/requireClothingFitReview:true/)
-assert.match(rig,/setPose:\(pose:InjuryMotion/)
+assert.match(rig,/const setPose=\(pose:InjuryMotion/)
 assert.match(factory,/INJURY \+ RECOVERY ANIMATION RETARGET/)
 assert.match(factory,/MYCELIUM CHARACTER CONDITION BRIDGE/)
 assert.match(factory,/futureCharacterRequiresRigQualityGate:true/)
