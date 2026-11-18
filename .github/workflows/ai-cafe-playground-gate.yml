@@ -6,6 +6,9 @@ on:
       - 'amm-omniverse/src/components/AICafePlayground.tsx'
       - 'amm-omniverse/src/components/AICafeRestaurant.tsx'
       - 'amm-omniverse/tests/ai-cafe-playground-integration.test.mjs'
+      - 'amm-omniverse/src/runtime/AICafeSenseLiveStatusRuntime.ts'
+      - 'amm-omniverse/src/components/AICafeSenseLivePanel.tsx'
+      - 'amm-omniverse/tests/ai-cafe-sense-live-status.test.mjs'
       - '.github/workflows/ai-cafe-playground-gate.yml'
   workflow_dispatch:
 permissions:
@@ -26,6 +29,6 @@ jobs:
           cache-dependency-path: amm-omniverse/package-lock.json
       - run: npm ci --ignore-scripts --no-audit --no-fund
       - name: AI Cafe Playground practice and JARVIS tests
-        run: node --test tests/ai-cafe-playground-integration.test.mjs
+        run: node --test tests/ai-cafe-playground-integration.test.mjs tests/ai-cafe-sense-live-status.test.mjs
       - name: TypeScript
         run: npm run typecheck
