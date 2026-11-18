@@ -10,10 +10,16 @@ const btn:React.CSSProperties={minHeight:54,background:'#17465b',color:'white',p
 export default function StreetVerseThreeCastAssetAuditHUD(){
  const [open,setOpen]=useState(false)
  const [loading,setLoading]=useState(false)
+ const [selectedActor,setSelectedActor]=useState<'bj-stubbs'|'jacobie-stubbs'|'lateasia-monroe'>('jacobie-stubbs')
+ const [actionLog,setActionLog]=useState<Array<{actor?:string;action?:string;status:string;reason?:string;matchingMotionClip?:boolean;time:string}>>([])
  const [results,setResults]=useState<CastResult[]>([])
  const [stageResult,setStageResult]=useState<{status:string;results?:Array<{name:string;status:string;error?:string}>;allThreeMounted?:boolean}|null>(null)
  useEffect(()=>{
-  const onResult=(e:Event)=>setStageResult((e as CustomEvent<{status:string;results?:Array<{name:string;status:string;error?:string}>;allThreeMounted?:boolean}>).detail)
+  const onResult=(e:Event)=>{
+   const d=(e as CustomEvent<{status:string;actor?:string;action?:string;reason?:string;matchingMotionClip?:boolean;results?:Array<{name:string;status:string;error?:string}>;allThreeMounted?:boolean}>).detail
+   if(['action-started','action-blocked','action-complete'].includes(d.status))setActionLog(old=>[...old.slice(-39),{actor:d.actor,action:d.action,status:d.status,reason:d.reason,matchingMotionClip:d.matchingMotionClip,time:new Date().toISOString()}])
+   setStageResult(d)
+  }
   window.addEventListener('tryamm:streetverse-cast-stage-result',onResult)
   return()=>window.removeEventListener('tryamm:streetverse-cast-stage-result',onResult)
  },[])
@@ -38,8 +44,9 @@ export default function StreetVerseThreeCastAssetAuditHUD(){
   }
   setResults(next);setLoading(false)
  }
+ const move=(action:'walk'|'run'|'jump'|'hop'|'vault')=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-cast-stage-action',{detail:{actor:selectedActor,action}}))
  const exportReport=()=>{
-  const report={schema:'streetverse.three-cast.asset-check.v1',results,allAssetsVerified:results.length===3&&results.every(r=>r.status==='passed'),visualAppearanceCertified:false,deviceAnimationCertified:false,exportedAt:new Date().toISOString()}
+  const report={schema:'streetverse.three-cast.parkour-check.v2',results,stageResult,actionLog,selectedActor,allAssetsVerified:results.length===3&&results.every(r=>r.status==='passed'),visualAppearanceCertified:false,deviceAnimationCertified:false,exportedAt:new Date().toISOString()}
   const url=URL.createObjectURL(new Blob([JSON.stringify(report,null,2)],{type:'application/json'}))
   const a=document.createElement('a');a.href=url;a.download='StreetVerse_Three_Cast_Asset_Check.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)
  }
@@ -52,6 +59,10 @@ export default function StreetVerseThreeCastAssetAuditHUD(){
     {results.map(r=><div key={r.id} style={{borderBottom:'1px solid #33546a',paddingBottom:7,fontSize:13}}><b>{r.name}: {r.status.toUpperCase()}</b><div>{r.meshes} meshes · {r.skins} skinned meshes · {r.clips.length} animations</div>{r.error&&<div>{r.error}</div>}</div>)}
     <button style={btn} disabled={!results.length||loading} onClick={exportReport}>EXPORT CHARACTER REPORT</button>
     <button style={btn} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-cast-stage-open'))}>LOAD ALL THREE IN 3D SCENE</button>
+    <label>Choose character<select style={{width:'100%',minHeight:50}} value={selectedActor} onChange={e=>setSelectedActor(e.target.value as typeof selectedActor)}><option value='bj-stubbs'>BJ Stubbs</option><option value='jacobie-stubbs'>Jacobie Stubbs</option><option value='lateasia-monroe'>LaTeasia Monroe</option></select></label>
+    <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:7}}>{(['walk','run','jump','hop','vault'] as const).map(action=><button key={action} style={btn} onClick={()=>move(action)}>{action.toUpperCase()}</button>)}<button style={btn} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-cast-stage-reset'))}>RESET</button></div>
+    <small>Jacobie obstacle vault requires a detected low hurdle, JumpRun clip and clear landing. BJ/LaTeasia movement uses available clips; missing jump clips use root-motion placeholders and are not certified stunt animation.</small>
+    {actionLog.length>0&&<div role='status' style={{fontSize:12}}>Last action: {actionLog[actionLog.length-1].actor} · {actionLog[actionLog.length-1].action} · {actionLog[actionLog.length-1].status}{actionLog[actionLog.length-1].reason?' — '+actionLog[actionLog.length-1].reason:''}</div>}
     {stageResult&&<div role="status" aria-live="polite"><strong>3D scene: {stageResult.status}</strong>{stageResult.results?.map(x=><div key={x.name}>{x.name}: {x.status}{x.error?' — '+x.error:''}</div>)}{stageResult.status==='done'&&<div>{stageResult.allThreeMounted?'Three characters mounted; visual device acceptance still pending.':'One or more original GLBs not installed or failed to decode.'}</div>}</div>}
    </section>}
  </aside>
