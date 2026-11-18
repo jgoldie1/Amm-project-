@@ -4,7 +4,6 @@ import StreetVerseWeatherSync from './StreetVerseWeatherSync'
 import StreetVerseMobileGameShell from './StreetVerseMobileGameShell'
 
 const StreetVerseMobileWorld=lazy(()=>import('./StreetVerseMobileWorld'))
-const StreetVerseLivingWorld=lazy(()=>import('./StreetVerseLivingWorld'))
 
 function isMobileDevice(){if(typeof navigator==='undefined')return false;return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent||'')}
 function hasUsableWebGL(){
@@ -60,7 +59,6 @@ export default function StreetVersePlayableWorld({onClose}:{onClose:()=>void}){
  const safe=useMemo(shouldUseStreetVerseSafeMode,[])
  // The shared mobile-lite 3D renderer owns the visible joystick and BJ V15
  // recovery UI. Use it for Chromebook too instead of the desktop-only world.
- const mobile=useMemo(isMobileDevice,[])
- if(safe&&!forceFull3D)return <><StreetVerseWeatherSync/><StreetVerseSafeWorld onClose={onClose}/><StreetVerseMobileGameShell onClose={onClose}/></>
+  if(safe&&!forceFull3D)return <><StreetVerseWeatherSync/><StreetVerseSafeWorld onClose={onClose}/><StreetVerseMobileGameShell onClose={onClose}/></>
  return <><StreetVerseWeatherSync/><StreetVerseWorldBoundary onClose={onClose}><MobileRuntimeGuard onClose={onClose}><Suspense fallback={<MobileLoading/>}><StreetVerseMobileWorld onClose={onClose}/></Suspense></MobileRuntimeGuard></StreetVerseWorldBoundary></>
 }
