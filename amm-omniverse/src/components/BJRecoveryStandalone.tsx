@@ -1,5 +1,5 @@
 import {useEffect,useState} from 'react'
-import {importStreetVerseCharacterFiles,readLocalCastAsset} from '../runtime/StreetVerseCharacterLocalRecovery'
+import {readLocalCastAsset,storeLocalCastAsset} from '../runtime/StreetVerseCharacterLocalRecovery'
 
 export default function BJRecoveryStandalone(){
   const [status,setStatus]=useState('Choose the corrected BJ V15 GLB below.')
@@ -14,9 +14,10 @@ export default function BJRecoveryStandalone(){
     if(!files?.length)return
     setBusy(true);setStatus('Saving BJ V15 to this device…')
     try{
-      const results=await importStreetVerseCharacterFiles(files)
-      const bj=results.find(x=>x.id==='bj-stubbs'&&x.stored)
-      if(!bj)throw new Error('That file was not recognized as the BJ V15 recovery GLB.')
+      const file=files[0]
+      const bytes=await file.arrayBuffer()
+      if(!file.name.toLowerCase().endsWith('.glb'))throw new Error('Select the BJ V15 .glb file directly.')
+      await storeLocalCastAsset('bj-stubbs',bytes)
       setReady(true)
       setStatus('BJ V15 SAVED ON THIS DEVICE. Press OPEN STREETVERSE CORE.')
     }catch(error){
