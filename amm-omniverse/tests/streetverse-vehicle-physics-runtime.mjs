@@ -35,6 +35,7 @@ assert.deepEqual(repeated,advance(newVehicle('car'),input(1,0,.2)),'physics must
 const world=fs.readFileSync(path.resolve('src/components/StreetVerseMobileWorld.tsx'),'utf8')
 for(const part of ["makeMotorcycle=()","starterMotorcycle=makeMotorcycle()","vehicleDynamics=newVehicle","stepVehicle(vehicleDynamics","collisionStop(next)","vehicleKind==='motorcycle'","activeCar.rotation.z=isMotorcycle","oneHandDriveAssist"])
  assert.ok(world.includes(part),'missing StreetVerse live integration: '+part)
+assert.ok(world.includes("from '../runtime/StreetVerseVehicleDynamics.ts'"),'Vite must resolve the live TypeScript physics core explicitly, not the independent .mjs simulator')
 const engine=fs.readFileSync(path.resolve('src/components/StreetVerseGamepadBridge.tsx'),'utf8')
 assert.ok(engine.includes('navigator.getGamepads'),'standard gamepad API must remain supported')
 console.log('PASS: car/motorcycle physics, surface grip, reverse, leaning, collision, determinism, live integration, controller and accessibility')
