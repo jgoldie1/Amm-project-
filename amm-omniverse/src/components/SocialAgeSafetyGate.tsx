@@ -1,4 +1,5 @@
 import {useEffect,useMemo,useState} from 'react'
+import {getAccessToken} from '../services/supabaseClient'
 
 export type SocialIntent='live'|'pk'
 export type AudienceBand='under-12'|'age-12'|'teen'|'adult'
@@ -56,13 +57,15 @@ export default function SocialAgeSafetyGate({open,intent,onAllow,onClose}:{open:
   const [birthDate,setBirthDate]=useState('')
   const [error,setError]=useState('')
   const [confirmed,setConfirmed]=useState(false)
+  const [checkingHost,setCheckingHost]=useState(false)
+  const [hostNote,setHostNote]=useState('')
 
   useEffect(()=>{
     if(!open)return
     const stored=readStoredAudienceBand()
     setBand(stored)
     setConfirmed(stored?readAck(stored,intent):false)
-    setError('')
+    setError('');setHostNote('')
   },[open,intent])
 
   const copy=useMemo(()=>intent==='pk'?{
@@ -85,11 +88,26 @@ export default function SocialAgeSafetyGate({open,intent,onAllow,onClose}:{open:
     setError('')
   }
 
-  const continueSafe=()=>{
-    if(!band||band==='under-12')return
+  const continueSafe=async()=>{
+    if(!band||band==='under-12'||checkingHost)return
+    setCheckingHost(true)
+    let canHost=false
+    if(band!=='age-12'){
+      try{
+        const token=await getAccessToken()
+        if(token){
+          const response=await fetch('/api/live/host-eligibility',{cache:'no-store',headers:{Authorization:'Bearer '+token}})
+          if(response.ok){
+            const result=await response.json()
+            canHost=result.canHost===true
+          }
+        }
+      }catch{/* Viewer access does not require publisher eligibility. */}
+    }
     saveAck(band,intent)
-    const youthViewerOnly=band==='age-12'||band==='teen'
-    onAllow({band,youthViewerOnly})
+    if(!canHost&&band!=='age-12')setHostNote('Viewer mode: publishing requires verified host approval. Academy and gameplay remain available.')
+    setCheckingHost(false)
+    onAllow({band,youthViewerOnly:!canHost})
   }
 
   const openSchool=()=>{
@@ -132,14 +150,14 @@ export default function SocialAgeSafetyGate({open,intent,onAllow,onClose}:{open:
           <p style={{margin:'7px 0 0',lineHeight:1.45}}>You can watch age-appropriate LIVE/PK rooms. Camera, microphone, freeform personal-information exchange, paid gifts/tips and hosting stay off in this release until adult-managed social controls are verified.</p>
         </div>
         <div style={safetyBox}><b>Stay safe online.</b> Do not share your full name, address, school, phone number, passwords or exact location. Leave, block or report anyone who makes you uncomfortable.</div>
-        <button onClick={continueSafe} style={primary}>I understand • continue as viewer</button>
+        <button onClick={()=>void continueSafe()} style={primary}>I understand • continue as viewer</button>
         <button onClick={openSchool} style={smallButton}>OPEN K–12 CREATOR LEARNING</button>
         <button onClick={resetAge} style={linkButton}>Correct date of birth</button>
       </div>}
 
       {(band==='teen'||band==='adult')&&<div style={{marginTop:18}}>
-        <div style={safetyBox}><b>{band==='teen'?'Teen viewer mode':'LIVE/PK reminder'}</b><br/>{band==='teen'?'Teen Creator LIVE is part of the existing Agency and Family plan. Until verified guardian approval, moderation and server-side host authorization are connected, this public LIVE gate allows age-appropriate viewing. Creator Academy, school simulations, StreetVerse gameplay and local recording remain separate from public broadcasting.':'Protect personal information, use block/report controls when needed, and remember that online interactions can create real-world risk.'}</div>
-        <button onClick={continueSafe} style={primary}>{band==='teen'?'Continue as viewer':confirmed?'Continue':'I understand • continue'}</button>
+        <div style={safetyBox}><b>{band==='teen'?'Teen viewer mode':'LIVE/PK reminder'}</b><br/>{band==='teen'?'Teen Creator LIVE is part of Agency and Family. Verified, guardian-approved and moderated teen creators can host. Otherwise, age-appropriate viewing remains available. Creator Academy, school simulations, StreetVerse gameplay and local recording stay available without public broadcasting.':'Protect personal information, use block/report controls when needed, and remember that online interactions can create real-world risk.'}</div>
+        <button disabled={checkingHost} onClick={()=>void continueSafe()} style={primary}>{checkingHost?'Checking verified host permission…':band==='teen'?'JOIN LIVE · VERIFIED TEEN HOST OR VIEWER':confirmed?'Continue':'I understand • continue'}</button>
         {band==='teen'&&<button onClick={openSchool} style={smallButton}>OPEN ALL AMERICAN UNIVERSITY · TEEN CREATOR ACADEMY</button>}
         <button onClick={resetAge} style={linkButton}>Correct date of birth</button>
       </div>}
