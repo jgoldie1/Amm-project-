@@ -37,6 +37,7 @@ must(world.includes('aria-label="Open StreetVerse quick menu"'),'compact mobile 
 must(world.includes("target==='left-hand'||target==='right-hand'"),'one-hand side selection must remain available in compact menu')
 must(world.includes("tryamm:streetverse-control-mode"),'one-hand control-mode event missing')
 must(world.includes("if(target==='travel')")&&world.includes("tryamm:west-side-route-request"),'TAYLOR / UIC compact menu must route into the real world')
+must(!world.includes("document.querySelector<HTMLButtonElement>('[data-streetverse-travel]')"),'compact Taylor/UIC action must not invoke unrelated legacy travel control')
 must(world.includes("if(target==='retail')")&&world.includes('[data-streetverse-living-stores] button[aria-expanded]'),'STORES compact menu must open the real mall')
 must(world.includes("if(target==='store')")&&world.includes("tryamm:streetverse-store-entry-request"),'ENTER STORE compact menu must trigger walkable storefront entry')
 must(world.includes("avatar.position.set(inside.x,0,inside.z)"),'ENTER STORE must actually move the player to the verified interior')
