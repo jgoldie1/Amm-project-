@@ -13,6 +13,8 @@ const AICommonsOnePush = lazy(() => import('./components/AICommonsOnePush'))
 const OmniCare360CareAccess = lazy(() => import('./components/OmniCare360CareAccess'))
 const TRYAMMComplianceCenter = lazy(() => import('./components/TRYAMMComplianceCenter'))
 const AllAmericanShowcaseHub = lazy(() => import('./components/AllAmericanShowcaseHub'))
+const SoulAscensionMobileStage = lazy(() => import('./components/SoulAscensionMobileStage'))
+const RaymondJarreauLaunchPreview = lazy(() => import('./components/RaymondJarreauLaunchPreview'))
 const AllAmericanFinancialAcademyHub = lazy(() => import('./components/AllAmericanFinancialAcademyHub'))
 const SportsRealm = lazy(() => import('./components/RealmScreens').then(m => ({ default: m.SportsRealm })))
 const MarketplaceRealm = lazy(() => import('./components/RealmScreens').then(m => ({ default: m.MarketplaceRealm })))
@@ -75,6 +77,8 @@ export default function App() {
   const [showOmniCare360, setShowOmniCare360] = useState(false)
   const [showCompliance, setShowCompliance] = useState(false)
   const [showAllAmericanShowcase, setShowAllAmericanShowcase] = useState(false)
+  const [showSoulAscensionStage, setShowSoulAscensionStage] = useState(false)
+  const [showRaymondLaunch, setShowRaymondLaunch] = useState(false)
   const [showFinancialAcademy, setShowFinancialAcademy] = useState(false)
   const [showPricing, setShowPricing] = useState(false)
   const [showHoloverse, setShowHoloverse] = useState(false)
@@ -240,6 +244,8 @@ export default function App() {
   ;(window as any).__showIsaiahTV = () => setShowOTT(true)
   ;(window as any).__showStarStudio = () => setShowStarStudio(true)
   ;(window as any).__showAllAmericanShowcase = () => setShowAllAmericanShowcase(true)
+  ;(window as any).__showSoulAscensionStage = () => setShowSoulAscensionStage(true)
+  ;(window as any).__showRaymondLaunch = () => setShowRaymondLaunch(true)
   ;(window as any).__showFinancialAcademy = () => setShowFinancialAcademy(true)
   ;(window as any).__showAICommons = () => setShowAICommons(true)
   ;(window as any).__showOmniCare360 = () => setShowOmniCare360(true)
@@ -362,7 +368,11 @@ export default function App() {
         {showOmniCare360 && <OmniCare360CareAccess onClose={() => setShowOmniCare360(false)} />}
         {showCompliance && <TRYAMMComplianceCenter onClose={() => setShowCompliance(false)} />}
         {showFinancialAcademy && <AllAmericanFinancialAcademyHub onClose={() => setShowFinancialAcademy(false)} onOpenUniversity={() => {setShowFinancialAcademy(false);setShowSchoolNetwork(true)}} />}
+        {showSoulAscensionStage && <SoulAscensionMobileStage onClose={() => setShowSoulAscensionStage(false)} onOpenStudio={() => {setShowSoulAscensionStage(false);setShowStarStudio(true)}} onOpenLive={() => {setShowSoulAscensionStage(false);setShowLive(true)}} />}
+        {showRaymondLaunch && <RaymondJarreauLaunchPreview onClose={() => setShowRaymondLaunch(false)} onOpenShowcase={() => {setShowRaymondLaunch(false);setShowAllAmericanShowcase(true)}} />}
         {showAllAmericanShowcase && <AllAmericanShowcaseHub onClose={() => setShowAllAmericanShowcase(false)} onOpen={target => {
+          if(target==='stage'){setShowAllAmericanShowcase(false);setShowSoulAscensionStage(true);return}
+          if(target==='raymond'){setShowAllAmericanShowcase(false);setShowRaymondLaunch(true);return}
           setShowAllAmericanShowcase(false)
           if(target==='studio') setShowStarStudio(true)
           if(target==='network') setShowOTT(true)
