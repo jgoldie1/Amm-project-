@@ -1,0 +1,31 @@
+name: AI Cafe Playground and JARVIS Gate
+on:
+  pull_request:
+    paths:
+      - 'amm-omniverse/src/runtime/AICafePlaygroundRuntime.ts'
+      - 'amm-omniverse/src/components/AICafePlayground.tsx'
+      - 'amm-omniverse/src/components/AICafeRestaurant.tsx'
+      - 'amm-omniverse/tests/ai-cafe-playground-integration.test.mjs'
+      - '.github/workflows/ai-cafe-playground-gate.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  playground-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: AI Cafe Playground practice and JARVIS tests
+        run: node --test tests/ai-cafe-playground-integration.test.mjs
+      - name: TypeScript
+        run: npm run typecheck
