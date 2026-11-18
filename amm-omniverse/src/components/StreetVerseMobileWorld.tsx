@@ -1380,8 +1380,9 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   const isMotorcycle=activeCar.userData.vehicleKind==='motorcycle'
   if(!vehicleDynamics)vehicleDynamics=newVehicle(isMotorcycle?'motorcycle':'car',activeCar.position.x,activeCar.position.z,activeCar.rotation.y)
   const surface:RoadSurface=weatherDriveMultiplier<.8?'wet':'dry'
-  const throttle=isMotorcycle?Math.max(0,cruise):cruise
-  const brake=isMotorcycle?Math.max(0,-cruise):0
+  const reverseRequested=!isMotorcycle&&cruise<-.05&&driveSpeed<=.15
+  const throttle=cruise>=0?cruise:reverseRequested?cruise:0
+  const brake=cruise<0&&!reverseRequested?Math.max(0,-cruise):0
   const next=stepVehicle(vehicleDynamics,{throttle,brake,steer:analogSteer},dt,surface,oneHandDriveAssist)
   const oldDriveX=activeCar.position.x,oldDriveZ=activeCar.position.z
   const nextX=clamp(next.x),nextZ=clamp(next.z)
