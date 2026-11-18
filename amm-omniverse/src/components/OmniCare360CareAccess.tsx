@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useState, type CSSProperties } from 'react'
 
 export default function OmniCare360CareAccess({ onClose }: { onClose: () => void }) {
   const [tab, setTab] = useState<'care' | 'partners' | 'access'>('care')
-  const button: React.CSSProperties = { minHeight: 54, borderRadius: 12, padding: '12px 16px', background: '#183b4a', border: '1px solid #4ebebd', color: 'white', fontSize: 17, fontWeight: 750, cursor: 'pointer' }
+  const button: CSSProperties = { minHeight: 54, borderRadius: 12, padding: '12px 16px', background: '#183b4a', border: '1px solid #4ebebd', color: 'white', fontSize: 17, fontWeight: 750, cursor: 'pointer' }
   return <section role="dialog" aria-modal="true" aria-label="OmniCare360 care access" style={{ position: 'fixed', inset: 0, zIndex: 2147483550, overflowY: 'auto', padding: 'clamp(16px,4vw,36px)', color: '#fff', background: '#071725' }}>
     <main style={{ maxWidth: 760, margin: '0 auto', display: 'grid', gap: 18 }}>
       <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
