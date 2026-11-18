@@ -2,9 +2,10 @@ import * as THREE from 'three'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js'
 import {STREETVERSE_RECOVERED_CAST,recoveredCastUrl} from '../data/StreetVerseRecoveredCastAssets'
 import {createSharedCastMedicalRuntime} from './StreetVerseSharedCastMedicalRuntime'
+import {createUniversalInjuryAnimationController} from './StreetVerseUniversalCharacterRigRuntime'
 
 export type RecoveredCastRole='jacobie'|'lateasia'
-type LoadedCast={root:THREE.Object3D;mixer:THREE.AnimationMixer|null;idle:THREE.AnimationAction|null;dispose:()=>void}
+type LoadedCast={root:THREE.Object3D;mixer:THREE.AnimationMixer|null;idle:THREE.AnimationAction|null;clips:readonly THREE.AnimationClip[];dispose:()=>void}
 const CAST_COORDINATES:Record<RecoveredCastRole,[number,number,number]>={jacobie:[-8,0,9],lateasia:[8,0,9]}
 
 function publishStatus(role:RecoveredCastRole,state:'loading'|'ready'|'unavailable'|'invalid',reason?:string){
@@ -51,7 +52,7 @@ async function loadRecoveredCharacter(role:RecoveredCastRole):Promise<LoadedCast
    })
   }
   publishStatus(role,'ready')
-  return {root,mixer,idle,dispose}
+  return {root,mixer,idle,clips:gltf.animations,dispose}
  }catch(e){publishStatus(role,'unavailable',e instanceof Error?e.message:'load failed');return null}
 }
 /** Load real, user-recovered GLBs into the Chicago scene; no substituted NPCs. */
@@ -59,6 +60,17 @@ export function mountRecoveredStreetVerseCast(scene:THREE.Scene){
  let disposed=false
  const characters:LoadedCast[]=[]
  const medical=createSharedCastMedicalRuntime()
+ const rigControllers:ReturnType<typeof createUniversalInjuryAnimationController>[]=[]
+ const registeredRigIds=new Set<string>()
+ const onMotion=(event:Event)=>{
+  const detail=(event as CustomEvent<{characterId?:string;pose?:string}>).detail
+  if(!detail?.characterId||!detail.pose)return
+  // The shared bridge preserves original three-character IDs and future factory registrations.
+  const i=[...registeredRigIds].indexOf(detail.characterId)
+  const controller=rigControllers[i]
+  if(controller&&['neutral','stagger','guard','limp','recover'].includes(detail.pose))controller.setPose(detail.pose as 'neutral'|'stagger'|'guard'|'limp'|'recover')
+ }
+ window.addEventListener('tryamm:streetverse-character-reaction-request',onMotion)
  for(const role of ['jacobie','lateasia'] as const){
   void loadRecoveredCharacter(role).then(character=>{
    if(!character)return
@@ -67,11 +79,14 @@ export function mountRecoveredStreetVerseCast(scene:THREE.Scene){
    // Preserve native character armature and scale; do not fabricate body morph targets.
    scene.add(character.root);characters.push(character)
    medical.register(STREETVERSE_RECOVERED_CAST[role].id,character.root)
+   const rig=createUniversalInjuryAnimationController(STREETVERSE_RECOVERED_CAST[role].id,character.root,character.clips)
+   rigControllers.push(rig);registeredRigIds.add(STREETVERSE_RECOVERED_CAST[role].id)
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-character-registered',{detail:{characterId:STREETVERSE_RECOVERED_CAST[role].id,fictional:true,quality:rig.audit.quality,rigAudit:rig.audit}}))
   })
  }
  let lastMs=0
  return {
-  tick(nowMs:number){const dt=lastMs?Math.min(.1,Math.max(0,(nowMs-lastMs)/1000)):0;lastMs=nowMs;for(const character of characters)character.mixer?.update(dt);medical.tick(nowMs)},
-  dispose(){disposed=true;medical.dispose();for(const character of characters)character.dispose();characters.length=0}
+  tick(nowMs:number){const dt=lastMs?Math.min(.1,Math.max(0,(nowMs-lastMs)/1000)):0;lastMs=nowMs;for(const character of characters)character.mixer?.update(dt);for(const controller of rigControllers)controller.tick(dt);medical.tick(nowMs)},
+  dispose(){disposed=true;window.removeEventListener('tryamm:streetverse-character-reaction-request',onMotion);medical.dispose();for(const controller of rigControllers)controller.dispose();for(const character of characters)character.dispose();characters.length=0;rigControllers.length=0}
  }
 }
