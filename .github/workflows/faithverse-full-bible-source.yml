@@ -10,6 +10,11 @@ on:
       - 'amm-omniverse/src/components/FaithVerseLanguageAcademy.tsx'
       - 'test/faithverse-bible-kingdoms-press-integration.test.js'
       - 'amm-omniverse/src/components/FaithGalileeRoleplay.tsx'
+      - 'amm-omniverse/src/components/FaithVerseAncientQuestControls.tsx'
+      - 'amm-omniverse/src/components/StreetVerseVehicleDynamicsHUD.tsx'
+      - 'amm-omniverse/src/runtime/StreetVerseVehicleDynamics.mjs'
+      - 'amm-omniverse/src/runtime/StreetVerseVehicleDynamics.d.mts'
+      - 'test/streetverse-vehicle-faithverse-ancient-contract.test.js'
       - 'amm-omniverse/src/components/FaithVerseMiraclesTheater.tsx'
       - 'amm-omniverse/src/components/FaithVerseTreeAndNations.tsx'
       - 'amm-omniverse/src/data/FaithVerseMiraclesCatalog.ts'
@@ -49,6 +54,8 @@ jobs:
           node test/faithverse-commerce-contract.test.js
       - name: Verify miracle scenes, cast readiness and Yeshua hung-on-tree references
         run: node test/faithverse-miracles-nations-tree-contract.test.js
+      - name: Test StreetVerse car/motorcycle physics and Bible ancient-story RPG objectives
+        run: node test/streetverse-vehicle-faithverse-ancient-contract.test.js
       - name: Run source parser, completeness guard and EPUB structure unit tests
         run: python3 amm-omniverse/tests/test_faithverse_import_web.py
       - name: Download official public-domain World English Bible USFM and generate 66-book asset bundle
