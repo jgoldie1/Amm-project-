@@ -69,6 +69,7 @@ export default function StreetVerseThreeCastAssetAuditHUD(){
        try{
         const results=await importStreetVerseCharacterFiles(files)
         setImportMessage(results.map(x=>x.name+': '+(x.stored?'saved on device':x.error)).join(' • '))
+        if(results.some(x=>x.id==='bj-stubbs'&&x.stored))window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-v15-preview',{detail:{source:'three-cast-local-import'}}))
         window.dispatchEvent(new CustomEvent('tryamm:streetverse-cast-stage-open'))
        }catch(error){setImportMessage(String(error))}
        finally{setImporting(false);e.target.value=''}
