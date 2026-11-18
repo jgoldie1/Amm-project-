@@ -32,6 +32,7 @@ const App=lazy(()=>import('./App'))
 const StreetVerseGeoSpawnBridge=lazy(()=>import('./components/StreetVerseGeoSpawnBridge'))
 const StreetVerseMobileWorldCore=lazy(()=>import('./components/StreetVerseMobileWorld'))
 // Release compatibility marker required by the StreetVerse living-world smoke contract: const StreetVerseLivingWorld=lazy(()=>import('./components/StreetVerseLivingWorld'))
+const BJRecoveryStandalone=lazy(()=>import('./components/BJRecoveryStandalone'))
 const StreetVerseTwinWorld=lazy(()=>import('./components/StreetVerseTwinWorld'))
 const MeetTheStubbsWorldDistrict=lazy(()=>import('./components/MeetTheStubbsWorldDistrict'))
 const OmniWorkstation=lazy(()=>import('./components/OmniWorkstation'))
@@ -72,6 +73,7 @@ try {
   const standaloneMatch=currentPath.match(/^\/standalone\/([^/]+)\/?$/)
   const standaloneSite=standaloneMatch ? getStandaloneSite(standaloneMatch[1]) : undefined
   const reelMatch=currentPath.match(/^\/reels\/([^/]+)\/?$/)
+  const isBJRecovery=currentPath==='/bj-recovery'||currentPath==='/bj-recovery/'
   const isAccessibility=currentPath==='/accessibility'||currentPath==='/accessibility/'
   const isAssetFactory=['/asset-factory','/asset-factory/','/meshy-factory','/meshy-factory/'].includes(currentPath)
   const isWorkstation=currentPath==='/workstation'||currentPath==='/workstation/'
@@ -156,7 +158,8 @@ try {
     <OmniCashLauncher />
   </>
   
-  if(reelMatch)routeContent=<Suspense fallback={routeFallback}><PublicReelPage slug={decodeURIComponent(reelMatch[1])} /></Suspense>
+  if(isBJRecovery)routeContent=<Suspense fallback={routeFallback}><BJRecoveryStandalone /></Suspense>
+  else if(reelMatch)routeContent=<Suspense fallback={routeFallback}><PublicReelPage slug={decodeURIComponent(reelMatch[1])} /></Suspense>
   else if(isAssetFactory)routeContent=<Suspense fallback={routeFallback}><MeshyFactoryControlPanel /></Suspense>
   else if(isAccessibility)routeContent=<AccessibilityStatement />
   else if(isWorkstation)routeContent=<Suspense fallback={routeFallback}><OmniWorkstation /></Suspense>
