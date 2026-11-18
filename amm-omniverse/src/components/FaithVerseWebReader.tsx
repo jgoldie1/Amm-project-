@@ -2,7 +2,7 @@ import {useEffect,useState,type CSSProperties} from 'react'
 
 type BookMeta={id:string;name:string;file:string;chapterCount:number;verseCount:number}
 type Manifest={schema:string;id:string;title:string;source:string;rights:string;bookCount:number;chapterCount:number;verseCount:number;epub:string;books:BookMeta[]}
-type BookData={id:string;name:string;chapters:string[][]}
+type BookData={id:string;name:string;chapters:(string|null)[][]}
 const ROOT='/faithverse-bibles/engwebp/'
 const KEY='tryamm:faithverse:web:checkpoint:v1'
 const bigButton:CSSProperties={minHeight:56,padding:'12px 14px',border:'1px solid #719daf',borderRadius:14,background:'#152e41',color:'#fff',fontSize:16,fontWeight:750,cursor:'pointer'}
@@ -41,7 +41,7 @@ export default function FaithVerseWebReader(){
  const readAloud=()=>{
   if(!book||!('speechSynthesis'in window)){setNotice('Read aloud is unavailable on this device.');return}
   window.speechSynthesis.cancel()
-  const message=new SpeechSynthesisUtterance(book.name+' chapter '+chapter+'. '+verses.map((v,i)=>(i+1)+'. '+v).join(' '))
+  const message=new SpeechSynthesisUtterance(book.name+' chapter '+chapter+'. '+verses.map((v,i)=>v===null?'':(i+1)+'. '+v).filter(Boolean).join(' '))
   message.lang='en';message.rate=.9
   window.speechSynthesis.speak(message)
   setNotice('Using device read-aloud; voice output is local to this browser.')
@@ -52,12 +52,12 @@ export default function FaithVerseWebReader(){
  }
  const downloadChapter=()=>{
   if(!book||!verses.length)return
-  const text=[manifest?.title||'World English Bible',book.name+' '+chapter,'',...verses.map((v,i)=>(i+1)+'. '+v),'', 'Source: '+(manifest?.source||'')].join('\n')
+  const text=[manifest?.title||'World English Bible',book.name+' '+chapter,'',...verses.map((v,i)=>v===null?'':(i+1)+'. '+v).filter(Boolean),'', 'Source: '+(manifest?.source||'')].join('\n')
   const object=new Blob([text],{type:'text/plain;charset=utf-8'})
   const url=URL.createObjectURL(object),a=document.createElement('a')
   a.href=url;a.download='FaithVerse_'+book.id+'_'+chapter+'.txt';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),500)
  }
- const filtered=verses.map((text,i)=>({text,n:i+1})).filter(({text,n})=>!search.trim()||String(n)===search.trim()||text.toLowerCase().includes(search.toLowerCase()))
+ const filtered=verses.map((text,i)=>({text,n:i+1})).filter((item):item is {text:string;n:number}=>typeof item.text==='string'&&item.text.length>0).filter(({text,n})=>!search.trim()||String(n)===search.trim()||text.toLowerCase().includes(search.toLowerCase()))
  return <section aria-label="World English Bible complete chapter reader" style={{display:'grid',gap:12,color:'#fff'}}>
   <style>{'@media print{body *{visibility:hidden!important}#tryamm-bible-print,#tryamm-bible-print *{visibility:visible!important}#tryamm-bible-print{position:absolute!important;left:0!important;top:0!important;color:#111!important;background:#fff!important;width:100%!important;max-width:100%!important;height:auto!important;overflow:visible!important;box-shadow:none!important;font:12pt Georgia,serif!important}#tryamm-bible-print p{page-break-inside:avoid}}'}</style>
   <h2 style={{fontSize:22,margin:'4px 0'}}>Full 66-book Bible — World English Bible</h2>
