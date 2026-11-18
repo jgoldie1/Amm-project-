@@ -21,7 +21,7 @@ const KEY='tryamm:faithverse:bible:bookmark:v1'
 type Tab='read'|'web'|'chapters'|'study'|'immersive'|'world'|'press'|'library'|'edition'
 function readBookmark(){try{return localStorage.getItem(KEY)||'matthew-6-33'}catch{return'matthew-6-33'}}
 export default function FaithVerseBibleHub({onClose,onOpenFaith,onOpenPress}:{onClose:()=>void;onOpenFaith:()=>void;onOpenPress:()=>void}){
- const [tab,setTab]=useState<Tab>('read')
+ const [tab,setTab]=useState<Tab>('chapters')
  const [selected,setSelected]=useState(readBookmark)
  const [large,setLarge]=useState(false)
  const [query,setQuery]=useState('')
@@ -70,7 +70,7 @@ export default function FaithVerseBibleHub({onClose,onOpenFaith,onOpenPress}:{on
  <p style={{color:'#c1d9cf',fontSize:12}}>For study and accessibility. Excerpts are not the complete chapter.</p></article>
  <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:9}}><button style={btn} onClick={speak}>Read aloud</button><button style={btn} onClick={()=>{window.speechSynthesis?.cancel();setNotice('Read-aloud stopped.')}}>Stop voice</button><button style={btn} onClick={bookmark}>Save bookmark</button><button style={btn} onClick={()=>setLarge(v=>!v)}>{large?'Standard text':'Large text'}</button></div>
  </section>}
- {tab==='web'&&<section aria-label="World English Bible full edition"><Suspense fallback={<p>Loading full-edition reader…</p>}><FaithVerseWebReader /></Suspense></section>}
+ {tab==='web'&&<section aria-label="World English Bible full edition"><Suspense fallback={<p>Loading full-edition reader…</p>}><FaithVerseWebReader onOpenPress={onOpenPress} /></Suspense></section>}
  {tab==='chapters'&&<section aria-label="Existing complete chapter reader"><p style={{lineHeight:1.6}}>Existing live KJV chapter reader. Chapters load from its existing Bible API when internet access is available; offline text packs are a separate import.</p><Suspense fallback={<p>Loading chapter reader…</p>}><FaithScriptureReader /></Suspense></section>}
  {tab==='study'&&<section aria-label="Existing Ethiopian canon and study layers"><Suspense fallback={<p>Loading existing FaithVerse HoloBook…</p>}><FaithHoloBook /></Suspense></section>}
  {tab==='immersive'&&<section aria-label="Original Ethiopian Bible Metaverse"><Suspense fallback={<p>Loading existing Bible Metaverse…</p>}><EthiopianBibleMetaverse /></Suspense></section>}
