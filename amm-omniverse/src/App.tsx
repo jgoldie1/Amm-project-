@@ -10,6 +10,7 @@ import './styles.css'
 
 const CityView = lazy(() => import('./components/CityView'))
 const AICommonsOnePush = lazy(() => import('./components/AICommonsOnePush'))
+const StreetVerseCommonsNpcFactory = lazy(() => import('./components/StreetVerseCommonsNpcFactory'))
 const OmniCare360CareAccess = lazy(() => import('./components/OmniCare360CareAccess'))
 const TRYAMMComplianceCenter = lazy(() => import('./components/TRYAMMComplianceCenter'))
 const AllAmericanShowcaseHub = lazy(() => import('./components/AllAmericanShowcaseHub'))
@@ -413,6 +414,7 @@ export default function App() {
         {showCafe && <AICafeRestaurant onClose={() => setShowCafe(false)} />}
         {showSchoolNetwork && <SchoolNetworkPortal onClose={() => setShowSchoolNetwork(false)} />}
         {showAdvanced && <AdvancedWorldSystems onClose={() => setShowAdvanced(false)} />}
+        <StreetVerseCommonsNpcFactory />
         {showFaithBible && <FaithVerseBibleHub onClose={() => {setShowFaithBible(false);if(['/metaverse-bible','/ethiopian-bible','/faithverse','/faithverse-study'].includes(window.location.pathname)){window.history.replaceState({},'', '/')}}} onOpenFaith={() => {setShowFaithBible(false);setScreen('faith')}} onOpenPress={() => {setShowFaithBible(false);setShowPress(true)}} />}
         {showPress && <KingdomsPressOperations onClose={() => setShowPress(false)} />}
         {showImmersive && <ImmersiveWorldViewport onClose={() => setShowImmersive(false)} />}
