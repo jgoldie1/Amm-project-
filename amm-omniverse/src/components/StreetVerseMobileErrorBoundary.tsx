@@ -22,6 +22,7 @@ export default class StreetVerseMobileErrorBoundary extends Component<Props,Stat
    <p style={{fontSize:17,lineHeight:1.6}}>The mobile player or 3D world encountered an error. Your saved account and game files have not been intentionally deleted. Reopen with lower graphics settings.</p>
    <button style={{minHeight:64,borderRadius:14,fontSize:19,fontWeight:800,background:'#267456',color:'#fff',border:'2px solid #c1ebda'}} onClick={this.recover}>ONE PUSH · RESTART LIGHTWEIGHT GAME</button>
    <button style={{minHeight:58,borderRadius:14,fontSize:16,background:'#263e56',color:'#fff',border:'1px solid #8db1c8'}} onClick={()=>window.location.reload()}>RELOAD STREETVERSE PAGE</button>
+   <button style={{minHeight:62,borderRadius:14,fontSize:17,fontWeight:800,background:'#58461c',color:'#fff',border:'1px solid #e1ca83'}} onClick={()=>window.location.assign('/streetverse?safe=1')}>OPEN SAFE MOBILE GAME (NO WEBGL)</button>
    <p style={{fontSize:13}}>If the lightweight mode still fails, share your phone model and the message shown here. The full production GLB character and device-specific GPU support are separate acceptance checks.</p>
   </section>
  }
