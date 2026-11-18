@@ -1,5 +1,6 @@
 import {useEffect,useState,type CSSProperties} from 'react'
 import {FAITHVERSE_ANCIENT_STORIES,ANCIENT_STORY_RELEASE_GATE,type AncientStoryId} from '../data/FaithVerseAncientStories'
+import FaithVerseAncientQuestControls from './FaithVerseAncientQuestControls'
 const KEY='tryamm:faithverse:ancient-story-progress:v1'
 const btn:CSSProperties={minHeight:56,padding:'12px 13px',borderRadius:13,border:'1px solid #b4ced8',background:'#16364d',color:'#fff',fontSize:16,fontWeight:800,cursor:'pointer',touchAction:'manipulation'}
 type Progress={id:AncientStoryId;stages:number[];updatedAt:string}
@@ -45,6 +46,7 @@ export default function FaithVerseAncientStoriesTheater({onOpenBible}:{onOpenBib
   <label htmlFor="ancient-story-choose">Choose a chapter</label>
   <select style={btn} id="ancient-story-choose" value={story.id} onChange={e=>{setSelected(e.target.value as AncientStoryId);setStage(0)}}>{FAITHVERSE_ANCIENT_STORIES.filter(s=>contentLevel==='teen'||s.stageAge==='everyone').map(s=><option key={s.id} value={s.id}>{s.title}</option>)}</select>
   <StoryView styleId={story.style} active={motion}/>
+  <FaithVerseAncientQuestControls key={story.id} storyId={story.id}/>
   <h3 style={{fontSize:21,margin:'2px 0'}}>{story.title} · Scene {stage+1} of 4</h3>
   <p role="status" aria-live="polite" style={{lineHeight:1.65,borderLeft:'4px solid #c6a87a',padding:'10px 13px',margin:0}}>{story.storySteps[stage]}</p>
   <p style={{fontSize:13,lineHeight:1.65,margin:0}}>Main references: {story.primary.join('; ')}. {story.additional.length?'Related source tradition: '+story.additional.join('; ')+'.':''}</p>
