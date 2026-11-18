@@ -41,7 +41,7 @@ export default function StreetVerseLivingStoresHUD(){
   setMessage(result.reason)
   if(result.ok)setLedger({...ledger,world:result.state})
  }
- return <aside data-streetverse-living-stores="demo" style={{position:'fixed',left:8,top:'calc(env(safe-area-inset-top) + 80px)',zIndex:43987,maxWidth:'min(370px,calc(100vw - 16px))',maxHeight:'70dvh',overflow:'auto',background:'rgba(5,22,39,.97)',color:'white',padding:10,borderRadius:12,font:'13px system-ui',boxShadow:'0 8px 30px #0008'}}>
+ return <aside data-streetverse-living-stores="demo" style={{position:'fixed',left:8,top:'calc(env(safe-area-inset-top) + 212px)',zIndex:43987,maxWidth:'min(370px,calc(100vw - 16px))',maxHeight:'70dvh',overflow:'auto',background:'rgba(5,22,39,.97)',color:'white',padding:10,borderRadius:12,font:'13px system-ui',boxShadow:'0 8px 30px #0008'}}>
   <button style={button} onClick={()=>setOpen(v=>!v)} aria-expanded={open}>🛍️ STREETVERSE SHOPPING MALL</button>
   {open&&<div style={{display:'grid',gap:12,marginTop:12}}>
    <header><strong style={{fontSize:17}}>SHOP THE LIVING CITY</strong><div>🪙 {ledger.world.credits} game credits • {ledger.receipts.length} purchases • {ledger.completedMissionIds.length} deliveries</div></header>
