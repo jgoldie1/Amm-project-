@@ -49,7 +49,7 @@ process.env.TRYAMM_EDGE_ORIGIN_SECRET='test-secret'
   const signed=(id)=>{
     const payload=Buffer.from('{"action":"read"}')
     const hash=crypto.createHash('sha256').update(payload).digest('hex')
-    const sig=crypto.createHmac('sha256','test-secret').update(['POST','/api/checkout',String(stamp),id,hash].join('\\n')).digest('hex')
+    const sig=crypto.createHmac('sha256','test-secret').update(['POST','/api/checkout',String(stamp),id,hash].join('\n')).digest('hex')
     return {method:'POST',path:'/api/checkout',rawBody:payload,headers:{
       'x-tryamm-edge-timestamp':String(stamp),'x-tryamm-edge-request-id':id,'x-tryamm-edge-signature':sig
     }}
