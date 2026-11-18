@@ -22,13 +22,17 @@ export default async function handler(req,res){
   }
   const enabled=on('TRYAMM_OBS_INGRESS_ENABLED')
   const configured=Boolean(host()&&process.env.LIVEKIT_API_KEY&&process.env.LIVEKIT_API_SECRET)
+  const ownerIds=String(process.env.TRYAMM_OBS_ALLOWED_USER_IDS||'').split(',').map(x=>x.trim()).filter(Boolean)
+  const ownersConfigured=ownerIds.length>0
   // Public readiness reports no sensitive provider values and performs no mutations.
-  if(req.method==='GET')return respond(res,200,{enabled,configured,readyForOwnerSetup:enabled&&configured,formats:['vertical','landscape'],liveVerified:false,externalRelayEnabled:false})
+  if(req.method==='GET')return respond(res,200,{enabled,configured,readyForOwnerSetup:enabled&&configured&&ownersConfigured,formats:['vertical','landscape'],liveVerified:false,externalRelayEnabled:false})
   if(!enabled)return respond(res,503,{error:'OBS ingest requires owner-enabled configuration'})
+  if(!ownersConfigured)return respond(res,503,{error:'An OBS owner allowlist must be configured'})
   if(!configured||!allowedHost(host()))return respond(res,503,{error:'Secure LiveKit service is unavailable'})
   let user
   try{user=await requireUser(req,res)}catch{return respond(res,503,{error:'Could not validate authorization'})}
   if(!user)return
+  if(!ownerIds.includes(String(user.id)))return respond(res,403,{error:'OBS provisioning is restricted to authorized operators'})
   if(!recentlyAuthenticated(user,600))return respond(res,403,{error:'Please sign in again before creating an OBS ingest'})
   let body
   try{body=typeof req.body==='string'?JSON.parse(req.body):req.body||{}}catch{return respond(res,400,{error:'Invalid request body'})}
