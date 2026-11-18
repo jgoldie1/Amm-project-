@@ -7,6 +7,9 @@
   },
   "scripts": {
     "dev": "vite",
+    "faithverse:test": "python3 tests/test_faithverse_import_web.py",
+    "faithverse:import:web": "python3 scripts/faithverse_import_web.py --download",
+    "faithverse:build:full": "npm run faithverse:import:web && npm run build",
     "lint": "eslint .",
     "lint:strict": "eslint . --max-warnings=0",
     "sync:audit": "node scripts/main-sync-audit.mjs",
