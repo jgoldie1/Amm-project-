@@ -3,6 +3,8 @@ const FaithHoloBook = lazy(() => import('./FaithHoloBook'))
 const FaithScriptureReader = lazy(() => import('./FaithScriptureReader'))
 const FaithVerseWebReader = lazy(() => import('./FaithVerseWebReader'))
 const FaithVerseLanguageAcademy = lazy(() => import('./FaithVerseLanguageAcademy'))
+const FaithVerseScrollsApocrypha = lazy(() => import('./FaithVerseScrollsApocrypha'))
+const FaithVerseBusinessFunnel = lazy(() => import('./FaithVerseBusinessFunnel'))
 const EthiopianBibleMetaverse = lazy(() => import('./EthiopianBibleMetaverse'))
 import {validateBibleEdition,type BibleEdition} from '../runtime/FaithVerseBibleEdition'
 
@@ -19,10 +21,10 @@ const PASSAGES:readonly Passage[]=[
 ]
 // Short KJV excerpts, public domain in the US. This is not a complete Bible text.
 const KEY='tryamm:faithverse:bible:bookmark:v1'
-type Tab='read'|'web'|'chapters'|'study'|'languages'|'immersive'|'world'|'press'|'library'|'edition'
+type Tab='landing'|'read'|'web'|'chapters'|'study'|'languages'|'scrolls'|'immersive'|'world'|'press'|'library'|'edition'
 function readBookmark(){try{return localStorage.getItem(KEY)||'matthew-6-33'}catch{return'matthew-6-33'}}
 export default function FaithVerseBibleHub({onClose,onOpenFaith,onOpenPress}:{onClose:()=>void;onOpenFaith:()=>void;onOpenPress:()=>void}){
- const [tab,setTab]=useState<Tab>('chapters')
+ const [tab,setTab]=useState<Tab>('landing')
  const [selected,setSelected]=useState(readBookmark)
  const [large,setLarge]=useState(false)
  const [query,setQuery]=useState('')
@@ -58,7 +60,7 @@ export default function FaithVerseBibleHub({onClose,onOpenFaith,onOpenPress}:{on
  <p style={{fontSize:14,color:'#d2dbeb',lineHeight:1.6,margin:0}}>One accessible reading and roleplay entrance connected to the existing Faith Realm and Kingdoms Press publishing tools.</p>
  <p role="status" aria-live="polite" style={{background:'#222d35',borderRadius:12,padding:12,lineHeight:1.55,margin:0}}>{notice}</p>
  <nav aria-label="FaithVerse sections" style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:8}}>
- {(['web','read','chapters','study','languages','immersive','world','press','library','edition'] as Tab[]).map(k=><button key={k} style={{...btn,background:tab===k?'#435d64':'#132a40'}} aria-pressed={tab===k} onClick={()=>setTab(k)}>{k==='web'?'Full WEB Bible':k==='read'?'Starter Verses':k==='chapters'?'Full KJV Chapters':k==='study'?'Ethiopian Canon + 88':k==='languages'?'Paleo-Hebrew · Strong’s':k==='immersive'?'Metaverse Bible World':k==='world'?'FaithVerse RP':k==='press'?'Kingdoms Press':k==='library'?'Edition Library':'Import & Read Edition'}</button>)}
+ {(['landing','web','read','chapters','study','languages','scrolls','immersive','world','press','library','edition'] as Tab[]).map(k=><button key={k} style={{...btn,background:tab===k?'#435d64':'#132a40'}} aria-pressed={tab===k} onClick={()=>setTab(k)}>{k==='landing'?'Start Here · Study':k==='web'?'Full WEB Bible':k==='read'?'Starter Verses':k==='chapters'?'Full KJV Chapters':k==='study'?'Ethiopian Canon + 88':k==='languages'?'Paleo-Hebrew · Strong’s':k==='scrolls'?'Dead Sea Scrolls + Apocrypha':k==='immersive'?'Metaverse Bible World':k==='world'?'FaithVerse RP':k==='press'?'Kingdoms Press':k==='library'?'Edition Library':'Import & Read Edition'}</button>)}
  </nav>
  {tab==='read'&&<section style={{display:'grid',gap:12}}>
  <label htmlFor="tryamm-bible-search">Find a passage in the available starter selections</label>
@@ -71,6 +73,8 @@ export default function FaithVerseBibleHub({onClose,onOpenFaith,onOpenPress}:{on
  <p style={{color:'#c1d9cf',fontSize:12}}>For study and accessibility. Excerpts are not the complete chapter.</p></article>
  <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:9}}><button style={btn} onClick={speak}>Read aloud</button><button style={btn} onClick={()=>{window.speechSynthesis?.cancel();setNotice('Read-aloud stopped.')}}>Stop voice</button><button style={btn} onClick={bookmark}>Save bookmark</button><button style={btn} onClick={()=>setLarge(v=>!v)}>{large?'Standard text':'Large text'}</button></div>
  </section>}
+ {tab==='landing'&&<Suspense fallback={<p>Loading the FaithVerse learning entrance…</p>}><FaithVerseBusinessFunnel onOpenBible={()=>setTab('chapters')} onOpenHebrew={()=>setTab('languages')} onOpenScrolls={()=>setTab('scrolls')} onOpenPress={onOpenPress}/></Suspense>}
+ {tab==='scrolls'&&<Suspense fallback={<p>Loading Dead Sea Scrolls and Apocrypha study…</p>}><FaithVerseScrollsApocrypha onOpenHoloBook={()=>setTab('study')}/></Suspense>}
  {tab==='web'&&<section aria-label="World English Bible full edition"><Suspense fallback={<p>Loading full-edition reader…</p>}><FaithVerseWebReader onOpenPress={onOpenPress} /></Suspense></section>}
  {tab==='chapters'&&<section aria-label="Existing complete chapter reader"><p style={{lineHeight:1.6}}>Existing live KJV chapter reader. Chapters load from its existing Bible API when internet access is available; offline text packs are a separate import.</p><Suspense fallback={<p>Loading chapter reader…</p>}><FaithScriptureReader /></Suspense></section>}
  {tab==='study'&&<section aria-label="Existing Ethiopian canon and study layers"><Suspense fallback={<p>Loading existing FaithVerse HoloBook…</p>}><FaithHoloBook /></Suspense></section>}
