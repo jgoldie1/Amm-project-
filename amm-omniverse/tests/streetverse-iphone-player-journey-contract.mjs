@@ -14,6 +14,11 @@ const reader=fs.readFileSync(new URL('../src/components/FaithScriptureReader.tsx
 const must=(ok,msg)=>{if(!ok)throw new Error('STREETVERSE IPHONE PLAYER JOURNEY CONTRACT FAIL: '+msg)}
 
 must(playable.includes("if(mobile)return")&&playable.includes('<StreetVerseMobileWorld onClose={onClose}/>'),'real mobile route must mount the compact authoritative mobile world')
+must(playable.includes('ONE-HAND 3D • ORIGINAL CAST'),'desktop Chromebook path must expose the verified one-hand cast importer')
+must(playable.includes('if(desktopOneHand)return'),'desktop one-hand preference must mount the real mobile-lite 3D world')
+must(playable.includes('DESKTOP 3D'),'desktop users must have a way back to the default desktop renderer')
+must(playable.includes("tryamm:streetverse-control-mode"),'switching views must preserve accessible controller preference')
+
 must(geo.includes("mobile?<><StreetVerseReelEventBridge/><StreetVerseActionCarousel/><StreetVerseCreatorEarnDock/></>"),'full mobile route must keep the compact bridge-control stack')
 const mobileOverlayStart=overlays.indexOf('if(mobile)return <>')
 const desktopOverlayStart=overlays.indexOf('\n  return <>',mobileOverlayStart)
