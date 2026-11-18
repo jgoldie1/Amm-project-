@@ -364,7 +364,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
             setBJLoadStatus('error')
             setMessage('BJ V15 TIMED OUT • tap RETRY BJ')
           }
-        },16000)
+        },52000)
         void loadStreetVerseMeshyBJHero().then(handle=>{
           window.clearTimeout(guard)
           if(!handle){if(request===bjHeroLoadEpoch){setBJLoadStatus('error');setMessage('BJ V15 NOT AVAILABLE • retry from the BJ button')}return}
