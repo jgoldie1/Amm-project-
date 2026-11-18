@@ -33,7 +33,7 @@ async function extract(zip:Uint8Array):Promise<Map<CastRole,Uint8Array>>{
  const count=u16(end+10),offset=u32(end+16)
  if(count!==3&&count!==4)throw new Error('Expected exactly three original GLBs (and optional manifest)')
  if(offset>=zip.length)throw new Error('Invalid ZIP directory offset')
- const byFilename=new Map(roles.map(role=>[STREETVERSE_RECOVERED_CAST[role].filename,role]))
+ const byFilename=new Map<string,CastRole>(roles.map(role=>[STREETVERSE_RECOVERED_CAST[role].filename,role]))
  let cursor=offset,manifest=false
  const found=new Map<CastRole,Uint8Array>()
  for(let i=0;i<count;i++){
