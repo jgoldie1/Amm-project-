@@ -51,11 +51,18 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
   const [mirrorLocal, setMirrorLocal] = useState(true)
   const [effectsOpen, setEffectsOpen] = useState(false)
   const roomRef = useRef<Room | null>(null)
+  const activeSessionRef = useRef<{roomId:string;role:LiveRole;pk:boolean}|null>(null)
   const stageRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     getLiveStatus().then(status => {setConfigured(Boolean(status.configured));setProviderStatus(status as LiveProviderStatus)}).catch(() => {setConfigured(false);setProviderStatus({configured:false,missing:['url','apiKey','apiSecret']})})
     return () => {
+      const session=activeSessionRef.current
+      activeSessionRef.current=null
+      if(session){
+        window.dispatchEvent(new CustomEvent('tryamm:live-session-end',{detail:{roomId:session.roomId,roomName:session.roomId,role:session.role}}))
+        if(session.pk)window.dispatchEvent(new CustomEvent('tryamm:pk-end',{detail:{roomName:session.roomId,role:session.role,reason:'close'}}))
+      }
       roomRef.current?.disconnect()
       roomRef.current = null
     }
@@ -109,6 +116,19 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
     preview.getTracks().forEach(track=>track.stop())
   }
 
+  function finishLive(reason:'leave'|'disconnected'){
+    const session=activeSessionRef.current
+    if(!session)return
+    activeSessionRef.current=null
+    roomRef.current=null
+    stageRef.current?.replaceChildren()
+    setConnected(false)
+    setParticipants(0)
+    window.dispatchEvent(new CustomEvent('tryamm:live-session-end',{detail:{roomId:session.roomId,roomName:session.roomId,role:session.role}}))
+    if(session.pk)window.dispatchEvent(new CustomEvent('tryamm:pk-end',{detail:{roomName:session.roomId,role:session.role,reason}}))
+    if(reason==='disconnected')setError('LIVE connection ended. Check the network and reconnect.')
+  }
+
   async function connect() {
     setBusy(true)
     setError('')
@@ -121,6 +141,7 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
         role,
         displayName,
         onParticipants: setParticipants,
+        onDisconnected: () => finishLive('disconnected'),
         onTrack: (element, participantIdentity) => {
           prepareMediaElement(element, participantIdentity, false)
           stageRef.current?.appendChild(element)
@@ -138,6 +159,7 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
           }
         }
       }
+      activeSessionRef.current={roomId:session.room,role:session.role,pk:pkMode}
       setConnected(true)
       window.dispatchEvent(new CustomEvent('tryamm:live-session',{detail:{type:pkMode?'pk':'live',roomId:session.room,roomName:session.room,title,source:'tryamm-live',live:true,role:session.role,participant:session.participant,connected:true}}))
       if(pkMode)window.dispatchEvent(new CustomEvent('tryamm:pk-start',{detail:{mode:'livekit',roomName:session.room,participant:session.participant,role:session.role}}))
@@ -149,13 +171,9 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
   }
 
   function leave() {
-    roomRef.current?.disconnect()
-    roomRef.current = null
-    stageRef.current?.replaceChildren()
-    setConnected(false)
-    setParticipants(0)
-    window.dispatchEvent(new CustomEvent('tryamm:live-session-end',{detail:{roomId:roomName,roomName,role}}))
-    if(pkMode)window.dispatchEvent(new CustomEvent('tryamm:pk-end',{detail:{roomName,role,reason:'leave'}}))
+    const room=roomRef.current
+    finishLive('leave')
+    void room?.disconnect()
   }
 
   async function toggleMic() {
