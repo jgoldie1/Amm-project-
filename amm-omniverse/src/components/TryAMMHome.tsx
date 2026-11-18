@@ -48,7 +48,7 @@ export default function TryAMMHome(){
     if(action==='streetverse'){enterStreetVerse();return}
     if(action==='music'){enter('music');return}
     if(action==='aau'){openAAU();return}
-    const targets:Record<string,string>={ai:'__showAICommons',showcase:'__showAllAmericanShowcase',soul:'__showAllAmericanShowcase',tv:'__showIsaiahTV',live:'__showTryAMMLive',care:'__showOmniCare360',compliance:'__showCompliance',simulator:'__showFinancialAcademy'}
+    const targets:Record<string,string>={ai:'__showAICommons',showcase:'__showAllAmericanShowcase',soul:'__showAllAmericanShowcase',tv:'__showIsaiahTV',live:'__showTryAMMLive',care:'__showOmniCare360',compliance:'__showCompliance',simulator:'__showFinancialAcademy',faithbible:'__showFaithVerseBible',kingdompress:'__showKingdomsPress'}
     if(targets[action])openGlobal(targets[action])
   }} />
   <LivingWorldsUniverse onSports={()=>enter('sports')} onCity={enterStreetVerse} onMusic={()=>enter('music')} />
