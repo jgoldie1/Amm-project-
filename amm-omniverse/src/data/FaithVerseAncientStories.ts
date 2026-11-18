@@ -44,7 +44,7 @@ export const FAITHVERSE_CREATURE_DESIGNS=Object.freeze({
   physicalScaleReconstructionVerified:false,source:'1 Samuel 17',rating:'teen',nonGraphic:true,riggedGLBVerified:false
  },
   castingSafeguard:'Fictional monsters are not stand-ins for real ethnicities, nationalities, races, disabilities, or religious groups.'
-}) as const
+} as const)
 export const ANCIENT_STORY_RELEASE_GATE={textSourceReviewRequired:true,approvedTranslationsRequired:true,verifiedRiggedGLB:false,
  multiplayerVerified:false,deviceAcceptanceVerified:false,scriptureSourcesVerifiedByEditor:false,productionReady:false,
  distinction:'Original illustration and narration must remain distinct from direct quotations and contested historical claims.'} as const
