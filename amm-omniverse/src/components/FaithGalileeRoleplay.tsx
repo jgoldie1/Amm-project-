@@ -1,6 +1,7 @@
 import {useEffect,useState,type CSSProperties} from 'react'
 import FaithGalileePlayfield from './FaithGalileePlayfield'
 import FaithVerseYeshuaPortrait from './FaithVerseYeshuaPortrait'
+import FaithVerseMiraclesTheater from './FaithVerseMiraclesTheater'
 
 type Moment='shore'|'boat'|'fishing'|'dialogue'|'reflection'
 type Question='calling'|'compassion'|'work'
@@ -24,6 +25,7 @@ const button:CSSProperties={minHeight:60,padding:'12px 16px',borderRadius:14,bor
 function initial():Checkpoint{try{const d=JSON.parse(localStorage.getItem(KEY)||'{}');return{moment:['shore','boat','fishing','dialogue','reflection'].includes(d.moment)?d.moment:'shore',fishCaught:Number.isInteger(d.fishCaught)?Math.min(Math.max(d.fishCaught,0),3):0,questions:Array.isArray(d.questions)?d.questions.filter((q:unknown)=>q==='calling'||q==='compassion'||q==='work').slice(0,3):[],at:String(d.at||'')}}catch{return{moment:'shore',fishCaught:0,questions:[],at:''}}}
 export default function FaithGalileeRoleplay({onClose,onOpenScripture,onReturnStreetVerse}:{onClose:()=>void;onOpenScripture:()=>void;onReturnStreetVerse:()=>void}){
  const [data,setData]=useState<Checkpoint>(initial)
+ const [showMiracles,setShowMiracles]=useState(false)
  const [milestones,setMilestones]=useState<RPGMilestone[]>(readMycelium)
  const recordMilestone=(kind:RPGMilestone)=>{
   if(milestones.includes(kind))return
@@ -50,6 +52,7 @@ export default function FaithGalileeRoleplay({onClose,onOpenScripture,onReturnSt
     <div><div style={{fontSize:56}} aria-hidden="true">{data.moment==='boat'||data.moment==='fishing'?'⛵':data.moment==='dialogue'?'📖':data.moment==='reflection'?'🕊️':'🌅'}</div><h2 style={{fontSize:23,margin:'8px 0'}}>{data.moment==='shore'?'The Galilee shoreline':data.moment==='boat'?'Board a reconstructed fishing boat':data.moment==='fishing'?'Cast a fishing net':data.moment==='dialogue'?'Ask a scripture-guided question':'Reflection and return'}</h2><p style={{margin:0}}>Fictional catch progress: {data.fishCaught} / 3</p></div>
    </div>
    <FaithGalileePlayfield onReach={go}/>
+   <button style={{...button,background:'#55466e'}} onClick={()=>setShowMiracles(true)}>OPEN MIRACLE STORIES · WALK ON WATER</button>
    <nav aria-label="Time machine stages" style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(140px,1fr))',gap:8}}>
    {([{id:'shore',label:'Explore shore'},{id:'boat',label:'Board boat'},{id:'fishing',label:'Go fishing'},{id:'dialogue',label:'Talk / study'},{id:'reflection',label:'Reflect'}] as {id:Moment;label:string}[]).map(x=><button key={x.id} style={{...button,background:data.moment===x.id?'#386875':'#18374a'}} aria-pressed={data.moment===x.id} onClick={()=>go(x.id)}>{x.label}</button>)}</nav>
    {data.moment==='fishing'&&<button style={{...button,background:'#2a6358'}} onClick={cast}>{data.fishCaught>=3?'Fishing completed':'CAST NET · CATCH FISH'}</button>}
@@ -58,6 +61,7 @@ export default function FaithGalileeRoleplay({onClose,onOpenScripture,onReturnSt
    <section aria-label="Mycelium roleplay quest journal" style={{padding:15,border:'1px solid #77aa9f',borderRadius:15,background:'#103138',display:'grid',gap:7}}><h2 style={{fontSize:20,margin:0}}>Mycelium RPG · Mission journal</h2><p style={{fontSize:13,margin:0,lineHeight:1.5}}>The mushroom network quest path records local fictional accomplishments, not blockchain credits, public achievements, or server-confirmed mission rewards.</p>{MILESTONES.map(m=><div key={m} style={{padding:'7px 10px',borderBottom:'1px solid #385a60'}}>{milestones.includes(m)?'✓':'○'} {m.replaceAll('_',' ')}</div>)}<p role="status" style={{margin:0,color:'#e2dcbb'}}>Completed {MILESTONES.filter(m=>milestones.includes(m)).length} of {MILESTONES.length} quest steps</p></section>
    <article style={{display:'grid',gap:7}}><h2 style={{fontSize:19,margin:0}}>Source references for this reconstruction</h2>{SOURCES.map(x=><p key={x.reference} style={{margin:0}}><strong>{x.reference}</strong> — {x.note}</p>)}</article>
    <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:9}}><button style={button} onClick={onOpenScripture}>Open Metaverse Bible</button><button style={button} onClick={()=>{recordMilestone('returned_streetverse');onReturnStreetVerse()}}>Return to StreetVerse</button><button style={button} onClick={exportReport}>Export mission receipt</button><button style={button} onClick={()=>{update({moment:'shore',fishCaught:0,questions:[]});setMilestones([]);try{localStorage.removeItem(MYCELIUM_KEY)}catch{};setNotice('Started a new local educational visit.')}}>Restart visit</button></div>
+   {showMiracles&&<FaithVerseMiraclesTheater onClose={()=>setShowMiracles(false)} onOpenBible={()=>{setShowMiracles(false);onOpenScripture()}} onReturnToGalilee={()=>setShowMiracles(false)}/>}
    <p style={{fontSize:12,color:'#c8d3da',lineHeight:1.65}}>Full production still requires original rigged 3D assets, animations, scene renderer, actual voice/NPC pipeline, persistent missions and independent Chromebook/iPhone acceptance.</p>
   </main>
  </section>
