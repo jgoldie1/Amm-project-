@@ -11,7 +11,7 @@ for(const token of ['initialParkourState','startParkour','stepParkour','lowObsta
 for(const token of ["if(v&&k===' '","avatar.position.y=activeCar?0:parkour.height","tryamm:streetverse-parkour-action","removeEventListener('tryamm:streetverse-parkour-action'","<StreetVerseParkourHUD/>"])assert.ok(world.includes(token),token)
 for(const token of ['PARKOUR / JUMP','JUMP','HOP','VAULT','onPointer','tryamm:streetverse-parkour-action'].filter(x=>x!=='onPointer'))assert.ok(parkHud.includes(token),token)
 for(const role of ['county-jail','public-defender','court','reentry','call911'])assert.ok(film.includes(role),role)
-for(const letter of ["key:'A'","'A','B','C','D'"])assert.ok(film.includes(letter),letter)
+assert.ok(film.includes("(['A','B','C','D'] as const)"),'Four explicit ABCD decisions')
 for(const token of ['chooseFilm(state,key)','localStorage.setItem(KEY','EXPORT MOVIE REPORT','serverVerified:false','tryamm:streetverse-movie-choice'])assert.ok(filmHud.includes(token),token)
 assert.ok(world.includes('<StreetVerseMovieJusticeHUD/>'))
 assert.ok(safety.includes('OPEN SAFE MOBILE GAME (NO WEBGL)'))
