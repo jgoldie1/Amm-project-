@@ -10,7 +10,7 @@ function storedCheckpoint(){try{const raw=JSON.parse(localStorage.getItem(KEY)||
 export default function FaithVerseWebReader({onOpenPress}:{onOpenPress?:()=>void}){
  const [manifest,setManifest]=useState<Manifest|null>(null)
  const [bookId,setBookId]=useState(()=>storedCheckpoint().book)
- const [chapter,setChapter]=useState(()=>storedCheckpoint().chapter)
+ const [chapter,setChapter]=useState<number>(()=>storedCheckpoint().chapter)
  const [book,setBook]=useState<BookData|null>(null)
  const [loading,setLoading]=useState(true)
  const [error,setError]=useState('')
@@ -33,7 +33,7 @@ export default function FaithVerseWebReader({onOpenPress}:{onOpenPress?:()=>void
   setLoading(true);setError('')
   fetch(ROOT+target.file,{signal:controller.signal}).then(async r=>{if(!r.ok)throw new Error('Book download unavailable');return r.json()}).then(value=>{
    if(value.id!==target.id||!Array.isArray(value.chapters)||value.chapters.length!==target.chapterCount)throw new Error('Book data failed validation')
-   setBook(value as BookData);setChapter(old=>Math.min(Math.max(old,1),value.chapters.length));setLoading(false)
+   setBook(value as BookData);setChapter((old:number)=>Math.min(Math.max(old,1),value.chapters.length));setLoading(false)
   }).catch(e=>{if(!controller.signal.aborted){setError(e.message||'Book unavailable');setBook(null);setLoading(false)}})
   return()=>controller.abort()
  },[manifest,bookId])
@@ -84,8 +84,8 @@ export default function FaithVerseWebReader({onOpenPress}:{onOpenPress?:()=>void
      <footer style={{fontSize:11,marginTop:16}}>World English Bible. Source: {manifest.source}</footer>
     </article>
     <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:8}}>
-      <button style={bigButton} disabled={chapter===1} onClick={()=>setChapter(c=>Math.max(1,c-1))}>Previous chapter</button>
-      <button style={bigButton} disabled={chapter>=book.chapters.length} onClick={()=>setChapter(c=>Math.min(book.chapters.length,c+1))}>Next chapter</button>
+      <button style={bigButton} disabled={chapter===1} onClick={()=>setChapter((c:number)=>Math.max(1,c-1))}>Previous chapter</button>
+      <button style={bigButton} disabled={chapter>=book.chapters.length} onClick={()=>setChapter((c:number)=>Math.min(book.chapters.length,c+1))}>Next chapter</button>
       <button style={bigButton} onClick={readAloud}>Read aloud</button>
       <button style={bigButton} onClick={()=>window.speechSynthesis?.cancel()}>Stop voice</button>
       <button style={bigButton} onClick={saveCheckpoint}>Save checkpoint</button>
