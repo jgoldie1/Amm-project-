@@ -92,6 +92,13 @@ export default function SocialAgeSafetyGate({open,intent,onAllow,onClose}:{open:
     onAllow({band,youthViewerOnly})
   }
 
+  const openSchool=()=>{
+    onClose()
+    try{localStorage.setItem('tryamm_school_network_target','aau')}catch{}
+    const open=(window as unknown as Record<string,unknown>).__showSchoolNetwork
+    if(typeof open==='function')open()
+  }
+
   const resetAge=()=>{
     try{localStorage.removeItem(PROFILE_KEY);localStorage.removeItem(SAFETY_ACK_KEY)}catch{}
     setBand(null);setBirthDate('');setConfirmed(false);setError('');window.dispatchEvent(new CustomEvent('tryamm:audience-band',{detail:{band:null,source:'age-safety-reset'}}))
@@ -115,6 +122,7 @@ export default function SocialAgeSafetyGate({open,intent,onAllow,onClose}:{open:
 
       {band==='under-12'&&<div style={{marginTop:18}}>
         <div style={alert}>This release is designed for ages 12 and up. LIVE/PK social features are not available for this age band.</div>
+        <button onClick={openSchool} style={smallButton}>OPEN K–12 LEARNING</button>
         <button onClick={resetAge} style={smallButton}>Correct date of birth</button>
       </div>}
 
@@ -125,12 +133,14 @@ export default function SocialAgeSafetyGate({open,intent,onAllow,onClose}:{open:
         </div>
         <div style={safetyBox}><b>Stay safe online.</b> Do not share your full name, address, school, phone number, passwords or exact location. Leave, block or report anyone who makes you uncomfortable.</div>
         <button onClick={continueSafe} style={primary}>I understand • continue as viewer</button>
+        <button onClick={openSchool} style={smallButton}>OPEN K–12 CREATOR LEARNING</button>
         <button onClick={resetAge} style={linkButton}>Correct date of birth</button>
       </div>}
 
       {(band==='teen'||band==='adult')&&<div style={{marginTop:18}}>
-        <div style={safetyBox}><b>{band==='teen'?'Teen viewer mode':'LIVE/PK reminder'}</b><br/>{band==='teen'?'Teen accounts may watch appropriate rooms only until verified guardian controls and server-side authorization are available. Hosting, camera, microphone and paid gift controls stay off in this release.':'Protect personal information, use block/report controls when needed, and remember that online interactions can create real-world risk.'}</div>
+        <div style={safetyBox}><b>{band==='teen'?'Teen viewer mode':'LIVE/PK reminder'}</b><br/>{band==='teen'?'Teen Creator LIVE is part of the existing Agency and Family plan. Until verified guardian approval, moderation and server-side host authorization are connected, this public LIVE gate allows age-appropriate viewing. Creator Academy, school simulations, StreetVerse gameplay and local recording remain separate from public broadcasting.':'Protect personal information, use block/report controls when needed, and remember that online interactions can create real-world risk.'}</div>
         <button onClick={continueSafe} style={primary}>{band==='teen'?'Continue as viewer':confirmed?'Continue':'I understand • continue'}</button>
+        {band==='teen'&&<button onClick={openSchool} style={smallButton}>OPEN ALL AMERICAN UNIVERSITY · TEEN CREATOR ACADEMY</button>}
         <button onClick={resetAge} style={linkButton}>Correct date of birth</button>
       </div>}
     </section>
