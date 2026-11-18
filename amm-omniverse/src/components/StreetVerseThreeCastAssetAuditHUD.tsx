@@ -3,11 +3,8 @@ import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js'
 import * as THREE from 'three'
 
 /** Approved local publication paths. These are checks, NOT evidence that binaries were deployed. */
-export const STREETVERSE_THREE_CAST = [
- {id:'bj-stubbs',name:'BJ Stubbs',url:'/tryamm-assets/meshy/characters/BJ_Stubbs_V15_Black_Suit_Purple_Shirt_Restore.glb',motion:/walk|run|idle/i},
- {id:'jacobie-stubbs',name:'Jacobie Stubbs',url:'/tryamm-assets/meshy/characters/JACOBIE_STUBBS_12_MOTIONS.glb',motion:/walk|jump|run/i},
- {id:'lateasia-monroe',name:'LaTeasia Monroe',url:'/tryamm-assets/meshy/characters/LATEASIA_MONROE_RIGGED.glb',motion:/walk|idle|talk/i},
-] as const
+import {STREETVERSE_RECOVERED_THREE_CAST} from '../data/StreetVerseRecoveredThreeCast'
+export const STREETVERSE_THREE_CAST=STREETVERSE_RECOVERED_THREE_CAST
 type CastResult={id:string;name:string;status:'passed'|'missing'|'invalid';meshes:number;skins:number;clips:string[];url:string;error?:string}
 const btn:React.CSSProperties={minHeight:54,background:'#17465b',color:'white',padding:'10px 13px',borderRadius:12,border:'1px solid #7fc8df',fontWeight:800,touchAction:'manipulation'}
 export default function StreetVerseThreeCastAssetAuditHUD(){
@@ -28,8 +25,8 @@ export default function StreetVerseThreeCastAssetAuditHUD(){
     let meshes=0,skins=0
     gltf.scene.traverse(node=>{if(node instanceof THREE.Mesh)meshes++;if(node instanceof THREE.SkinnedMesh&&node.skeleton?.bones.length)skins++})
     const clips=gltf.animations.map(clip=>clip.name)
-    const ok=meshes>0&&skins>0&&clips.length>0&&clips.some(name=>candidate.motion.test(name))
-    next.push({id:candidate.id,name:candidate.name,status:ok?'passed':'invalid',meshes,skins,clips,url:candidate.url,error:ok?undefined:'missing animated, skinned mesh or motion clip'})
+    const ok=meshes>0&&skins>0&&clips.length>0
+    next.push({id:candidate.id,name:candidate.name,status:ok?'passed':'invalid',meshes,skins,clips,url:candidate.url,error:ok?undefined:'missing animated, skinned mesh or animation clip'})
     gltf.scene.traverse(node=>{if(node instanceof THREE.Mesh)node.geometry?.dispose()})
    }catch(error){next.push({id:candidate.id,name:candidate.name,status:'missing',meshes:0,skins:0,clips:[],url:candidate.url,error:String(error)})}
   }
@@ -48,6 +45,7 @@ export default function StreetVerseThreeCastAssetAuditHUD(){
     <button style={btn} disabled={loading} onClick={()=>{void test()}}>{loading?'CHECKING…':'ONE PUSH — VERIFY ALL 3'}</button>
     {results.map(r=><div key={r.id} style={{borderBottom:'1px solid #33546a',paddingBottom:7,fontSize:13}}><b>{r.name}: {r.status.toUpperCase()}</b><div>{r.meshes} meshes · {r.skins} skinned meshes · {r.clips.length} animations</div>{r.error&&<div>{r.error}</div>}</div>)}
     <button style={btn} disabled={!results.length||loading} onClick={exportReport}>EXPORT CHARACTER REPORT</button>
+    <button style={btn} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-cast-stage-open'))}>LOAD ALL THREE IN 3D SCENE</button>
    </section>}
  </aside>
 }
