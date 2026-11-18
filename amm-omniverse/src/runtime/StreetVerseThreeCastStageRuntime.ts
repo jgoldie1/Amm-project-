@@ -13,7 +13,7 @@ const HURDLE_WIDTH=1.2
 const HURDLE_DEPTH=.42
 /** Independent, bounded in-world obstacle course. The city's own player controller is unchanged.
  * A successful stage action is not proof that all city collisions or mobile devices are certified. */
-export function installStreetVerseThreeCastStage(scene:THREE.Scene,cityCollisionBoxes:THREE.Box3[]=[]){
+export function installStreetVerseThreeCastStage(scene:THREE.Scene,cityCollisionBoxes:THREE.Box3[]=[],getPlayerPosition?:()=>THREE.Vector3){
  const stage=new THREE.Group();stage.name='streetverse-three-cast-stage';scene.add(stage)
  const loader=new GLTFLoader()
  const actors=new Map<CastKey,Actor>(),roots:THREE.Object3D[]=[]
@@ -42,7 +42,7 @@ export function installStreetVerseThreeCastStage(scene:THREE.Scene,cityCollision
   roots.length=0;hurdle.visible=false
  }
  const destinationClear=(x:number,z:number)=>{
-  const body=new THREE.Box3(new THREE.Vector3(x-.3,0,z-.3),new THREE.Vector3(x+.3,1.9,z+.3))
+  const body=new THREE.Box3(new THREE.Vector3(x+stage.position.x-.3,0,z+stage.position.z-.3),new THREE.Vector3(x+stage.position.x+.3,1.9,z+stage.position.z+.3))
   return !cityCollisionBoxes.some(b=>b.intersectsBox(body))
  }
  const action=(id:CastKey,kind:Action)=>{
@@ -94,6 +94,8 @@ export function installStreetVerseThreeCastStage(scene:THREE.Scene,cityCollision
  const open=async()=>{
   if(loading||disposed)return
   loading=true;clear()
+  const player=getPlayerPosition?.()
+  if(player)stage.position.set(player.x,0,player.z)
   const outcomes:Array<{name:string;status:string;clips:number;url:string;error?:string}>=[]
   for(const [i,entry] of STREETVERSE_RECOVERED_THREE_CAST.entries()){
    if(disposed)break
