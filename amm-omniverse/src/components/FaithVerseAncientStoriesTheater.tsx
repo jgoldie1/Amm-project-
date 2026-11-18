@@ -1,5 +1,5 @@
 import {useEffect,useState,type CSSProperties} from 'react'
-import {FAITHVERSE_ANCIENT_STORIES,ANCIENT_STORY_RELEASE_GATE,type AncientStoryId} from '../data/FaithVerseAncientStories'
+import {FAITHVERSE_ANCIENT_STORIES,ANCIENT_STORY_RELEASE_GATE,FAITHVERSE_CREATURE_DESIGNS,type AncientStoryId} from '../data/FaithVerseAncientStories'
 import FaithVerseAncientQuestControls from './FaithVerseAncientQuestControls'
 const KEY='tryamm:faithverse:ancient-story-progress:v1'
 const btn:CSSProperties={minHeight:56,padding:'12px 13px',borderRadius:13,border:'1px solid #b4ced8',background:'#16364d',color:'#fff',fontSize:16,fontWeight:800,cursor:'pointer',touchAction:'manipulation'}
@@ -52,6 +52,7 @@ export default function FaithVerseAncientStoriesTheater({onOpenBible}:{onOpenBib
   <p style={{fontSize:13,lineHeight:1.65,margin:0}}>Main references: {story.primary.join('; ')}. {story.additional.length?'Related source tradition: '+story.additional.join('; ')+'.':''}</p>
   <p style={{fontSize:13,lineHeight:1.65,margin:0}}><strong>Study boundary:</strong> {story.interpretation}</p>
   {story.stageAge==='teen'&&<p style={{fontSize:13,color:'#f0dbb5'}}>Teen-level dramatic scene: non-graphic imagery, no horror gore, and no demon-related claims presented as proven history.</p>}
+  {(story.style==='giants'||story.style==='watchers'||story.style==='battle')&&<article style={{border:'1px solid #9f8090',padding:13,borderRadius:12,background:'#252335'}}><strong>Creator-designed character appearance</strong><p style={{fontSize:13,lineHeight:1.7}}>{story.style==='giants'?FAITHVERSE_CREATURE_DESIGNS.nephilim.appearance:story.style==='watchers'?FAITHVERSE_CREATURE_DESIGNS.watchers.appearance:FAITHVERSE_CREATURE_DESIGNS.goliath.appearance}</p><p style={{fontSize:12,lineHeight:1.5}}>{FAITHVERSE_CREATURE_DESIGNS.castingSafeguard} Verified 3D GLB: No.</p></article>}
   <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:8}}>
    <button style={btn} onClick={()=>setStage(x=>Math.max(0,x-1))} disabled={stage===0}>Previous scene</button>
    <button style={btn} onClick={()=>{save();setStage(x=>Math.min(3,x+1))}}>{stage===3?'Save chapter':'Next scene'}</button>
