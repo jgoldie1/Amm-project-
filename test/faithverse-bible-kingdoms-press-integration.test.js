@@ -35,7 +35,7 @@ for(const item of ['KJV_1611_APOCRYPHA_BOOKS','Great Isaiah Scroll','Community R
 for(const item of ['TRYAMM BUSINESS','Kingdoms Press','Bible Reading','Paleo-Hebrew','Dead Sea Scrolls and Apocrypha','consentToMarketing:false','submittedToServer:false','onOpenPress','OPEN METAVERSE BIBLE'])assert.ok(funnel.includes(item),item)
 assert.ok(portal.includes('<FaithVerseScrollsApocrypha'))
 assert.ok(portal.includes('<FaithVerseBusinessFunnel'))
-assert.ok(portal.includes("setTab('landing')"))
+assert.ok(portal.includes("useState<Tab>('landing')"))
 assert.ok(app.includes("route === '/faithverse-study'"))
 assert.ok(app.includes("'/faithverse-study'"))
 assert.ok(languages.includes('Denotation & Connotation'))
