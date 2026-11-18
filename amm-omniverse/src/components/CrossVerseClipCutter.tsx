@@ -1,4 +1,5 @@
 import {useEffect,useRef,useState} from 'react'
+import CrossVerseSourceRecorder from './CrossVerseSourceRecorder'
 
 type Shape='vertical'|'landscape'
 type VideoWithCapture=HTMLVideoElement&{captureStream?:()=>MediaStream}
@@ -126,6 +127,7 @@ export default function CrossVerseClipCutter(){
   return <section aria-label="CrossVerse local clip generator" style={{background:'#07111bd9',border:'1px solid #244156',borderRadius:18,padding:16,marginTop:14}}>
     <h2 style={{margin:'0 0 8px'}}>CROSSVERSE CLIP GENERATOR</h2>
     <p style={{color:'#b2c5d0',fontSize:13}}>Trim your own recording into a vertical 9:16 or horizontal 16:9 WebM. Local WebM export up to 5 minutes; no automatic upload, captions, or publishing. Longer clips need more memory and may export in real time.</p>
+    <CrossVerseSourceRecorder disabled={busy} onRecorded={chooseFile}/>
     <label style={{display:'block',marginBottom:12}}>Choose recording (maximum 300 MB)
       <input type="file" accept="video/*" onChange={e=>chooseFile(e.target.files?.[0])} disabled={busy} style={{display:'block',marginTop:8,maxWidth:'100%'}}/>
     </label>
