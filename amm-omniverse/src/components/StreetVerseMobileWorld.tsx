@@ -454,6 +454,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
             referenceMatchedPreview:isV15,photoMatched:false,certifiedLikeness:false,
             authoritative3DMesh:true,actual3DModelMounted:true,facialMorphNames:handle.morphTargetNames,
             skeletonAnimationCount:handle.clips.length,proceduralFallbackSuppressed:true,modelPreview:isV15,
+            localSession:isV15&&handle.object.userData.visualAuthority==='bj-recovered-v15-local-asset',
           }
           announceStreetVerseCharacterReady({id:STREETVERSE_HERO_CHARACTER_ID,assetId:detail.assetId,era:'current',photoMatched:false,source:detail.source})
           window.dispatchEvent(new CustomEvent('tryamm:streetverse-hero-visual-authority',{detail}))
