@@ -7,7 +7,7 @@ export type CommonsTopic='religion-and-belief'|'ai-ethics'|'streetverse-design'|
 export type CommonsRole='guide'|'critic'|'researcher'|'moderator'
 export type CommonsEvent={
  id:string;sessionId:string;topic:CommonsTopic;role:CommonsRole;
- text:string;origin:'scripted-demo'|'authorized-agent';consent:true;at:string;
+ text:string;origin:'scripted-demo'|'authorized-agent'|'cafe-queue-status';consent:true;at:string;
 }
 export type CommonsSession={
  id:string;topic:CommonsTopic;createdAt:string;enabled:boolean;events:CommonsEvent[];
@@ -42,8 +42,8 @@ export function draftAgentTurn(topic:CommonsTopic,role:CommonsRole):string{
  }
  return scripts[role](subject.label)
 }
-export function appendCommonsTurn(session:CommonsSession,input:{role:CommonsRole;text:string;origin:'scripted-demo'|'authorized-agent';authorized:boolean},at=new Date().toISOString()):CommonsSession{
- if(!session.enabled||!input.authorized||!isRole(input.role)||!['scripted-demo','authorized-agent'].includes(input.origin)||!input.text.trim())return session
+export function appendCommonsTurn(session:CommonsSession,input:{role:CommonsRole;text:string;origin:'scripted-demo'|'authorized-agent'|'cafe-queue-status';authorized:boolean},at=new Date().toISOString()):CommonsSession{
+ if(!session.enabled||!input.authorized||!isRole(input.role)||!['scripted-demo','authorized-agent','cafe-queue-status'].includes(input.origin)||!input.text.trim())return session
  const text=clean(input.text)
  if(!text)return session
  const event:CommonsEvent={id:session.id+'-'+(session.events.length+1),sessionId:session.id,topic:session.topic,role:input.role,text,origin:input.origin,consent:true,at}
@@ -66,10 +66,22 @@ export function parseCommonsSaved(raw:string|null):CommonsSession|null{
    if(!e||typeof e!=='object')return false
    const v=e as Partial<CommonsEvent>
    return v.consent===true&&v.sessionId===session.id&&v.topic===session.topic&&isRole(v.role)&&
-    (v.origin==='scripted-demo'||v.origin==='authorized-agent')&&typeof v.text==='string'&&v.text.length<=500
+    (v.origin==='scripted-demo'||v.origin==='authorized-agent'||v.origin==='cafe-queue-status')&&typeof v.text==='string'&&v.text.length<=500
   }).map((e:CommonsEvent)=>({...e,text:clean(e.text),consent:true}))
   return session
  }catch{return null}
+}
+/** Sanitized metadata from the EXISTING Café task queue, not agent dialogue or private prompts.
+ * Must only be called during an explicitly started opt-in session.
+ */
+export function publicCafeQueueSummary(value:unknown):string|null{
+ if(!value||typeof value!=='object')return null
+ const d=value as Record<string,unknown>
+ const safeId=(x:unknown)=>typeof x==='string'&&/^[a-z0-9][a-z0-9_-]{1,64}$/i.test(x)
+ const agent=d.agent&&typeof d.agent==='object'?d.agent as Record<string,unknown>:null
+ const task=d.task&&typeof d.task==='object'?d.task as Record<string,unknown>:null
+ if(!safeId(agent?.id)||!task||!['queued','working','review','blocked','done'].includes(String(task.status||'')))return null
+ return 'Café planning queue: agent '+agent!.id+' status '+String(task.status)+'. This is an assignment/status event, NOT proof an AI worker executed or spoke.'
 }
 export const AI_COMMONS_MONITOR_POLICY={
  defaultRecording:false,sessionMustBeEnabled:true,authorizedAgentsOnly:true,
