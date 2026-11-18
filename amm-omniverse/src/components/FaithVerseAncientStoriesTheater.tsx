@@ -1,4 +1,5 @@
-import {useEffect,useState,type CSSProperties} from 'react'
+import {lazy,Suspense,useEffect,useState,type CSSProperties} from 'react'
+const FaithVerseAncientCreature3D=lazy(()=>import('./FaithVerseAncientCreature3D'))
 import {FAITHVERSE_ANCIENT_STORIES,ANCIENT_STORY_RELEASE_GATE,FAITHVERSE_CREATURE_DESIGNS,type AncientStoryId} from '../data/FaithVerseAncientStories'
 import FaithVerseAncientQuestControls from './FaithVerseAncientQuestControls'
 import {FAITHVERSE_CREATURES,CREATURE_RELEASE,type CreatureKey} from '../data/FaithVerseCreatureArtDirection'
@@ -35,6 +36,7 @@ export default function FaithVerseAncientStoriesTheater({onOpenBible}:{onOpenBib
  const [progress,setProgress]=useState<Progress[]>(readProgress)
  const [motion,setMotion]=useState(false)
  const [contentLevel,setContentLevel]=useState<'family'|'teen'>('family')
+ const [show3D,setShow3D]=useState(false)
  const [notice,setNotice]=useState('Choose a scripture-guided ancient story. Nephilim and Watchers imagery is fictional, not a verified depiction of supernatural beings.')
  const story=FAITHVERSE_ANCIENT_STORIES.find(x=>x.id===selected)||FAITHVERSE_ANCIENT_STORIES[0]
  const creatureKey:CreatureKey|null=story.id==='nephilim-genesis'?'nephilim':story.id==='watchers-enoch'?'watcher':story.id==='david-goliath'?'goliath':null
@@ -51,6 +53,8 @@ export default function FaithVerseAncientStoriesTheater({onOpenBible}:{onOpenBib
   <label htmlFor="ancient-story-choose">Choose a chapter</label>
   <select style={btn} id="ancient-story-choose" value={story.id} onChange={e=>{setSelected(e.target.value as AncientStoryId);setStage(0)}}>{FAITHVERSE_ANCIENT_STORIES.filter(s=>contentLevel==='teen'||s.stageAge==='everyone').map(s=><option key={s.id} value={s.id}>{s.title}</option>)}</select>
   <StoryView styleId={story.style} active={motion}/>
+  {(story.style==='giants'||story.style==='watchers'||story.style==='battle')&&contentLevel==='teen'&&<button style={btn} aria-pressed={show3D} onClick={()=>setShow3D(x=>!x)}>{show3D?'HIDE 3D CREATURE TEST':'PREVIEW 3D SKINNED CREATURE'}</button>}
+  {(story.style==='giants'||story.style==='watchers'||story.style==='battle')&&contentLevel==='teen'&&show3D&&<Suspense fallback={<p>Loading original fantasy creature prototype…</p>}><FaithVerseAncientCreature3D creature={story.style}/></Suspense>}
   {creature&&<article aria-label="Original creature art direction and source boundaries" style={{display:'grid',gap:7,padding:13,border:'1px solid #a17a88',borderRadius:13,background:'#211f32',lineHeight:1.6}}><strong style={{fontSize:18}}>{creature.name}</strong><p style={{margin:0}}><strong>Appearance:</strong> {creature.silhouette}</p><p style={{margin:0}}><strong>Design details:</strong> {creature.details.join(' · ')}</p><p style={{margin:0}}><strong>Sources:</strong> {creature.source.join('; ')}</p><p style={{margin:0,fontSize:13}}>{creature.historicalStatus}</p><p style={{margin:0,fontSize:13}}>{creature.humanDignityRule}</p><p style={{margin:0,fontSize:12,color:'#f1d0b9'}}>Actual 3D creature GLB verified: {CREATURE_RELEASE.skinned3dAssetsVerified?'Yes':'No'} · Live hostile NPC spawn: disabled</p></article>}
   <FaithVerseAncientQuestControls key={story.id} storyId={story.id}/>
   <h3 style={{fontSize:21,margin:'2px 0'}}>{story.title} · Scene {stage+1} of 4</h3>
