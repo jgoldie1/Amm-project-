@@ -217,7 +217,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   const reelCapture=installStreetVerseReelCapture(renderer.domElement)
   const scene=new THREE.Scene();scene.background=new THREE.Color(0xa9c2d4);scene.fog=new THREE.Fog(0xa9c2d4,95,245)
   const externalCollisionBoxes:THREE.Box3[]=[]
-  const threeCastStage=installStreetVerseThreeCastStage(scene,externalCollisionBoxes)
+  const threeCastStage=installStreetVerseThreeCastStage(scene,externalCollisionBoxes,()=>{const hero=scene.getObjectByName('streetverse-mobile-hero');return hero?hero.position:new THREE.Vector3(0,0,0)})
   const westSideVisibleWorld=createStreetVerseWestSideVisibleWorld(scene,externalCollisionBoxes)
   const unregisterScene=registerStreetVerseScene({scene,collisionBoxes:externalCollisionBoxes})
   const rescueFireRoot=new THREE.Group();rescueFireRoot.name='streetverse-dynamic-rescue-fire';rescueFireRoot.visible=false;scene.add(rescueFireRoot)
