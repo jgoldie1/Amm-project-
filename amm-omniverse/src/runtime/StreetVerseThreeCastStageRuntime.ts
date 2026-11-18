@@ -103,7 +103,7 @@ export function installStreetVerseThreeCastStage(scene:THREE.Scene,cityCollision
     let data=await readLocalCastAsset(entry.id)
     if(!data){
      const response=await fetch(entry.url,{cache:'no-store'})
-     if(!response.ok||(response.headers.get('content-type').includes('text/html')||''))throw new Error('Original GLB missing in app. Import the recovered ZIP or GLB files.')
+     if(!response.ok||(response.headers.get('content-type')||'').includes('text/html'))throw new Error('Original GLB missing in app. Import the recovered ZIP or GLB files.')
      data=await response.arrayBuffer()
     }
     if(data.byteLength<20||new DataView(data).getUint32(0,true)!==0x46546c67)throw new Error('Not a GLB')
