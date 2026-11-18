@@ -49,6 +49,28 @@ require('./music-api')({app,auth,clean,id,getStore:()=>store,saveStore,io});
 require('./lib/omniverse-radio-routes')({app,auth,clean,id,getStore:()=>store,saveStore,io});
 require('./lib/daily-business-boost-routes')({app,auth,clean,id,getStore:()=>store,saveStore,io});
 require('./lib/financial-marketplace-routes')({app,getStore:()=>store});
+
+const {registerFaithVerseCommerce}=require('./lib/faithverse-commerce-routes');
+// Reuse TRYAMM's existing account sessions; a verified Supabase session may also authenticate.
+// Never trust browser-supplied email or user ID.
+async function faithverseAuth(req,res,next){
+ const token=bearer(req);
+ const local=userFromToken(token);
+ if(local){req.user=local;return next()}
+ if(!token||token.length>5000||!process.env.SUPABASE_URL||!process.env.SUPABASE_SERVICE_ROLE_KEY)return res.status(401).json({ok:false,code:'SIGN_IN_REQUIRED'});
+ try{
+  const url=new URL('/auth/v1/user',process.env.SUPABASE_URL);
+  if(url.protocol!=='https:')return res.status(503).json({ok:false,code:'AUTH_PROVIDER_NOT_CONFIGURED'});
+  const response=await fetch(url,{headers:{apikey:process.env.SUPABASE_SERVICE_ROLE_KEY,Authorization:'Bearer '+token},signal:AbortSignal.timeout(5000)});
+  if(!response.ok)return res.status(401).json({ok:false,code:'INVALID_ACCOUNT_SESSION'});
+  const user=await response.json();
+  if(!/^[0-9a-f-]{36}$/.test(String(user?.id||''))||typeof user.email!=='string'||!user.email_confirmed_at)return res.status(401).json({ok:false,code:'VERIFIED_ACCOUNT_REQUIRED'});
+  req.user={id:'sb_'+user.id,email:user.email.toLowerCase(),role:'member'};
+  return next();
+ }catch{return res.status(503).json({ok:false,code:'AUTH_PROVIDER_UNAVAILABLE'})}
+}
+registerFaithVerseCommerce({app,auth:faithverseAuth,getStore:()=>store,saveStore});
+
 io.use((socket,next)=>{const user=userFromToken(socket.handshake.auth?.token||'');if(!user)return next(new Error('unauthorized'));socket.user=user;next()});
 io.on('connection',socket=>{socket.on('room:join',({roomId})=>{const room=store.rooms.find(r=>r.id===roomId&&r.status==='live');if(!room)return socket.emit('error:message','Room is unavailable');socket.join(`room:${roomId}`);socket.data.roomId=roomId;socket.to(`room:${roomId}`).emit('peer:joined',{socketId:socket.id,name:socket.user.displayName});io.to(`room:${roomId}`).emit('viewer:count',io.sockets.adapter.rooms.get(`room:${roomId}`)?.size||0)});socket.on('chat',({roomId,message})=>{const text=clean(message,500);if(text)io.to(`room:${roomId}`).emit('chat',{id:id('msg'),from:socket.user.displayName,text,at:Date.now()})});socket.on('webrtc:offer',({to,offer})=>io.to(to).emit('webrtc:offer',{from:socket.id,offer}));socket.on('webrtc:answer',({to,answer})=>io.to(to).emit('webrtc:answer',{from:socket.id,answer}));socket.on('webrtc:ice',({to,candidate})=>io.to(to).emit('webrtc:ice',{from:socket.id,candidate}));socket.on('disconnect',()=>{const roomId=socket.data.roomId;if(roomId)io.to(`room:${roomId}`).emit('viewer:count',io.sockets.adapter.rooms.get(`room:${roomId}`)?.size||0)})});
 app.use('/api',(_req,res)=>res.status(404).json({error:'API route not found'}));app.get(/^\/(?:stubbs-security-training|stubbs-security-academy)\.html$/, (req,res)=>{const file=path.join(__dirname,'public',path.basename(req.path));if(!fs.existsSync(file))return res.status(404).type('text/plain').send('Security business page is not included in this deployment.');return res.sendFile(file)});app.get('*',(_req,res)=>res.sendFile(path.join(__dirname,'public','index.html')));app.use((error,_req,res,_next)=>{console.error(error);res.status(error.status||500).json({error:error.message||'Server error'})});server.listen(PORT,()=>console.log(`TryAMM running on port ${PORT}`));
