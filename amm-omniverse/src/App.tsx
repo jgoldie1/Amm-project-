@@ -10,6 +10,7 @@ import './styles.css'
 
 const CityView = lazy(() => import('./components/CityView'))
 const AICommonsOnePush = lazy(() => import('./components/AICommonsOnePush'))
+const OmniCare360CareAccess = lazy(() => import('./components/OmniCare360CareAccess'))
 const SportsRealm = lazy(() => import('./components/RealmScreens').then(m => ({ default: m.SportsRealm })))
 const MarketplaceRealm = lazy(() => import('./components/RealmScreens').then(m => ({ default: m.MarketplaceRealm })))
 const MusicRealm = lazy(() => import('./components/RealmScreens').then(m => ({ default: m.MusicRealm })))
@@ -68,6 +69,7 @@ export default function App() {
   const screen = useGameStore(s => s.screen)
   const setScreen = useGameStore(s => s.setScreen)
   const [showAICommons, setShowAICommons] = useState(false)
+  const [showOmniCare360, setShowOmniCare360] = useState(false)
   const [showPricing, setShowPricing] = useState(false)
   const [showHoloverse, setShowHoloverse] = useState(false)
   const [showBennie, setShowBennie] = useState(false)
@@ -344,7 +346,8 @@ export default function App() {
           <div style={{marginTop:10,fontSize:9,color:'#718096',lineHeight:1.5}}>Advanced systems stay available here without covering the main experience. Readiness labels distinguish live, protected and beta features.</div>
         </div>}
 
-        {showAICommons && <AICommonsOnePush onClose={() => setShowAICommons(false)} onOpenAgent={() => { setShowAICommons(false); setShowHoloGPT(true) }} onStartMission={() => { setShowAICommons(false); setScreen('city') }} />}
+        {showAICommons && <AICommonsOnePush onClose={() => setShowAICommons(false)} onOpenAgent={() => { setShowAICommons(false); setShowHoloGPT(true) }} onStartMission={() => { setShowAICommons(false); setScreen('city') }} onOpenCare={() => {setShowAICommons(false); setShowOmniCare360(true)}} />
+        {showOmniCare360 && <OmniCare360CareAccess onClose={() => setShowOmniCare360(false)} />}}
         {showPricing && <div style={{position:'fixed',inset:0,zIndex:9999,background:'#020212'}}><PricingScreen onClose={() => setShowPricing(false)} /></div>}
         {showHoloverse && <div style={{position:'fixed',inset:0,zIndex:2147483500,background:'#020212'}}><HoloverseHub onClose={() => setShowHoloverse(false)} /></div>}
         {showBennie && <div style={{position:'fixed',inset:0,zIndex:9997,background:'#020212'}}><BennieChat onClose={() => setShowBennie(false)} /></div>}
