@@ -81,6 +81,7 @@ must(castRuntime.includes("renderedMotionVerified:false"),'one-push mixer tick m
 
 must(world.includes('runCastOnePushReport(file)')&&world.includes('exportCastOnePushReport(report)'),'one-hand test must automatically export its report')
 must(castReport.includes('importOriginalCastZip(file)'),'one-push report must validate the original archive')
+must(castReport.includes('STREETVERSE_RECOVERED_CAST')&&castReport.includes('proof.archive.validatedAssets='),'exported report must include original model hashes and diagnostic limitations')
 must(castReport.includes("threeMounted=Object.values(proof.characters).every"),'three-character mount verdict must require all three')
 must(castReport.includes("realAnimationPlaybackProven:false"),'do not falsely claim actual rendered animation playback')
 must(castReport.includes("status:'not_submitted'"),'never claim report submitted without a verified backend receipt')
