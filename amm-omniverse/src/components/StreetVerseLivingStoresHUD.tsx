@@ -1,5 +1,4 @@
 import {citySnapshot,cityCommerceEvents,nextCityTick} from '../runtime/StreetVerseLivingCityDirector'
-import StreetVerseCommonsNpcFactory from './StreetVerseCommonsNpcFactory'
 import {useEffect,useState} from 'react'
 import {applyStoreAction,advanceLivingWorld,type StoreAction} from '../runtime/StreetVerseLivingStoreRuntime'
 import {awardDeliveryOnce,buyGameProduct,initialShoppingLedger,readShoppingLedger,serializeShoppingLedger,SHOPPING_SAVE_KEY,type ShoppingLedger} from '../runtime/StreetVerseShoppingLedger'
@@ -35,7 +34,7 @@ export default function StreetVerseLivingStoresHUD(){
   setMessage(result.reason)
   if(result.ok)setLedger({...ledger,world:result.state})
  }
- return <><StreetVerseCommonsNpcFactory/><aside data-streetverse-living-stores="demo" style={{position:'fixed',left:8,top:'calc(env(safe-area-inset-top) + 80px)',zIndex:43987,maxWidth:'min(370px,calc(100vw - 16px))',maxHeight:'70dvh',overflow:'auto',background:'rgba(5,22,39,.97)',color:'white',padding:10,borderRadius:12,font:'13px system-ui',boxShadow:'0 8px 30px #0008'}}>
+ return <aside data-streetverse-living-stores="demo" style={{position:'fixed',left:8,top:'calc(env(safe-area-inset-top) + 80px)',zIndex:43987,maxWidth:'min(370px,calc(100vw - 16px))',maxHeight:'70dvh',overflow:'auto',background:'rgba(5,22,39,.97)',color:'white',padding:10,borderRadius:12,font:'13px system-ui',boxShadow:'0 8px 30px #0008'}}>
   <button style={button} onClick={()=>setOpen(v=>!v)} aria-expanded={open}>🛍️ STREETVERSE SHOPPING MALL</button>
   {open&&<div style={{display:'grid',gap:12,marginTop:12}}>
    <button style={button} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-open-npc-factory',{detail:{source:'living-stores'}}))}>CREATE / TALK TO AI COMMONS NPC</button>
@@ -54,5 +53,5 @@ export default function StreetVerseLivingStoresHUD(){
    <div role="status" aria-live="polite">{message}</div>
    <small>No real stores, seller approvals, payments or deliveries are connected. All purchases, credits, inventory, vendor actions and delivery rewards here are fictional. No real goods, charges or shipments are created.</small>
   </div>}
- </aside></>
+ </aside>
 }
