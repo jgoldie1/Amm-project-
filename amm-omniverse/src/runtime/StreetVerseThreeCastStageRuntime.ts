@@ -20,7 +20,6 @@ export function installStreetVerseThreeCastStage(scene:THREE.Scene,cityCollision
  const obstacleGeometry=new THREE.BoxGeometry(HURDLE_WIDTH,HURDLE_HEIGHT,HURDLE_DEPTH)
  const hurdle=new THREE.Mesh(obstacleGeometry,obstacleMaterial)
  hurdle.position.set(0,HURDLE_HEIGHT/2,HURDLE_Z);hurdle.name='streetverse-verified-low-hurdle';hurdle.visible=false;stage.add(hurdle)
- const hurdleBox=new THREE.Box3().setFromObject(hurdle)
  const result=(status:string,detail:Record<string,unknown>={})=>{if(!disposed)window.dispatchEvent(new CustomEvent('tryamm:streetverse-cast-stage-result',{detail:{status,...detail}}))}
  let disposed=false,loading=false,frame=0,last=performance.now(),lastFrame=0
  const choose=(actor:Actor,kind:Action)=>{
