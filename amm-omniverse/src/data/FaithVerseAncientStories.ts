@@ -23,6 +23,28 @@ export const FAITHVERSE_ANCIENT_STORIES:readonly AncientStory[]=[
  storySteps:['Join the journey toward the sea','Help families reach a safe crossing viewpoint','Observe animated water separating in a symbolic reconstruction','Read the Exodus passage and reflect on fear, freedom and responsibility'],
  lesson:'Deliverance, care for others and trust',interpretation:'The visual effect illustrates scripture, not historical footage or a verified hydrological explanation.'}
 ]
+// Original dark-fantasy creature designs; these are not described as proven biblical anatomy.
+// The strange/ugly shapes are applied to imaginary beings only, never real ethnic groups.
+export const FAITHVERSE_CREATURE_DESIGNS=Object.freeze({
+ nephilim:{
+  title:'Nephilim / Giant Study Creature',
+  appearance:'Towering invented humanoid, heavy uneven brow ridge, scarred stone-like armor, crooked fantasy teeth, oversized hands, tangled dark hair and an unsettling silhouette.',
+  heightProvenByScripture:false,appearanceProvenByScripture:false,source:'Genesis 6:1–4 and Numbers 13:32–33',
+  rating:'teen',nonGraphic:true,riggedGLBVerified:false
+ },
+ watchers:{
+  title:'Fallen-Angel / Watchers Study Creature',
+  appearance:'Ominous invented winged figure with ragged shadow feathers, asymmetrical stony face, jagged ornamental crown, harsh ancient-metal costume and dark eyes. No gore.',
+  appearanceProvenByScripture:false,source:'1 Enoch 6–15 (separate literary and canonical tradition)',
+  rating:'teen',nonGraphic:true,riggedGLBVerified:false
+ },
+ goliath:{
+  title:'Goliath',
+  appearance:'Large armored individual with a bronze-like helmet, shield and spear silhouette; no claim that all Philistines shared these features.',
+  physicalScaleReconstructionVerified:false,source:'1 Samuel 17',rating:'teen',nonGraphic:true,riggedGLBVerified:false
+ },
+  castingSafeguard:'Fictional monsters are not stand-ins for real ethnicities, nationalities, races, disabilities, or religious groups.'
+}) as const
 export const ANCIENT_STORY_RELEASE_GATE={textSourceReviewRequired:true,approvedTranslationsRequired:true,verifiedRiggedGLB:false,
  multiplayerVerified:false,deviceAcceptanceVerified:false,scriptureSourcesVerifiedByEditor:false,productionReady:false,
  distinction:'Original illustration and narration must remain distinct from direct quotations and contested historical claims.'} as const
