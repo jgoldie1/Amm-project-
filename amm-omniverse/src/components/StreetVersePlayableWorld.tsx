@@ -58,7 +58,21 @@ function MobileRuntimeGuard({onClose,children}:{onClose:()=>void;children:ReactN
 export default function StreetVersePlayableWorld({onClose}:{onClose:()=>void}){
  const safe=useMemo(shouldUseStreetVerseSafeMode,[])
  const mobile=useMemo(isMobileDevice,[])
+ // Chromebook/desktop users can deliberately choose the same authoritative
+ // one-hand 3D runtime used by phones, including the verified local GLB importer.
+ const [desktopOneHand,setDesktopOneHand]=useState(()=>{
+   try{return !isMobileDevice()&&localStorage.getItem('tryamm:streetverse-control-mode')==='one-hand'}catch{return false}
+ })
+ const enableOneHand=()=>{
+   try{localStorage.setItem('tryamm:streetverse-control-mode','one-hand');if(!localStorage.getItem('tryamm:streetverse-one-hand-side'))localStorage.setItem('tryamm:streetverse-one-hand-side','right')}catch{}
+   setDesktopOneHand(true)
+ }
+ const restoreDesktop=()=>{
+   try{localStorage.setItem('tryamm:streetverse-control-mode','two-hand')}catch{}
+   setDesktopOneHand(false)
+ }
  if(safe)return <><StreetVerseWeatherSync/><StreetVerseSafeWorld onClose={onClose}/><StreetVerseMobileGameShell onClose={onClose}/></>
  if(mobile)return <><StreetVerseWeatherSync/><StreetVerseWorldBoundary onClose={onClose}><MobileRuntimeGuard onClose={onClose}><Suspense fallback={<MobileLoading/>}><StreetVerseMobileWorld onClose={onClose}/></Suspense></MobileRuntimeGuard></StreetVerseWorldBoundary></>
- return <><StreetVerseWeatherSync/><StreetVerseWorldBoundary onClose={onClose}><Suspense fallback={<MobileLoading/>}><StreetVerseLivingWorld onClose={onClose}/></Suspense></StreetVerseWorldBoundary></>
+ if(desktopOneHand)return <><StreetVerseWeatherSync/><StreetVerseWorldBoundary onClose={onClose}><MobileRuntimeGuard onClose={onClose}><Suspense fallback={<MobileLoading/>}><StreetVerseMobileWorld onClose={onClose}/></Suspense></MobileRuntimeGuard></StreetVerseWorldBoundary><button type="button" aria-label="Return to desktop StreetVerse 3D world" onClick={restoreDesktop} style={{position:'fixed',left:12,top:12,zIndex:52010,minHeight:48,padding:'8px 10px',borderRadius:12,background:'#072c30',border:'2px solid #90ffe7',color:'#fff',font:'900 11px system-ui',touchAction:'manipulation'}}>DESKTOP 3D</button></>
+ return <><StreetVerseWeatherSync/><StreetVerseWorldBoundary onClose={onClose}><Suspense fallback={<MobileLoading/>}><StreetVerseLivingWorld onClose={onClose}/></Suspense></StreetVerseWorldBoundary><button type="button" aria-label="Open one-hand StreetVerse 3D and original cast import" onClick={enableOneHand} style={{position:'fixed',right:74,top:14,zIndex:52010,minHeight:52,padding:'9px 13px',borderRadius:14,background:'#06333c',border:'2px solid #95ffde',color:'#fff',font:'900 12px system-ui',touchAction:'manipulation'}}>ONE-HAND 3D • ORIGINAL CAST</button></>
 }
