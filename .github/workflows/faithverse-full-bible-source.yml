@@ -39,7 +39,7 @@ jobs:
           for x in m['books']:
               book=json.loads((root/x['file']).read_text())
               assert book['id']==x['id'] and len(book['chapters'])==x['chapterCount']
-              assert sum(map(len,book['chapters']))==x['verseCount']
+              assert sum(sum(verse is not None for verse in chapter) for chapter in book['chapters'])==x['verseCount']
           print('FAITHVERSE FULL WEB SOURCE QA PASS',m['bookCount'],m['chapterCount'],m['verseCount'],m['sourceArchiveSHA256'])
           PY
       - name: Verify browser TypeScript and Vite output with full Bible bundled
