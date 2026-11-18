@@ -357,7 +357,16 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     if(nativeHeroFallback){
       const activateBJHero=()=>{
         const request=++bjHeroLoadEpoch
+        const requireV15=new URLSearchParams(window.location.search).get('bj')==='v15'
         setBJLoadStatus('loading')
+        // A deliberate V15 restore must never look successful while the old BJ remains visible.
+        // Hide every fallback immediately; restore only if the request was not an explicit V15 load.
+        if(requireV15){
+          if(bjMeshyHero?.object)bjMeshyHero.object.visible=false
+          if(nativeHeroFallback)nativeHeroFallback.visible=false
+          setBJRenderedVersion(null)
+          setMessage('REAL BJ V15 LOADING • fallback hidden')
+        }
         // Every request terminates visibly, even if a browser or API hangs.
         const guard=window.setTimeout(()=>{
           if(!nativeCancelled&&request===bjHeroLoadEpoch){
@@ -368,8 +377,25 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
         },52000)
         void loadStreetVerseMeshyBJHero().then(handle=>{
           window.clearTimeout(guard)
-          if(!handle){if(request===bjHeroLoadEpoch){setBJLoadStatus('error');setMessage('BJ V15 NOT AVAILABLE • retry from the BJ button')}return}
+          if(!handle){if(request===bjHeroLoadEpoch){setBJLoadStatus('error');setBJRenderedVersion(null);if(requireV15&&nativeHeroFallback)nativeHeroFallback.visible=false;setMessage(requireV15?'REAL BJ V15 NOT LOADED • old BJ blocked • use RESTORE REAL BJ':'BJ V15 NOT AVAILABLE • retry from the BJ button')}return}
           if(nativeCancelled||!nativeLayer||request!==bjHeroLoadEpoch){handle.dispose();return}
+          const isV15=handle.object.userData.bjV15RealGlbPreview===true
+          // Fail closed for an explicit restore. Do not silently replace a failed V15 request
+          // with V12/V7/V6 and make the player think the imported model was accepted.
+          if(requireV15&&!isV15){
+            handle.dispose()
+            bjMeshyHero?.dispose();bjMeshyHero=null
+            publishedHeroBody?.dispose();publishedHeroBody=null
+            familyHeroHandle?.dispose();familyHeroHandle=null
+            bjPhotoMatch?.dispose();bjPhotoMatch=null;bjPhotoMatchReady=false
+            bjHeadRuntime?.dispose();bjHeadRuntime=null
+            if(nativeHeroFallback){nativeHero=nativeHeroFallback;nativeHeroFallback.visible=false}
+            setBJRenderedVersion(null)
+            setBJLoadStatus('error')
+            setMessage('REAL BJ V15 NOT LOADED • old BJ blocked • use RESTORE REAL BJ')
+            window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-v15-required',{detail:{reason:'fallback-rejected',source:'streetverse-mobile-world'}}))
+            return
+          }
           bjMeshyHero?.dispose()
           publishedHeroBody?.dispose();publishedHeroBody=null
           familyHeroHandle?.dispose();familyHeroHandle=null
@@ -381,7 +407,6 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
           nativeHero=handle.object
           nativeHero.position.copy(avatar.position)
           nativeHero.rotation.y=avatar.rotation.y
-          const isV15=handle.object.userData.bjV15RealGlbPreview===true
           // GLTF animation bones must not be overwritten by procedural limb swing.
           nativeHeroRig=isV15?null:nativeHumanoidRig(nativeHero)
           nativeWindLocs=[]
