@@ -53,7 +53,7 @@ async function loadRecoveredCharacter(role:RecoveredCastRole):Promise<LoadedCast
     for(const mat of materials){mat.dispose()}
    })
   }
-  publishStatus(role,'ready')
+  // Do not publish READY before the world actually mounts the mesh.
   return {root,mixer,idle,clips:gltf.animations,dispose}
  }catch(e){publishStatus(role,'unavailable',e instanceof Error?e.message:'load failed');return null}
 }
@@ -81,6 +81,7 @@ export function mountRecoveredStreetVerseCast(scene:THREE.Scene){
    medical.register(STREETVERSE_RECOVERED_CAST[role].id,character.root)
    const rig=createUniversalInjuryAnimationController(STREETVERSE_RECOVERED_CAST[role].id,character.root,character.clips)
    controllers.set(role,rig)
+   publishStatus(role,'ready')
    window.dispatchEvent(new CustomEvent('tryamm:streetverse-character-registered',{detail:{
      characterId:STREETVERSE_RECOVERED_CAST[role].id,fictional:true,
      quality:rig.audit.quality,rigAudit:rig.audit,localSession:Boolean(localRecoveredCastUrl(role))
@@ -96,15 +97,29 @@ export function mountRecoveredStreetVerseCast(scene:THREE.Scene){
  }
  // A local ZIP can be selected AFTER the player enters Chicago; reload the real
  // imported meshes in-place, without a page refresh or cloud upload.
- const onLocalCast=()=>{for(const role of roles)void loadRole(role)}
+ const onLocalCast=()=>{mixerTickReported.clear();for(const role of roles)void loadRole(role)}
  window.addEventListener('tryamm:streetverse-character-reaction-request',onMotion)
  window.addEventListener('tryamm:streetverse-recovered-cast-local-import',onLocalCast)
  for(const role of roles)void loadRole(role)
  let lastMs=0
+ const mixerTickReported=new Set<RecoveredCastRole>()
  return {
    tick(nowMs:number){
      const dt=lastMs?Math.min(.1,Math.max(0,(nowMs-lastMs)/1000)):0;lastMs=nowMs
-     for(const character of characters.values())character.mixer?.update(dt)
+     for(const [role,character] of characters){
+       character.mixer?.update(dt)
+       if(dt>0&&character.mixer&&character.idle?.isRunning()&&!mixerTickReported.has(role)){
+         mixerTickReported.add(role)
+         window.dispatchEvent(new CustomEvent('tryamm:streetverse-cast-animation-tick',{detail:{
+           characterId:STREETVERSE_RECOVERED_CAST[role].id,
+           localSession:Boolean(localRecoveredCastUrl(role)),
+           animationClipCount:character.clips.length,
+           deltaSeconds:dt,
+           mixerAdvanced:true,
+           renderedMotionVerified:false
+         }}))
+       }
+     }
      for(const controller of controllers.values())controller.tick(dt)
      medical.tick(nowMs)
    },
