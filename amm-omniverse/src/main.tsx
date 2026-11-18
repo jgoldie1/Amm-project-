@@ -132,7 +132,12 @@ try {
   
   const routeFallback=<div role="status" aria-live="polite" style={{position:'fixed',inset:0,zIndex:15980,display:'grid',placeItems:'center',background:'#050505',color:'#fff',fontFamily:'system-ui,sans-serif',fontWeight:900}}>LOADING…</div>
   
-  const isStreetVerseCore=isStreetVerse&&streetVerseParams.get('core')==='1'
+  const streetVerseLowMemoryDevice=typeof navigator!=='undefined'&&/(CrOS|Android|iPhone|iPad|iPod)/i.test(navigator.userAgent)
+  // Chromebook and phone browsers can run out of memory while booting the full
+  // StreetVerse shell before the playable world appears. Default those devices
+  // to the direct 3D core route. Add ?full=1 only when intentionally testing the
+  // heavier shell; ?core=1 remains an explicit core-mode override everywhere.
+  const isStreetVerseCore=isStreetVerse&&(streetVerseParams.get('core')==='1'||(streetVerseParams.get('full')!=='1'&&streetVerseLowMemoryDevice))
   const streetVerseRoute=isStreetVerseCore?<StreetVerseMobileErrorBoundary name="StreetVerse Direct 3D Core"><Suspense fallback={<div role="status" aria-live="polite" style={{position:'fixed',inset:0,background:'#07101d',color:'white',display:'grid',placeItems:'center',font:'900 18px system-ui'}}>STARTING PLAYABLE 3D WORLD • CORE MODE…</div>}><StreetVerseMobileWorldCore onClose={()=>{window.location.href='/'}}/></Suspense></StreetVerseMobileErrorBoundary>:isStreetVerseSafe?<><StreetVerseWeatherSync/><StreetVerseSafeWorld communityAreaNumber={safeCommunityArea} onClose={()=>{window.location.href='/'}} /></>:<>
     <StreetVerseMobileErrorBoundary name="StreetVerse Canonical 3D"><Suspense fallback={routeFallback}><StreetVerseGeoSpawnBridge onClose={()=>{window.location.href='/'}} /></Suspense></StreetVerseMobileErrorBoundary>
   </>
