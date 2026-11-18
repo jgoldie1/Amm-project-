@@ -9,6 +9,15 @@ on:
       - 'amm-omniverse/src/components/FaithVerseScrollsApocrypha.tsx'
       - 'amm-omniverse/src/components/FaithVerseLanguageAcademy.tsx'
       - 'test/faithverse-bible-kingdoms-press-integration.test.js'
+      - 'amm-omniverse/src/components/FaithGalileeRoleplay.tsx'
+      - 'amm-omniverse/src/components/FaithChronoLauncher.tsx'
+      - 'amm-omniverse/src/data/FaithVerseStudyLibrary.ts'
+      - 'test/faithverse-mycelium-galilee-contract.test.js'
+      - 'test/faithverse-commerce-contract.test.js'
+      - 'lib/faithverse-mycelium-rpg-contract.js'
+      - 'lib/faithverse-commerce-routes.js'
+      - 'amm-omniverse/src/components/FaithVerseBusinessEnrollment.tsx'
+      - 'server.js'
       - 'amm-omniverse/src/components/FaithVerseBibleHub.tsx'
       - 'amm-omniverse/src/runtime/FaithVerseBibleEdition.ts'
       - '.github/workflows/faithverse-full-bible-source.yml'
@@ -28,6 +37,10 @@ jobs:
           python-version: '3.12'
       - name: Validate TRYAMM FaithVerse landing funnel, Scrolls and Apocrypha integration
         run: node test/faithverse-bible-kingdoms-press-integration.test.js
+      - name: Verify Galilee/Mycelium roleplay and consent-based business checkout contracts
+        run: |
+          node test/faithverse-mycelium-galilee-contract.test.js
+          node test/faithverse-commerce-contract.test.js
       - name: Run source parser, completeness guard and EPUB structure unit tests
         run: python3 amm-omniverse/tests/test_faithverse_import_web.py
       - name: Download official public-domain World English Bible USFM and generate 66-book asset bundle
