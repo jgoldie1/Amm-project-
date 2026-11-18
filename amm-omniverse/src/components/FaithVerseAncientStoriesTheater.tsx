@@ -30,6 +30,7 @@ export default function FaithVerseAncientStoriesTheater({onOpenBible}:{onOpenBib
  const [stage,setStage]=useState(0)
  const [progress,setProgress]=useState<Progress[]>(readProgress)
  const [motion,setMotion]=useState(false)
+ const [contentLevel,setContentLevel]=useState<'family'|'teen'>('family')
  const [notice,setNotice]=useState('Choose a scripture-guided ancient story. Nephilim and Watchers imagery is fictional, not a verified depiction of supernatural beings.')
  const story=FAITHVERSE_ANCIENT_STORIES.find(x=>x.id===selected)||FAITHVERSE_ANCIENT_STORIES[0]
  const save=()=>{const earlier=progress.find(p=>p.id===story.id);const stages=Array.from(new Set([...(earlier?.stages||[]),stage]));const next=[...progress.filter(x=>x.id!==story.id),{id:story.id,stages,updatedAt:new Date().toISOString()}].slice(-20);setProgress(next);try{localStorage.setItem(KEY,JSON.stringify(next));setNotice('Stage saved on this device. No cloud reward or school credit was awarded.')}catch{setNotice('Local storage unavailable.')}} 
@@ -39,8 +40,10 @@ export default function FaithVerseAncientStoriesTheater({onOpenBible}:{onOpenBib
  return <section aria-label="Ancient Bible stories immersive learning theater" style={{background:'#0a1727',border:'1px solid #a79778',color:'#fff',borderRadius:17,padding:'clamp(12px,3vw,22px)',display:'grid',gap:14}}>
   <h2 style={{fontSize:25,margin:0}}>Ancient Bible World · Floods, Giants and David</h2>
   <p style={{fontSize:14,lineHeight:1.7,margin:0}}>Explore Noah’s Ark, Nephilim, the Watchers tradition, David and Goliath, Babel and the sea crossing as original dramatized learning scenes. These are symbolic 2D previews, not yet walkable multi-character 3D worlds.</p>
+  <label htmlFor="ancient-story-intensity">Story intensity</label>
+  <select id="ancient-story-intensity" style={btn} value={contentLevel} onChange={e=>{const level=e.target.value as 'family'|'teen';setContentLevel(level);setSelected('creation-flood');setStage(0)}}><option value="family">Family · gentler scenes</option><option value="teen">Teen · intimidating fictional giants and fallen angels</option></select>
   <label htmlFor="ancient-story-choose">Choose a chapter</label>
-  <select style={btn} id="ancient-story-choose" value={story.id} onChange={e=>{setSelected(e.target.value as AncientStoryId);setStage(0)}}>{FAITHVERSE_ANCIENT_STORIES.map(s=><option key={s.id} value={s.id}>{s.title}</option>)}</select>
+  <select style={btn} id="ancient-story-choose" value={story.id} onChange={e=>{setSelected(e.target.value as AncientStoryId);setStage(0)}}>{FAITHVERSE_ANCIENT_STORIES.filter(s=>contentLevel==='teen'||s.stageAge==='everyone').map(s=><option key={s.id} value={s.id}>{s.title}</option>)}</select>
   <StoryView styleId={story.style} active={motion}/>
   <h3 style={{fontSize:21,margin:'2px 0'}}>{story.title} · Scene {stage+1} of 4</h3>
   <p role="status" aria-live="polite" style={{lineHeight:1.65,borderLeft:'4px solid #c6a87a',padding:'10px 13px',margin:0}}>{story.storySteps[stage]}</p>
