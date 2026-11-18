@@ -80,7 +80,9 @@ export default function CrossVerseDistributionStatus(){
         <p style={{fontSize:12}}>Stream key: <input type="password" readOnly value={credentials.obsStreamKey} autoComplete="off" aria-label="Private OBS source key" style={{maxWidth:'100%',padding:8}}/></p>
         <button type="button" style={btn} onClick={()=>void navigator.clipboard.writeText(credentials.obsStreamKey)}>COPY SOURCE KEY</button>
         <button type="button" style={{...btn,marginLeft:8}} onClick={()=>setCredentials(null)}>HIDE KEY</button>
-        <p style={{fontSize:12}}>In OBS Settings → Stream → Custom, enter the server and source key privately. No automatic multistream or publishing occurs.</p>
+        <p style={{fontSize:12}}>Live room ID: <code>{credentials.roomName}</code></p>
+        <button type="button" style={btn} onClick={()=>void navigator.clipboard.writeText(credentials.roomName)}>COPY LIVE ROOM ID</button>
+        <p style={{fontSize:12}}>In OBS Settings → Stream → Custom, enter the server and source key privately. Then open the existing TRYAMM LIVE Center as a viewer and paste this room ID to inspect your OBS feed. No automatic multistream or publishing occurs.</p>
       </div>}
     </div>
     <p style={{fontSize:12,color:'#a9bccc'}}>Keep external destination keys in approved server-side or OBS settings. Verify a private broadcast on every platform before public multistreaming.</p>
