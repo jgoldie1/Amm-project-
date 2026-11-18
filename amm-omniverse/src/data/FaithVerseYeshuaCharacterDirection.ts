@@ -31,4 +31,4 @@ export const YESHUA_HIGH_PRIEST_ART_DIRECTION = Object.freeze({
   concept2D:true,actualRiggedGLBVerified:false,motionRetargetVerified:false,deviceAcceptanceVerified:false,
   artApproval:'pending owner visual review'
  }
-} as const
+} as const)
