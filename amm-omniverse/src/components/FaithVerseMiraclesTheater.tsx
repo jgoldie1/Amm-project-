@@ -31,7 +31,6 @@ export default function FaithVerseMiraclesTheater({onClose,onOpenBible,onReturnT
  const [filter,setFilter]=useState('All')
  const [captions,setCaptions]=useState(true)
  const [motion,setMotion]=useState(false)
- const [voice,setVoice]=useState(false)
  const [notice,setNotice]=useState('Scripture-guided miracle scenes are devotional reconstructions, not historical footage or actual divine intervention.')
  const scene=miracleById(sceneId)||MIRACLE_SCENES[0]
  const stage=STAGES[stageIndex]
