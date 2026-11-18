@@ -28,6 +28,7 @@ function readBookmark(){try{return localStorage.getItem(KEY)||'matthew-6-33'}cat
 export default function FaithVerseBibleHub({onClose,onOpenFaith,onOpenPress}:{onClose:()=>void;onOpenFaith:()=>void;onOpenPress:()=>void}){
  const [tab,setTab]=useState<Tab>('landing')
  const [showGalilee,setShowGalilee]=useState(false)
+ useEffect(()=>{window.dispatchEvent(new CustomEvent('tryamm:world-portal',{detail:{to:'faithverse',source:'faithverse-bible',nonFinancial:true}}))},[])
  const [selected,setSelected]=useState(readBookmark)
  const [large,setLarge]=useState(false)
  const [query,setQuery]=useState('')
