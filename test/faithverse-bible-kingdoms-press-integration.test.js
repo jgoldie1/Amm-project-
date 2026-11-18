@@ -36,6 +36,8 @@ for(const item of ['TRYAMM BUSINESS','Kingdoms Press','Bible Reading','Paleo-Heb
 assert.ok(portal.includes('<FaithVerseScrollsApocrypha'))
 assert.ok(portal.includes('<FaithVerseBusinessFunnel'))
 assert.ok(portal.includes("setTab('landing')"))
+assert.ok(app.includes("route === '/faithverse-study'"))
+assert.ok(app.includes("'/faithverse-study'"))
 assert.ok(languages.includes('Denotation & Connotation'))
 assert.ok(languages.includes('Business example:'))
 const engine=src('runtime/FaithVerseBibleEdition.ts')
