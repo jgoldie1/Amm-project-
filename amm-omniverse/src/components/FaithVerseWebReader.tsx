@@ -7,7 +7,7 @@ const ROOT='/faithverse-bibles/engwebp/'
 const KEY='tryamm:faithverse:web:checkpoint:v1'
 const bigButton:CSSProperties={minHeight:56,padding:'12px 14px',border:'1px solid #719daf',borderRadius:14,background:'#152e41',color:'#fff',fontSize:16,fontWeight:750,cursor:'pointer'}
 function storedCheckpoint(){try{const raw=JSON.parse(localStorage.getItem(KEY)||'{}');return{book:typeof raw.book==='string'?raw.book:'GEN',chapter:Number.isInteger(raw.chapter)&&raw.chapter>0?raw.chapter:1}}catch{return{book:'GEN',chapter:1}}}
-export default function FaithVerseWebReader(){
+export default function FaithVerseWebReader({onOpenPress}:{onOpenPress?:()=>void}){
  const [manifest,setManifest]=useState<Manifest|null>(null)
  const [bookId,setBookId]=useState(()=>storedCheckpoint().book)
  const [chapter,setChapter]=useState(()=>storedCheckpoint().chapter)
@@ -50,6 +50,13 @@ export default function FaithVerseWebReader(){
   try{localStorage.setItem(KEY,JSON.stringify({book:bookId,chapter}));setNotice('Chapter checkpoint saved on this device. Cloud backup is not verified.')}
   catch{setNotice('Device storage is unavailable; checkpoint was not saved.')}
  }
+ const exportPressManifest=()=>{
+  if(!manifest)return
+  const evidence={type:'kingdoms-press-bible-source-review',edition:manifest.id,title:manifest.title,source:manifest.source,rightsClaim:manifest.rights,sourceArchiveSHA256:(manifest as Manifest & {sourceArchiveSHA256?:string}).sourceArchiveSHA256||null,bookCount:manifest.bookCount,chapterCount:manifest.chapterCount,verseCount:manifest.verseCount,reviewStatus:'not-approved',contentAttached:false,note:'Review source, territorial rights, book counts, EPUB/PDF QA and editorial approvals before registration or publication.'}
+  const blob=new Blob([JSON.stringify(evidence,null,2)],{type:'application/json'})
+  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='KingdomsPress_WEB_Source_Review.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),500)
+  setNotice('Kingdoms Press source-review metadata exported. No publication record was created.')
+ }
  const downloadChapter=()=>{
   if(!book||!verses.length)return
   const text=[manifest?.title||'World English Bible',book.name+' '+chapter,'',...verses.map((v,i)=>v===null?'':(i+1)+'. '+v).filter(Boolean),'', 'Source: '+(manifest?.source||'')].join('\n')
@@ -88,6 +95,8 @@ export default function FaithVerseWebReader(){
     </div>
    </>}
    <a href={ROOT+manifest.epub} download="FaithVerse_World_English_Bible.epub" style={{...bigButton,display:'flex',alignItems:'center',justifyContent:'center',textDecoration:'none'}}>Download complete WEB EPUB</a>
+   <button style={bigButton} onClick={exportPressManifest}>Export Kingdoms Press source-review record</button>
+   {onOpenPress&&<button style={bigButton} onClick={onOpenPress}>Open existing Kingdoms Press approval workflow</button>}
   </>}
   <p role="status" aria-live="polite" style={{fontSize:13,color:'#d4e6ec'}}>{notice}</p>
  </section>
