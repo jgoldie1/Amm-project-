@@ -12,13 +12,15 @@ test('AI Cafe playground uses original JARVIS instead of duplicate model',()=>{
  assert.match(ui,/tryamm:hologpt-study-context/)
  assert.match(ui,/ASK JARVIS/)
 })
-test('Five supported exercises cover cafe, gameplay, characters and accessibility',()=>{
- assert.equal(playground.AI_CAFE_EXERCISES.length,5)
+test('Seven supported exercises include cafe, game, sensory lab and livestream verification',()=>{
+ assert.equal(playground.AI_CAFE_EXERCISES.length,7)
  for(const exercise of playground.AI_CAFE_EXERCISES){
   assert.ok(exercise.starterPrompt.length>20)
   assert.ok(exercise.checklist.length>=3)
   assert.equal(playground.findPlaygroundExercise(exercise.id).id,exercise.id)
  }
+ assert.ok(playground.findPlaygroundExercise('sensory-lab').starterPrompt.includes('smell/taste'))
+ assert.ok(playground.findPlaygroundExercise('live-studio').starterPrompt.includes('BIGO'))
 })
 test('Practice reports cannot award work or fabricate verification',()=>{
  const x=playground.AI_CAFE_EXERCISES[0]
