@@ -50,7 +50,7 @@ class TestFaithVerseWebParser(unittest.TestCase):
         self.assertEqual(set(books),{"GEN","MAT"})
 
     def test_omitted_verse_keeps_reference_number_without_fake_text(self):
-        code,chapters=module.parse_book("\\id LUK\n\\c 17\n\\v 1 first\n\\v 3 third")
+        code,chapters=module.parse_book("\\id LUK\n\\c 1\n\\v 1 first\n\\v 3 third")
         self.assertEqual(code,"LUK")
         self.assertEqual(chapters[0],["first",None,"third"])
 
