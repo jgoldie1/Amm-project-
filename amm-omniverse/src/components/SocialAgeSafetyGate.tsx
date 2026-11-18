@@ -88,7 +88,7 @@ export default function SocialAgeSafetyGate({open,intent,onAllow,onClose}:{open:
   const continueSafe=()=>{
     if(!band||band==='under-12')return
     saveAck(band,intent)
-    const youthViewerOnly=band==='age-12'
+    const youthViewerOnly=band==='age-12'||band==='teen'
     onAllow({band,youthViewerOnly})
   }
 
@@ -129,8 +129,8 @@ export default function SocialAgeSafetyGate({open,intent,onAllow,onClose}:{open:
       </div>}
 
       {(band==='teen'||band==='adult')&&<div style={{marginTop:18}}>
-        <div style={safetyBox}><b>{band==='teen'?'Teen safety reminder':'LIVE/PK reminder'}</b><br/>Protect personal information, use block/report controls when needed, and remember that online interactions can create real-world risk.</div>
-        <button onClick={continueSafe} style={primary}>{confirmed?'Continue':'I understand • continue'}</button>
+        <div style={safetyBox}><b>{band==='teen'?'Teen viewer mode':'LIVE/PK reminder'}</b><br/>{band==='teen'?'Teen accounts may watch appropriate rooms only until verified guardian controls and server-side authorization are available. Hosting, camera, microphone and paid gift controls stay off in this release.':'Protect personal information, use block/report controls when needed, and remember that online interactions can create real-world risk.'}</div>
+        <button onClick={continueSafe} style={primary}>{band==='teen'?'Continue as viewer':confirmed?'Continue':'I understand • continue'}</button>
         <button onClick={resetAge} style={linkButton}>Correct date of birth</button>
       </div>}
     </section>
