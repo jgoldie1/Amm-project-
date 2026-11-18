@@ -27,6 +27,7 @@ const BennieChat = lazy(() => import('./components/BennieChat'))
 const OmniverseCommandCenter = lazy(() => import('./components/OmniverseCommandCenter'))
 const AdvancedWorldSystems = lazy(() => import('./components/AdvancedWorldSystems'))
 const KingdomsPressOperations = lazy(() => import('./components/KingdomsPressOperations'))
+const FaithVerseBibleHub = lazy(() => import('./components/FaithVerseBibleHub'))
 const ImmersiveWorldViewport = lazy(() => import('./components/ImmersiveWorldViewport'))
 const AICafeRestaurant = lazy(() => import('./components/AICafeRestaurant'))
 const SchoolNetworkPortal = lazy(() => import('./components/SchoolNetworkPortal'))
@@ -87,6 +88,7 @@ export default function App() {
   const [showOmniverse, setShowOmniverse] = useState(false)
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [showPress, setShowPress] = useState(false)
+  const [showFaithBible, setShowFaithBible] = useState(() => ['/metaverse-bible','/ethiopian-bible','/faithverse'].includes(window.location.pathname.replace(/\/+$/, '')))
   const [showImmersive, setShowImmersive] = useState(false)
   const [showCafe, setShowCafe] = useState(false)
   const [showSchoolNetwork, setShowSchoolNetwork] = useState(false)
@@ -135,7 +137,8 @@ export default function App() {
   const navigateTryAMM = (path:string) => {
     const route = (path || '/').replace(/\/+$/, '') || '/'
     if (route === '/') { setScreen('intro'); return }
-    if (route === '/streetverse' || route === '/metaverse-bible' || route === '/ethiopian-bible' || route === '/faithverse' || route === '/starverse' || route === '/kingdom' || route === '/kingdom-of-yahisrael' || route === '/kingdom-workbook' || route === '/yahisrael' || route === '/judah' || route === '/where-heaven-meets-earth' || route === '/my-world' || route === '/we-are-the-world') { window.location.href = route; return }
+    if (route === '/metaverse-bible' || route === '/ethiopian-bible' || route === '/faithverse') { setShowFaithBible(true); return }
+    if (route === '/streetverse' || route === '/starverse' || route === '/kingdom' || route === '/kingdom-of-yahisrael' || route === '/kingdom-workbook' || route === '/yahisrael' || route === '/judah' || route === '/where-heaven-meets-earth' || route === '/my-world' || route === '/we-are-the-world') { window.location.href = route; return }
     if (route === '/bj-v7-preview' || route === '/bj-v8-preview' || route === '/bj-v9-preview' || route === '/bj-v10-preview' || route === '/bj-preview') { setShowBJViewer(true); return }
     if (route === '/mobility360' || route === '/mobility360.html') { window.location.href='/mobility360.html'; return }
     if (route === '/mobility360-learn' || route === '/mobility360-learn.html') { window.location.href='/mobility360-learn.html'; return }
@@ -228,6 +231,7 @@ export default function App() {
   ;(window as any).__showStaysAgencyFamily = () => { setStaysAgencyFamilyInitialTab('stays'); setShowStaysAgencyFamily(true) }
   ;(window as any).__showSetApartPassport = () => { setStaysAgencyFamilyInitialTab('passport'); setShowStaysAgencyFamily(true) }
   ;(window as any).__showKingdomsPress = () => setShowPress(true)
+  ;(window as any).__showFaithVerseBible = () => setShowFaithBible(true)
   ;(window as any).__showImmersiveWorlds = () => setShowImmersive(true)
   ;(window as any).__showAICafe = () => setShowCafe(true)
   ;(window as any).__showSchoolNetwork = () => setShowSchoolNetwork(true)
@@ -409,6 +413,7 @@ export default function App() {
         {showCafe && <AICafeRestaurant onClose={() => setShowCafe(false)} />}
         {showSchoolNetwork && <SchoolNetworkPortal onClose={() => setShowSchoolNetwork(false)} />}
         {showAdvanced && <AdvancedWorldSystems onClose={() => setShowAdvanced(false)} />}
+        {showFaithBible && <FaithVerseBibleHub onClose={() => {setShowFaithBible(false);if(['/metaverse-bible','/ethiopian-bible','/faithverse'].includes(window.location.pathname)){window.history.replaceState({},'', '/')}}} onOpenFaith={() => {setShowFaithBible(false);setScreen('faith')}} onOpenPress={() => {setShowFaithBible(false);setShowPress(true)}} />}
         {showPress && <KingdomsPressOperations onClose={() => setShowPress(false)} />}
         {showImmersive && <ImmersiveWorldViewport onClose={() => setShowImmersive(false)} />}
         {showFamilyLegacy && <FamilyLegacyHub onClose={() => setShowFamilyLegacy(false)} />}
