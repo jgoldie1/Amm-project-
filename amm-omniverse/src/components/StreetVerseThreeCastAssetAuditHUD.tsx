@@ -35,7 +35,7 @@ export default function StreetVerseThreeCastAssetAuditHUD(){
     let bytes=await readLocalCastAsset(candidate.id)
     if(!bytes){
      const res=await fetch(candidate.url,{cache:'no-store'})
-     if(!res.ok||/text\\/html/i.test(res.headers.get('content-type')||''))throw Error('Missing published GLB. Import recovery ZIP or GLB files.')
+     if(!res.ok||(res.headers.get('content-type').includes('text/html')||''))throw Error('Missing published GLB. Import recovery ZIP or GLB files.')
      bytes=await res.arrayBuffer()
     }
     if(bytes.byteLength<20||new DataView(bytes).getUint32(0,true)!==0x46546c67)throw Error('not a GLB binary')
