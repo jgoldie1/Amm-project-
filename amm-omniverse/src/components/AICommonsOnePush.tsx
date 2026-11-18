@@ -75,7 +75,8 @@ export default function AICommonsOnePush({ onClose, onOpenAgent, onStartMission,
         <button style={buttonStyle} onClick={() => { record('conversation', 'user_confirmed', 'User reported an agent conversation'); setNotice('Your conversation confirmation was recorded; this is not an automatic agent-response test.') }}>3. I spoke with the agent</button>
         <button style={buttonStyle} onClick={() => { record('saved', 'requested', 'Attempted local checkpoint save'); setNotice('Local checkpoint updated where browser storage permits. This does not verify backend saves.') }}>4. Save checkpoint locally</button>
         <button style={buttonStyle} onClick={() => { record('mission', 'requested', 'Requested existing StreetVerse city gameplay'); onStartMission() }}>5. Launch existing StreetVerse mission area</button>
-        <button style={buttonStyle} onClick={onOpenCare}>6. Open OmniCare360 care access (nonclinical preview)</button>
+        <button style={buttonStyle} onClick={()=>{window.dispatchEvent(new CustomEvent('tryamm:streetverse-open-npc-factory',{detail:{source:'ai-commons',ownerReviewRequired:true}}));setNotice('Character Factory requested. If StreetVerse is not mounted, open the StreetVerse shopping area and create the NPC there.')}}>6. Make approved AI Commons character for StreetVerse</button>
+        <button style={buttonStyle} onClick={onOpenCare}>7. Open OmniCare360 care access (nonclinical preview)</button>
         <button style={buttonStyle} aria-expanded={openCharacters} onClick={()=>setOpenCharacters(v=>!v)}>7. AI PLAYGROUND → STREETVERSE CHARACTER STUDIO</button>
         {openCharacters&&<Suspense fallback={<p>Loading AI character tools…</p>}><CommonsStreetVerseCharacterStudio onOpenStreetVerse={onStartMission}/></Suspense>}
         <button style={buttonStyle} aria-expanded={openPrinter} onClick={()=>setOpenPrinter(v=>!v)}>8. 2D CREATOR PRINT STUDIO</button>
