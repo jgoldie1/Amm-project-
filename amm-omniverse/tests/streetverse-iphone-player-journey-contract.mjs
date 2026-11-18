@@ -76,6 +76,8 @@ must(castReport.includes("rigQuality:audit?.quality"),'export must preserve hone
 must(castReport.includes('navigator.canShare({files:[file]})'),'native device share must check file support')
 must(world.includes('SHARE LAST EXPORTED REPORT'),'compact menu must expose share action after JSON export')
 must(world.includes('NO SUBMISSION RECEIPT'),'device sharing alone cannot be described as confirmed report submission')
+must(world.includes('navigator.clipboard?.writeText'),'Chromebook one-hand share fallback must copy diagnostic report for manual review')
+must(world.includes('NOT YET SUBMITTED'),'copying text must not pretend to submit report')
 
 must(castReport.includes("tryamm:streetverse-bj-hero-mounted")&&castReport.includes("tryamm:streetverse-character-registered"),'report must observe active scene mount events')
 
