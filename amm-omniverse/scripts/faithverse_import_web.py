@@ -92,12 +92,10 @@ def parse_book(raw):
     for chapter_num in sorted(chapters):
         verses=chapters[chapter_num]
         if not verses:continue
-        # The reader uses 1-based verse array indexes. Reject accidental omitted verses.
-        expected=set(range(1,max(verses)+1))
-        if set(verses)!=expected:
-            missing=sorted(expected-set(verses))
-            raise ValueError(f"{code} chapter {chapter_num} missing verse numbers: {missing[:12]}")
-        result.append([verses[i] for i in range(1,max(verses)+1)])
+        # Keep original 1-based numbering. Null means this edition omits that verse;
+        # NEVER fabricate or silently renumber a canonical verse.
+        if min(verses)<1: raise ValueError(f"Invalid verse number for {code} chapter {chapter_num}")
+        result.append([verses.get(i) for i in range(1,max(verses)+1)])
     if not result: raise ValueError(f"No chapter text found for {code}")
     if sorted(chapters)!=list(range(1,max(chapters)+1)):
         raise ValueError(f"Noncontiguous chapters for {code}")
@@ -141,6 +139,7 @@ def render_epub(books, output, source_url):
             for i,chapter in enumerate(chapters,1):
                 body.append(f'<section><h2>{escape(name)} {i}</h2>')
                 for verse,content in enumerate(chapter,1):
+                    if content is None:continue
                     body.append(f'<p><sup>{verse}</sup> {escape(content)}</p>')
                 body.append('</section>')
             xhtml='<?xml version="1.0" encoding="utf-8"?><html xmlns="http://www.w3.org/1999/xhtml"><head><title>'+escape(name)+'</title><link rel="stylesheet" type="text/css" href="style.css"/></head><body><h1>'+escape(name)+'</h1>'+''.join(body)+'</body></html>'
@@ -160,7 +159,8 @@ def import_book_archive(raw, output, source_url):
     extras=[code for code in books if code not in NAMES]
     if missing or extras:raise ValueError(f"Expected exactly 66 canon books, missing={missing}, extra={extras}")
     chapter_count=sum(len(chapters) for chapters in books.values())
-    verse_count=sum(sum(len(chapter) for chapter in chapters) for chapters in books.values())
+    verse_count=sum(sum(sum(verse is not None for verse in chapter) for chapter in chapters) for chapters in books.values())
+    omitted_count=sum(sum(sum(verse is None for verse in chapter) for chapter in chapters) for chapters in books.values())
     if chapter_count!=1189 or not 30000<=verse_count<=33000:
         raise ValueError(f"Invalid completeness: {chapter_count} chapters, {verse_count} verses")
     output.mkdir(parents=True,exist_ok=True)
@@ -171,13 +171,13 @@ def import_book_archive(raw, output, source_url):
         filename=f"books/{code}.json"
         payload={"id":code,"name":name,"chapters":chapters}
         (output/filename).write_text(json.dumps(payload,ensure_ascii=False,separators=(',',':')),encoding="utf-8")
-        manifest.append({"id":code,"name":name,"file":filename,"chapterCount":len(chapters),"verseCount":sum(len(x) for x in chapters)})
+        manifest.append({"id":code,"name":name,"file":filename,"chapterCount":len(chapters),"verseCount":sum(sum(verse is not None for verse in chapter) for chapter in chapters)})
     epub=render_epub(books,output,source_url)
-    data={"schema":"tryamm.faithverse.bible.manifest.v1","id":"engwebp","title":"World English Bible","language":"en","canon":"Protestant 66-book canon","bookCount":len(manifest),"chapterCount":chapter_count,"verseCount":verse_count,
+    data={"schema":"tryamm.faithverse.bible.manifest.v1","id":"engwebp","title":"World English Bible","language":"en","canon":"Protestant 66-book canon","bookCount":len(manifest),"chapterCount":chapter_count,"verseCount":verse_count,"omittedVerseNumbers":omitted_count,
           "source":source_url,"sourceArchiveSHA256":hashlib.sha256(raw).hexdigest(),"rights":"Public domain per eBible.org; World English Bible title is a trademark of eBible.org","reviewState":"source_verified_not_professionally_signed_off",
           "generatedAt":datetime.now(timezone.utc).isoformat(),"epub":"engwebp.epub","books":manifest}
     (output/"manifest.json").write_text(json.dumps(data,ensure_ascii=False,indent=2),encoding="utf-8")
-    print(json.dumps({"books":len(manifest),"chapters":chapter_count,"verses":verse_count,"epub_bytes":epub.stat().st_size,"source_sha256":data["sourceArchiveSHA256"],"output":str(output)}))
+    print(json.dumps({"books":len(manifest),"chapters":chapter_count,"verses":verse_count,"omittedVerseNumbers":omitted_count,"epub_bytes":epub.stat().st_size,"source_sha256":data["sourceArchiveSHA256"],"output":str(output)}))
     return data
 
 def main():
