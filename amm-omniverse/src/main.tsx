@@ -30,6 +30,7 @@ import './accessibility/accessibility.css'
 // Entering StreetVerse must not download the entire homepage application first.
 const App=lazy(()=>import('./App'))
 const StreetVerseGeoSpawnBridge=lazy(()=>import('./components/StreetVerseGeoSpawnBridge'))
+const StreetVerseMobileWorldCore=lazy(()=>import('./components/StreetVerseMobileWorld'))
 // Release compatibility marker required by the StreetVerse living-world smoke contract: const StreetVerseLivingWorld=lazy(()=>import('./components/StreetVerseLivingWorld'))
 const StreetVerseTwinWorld=lazy(()=>import('./components/StreetVerseTwinWorld'))
 const MeetTheStubbsWorldDistrict=lazy(()=>import('./components/MeetTheStubbsWorldDistrict'))
@@ -131,7 +132,8 @@ try {
   
   const routeFallback=<div role="status" aria-live="polite" style={{position:'fixed',inset:0,zIndex:15980,display:'grid',placeItems:'center',background:'#050505',color:'#fff',fontFamily:'system-ui,sans-serif',fontWeight:900}}>LOADING…</div>
   
-  const streetVerseRoute=isStreetVerseSafe?<><StreetVerseWeatherSync/><StreetVerseSafeWorld communityAreaNumber={safeCommunityArea} onClose={()=>{window.location.href='/'}} /></>:<>
+  const isStreetVerseCore=isStreetVerse&&streetVerseParams.get('core')==='1'
+  const streetVerseRoute=isStreetVerseCore?<StreetVerseMobileErrorBoundary name="StreetVerse Direct 3D Core"><Suspense fallback={<div role="status" aria-live="polite" style={{position:'fixed',inset:0,background:'#07101d',color:'white',display:'grid',placeItems:'center',font:'900 18px system-ui'}}>STARTING PLAYABLE 3D WORLD • CORE MODE…</div>}><StreetVerseMobileWorldCore onClose={()=>{window.location.href='/'}}/></Suspense></StreetVerseMobileErrorBoundary>:isStreetVerseSafe?<><StreetVerseWeatherSync/><StreetVerseSafeWorld communityAreaNumber={safeCommunityArea} onClose={()=>{window.location.href='/'}} /></>:<>
     <StreetVerseMobileErrorBoundary name="StreetVerse Canonical 3D"><Suspense fallback={routeFallback}><StreetVerseGeoSpawnBridge onClose={()=>{window.location.href='/'}} /></Suspense></StreetVerseMobileErrorBoundary>
   </>
   
@@ -181,7 +183,7 @@ try {
   else if(businessSlug)routeContent=<FamilyBusinessPublicSite slug={businessSlug} onClose={()=>{window.location.href='/business'}} />
   else if(isTwinWorld)routeContent=<Suspense fallback={routeFallback}><StreetVerseTwinWorld onClose={()=>{window.location.href='/'}} /></Suspense>
   else if(isMeetStubbs)routeContent=<Suspense fallback={routeFallback}><MeetTheStubbsWorldDistrict onClose={()=>{window.location.href='/streetverse'}} /></Suspense>
-  else if(isStreetVerse)routeContent=<>{streetVerseRoute}<Suspense fallback={null}><StreetVerseCinematicMissions/></Suspense></>
+  else if(isStreetVerse)routeContent=isStreetVerseCore?streetVerseRoute:<>{streetVerseRoute}<Suspense fallback={null}><StreetVerseCinematicMissions/></Suspense></>
   else routeContent=mainShell
   
   
