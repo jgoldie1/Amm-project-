@@ -1,5 +1,5 @@
 import {useEffect,useState} from 'react'
-import {AI_COMMONS_KEY,AI_COMMONS_TOPICS,AI_COMMONS_MONITOR_POLICY,appendCommonsTurn,beginCommonsSession,draftAgentTurn,parseCommonsSaved,runCommonsDemo,type CommonsRole,type CommonsSession,type CommonsTopic} from '../runtime/AICafeCommonsRuntime'
+import {AI_COMMONS_KEY,AI_COMMONS_TOPICS,AI_COMMONS_MONITOR_POLICY,appendCommonsTurn,beginCommonsSession,draftAgentTurn,parseCommonsSaved,publicCafeQueueSummary,runCommonsDemo,type CommonsRole,type CommonsSession,type CommonsTopic} from '../runtime/AICafeCommonsRuntime'
 
 /** Transparent AI-agent lab: local scripted discussion, not a hidden surveillance feed. */
 export default function AICafeCommons(){
@@ -9,6 +9,29 @@ export default function AICafeCommons(){
  const [note,setNote]=useState('Not monitoring anyone. Start an explicitly labeled demonstration.')
  const [kitNotice,setKitNotice]=useState('KIT AI Home Monitor: NOT CONNECTED / NO DEVICE DATA. Opt-in device status requires a separately verified integration.')
  useEffect(()=>{try{const restored=parseCommonsSaved(localStorage.getItem(AI_COMMONS_KEY));if(restored){setSession({...restored,enabled:false});setTopic(restored.topic);setRetain(true)}}catch{}},[])
+ useEffect(()=>{
+  if(!session?.enabled)return
+  const observe=(e:Event,kind:'assigned'|'status')=>{
+   const detail=(e as CustomEvent<unknown>).detail
+   const d=detail&&typeof detail==='object'?detail as Record<string,unknown>:{}
+   const safe=kind==='assigned'?publicCafeQueueSummary(d):publicCafeQueueSummary({agent:{id:d.agentId},task:{status:d.status}})
+   if(!safe)return
+   setSession(previous=>{
+    if(!previous?.enabled)return previous
+    const next=appendCommonsTurn(previous,{role:'researcher',text:safe,origin:'cafe-queue-status',authorized:true})
+    if(retain){try{localStorage.setItem(AI_COMMONS_KEY,JSON.stringify(next))}catch{}}
+    return next
+   })
+  }
+  const onAssigned=(e:Event)=>observe(e,'assigned')
+  const onStatus=(e:Event)=>observe(e,'status')
+  window.addEventListener('tryamm:ai-cafe-assigned',onAssigned)
+  window.addEventListener('tryamm:ai-cafe-task-status',onStatus)
+  return()=>{
+   window.removeEventListener('tryamm:ai-cafe-assigned',onAssigned)
+   window.removeEventListener('tryamm:ai-cafe-task-status',onStatus)
+  }
+ },[session?.enabled,retain])
  const button:React.CSSProperties={minHeight:48,background:'#103341',color:'#e8ffff',border:'1px solid #5bccd4',borderRadius:10,padding:'9px 13px',fontSize:13,fontWeight:800,touchAction:'manipulation'}
  const persist=(next:CommonsSession|null,keep=retain)=>{
   setSession(next)
@@ -35,7 +58,7 @@ export default function AICafeCommons(){
  const stop=()=>{if(!session)return;persist({...session,enabled:false});setNote('Session stopped. No agent events are being collected.')}
  return <section aria-label="AI Commons agent discussion observatory" style={{padding:14,border:'1px solid #84aee188',borderRadius:14,marginTop:14,background:'#111a29',color:'#ebf7ff',fontFamily:'system-ui'}}>
   <h3 style={{margin:'0 0 5px'}}>◈ AI Commons · Agent Conversation Observatory</h3>
-  <p style={{fontSize:12,marginTop:0}}>Central, voluntary lab for studying how simulated AI roles discuss beliefs, ethics, businesses and StreetVerse. No hidden monitoring of people or home devices.</p>
+  <p style={{fontSize:12,marginTop:0}}>Central, voluntary lab for studying how simulated AI roles discuss beliefs, ethics, businesses and StreetVerse. When the session is on, Café agent queue/status metadata appears automatically. No hidden monitoring of people or home devices.</p>
   <label style={{fontSize:13,fontWeight:800}}>DISCUSSION TOPIC
    <select aria-label="AI Commons discussion topic" value={topic} onChange={e=>setTopic(e.target.value as CommonsTopic)} style={{width:'100%',minHeight:48,marginTop:6,background:'#0b2b3a',border:'1px solid #7ac4dc',color:'#fff',padding:9,borderRadius:9}}>
     {AI_COMMONS_TOPICS.map(t=><option key={t.id} value={t.id}>{t.label}</option>)}
@@ -55,7 +78,7 @@ export default function AICafeCommons(){
   <p role="status" style={{color:'#e7d99c',fontSize:12}}>{note}</p>
   <div aria-live="polite" style={{maxHeight:290,overflowY:'auto',display:'grid',gap:8}}>
    {session?.events.length?session.events.map(event=><article key={event.id} style={{padding:10,background:'#0a2535',border:'1px solid #34556a',borderRadius:10}}>
-    <div style={{fontSize:11,color:'#95f0d3',fontWeight:800}}>{event.role.toUpperCase()} · SCRIPTED DEMO · {event.topic}</div>
+    <div style={{fontSize:11,color:'#95f0d3',fontWeight:800}}>{event.role.toUpperCase()} · {event.origin==='cafe-queue-status'?'CAFÉ QUEUE STATUS':'SCRIPTED DEMO'} · {event.topic}</div>
     <div style={{fontSize:13,marginTop:5}}>{event.text}</div>
    </article>):<p style={{fontSize:12,color:'#9db5c5'}}>No agent dialogue recorded.</p>}
   </div>
