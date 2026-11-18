@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-type Target = 'studio'|'network'|'live'|'music'|'academy'
+type Target = 'studio'|'network'|'live'|'music'|'academy'|'stage'|'raymond'
 const PROGRAM = [
   {name:'All American Showcase',detail:'Auditions, artist profiles, performances, filmmaker and producer collaboration, original talent programming.'},
   {name:'Soul Ascension',detail:'Original soul/R&B/funk dance-line and live performance concept. A spiritual and cultural evolution of the dance-show format, without asserting franchise affiliation.'},
@@ -32,7 +32,7 @@ export default function AllAmericanShowcaseHub({onClose,onOpen}:{onClose:()=>voi
       <div style={{display:'grid',gap:8}}><p style={{color:'#ffcca0'}}>Evidence status: not verified. This is an uncompleted release checklist, not a license registry.</p>{checkpoints.map((item,i)=><div key={item} style={{padding:12,border:'1px solid #584f67',borderRadius:10}}>{i+1}. {item} — Not verified</div>)}</div>}
       <h2 style={{fontSize:20,margin:'12px 0 0'}}>Connect existing production tools</h2>
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(205px,1fr))',gap:9}}>
-        {([{id:'studio',label:'Star Studio + Auditions'},{id:'network',label:'Isaiah AI TV + Network'},{id:'live',label:'TRYAMM LIVE Studio'},{id:'music',label:'Music Production'},{id:'academy',label:'All American University'}] as {id:Target;label:string}[]).map(item=><button key={item.id} style={btn} onClick={()=>onOpen(item.id)}>{item.label}</button>)}
+        {([{id:'stage',label:'Soul Ascension Mobile RP Stage'},{id:'raymond',label:'Raymond Jarreau Website Preview'},{id:'studio',label:'Star Studio + Auditions'},{id:'network',label:'Isaiah AI TV + Network'},{id:'live',label:'TRYAMM LIVE Studio'},{id:'music',label:'Music Production'},{id:'academy',label:'All American University'}] as {id:Target;label:string}[]).map(item=><button key={item.id} style={btn} onClick={()=>onOpen(item.id)}>{item.label}</button>)}
       </div>
       <p style={{color:'#d7c5de',fontSize:12,lineHeight:1.6}}>Soul Ascension is an original proposed program and is not authorized or endorsed by the owners of the Soul Train trademark. Clear title, likeness and music rights before marketing a show.</p>
     </main>
