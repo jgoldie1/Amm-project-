@@ -9,6 +9,7 @@ import LivingWorldsBridge from './components/LivingWorldsBridge'
 import './styles.css'
 
 const CityView = lazy(() => import('./components/CityView'))
+const AICommonsOnePush = lazy(() => import('./components/AICommonsOnePush'))
 const SportsRealm = lazy(() => import('./components/RealmScreens').then(m => ({ default: m.SportsRealm })))
 const MarketplaceRealm = lazy(() => import('./components/RealmScreens').then(m => ({ default: m.MarketplaceRealm })))
 const MusicRealm = lazy(() => import('./components/RealmScreens').then(m => ({ default: m.MusicRealm })))
@@ -66,6 +67,7 @@ const HoloGPTAssistant = lazy(() => import('./components/HoloGPTAssistant'))
 export default function App() {
   const screen = useGameStore(s => s.screen)
   const setScreen = useGameStore(s => s.setScreen)
+  const [showAICommons, setShowAICommons] = useState(false)
   const [showPricing, setShowPricing] = useState(false)
   const [showHoloverse, setShowHoloverse] = useState(false)
   const [showBennie, setShowBennie] = useState(false)
@@ -329,6 +331,7 @@ export default function App() {
         <NotifToast /><BennieButton /><InstallPrompt />
 
         {shellAvailable && <>
+          <button type="button" aria-label="Open AI Commons one-push check" onClick={() => setShowAICommons(true)} style={{position:'fixed',left:12,top:80,zIndex:9000,background:'#15364e',color:'#fff',border:'2px solid #70d8ff',borderRadius:16,padding:'14px 16px',fontSize:14,fontWeight:900,cursor:'pointer',minHeight:56}}>AI COMMONS · ONE PUSH</button>
           <button type="button" aria-label="Open TryAMM LIVE Center" onClick={() => setShowLive(true)} style={{position:'fixed',left:12,bottom:72,zIndex:9000,background:'linear-gradient(135deg,#ff334e,#8f1744)',color:'#fff',border:'1px solid #ff8fa4aa',borderRadius:999,padding:'10px 14px',fontFamily:'monospace',fontSize:11,fontWeight:900,cursor:'pointer',boxShadow:'0 8px 28px #0008'}}>● LIVE</button>
           <button type="button" aria-label="Open Command Nexus" onClick={() => setShowNexus(v=>!v)} style={{position:'fixed',right:12,bottom:72,zIndex:9000,background:'linear-gradient(135deg,#0d2934,#181326)',color:'#e8b944',border:'1px solid #4fe3ff88',borderRadius:999,padding:'10px 14px',fontFamily:'monospace',fontSize:11,fontWeight:900,cursor:'pointer',boxShadow:'0 8px 28px #0008'}}>✦ COMMAND NEXUS</button>
         </>}
@@ -341,6 +344,7 @@ export default function App() {
           <div style={{marginTop:10,fontSize:9,color:'#718096',lineHeight:1.5}}>Advanced systems stay available here without covering the main experience. Readiness labels distinguish live, protected and beta features.</div>
         </div>}
 
+        {showAICommons && <AICommonsOnePush onClose={() => setShowAICommons(false)} onOpenAgent={() => { setShowAICommons(false); setShowHoloGPT(true) }} onStartMission={() => { setShowAICommons(false); setScreen('city') }} />}
         {showPricing && <div style={{position:'fixed',inset:0,zIndex:9999,background:'#020212'}}><PricingScreen onClose={() => setShowPricing(false)} /></div>}
         {showHoloverse && <div style={{position:'fixed',inset:0,zIndex:2147483500,background:'#020212'}}><HoloverseHub onClose={() => setShowHoloverse(false)} /></div>}
         {showBennie && <div style={{position:'fixed',inset:0,zIndex:9997,background:'#020212'}}><BennieChat onClose={() => setShowBennie(false)} /></div>}
