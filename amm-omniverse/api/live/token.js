@@ -47,7 +47,7 @@ export default async function handler(req,res){
     room,
     canSubscribe:true,
     canPublish:role==='host',
-    canPublishData:true
+    canPublishData:role==='host'
   });
 
   const jwt=await token.toJwt();
