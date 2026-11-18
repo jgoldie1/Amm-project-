@@ -86,7 +86,7 @@ def parse_book(raw):
         if current_verse is not None and (CONTINUATION.match(line) or not line.startswith("\\")):
             cleaned=clean_text(line)
             if cleaned: chapters[current_chapter][current_verse] = (chapters[current_chapter].get(current_verse,"")+" "+cleaned).strip()
-    if code is None: raise ValueError("USFM file is missing \\id")
+    if code is None: return None
     if code not in NAMES: return None
     result=[]
     for chapter_num in sorted(chapters):
@@ -115,7 +115,9 @@ def load_archive(raw, max_files=1600):
             if entry.is_dir() or not entry.filename.lower().endswith((".usfm",".sfm",".usx.txt",".txt")):continue
             if entry.file_size>3_000_000:raise ValueError("Unexpected oversized USFM book")
             try:
-                code,chapters=parse_book(archive.read(entry).decode("utf-8-sig"))
+                parsed=parse_book(archive.read(entry).decode("utf-8-sig"))
+                if parsed is None:continue
+                code,chapters=parsed
             except TypeError:
                 continue
             except UnicodeDecodeError:
