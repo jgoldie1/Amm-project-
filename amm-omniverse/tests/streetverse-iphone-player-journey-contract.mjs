@@ -5,6 +5,7 @@ const geo=fs.readFileSync(new URL('../src/components/StreetVerseGeoSpawnBridge.t
 const overlays=fs.readFileSync(new URL('../src/components/StreetVerseFullWorldOverlays.tsx',import.meta.url),'utf8')
 const world=fs.readFileSync(new URL('../src/components/StreetVerseMobileWorld.tsx',import.meta.url),'utf8')
 const localCast=fs.readFileSync(new URL('../src/runtime/StreetVerseLocalCastImport.ts',import.meta.url),'utf8')
+const castReport=fs.readFileSync(new URL('../src/runtime/StreetVerseCastOnePushReport.ts',import.meta.url),'utf8')
 const castRuntime=fs.readFileSync(new URL('../src/runtime/StreetVerseRecoveredCastRuntime.ts',import.meta.url),'utf8')
 const bjRuntime=fs.readFileSync(new URL('../src/runtime/StreetVerseMeshyBJHeroRuntime.ts',import.meta.url),'utf8')
 const main=fs.readFileSync(new URL('../src/main.tsx',import.meta.url),'utf8')
@@ -64,6 +65,14 @@ must(reader.includes('bible-api.com'),'working online KJV reader provider missin
 must(reader.includes('READ ALOUD'),'accessible scripture read-aloud missing')
 
 must(world.includes("LOAD ORIGINAL 3-CHARACTER ZIP"),'one-hand menu must permit user-selected original cast ZIP')
+must(world.includes('ONE-PUSH CAST TEST + EXPORT REPORT'),'one-hand test launcher must exist')
+must(world.includes('runCastOnePushReport(file)')&&world.includes('exportCastOnePushReport(report)'),'one-hand test must automatically export its report')
+must(castReport.includes('importOriginalCastZip(file)'),'one-push report must validate the original archive')
+must(castReport.includes("threeMounted=Object.values(proof.characters).every"),'three-character mount verdict must require all three')
+must(castReport.includes("realAnimationPlaybackProven:false"),'do not falsely claim actual rendered animation playback')
+must(castReport.includes("status:'not_submitted'"),'never claim report submitted without a verified backend receipt')
+must(castReport.includes("tryamm:streetverse-bj-hero-mounted")&&castReport.includes("tryamm:streetverse-character-registered"),'report must observe active scene mount events')
+
 must(world.includes('data-streetverse-cast-mount-status'),'one-hand menu must distinguish loaded characters from archive verification')
 must(world.includes("castStatus.jacobie==='ready'")&&world.includes("castStatus.lateasia==='ready'"),'each recovered NPC must expose its actual 3D mount status')
 must(world.includes("bjLoadStatus==='ready'"),'BJ loaded status must use the authoritative hero loader')
