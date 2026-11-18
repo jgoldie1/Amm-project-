@@ -6,6 +6,7 @@ import {resolvePublishedMeshyAsset,resetPublishedMeshyManifest} from './StreetVe
 import {canClaimPhotoMatched} from '../data/StreetVerseCharacterReferenceAuthorization'
 import {inspectCharacterGeometry} from './StreetVerseCharacterGeometry'
 import {recoveredCastUrl} from '../data/StreetVerseRecoveredCastAssets'
+import {localRecoveredCastUrl} from './StreetVerseLocalCastImport'
 import {getPreviewBJMetaHumanUrl,auditBJMetaHumanForStreetVerse} from './StreetVerseBJMetaHumanBridge'
 
 export const BJ_MESHY_V6_ASSET={
@@ -231,7 +232,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   // Never load a MetaHuman candidate by default; preview is explicitly opted-in.
   const metaHumanPreviewUrl=getPreviewBJMetaHumanUrl()
   // Default to the actual V15 hero; ?bj=legacy preserves a manual fallback.
-  const localRecoveredV15=new URLSearchParams(window.location.search).get('bj')==='legacy'?null:recoveredCastUrl('bj')
+  const localRecoveredV15=new URLSearchParams(window.location.search).get('bj')==='legacy'?null:(localRecoveredCastUrl('bj')||recoveredCastUrl('bj'))
   const candidates=[localRecoveredV15,v15PreviewUrl,metaHumanPreviewUrl,published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
   let sourceUrl=''
   let publishedGlb:Awaited<ReturnType<typeof loader.loadAsync>>|null=null
@@ -261,7 +262,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
         window.dispatchEvent(new CustomEvent('tryamm:bj-model-progress',{detail:{
           stage:'decoding',sizeBytes:bytes.byteLength,source:candidate===v15PreviewUrl?'v15':'fallback',
         }}))
-        const basePath=new URL('.',new URL(candidate,window.location.href)).href
+        const basePath=candidate.startsWith('blob:')?window.location.origin+'/':new URL('.',new URL(candidate,window.location.href)).href
         let decodeTimer=0
         try{
           candidateGlb=await Promise.race([
