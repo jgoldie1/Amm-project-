@@ -27,6 +27,7 @@ function StageVisual({scene,stage,motion}:{scene:MiracleScene;stage:MiracleStage
 export default function FaithVerseMiraclesTheater({onClose,onOpenBible,onReturnToGalilee}:{onClose?:()=>void;onOpenBible?:()=>void;onReturnToGalilee?:()=>void}){
  const [sceneId,setSceneId]=useState<string>('water-walk')
  const [stageIndex,setStageIndex]=useState(0)
+ const [playerRole,setPlayerRole]=useState('witness')
  const [progress,setProgress]=useState<SavedProgress[]>(readSaved)
  const [filter,setFilter]=useState('All')
  const [captions,setCaptions]=useState(true)
@@ -47,7 +48,7 @@ export default function FaithVerseMiraclesTheater({onClose,onOpenBible,onReturnT
  const next=()=>{save();if(stageIndex<STAGES.length-1)setStageIndex(i=>i+1);else{setNotice('Story chapter complete locally. Explore another miracle or return to Bible study.');window.dispatchEvent(new CustomEvent('tryamm:faithverse-miracle-local-chapter',{detail:{sceneId:scene.id,source:'faithverse',isSimulation:true,serverVerified:false,rewardClaimed:false}}))}}
  const narrate=()=>{if(!('speechSynthesis'in window)){setNotice('Device text-to-speech is not supported. Captions remain available.');return}window.speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(scene.title+'. '+narrative+'. Source: '+scene.primary);utterance.rate=.9;utterance.lang='en-US';window.speechSynthesis.speak(utterance);setNotice('Device narrator reading an original paraphrase. This is not the recorded voice of Yeshua.')}
  const exportStudy=()=>{
-  const output={schema:'tryamm.faithverse.miracles.v1',exportedAt:new Date().toISOString(),chapters:progress,currentlySelected:sceneEvidence(scene),studyOnly:true,serverVerified:false,rewardClaimed:false,rigged3DCharactersVerified:false,deviceAcceptanceVerified:false}
+  const output={schema:'tryamm.faithverse.miracles.v1',exportedAt:new Date().toISOString(),chapters:progress,currentlySelected:sceneEvidence(scene),selectedLocalRole:playerRole,multiplayerVerified:false,studyOnly:true,serverVerified:false,rewardClaimed:false,rigged3DCharactersVerified:false,deviceAcceptanceVerified:false}
   const blob=new Blob([JSON.stringify(output,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='FaithVerse_Miracles_Study_Report.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),500)
   setNotice('Local educational report exported. No transcript, health data or cloud data sent.')
  }
@@ -65,6 +66,9 @@ export default function FaithVerseMiraclesTheater({onClose,onOpenBible,onReturnT
    </select>
    <label htmlFor="faith-miracle-scene">Choose miracle chapter</label>
    <select style={button} id="faith-miracle-scene" value={scene.id} onChange={e=>{setSceneId(e.target.value);setStageIndex(0)}}>{filterScenes.map(x=><option key={x.id} value={x.id}>{x.title} · {x.primary}</option>)}</select>
+   <label htmlFor="faith-miracle-coop-role">Choose a role in this chapter</label>
+   <select id="faith-miracle-coop-role" style={button} value={scene.cast.includes(playerRole)?playerRole:'witness'} onChange={e=>{setPlayerRole(e.target.value);setNotice('Local role selection: '+e.target.value+'. Live multiplayer/co-op casting is not connected yet.')}}><option value="witness">Witness / learner</option>{scene.cast.map(x=><option key={x} value={x}>{x} (educational roleplay)</option>)}</select>
+   <p style={{fontSize:12,color:'#d1dee0',margin:0}}>Co-op preparation: individual characters and participant roles are cataloged, but remote players, authoritative sessions and 3D animated performances are still awaiting integration.</p>
    <StageVisual scene={scene} stage={stage} motion={motion}/>
    <h3 style={{fontSize:22,margin:'4px 0'}}>{scene.title} · {stage==='event'?'Witness the account':stage[0].toUpperCase()+stage.slice(1)}</h3>
    {captions&&<p role="status" aria-live="polite" style={{fontSize:16,lineHeight:1.7,margin:0,borderLeft:'4px solid #d3b77d',padding:'8px 12px'}}>{narrative}</p>}
