@@ -349,9 +349,9 @@ export default function App() {
           <div style={{marginTop:10,fontSize:9,color:'#718096',lineHeight:1.5}}>Advanced systems stay available here without covering the main experience. Readiness labels distinguish live, protected and beta features.</div>
         </div>}
 
-        {showAICommons && <AICommonsOnePush onClose={() => setShowAICommons(false)} onOpenAgent={() => { setShowAICommons(false); setShowHoloGPT(true) }} onStartMission={() => { setShowAICommons(false); setScreen('city') }} onOpenCare={() => {setShowAICommons(false); setShowOmniCare360(true)}} />
+        {showAICommons && <AICommonsOnePush onClose={() => setShowAICommons(false)} onOpenAgent={() => { setShowAICommons(false); setShowHoloGPT(true) }} onStartMission={() => { setShowAICommons(false); setScreen('city') }} onOpenCare={() => {setShowAICommons(false); setShowOmniCare360(true)}} />}
         {showOmniCare360 && <OmniCare360CareAccess onClose={() => setShowOmniCare360(false)} />}
-        {showCompliance && <TRYAMMComplianceCenter onClose={() => setShowCompliance(false)} />}}
+        {showCompliance && <TRYAMMComplianceCenter onClose={() => setShowCompliance(false)} />}
         {showPricing && <div style={{position:'fixed',inset:0,zIndex:9999,background:'#020212'}}><PricingScreen onClose={() => setShowPricing(false)} /></div>}
         {showHoloverse && <div style={{position:'fixed',inset:0,zIndex:2147483500,background:'#020212'}}><HoloverseHub onClose={() => setShowHoloverse(false)} /></div>}
         {showBennie && <div style={{position:'fixed',inset:0,zIndex:9997,background:'#020212'}}><BennieChat onClose={() => setShowBennie(false)} /></div>}
