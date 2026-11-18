@@ -1,6 +1,6 @@
 import crypto from 'node:crypto'
 import {IngressClient,IngressInput} from 'livekit-server-sdk'
-import {requireUser,recentlyAuthenticated} from '../../_lib/security.js'
+import {requireUser,recentlyAuthenticated} from '../_lib/security.js'
 
 // Provider credentials remain exclusively on the server. This endpoint cannot
 // start external simulcasts or expose YouTube/TikTok/Facebook destination keys.
