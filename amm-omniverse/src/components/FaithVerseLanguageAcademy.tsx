@@ -1,7 +1,7 @@
 import {useEffect,useMemo,useState,type CSSProperties} from 'react'
 import {PALEO_HEBREW_ALPHABET,PALEO_HEBREW_STUDY_RULES,STRONGS_STUDY} from '../data/FaithVerseStudyLibrary'
 
-type Lesson='alphabet'|'concordance'|'etymology'|'quiz'
+type Lesson='alphabet'|'concordance'|'etymology'|'meaning'|'quiz'
 type Receipt={date:string;lesson:Lesson;completed:boolean;selectedLetter:string;strongId:string}
 const KEY='tryamm:faithverse:language-academy:v1'
 const STAGES:readonly {name:string;summary:string;detail:string}[]=[
@@ -44,7 +44,7 @@ export default function FaithVerseLanguageAcademy({onOpenHoloBook}:{onOpenHoloBo
  return <section aria-label="Paleo-Hebrew and Strong's etymology academy" style={{display:'grid',gap:13,background:'#0a1927',border:'1px solid #8b784e',borderRadius:18,padding:'clamp(12px,3vw,20px)',color:'#fff'}}>
   <h2 style={{margin:0,fontSize:24}}>Language of Creation · Hebrew & Strong’s Academy</h2>
   <p style={{lineHeight:1.6,margin:0}}>Learn Hebrew letterforms, Strong’s reference numbers, and word etymology through the original FaithVerse study systems. The phrase “Language of Creation” is your faith-study title, not a historical proof about language origins.</p>
-  <nav aria-label="Choose language lesson" style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:8}}>{(['alphabet','concordance','etymology','quiz'] as Lesson[]).map(id=><button key={id} style={{...btn,background:lesson===id?'#496454':'#1b2c40'}} aria-pressed={lesson===id} onClick={()=>setLesson(id)}>{id==='alphabet'?'Paleo-Hebrew':id==='concordance'?'Strong’s Concordance':id==='etymology'?'Word Etymology':'Practice Quiz'}</button>)}</nav>
+  <nav aria-label="Choose language lesson" style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:8}}>{(['alphabet','concordance','etymology','meaning','quiz'] as Lesson[]).map(id=><button key={id} style={{...btn,background:lesson===id?'#496454':'#1b2c40'}} aria-pressed={lesson===id} onClick={()=>setLesson(id)}>{id==='alphabet'?'Paleo-Hebrew':id==='concordance'?'Strong’s Concordance':id==='etymology'?'Word Etymology':id==='meaning'?'Denotation & Connotation':'Practice Quiz'}</button>)}</nav>
   {lesson==='alphabet'&&<>
    <p style={{fontSize:13,lineHeight:1.6,margin:0}}>{PALEO_HEBREW_STUDY_RULES.glyphBoundary}</p>
    <div aria-label="Letter practice" style={{background:'#132d3a',padding:20,borderRadius:15,textAlign:'center'}}>
@@ -65,6 +65,7 @@ export default function FaithVerseLanguageAcademy({onOpenHoloBook}:{onOpenHoloBo
    <div style={{display:'grid',gap:9}}>{STAGES.map((step,i)=><article key={step.name} style={{borderBottom:'1px solid #496376',padding:'8px 0'}}><strong>{i+1}. {step.name} — {step.summary}</strong><p style={{margin:'5px 0',fontSize:14,lineHeight:1.5}}>{step.detail}</p></article>)}</div>
    {source&&<a href={source} target="_blank" rel="noreferrer noopener" style={{...btn,display:'flex',alignItems:'center',justifyContent:'center',textDecoration:'none'}}>Open Strong’s source for {strong}</a>}
   </>}
+  {lesson==='meaning'&&<article style={{background:'#142c39',borderRadius:13,padding:16,lineHeight:1.75}}><h3 style={{marginTop:0}}>Denotation, Connotation and Etymology</h3><p><strong>Denotation:</strong> the lexically attested meaning of a word in a documented language and context.</p><p><strong>Connotation:</strong> meanings, values or associations added by culture, genre, community or theological interpretation. Do not present these as exact dictionary translations.</p><p><strong>Etymology:</strong> the historical development of a word from earlier attested forms. Ancient letter images alone do not prove an original meaning.</p><p><strong>Business example:</strong> Kingdoms Press means the name of a publishing operation (denotation in this brand context), while its community associations and spiritual mission can be communicated as connotation. Advertising should distinguish verified services from aspirational claims.</p><p><strong>Scripture example:</strong> A Strong’s number indexes a lexical entry; its gloss, translation choice and devotional implications are distinct layers that need separate labels.</p></article>}
   {lesson==='quiz'&&<section style={{background:'#142c39',borderRadius:13,padding:14,display:'grid',gap:10}}>
    <h3 style={{fontSize:20}}>Quick practice</h3><p>What does a Strong’s number identify?</p>
    {['An indexed Hebrew or Greek lexical entry','A complete translation of a verse','Proof that ancient glyph shapes define every word'].map((answer,i)=><button key={i} onClick={()=>setQuizChoice(i)} aria-pressed={quizChoice===i} style={{...btn,textAlign:'left'}}>{answer}</button>)}
