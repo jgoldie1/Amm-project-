@@ -74,10 +74,11 @@ export function installStreetVerseThreeCastStage(scene:THREE.Scene,cityCollision
  }
  const tick=(now:number)=>{
   if(disposed)return
-  const dt=THREE.MathUtils.clamp((now-last)/1000,0,.05);last=now
-  // On hidden tabs pause animation and avoid burning mobile GPU time.
+  // Use the elapsed time between actual animation updates, not skipped RAF frames.
+  // Otherwise 30ms throttling on a 60Hz phone makes all character motion half speed.
   if(document.visibilityState!=='hidden'&&now-lastFrame>=30){
-   lastFrame=now
+   const dt=THREE.MathUtils.clamp((now-last)/1000,0,.05)
+   last=now;lastFrame=now
    for(const a of actors.values()){
     a.mixer.update(dt)
     if(!a.moving)continue
