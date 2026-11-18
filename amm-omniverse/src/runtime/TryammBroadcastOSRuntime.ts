@@ -201,11 +201,11 @@ export function installTryammBroadcastOSRuntime(){
     const faith=/faith|servants|ministry|worship/i.test(source+title)
     const sports=/sport|boxing|basketball|world games/i.test(source+title)
     const channelId:TryammNetworkChannelId=faith?'servants-of-christ-network':sports?'sportsverse-live':street?'streetverse-local-tv':'all-american-network'
-    addFeed(state,{id:String(d.roomId||d.id||nowId('live')),title,source,channelId,kind:faith?'faith':sports?'sports':street?'field-report':'live',startedAt:new Date().toISOString(),live:d.live!==false,route:'/live'})
+    addFeed(state,{id:String(d.roomId||d.roomName||d.id||nowId('live')),title,source,channelId,kind:faith?'faith':sports?'sports':street?'field-report':'live',startedAt:new Date().toISOString(),live:d.live!==false,route:'/live'})
   }
   const onLiveEnd=(event:Event)=>{
     const d=(event as CustomEvent<Record<string,unknown>>).detail||{}
-    const id=String(d.roomId||d.id||'')
+    const id=String(d.roomId||d.roomName||d.id||'')
     state.activeFeeds=state.activeFeeds.map(x=>id&&x.id===id?{...x,live:false}:x)
     state.lastUpdated=new Date().toISOString();save(state);emit(state,'live-end')
   }
