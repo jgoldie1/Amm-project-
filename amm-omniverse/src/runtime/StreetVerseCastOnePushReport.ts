@@ -62,8 +62,8 @@ export async function runCastOnePushReport(file:File):Promise<CastOnePushReport>
   if(d.characterId==='lateasia-monroe')proof.checks.recoveredNpcMixerAdvanced.lateasia=true
  }
  const onUnavailable=(event:Event)=>{
-  const d=(event as CustomEvent<{role?:string;state?:string;reason?:string}>).detail
-  if(!d||(d.role!=='jacobie'&&d.role!=='lateasia')||d.state!=='unavailable')return
+  const d=(event as CustomEvent<{role?:string;state?:string;reason?:string;localSession?:boolean}>).detail
+  if(!d||d.localSession!==true||(d.role!=='jacobie'&&d.role!=='lateasia')||d.state!=='unavailable')return
   proof.characters[d.role]={status:'failed',animationCount:0,rigged:false,reason:d.reason||'GLB unavailable'}
   finish(d.role)
  }
