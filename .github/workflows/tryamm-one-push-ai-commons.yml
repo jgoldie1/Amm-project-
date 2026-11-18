@@ -1,0 +1,46 @@
+name: TRYAMM One-Push Full Integration
+on:
+  workflow_dispatch:
+    inputs:
+      release_gate:
+        description: "Enforce original GLBs + external LIVE verification (fails closed)"
+        type: boolean
+        default: false
+  pull_request:
+    paths:
+      - 'amm-omniverse/src/components/AICafeCommons.tsx'
+      - 'amm-omniverse/src/runtime/AICafeCommonsRuntime.ts'
+      - 'amm-omniverse/src/components/AICafeRestaurant.tsx'
+      - 'amm-omniverse/src/components/StreetVerseAICafePlaygroundHUD.tsx'
+      - 'amm-omniverse/scripts/one-push-ai-commons-integration.mjs'
+      - 'amm-omniverse/tests/ai-cafe-commons-integration.test.mjs'
+      - 'amm-omniverse/tests/streetverse-delivery-replay-contract.mjs'
+      - '.github/workflows/tryamm-one-push-ai-commons.yml'
+permissions:
+  contents: read
+jobs:
+  one-push:
+    name: JARVIS + Café + Commons + StreetVerse + Mycelium + LIVE
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: ONE PUSH — all cross-system code regressions, fail on broken checks
+        run: node scripts/one-push-ai-commons-integration.mjs ${{ inputs.release_gate && '--release' || '' }}
+      - name: Upload inspectable pass/fail/blocked evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tryamm-one-push-verification-report
+          path: amm-omniverse/test-results/one-push-ai-commons-integration.json
+          retention-days: 14
+          if-no-files-found: warn
