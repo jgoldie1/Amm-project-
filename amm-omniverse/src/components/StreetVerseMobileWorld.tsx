@@ -187,11 +187,18 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
    if(!lastCastReport){setMessage('NO REPORT YET • run the one-push cast test first');return}
    try{
      const outcome=await shareCastOnePushReport(lastCastReport)
-     setMessage(outcome==='handed_to_device'
-       ?'REPORT SHARED TO DEVICE • verify delivery in chosen app; NO SUBMISSION RECEIPT'
-       :outcome==='cancelled'
-         ?'REPORT SHARE CANCELLED • exported JSON remains in Downloads'
-         :'DEVICE SHARE UNAVAILABLE • use the exported JSON in Downloads and submit it manually')
+     if(outcome==='unsupported'&&navigator.clipboard?.writeText){
+       try{
+         await navigator.clipboard.writeText(JSON.stringify(lastCastReport,null,2))
+         setMessage('REPORT COPIED TO CLIPBOARD • paste into ChatGPT for review. NOT YET SUBMITTED')
+       }catch{setMessage('DEVICE SHARE UNAVAILABLE • attach downloaded JSON in ChatGPT. NOT SUBMITTED')}
+     }else{
+       setMessage(outcome==='handed_to_device'
+         ?'REPORT HANDED TO DEVICE SHARE • confirm delivery in chosen app; NO SUBMISSION RECEIPT'
+         :outcome==='cancelled'
+           ?'REPORT SHARE CANCELLED • exported JSON remains in Downloads'
+           :'DEVICE SHARE UNAVAILABLE • attach downloaded JSON in ChatGPT. NOT SUBMITTED')
+     }
    }catch(error){
      setMessage('REPORT SHARE FAILED • '+(error instanceof Error?error.message:'unknown error')+' • NOT SUBMITTED')
    }
