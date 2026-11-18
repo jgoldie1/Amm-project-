@@ -16,7 +16,7 @@ export default function StreetVerseDeviceLiveCertificationHUD(){
   add('Video playback',!!document.createElement('video').canPlayType,'Requires real codec/device playback verification')
   add('MediaRecorder',typeof MediaRecorder!=='undefined','Required for browser reels')
   add('Canvas streaming',typeof HTMLCanvasElement.prototype.captureStream==='function','Required for 30 sec game capture and canvas SFX')
-  let gl:WebGLRenderingContext|null=null
+  let gl:WebGLRenderingContext|WebGL2RenderingContext|null=null
   try{const c=document.createElement('canvas');gl=c.getContext('webgl2')||c.getContext('webgl')}catch{}
   add('WebGL rendering',!!gl,'A context was created; does not verify the main three-character scene')
   const xr=navigator as Navigator & {xr?:{isSessionSupported:(mode:'immersive-ar'|'immersive-vr')=>Promise<boolean>}}
