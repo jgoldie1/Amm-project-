@@ -1,5 +1,6 @@
 import {useMemo,useState} from 'react'
 import {DotLottieReact} from '@lottiefiles/dotlottie-react'
+import CrossVerseClipCutter from './CrossVerseClipCutter'
 
 type Props={onClose:()=>void}
 type Effect={id:string;label:string;kind:'lottie'|'holo'|'gift'|'pk'|'portal';description:string}
@@ -54,6 +55,7 @@ export default function HoloClipStudio({onClose}:Props){
         <section style={card}><b>LOTTIE + HOLOGRAPHIC EFFECT STACK</b><div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:7,marginTop:10}}>{EFFECTS.map(x=><button key={x.id} onClick={()=>setEffect(x.id)} style={{...btn(effect===x.id),textAlign:'left'}}><div>{x.label}</div><div style={{fontSize:9,color:'#92a4af',marginTop:3}}>{x.kind.toUpperCase()}</div></button>)}</div><div style={{fontSize:10,color:'#869ba9',marginTop:10,lineHeight:1.5}}>Runtime supports classic Lottie JSON plus dotLottie `.lottie` packages. Effects stay modular so new gift animations, branded reactions and event packs can be added without rebuilding Holo Clip.</div></section>
         <section style={card}><b>GIFT + TIP OVERLAY</b><div style={{display:'grid',gap:7,marginTop:10}}>{GIFTS.map(x=><button key={x.id} onClick={()=>sendGift(x)} style={{...btn(gift?.id===x.id),display:'flex',justifyContent:'space-between',alignItems:'center'}}><span>{x.icon} {x.label}</span><span style={{color:'#e8b944'}}>{x.credits} credits</span></button>)}</div><div style={{fontSize:10,color:'#9cafbb',marginTop:10,lineHeight:1.5}}>Gift animation can display instantly. Monetary settlement is deliberately separate and must pass the existing approval/step-up Money Engine path.</div></section>
       </div>
+      <CrossVerseClipCutter/>
       <div style={{...card,marginTop:14,display:'flex',gap:8,flexWrap:'wrap'}}><button onClick={openMedia} style={btn(true)}>RENDER / SAVE / PUBLISH</button><button onClick={returnToWorld} style={btn()}>RETURN TO WORLD</button><button onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:holo-social-open'))} style={btn()}>OPEN HOLO SOCIAL</button><div style={{width:'100%',fontSize:11,color:'#9db0bd',lineHeight:1.5}}>{message}</div></div>
     </div>
   </div>
