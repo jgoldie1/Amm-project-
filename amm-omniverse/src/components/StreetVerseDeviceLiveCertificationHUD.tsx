@@ -45,9 +45,9 @@ export default function StreetVerseDeviceLiveCertificationHUD(){
   const url=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}))
   const a=document.createElement('a');a.href=url;a.download='StreetVerse_Device_Live_Certification_Report.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)
  }
- return <aside style={{position:'fixed',right:8,top:'max(180px,env(safe-area-inset-top) + 160px)',zIndex:42017,color:'#fff',fontFamily:'system-ui'}}>
-  <button style={btn} onClick={()=>setOpen(x=>!x)} aria-expanded={open}>📱 XR / LIVE TEST</button>
-  {open&&<section role="region" aria-label="StreetVerse device and LIVE readiness" style={{marginTop:8,width:'min(420px,calc(100vw - 16px))',maxHeight:'65dvh',overflowY:'auto',background:'#081725f5',padding:12,borderRadius:14,border:'1px solid #689cb1',display:'grid',gap:9}}>
+ return <aside style={{position:'fixed',left:8,right:8,top:'calc(env(safe-area-inset-top, 0px) + 8px)',zIndex:2147483647,color:'#fff',fontFamily:'system-ui',pointerEvents:'none',display:'grid',justifyItems:'center'}}>
+  <button style={{...btn,pointerEvents:'auto',width:'min(560px,calc(100vw - 16px))',minHeight:72,fontSize:22,boxShadow:'0 8px 24px #000b',border:'3px solid #fff'}} onClick={()=>setOpen(x=>!x)} aria-expanded={open}>📱 ONE PUSH LIVE TEST</button>
+  {open&&<section role="region" aria-label="StreetVerse device and LIVE readiness" style={{pointerEvents:'auto',marginTop:8,width:'min(560px,calc(100vw - 16px))',maxHeight:'72dvh',overflowY:'auto',background:'#081725fa',padding:12,borderRadius:14,border:'2px solid #fff',display:'grid',gap:9,boxShadow:'0 10px 30px #000c'}}>
    <strong>Device, AR/VR and OBS/LIVE readiness</strong>
    <p style={{margin:0,fontSize:13}}>Run on each actual device. This diagnostic does not send personal information or connect to an unverified stream.</p>
    <button style={btn} onClick={()=>{void probe()}} disabled={working}>{working?'CHECKING…':'ONE PUSH DEVICE + LIVE TEST'}</button>
