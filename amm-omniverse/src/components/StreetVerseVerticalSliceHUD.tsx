@@ -19,7 +19,7 @@ function currentCharacter(){
 }
 
 export default function StreetVerseVerticalSliceHUD(){
- const [open,setOpen]=useState(false)
+ const [open,setOpen]=useState(()=>new URLSearchParams(location.search).get('accept')==='1')
  const [done,setDone]=useState<Record<StepId,boolean>>({character:false,move:false,vehicle:false,mission:false,business:false,reel:false,return:false})
  const character=useMemo(()=>currentCharacter(),[])
  const mark=(id:StepId)=>setDone(v=>({...v,[id]:true}))
