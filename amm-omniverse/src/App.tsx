@@ -166,7 +166,7 @@ export default function App() {
     if (route === '/cyberverse') { setShowSecurity(true); return }
     if (route === '/creatorverse') { setShowPoyo(true); return }
     if (route === '/businessverse') { window.location.href = '/business'; return }
-    if (route === '/educationverse') { setShowSchoolNetwork(true); return }
+    if (route === '/educationverse' || route === '/all-american-university') { setShowSchoolNetwork(true); return }
     if (route === '/legacyverse') { setShowFamilyLegacy(true); return }
     if (route === '/connect') { setShowConnect(true); return }
     if (route === '/tv' || route === '/tryamm-tv') { setShowTryammTv(true); return }
@@ -195,7 +195,7 @@ export default function App() {
     const routeAliases = new Set([
       '/marketplace','/music','/musicverse','/aniyah-studio','/64-track-studio','/sports','/sportverse','/faith','/blockchain','/city',
       '/propertyverse','/earnings','/creator-money','/business-income','/merchant-money','/all-american-store','/omnichannel','/holo-gallery','/holo-fridge','/holo-cold-vault','/holo-lab','/holo-labs','/logistics-freight','/freight','/business-revenue','/saas','/holoverse','/spaceverse','/cyberverse','/creatorverse','/businessverse',
-      '/educationverse','/gameverse','/middleverse','/metaverse','/multiverse','/time-machine',
+      '/educationverse','/all-american-university','/gameverse','/middleverse','/metaverse','/multiverse','/time-machine',
       '/legacyverse','/connect','/tv','/tryamm-tv','/isaiah-ai-tv','/bj-v7-preview','/bj-v8-preview','/bj-v9-preview','/bj-v10-preview','/bj-preview'
     ])
     if (routeAliases.has(route)) navigateTryAMM(route)
