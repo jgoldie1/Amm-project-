@@ -1,5 +1,6 @@
 import {useEffect,useMemo,useRef,useState} from 'react'
 import {playOmniMediaCue} from '../runtime/OmniMediaFxBank'
+import {getAccessToken} from '../services/supabaseClient'
 
 export type StreetVerseReelContext={
  source?:string
@@ -22,6 +23,7 @@ export default function StreetVerseReelRecorder({open,onClose,context={}}:{open:
  const [error,setError]=useState('')
  const [publishing,setPublishing]=useState(false)
  const [published,setPublished]=useState(false)
+ const [publicationStatus,setPublicationStatus]=useState('')
  const missionLabel=String(context.missionLabel||'').trim()
  const caption=missionLabel?`${missionLabel} • Created in StreetVerse • #TRYAMM #StreetVerse`:'Created in StreetVerse • #TRYAMM #StreetVerse'
  const missionContext=useMemo(()=>({handoffSource:context.source||'',missionId:context.missionId||'',missionLabel,missionSource:context.missionSource||'',missionRunId:context.missionRunId||'',programId:context.programId||'',rewardStatus:context.verified?'verified':context.rewardStatus||'pending',verified:context.verified===true}),[context.source,context.missionId,context.missionLabel,context.missionSource,context.missionRunId,context.programId,context.rewardStatus,context.verified,missionLabel])
@@ -78,18 +80,24 @@ export default function StreetVerseReelRecorder({open,onClose,context={}}:{open:
  }
  const publish=async()=>{
   if(!url||publishing)return
-  setPublishing(true);setPublished(false);setError('')
+  setPublishing(true);setPublished(false);setError('');setPublicationStatus('')
   try{
+   const token=await getAccessToken();if(!token)throw new Error('Sign in to upload or publish your reel.')
+   const authHeaders={'content-type':'application/json',Authorization:`Bearer ${token}`}
    const blob=await fetch(url).then(r=>r.blob())
    const ext=blob.type.includes('mp4')?'mp4':'webm',fileName=`streetverse-reel-${Date.now()}.${ext}`
-   const intent=await fetch('/api/media/upload-intent',{method:'POST',headers:{'content-type':'application/json'},credentials:'include',body:JSON.stringify({fileName,contentType:blob.type||'video/mp4',sizeBytes:blob.size,title:missionLabel||'StreetVerse Reel',caption,composition:{...missionContext,creatorSurface:'streetverse-reel-recorder',audioMixVerified:false,gameEffectsRecorded:false,fxBank:'tryamm.omni-media.v1'}})})
+   const intent=await fetch('/api/media/upload-intent',{method:'POST',headers:authHeaders,body:JSON.stringify({fileName,contentType:blob.type||'video/mp4',sizeBytes:blob.size,title:missionLabel||'StreetVerse Reel',caption,composition:{...missionContext,creatorSurface:'streetverse-reel-recorder',audioMixVerified:false,gameEffectsRecorded:false,fxBank:'tryamm.omni-media.v1'}})})
    const intentBody=await intent.json();if(!intent.ok)throw new Error(intentBody?.error||'Could not start Reel upload')
    const uploaded=await fetch(intentBody.upload.url,{method:'PUT',headers:{'content-type':blob.type||'video/mp4'},body:blob});if(!uploaded.ok)throw new Error('Reel storage upload failed')
-   const complete=await fetch('/api/media/upload-complete',{method:'POST',headers:{'content-type':'application/json'},credentials:'include',body:JSON.stringify({mediaId:intentBody.media.id})})
+   const complete=await fetch('/api/media/upload-complete',{method:'POST',headers:authHeaders,body:JSON.stringify({mediaId:intentBody.media.id})})
    const completeBody=await complete.json();if(!complete.ok)throw new Error(completeBody?.error||'Reel upload verification failed')
-   const pub=await fetch('/api/media/publish',{method:'POST',headers:{'content-type':'application/json'},credentials:'include',body:JSON.stringify({mediaId:intentBody.media.id,destinations:['reel','creator-profile','omnibox']})})
+   if(completeBody.processing!=='ready')throw new Error('Upload saved, but video processing is not finished. Your local recording is still available to save or share.')
+   if(!completeBody.playbackUrl)throw new Error('Upload verified without a playback URL. Keep the local copy until playback can be checked.')
+   const pub=await fetch('/api/media/publish',{method:'POST',headers:authHeaders,body:JSON.stringify({mediaId:intentBody.media.id,destinations:['reel','creator-profile','omnibox']})})
    const pubBody=await pub.json();if(!pub.ok)throw new Error(pubBody?.error||'Reel publishing failed')
-   setPublished(true);playOmniMediaCue('reel.publish',{audible:false});window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-published',{detail:{mediaId:intentBody.media.id,destinations:['reel','creator-profile','omnibox'],caption,...missionContext}}))
+   const jobStatus=String(pubBody?.job?.status||'unknown')
+   setPublicationStatus(`Publication ${jobStatus.toUpperCase()} • moderation and playback delivery not yet verified`)
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-publication-queued',{detail:{mediaId:intentBody.media.id,jobId:pubBody?.job?.id||null,status:jobStatus,destinations:['reel','creator-profile','omnibox'],caption,...missionContext}}))
   }catch(e){setError(e instanceof Error?e.message:'Reel publishing failed')}
   finally{setPublishing(false)}
  }
@@ -106,12 +114,13 @@ export default function StreetVerseReelRecorder({open,onClose,context={}}:{open:
    <video ref={videoRef} playsInline muted style={{width:'100%',aspectRatio:'9/16',maxHeight:'70vh',marginTop:12,background:'#000',borderRadius:16,objectFit:'cover'}}/>
    <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:12}}>
     {!recording?<button onClick={startCamera} style={btn}>● START RECORDING</button>:<button onClick={stopRecording} style={{...btn,borderColor:'#ff6378',background:'#2a0b12'}}>■ STOP RECORDING</button>}
-    {url&&<button onClick={publish} disabled={publishing} style={{...btn,borderColor:'#8effb7',background:'#082a18'}}>{publishing?'PUBLISHING…':published?'✓ PUBLISHED':'PUBLISH TO TRYAMM'}</button>}
+    {url&&<button onClick={publish} disabled={publishing} style={{...btn,borderColor:'#8effb7',background:'#082a18'}}>{publishing?'PUBLISHING…':published?'✓ VERIFIED':'QUEUE FOR PUBLISHING'}</button>}
     {url&&<button onClick={share} style={{...btn,borderColor:'#65e8ff',background:'#08202a'}}>SAVE / SHARE</button>}
     <label style={btn}>IPHONE CAPTURE<input type='file' accept='video/*' capture='environment' style={{display:'none'}} onChange={e=>onIPhoneCapture(e.target.files?.[0])}/></label>
     <button onClick={returnToWorld} style={{...btn,borderColor:'#ffd65a',background:'#241b06'}}>← RETURN TO STREETVERSE</button>
    </div>
    {error&&<p role='alert' style={{color:'#ffd27a'}}>{error}</p>}
+   {publicationStatus&&<p role='status' style={{color:'#8effb7'}}>{publicationStatus}</p>}
    <p style={{fontSize:12,color:'#b9c7d3'}}>On Safari/iPhone, tap IPHONE CAPTURE if browser recording is unavailable. After capture, the clip now opens in the preview above. Tap PUBLISH TO TRYAMM to upload and queue the Reel to the Reel feed, creator profile and OmniBox. SAVE / SHARE still uses the iPhone share sheet.</p>
   </div>
  </div>
