@@ -35,7 +35,7 @@ export default function StreetVerseReelCaptureOverlay(){
    <video src={ready.url} controls playsInline preload="metadata" style={{width:'100%',maxHeight:'62vh',borderRadius:14,background:'#000'}}/>
    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginTop:10}}>
     <button onClick={share} style={{minHeight:52,borderRadius:12,fontWeight:950}}>SHARE / SAVE</button>
-    <button onClick={()=>{setReady(null);setState('idle')}} style={{minHeight:52,borderRadius:12,fontWeight:950}}>BACK TO GAME</button>
+    <button onClick={()=>{setReady(null);setState('idle');window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-return',{detail:{source:'streetverse-reel-overlay',fileName:ready.fileName,durationMs:ready.durationMs}}))}} style={{minHeight:52,borderRadius:12,fontWeight:950}}>BACK TO GAME</button>
    </div>
    <small style={{display:'block',marginTop:8}}>{Math.max(1,Math.round(ready.durationMs/1000))} sec • {ready.mimeType||'video'}</small>
   </section>}
