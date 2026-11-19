@@ -24,7 +24,13 @@ export default function StreetVerseVerticalSliceHUD(){
  const character=useMemo(()=>currentCharacter(),[])
  const mark=(id:StepId)=>setDone(v=>({...v,[id]:true}))
  useEffect(()=>{
-   const onCharacter=()=>mark('character')
+   const onCharacter=(e?:Event)=>{
+     if(character==='BJ Stubbs'){
+       const d=(e as CustomEvent<any>|undefined)?.detail||{}
+       if(e&&d.version&&String(d.version)!=='V15')return
+     }
+     mark('character')
+   }
    const onMove=()=>mark('move')
    const onVehicle=(e:Event)=>{if((e as CustomEvent<any>).detail?.entered!==false)mark('vehicle')}
    const onMission=(e:Event)=>{const d=(e as CustomEvent<any>).detail||{};if(d.missionId||d.id)mark('mission')}
@@ -32,7 +38,16 @@ export default function StreetVerseVerticalSliceHUD(){
    const onReel=()=>mark('reel')
    const onReturn=()=>mark('return')
    addEventListener('tryamm:streetverse-bj-visible-version',onCharacter)
+   addEventListener('tryamm:streetverse-bj-hero-mounted',onCharacter)
    addEventListener('tryamm:streetverse-recovered-playable-ready',onCharacter)
+   const latch=()=>{
+     if(character==='BJ Stubbs'){
+       const root=document.querySelector<HTMLElement>('[data-streetverse-world-root="true"]')
+       if(root?.dataset.bjActiveVersion==='V15'&&root.dataset.bjLoadState==='ready')mark('character')
+     }
+   }
+   latch()
+   const latchTimer=window.setInterval(latch,250)
    addEventListener('tryamm:streetverse-player-moved',onMove)
    addEventListener('tryamm:streetverse-vehicle-controlled',onVehicle)
    addEventListener('tryamm:streetverse-mission-complete',onMission)
@@ -41,7 +56,9 @@ export default function StreetVerseVerticalSliceHUD(){
    addEventListener('tryamm:streetverse-reel-return',onReturn)
    return()=>{
      removeEventListener('tryamm:streetverse-bj-visible-version',onCharacter)
+     removeEventListener('tryamm:streetverse-bj-hero-mounted',onCharacter)
      removeEventListener('tryamm:streetverse-recovered-playable-ready',onCharacter)
+     window.clearInterval(latchTimer)
      removeEventListener('tryamm:streetverse-player-moved',onMove)
      removeEventListener('tryamm:streetverse-vehicle-controlled',onVehicle)
      removeEventListener('tryamm:streetverse-mission-complete',onMission)
