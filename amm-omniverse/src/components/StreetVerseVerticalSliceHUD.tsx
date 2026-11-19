@@ -57,6 +57,9 @@ export default function StreetVerseVerticalSliceHUD(){
  const steps:Step[]=order.map(id=>({id,label:labels[id],done:done[id]}))
  const count=steps.filter(s=>s.done).length
  const next=steps.find(s=>!s.done)
+ useEffect(()=>{
+   if(count===steps.length)window.dispatchEvent(new CustomEvent('tryamm:streetverse-vertical-slice-complete',{detail:{passed:true,character,steps}}))
+ },[count,character])
  const doNext=()=>{
    if(!next)return
    if(next.id==='character'){
