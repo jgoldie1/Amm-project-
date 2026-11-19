@@ -2,20 +2,24 @@ import {useEffect,useMemo,useState} from 'react'
 
 type CastId='bj-stubbs'|'jacobie-stubbs'|'lateasia-monroe'
 type Row={id:CastId;name:string;loaded:boolean;clips:number;source:string;movement:boolean;vehicle:boolean;mission:boolean;reel:boolean}
-type StepKey='rig'|'movement'|'vehicle'|'mission'|'reel'
+type StepKey='rig'|'movement'|'vehicle'|'mission'|'reel'|'fullLoop'
 
 const ORDER:CastId[]=['bj-stubbs','jacobie-stubbs','lateasia-monroe']
-const STEP_LABEL:Record<StepKey,string>={rig:'character rig',movement:'movement',vehicle:'vehicle entry',mission:'mission completion',reel:'HoloReel'}
+const STEP_LABEL:Record<StepKey,string>={rig:'character rig',movement:'movement',vehicle:'vehicle entry',mission:'mission completion',reel:'HoloReel',fullLoop:'complete 7/7 loop including business and return-to-game'}
 
 function readRows():Record<string,Row>{
  try{return JSON.parse(sessionStorage.getItem('tryamm.streetverse.three-cast-evidence.v1')||'{}')}catch{return{}}
 }
+function readSequence():string[]{
+ try{return JSON.parse(sessionStorage.getItem('tryamm.streetverse.acceptance-sequence.v1')||'[]')}catch{return[]}
+}
 
 export default function StreetVerseAcceptanceSummaryHUD(){
  const [rows,setRows]=useState<Record<string,Row>>(()=>readRows())
+ const [sequence,setSequence]=useState<string[]>(()=>readSequence())
  const [open,setOpen]=useState(false)
  useEffect(()=>{
-  const refresh=()=>setRows(readRows())
+  const refresh=()=>{setRows(readRows());setSequence(readSequence())}
   const t=window.setInterval(refresh,800)
   addEventListener('storage',refresh)
   addEventListener('tryamm:streetverse-recovered-playable-ready',refresh)
@@ -26,6 +30,7 @@ export default function StreetVerseAcceptanceSummaryHUD(){
  },[])
  const result=useMemo(()=>{
   const failures:Array<{character:string;step:StepKey}>=[]
+  const loopIds:Record<CastId,string>={'bj-stubbs':'bj','jacobie-stubbs':'jacobie','lateasia-monroe':'lateasia'}
   for(const id of ORDER){
    const r=rows[id]
    if(!r?.loaded){failures.push({character:r?.name||id,step:'rig'});continue}
@@ -33,9 +38,10 @@ export default function StreetVerseAcceptanceSummaryHUD(){
    if(!r.vehicle){failures.push({character:r.name,step:'vehicle'});continue}
    if(!r.mission){failures.push({character:r.name,step:'mission'});continue}
    if(!r.reel){failures.push({character:r.name,step:'reel'});continue}
+   if(!sequence.includes(loopIds[id])){failures.push({character:r.name,step:'fullLoop'});continue}
   }
   return{passed:failures.length===0,failures,first:failures[0]||null}
- },[rows])
+ },[rows,sequence])
  const exportSummary=()=>{
   const report={generatedAt:new Date().toISOString(),device:navigator.userAgent,route:location.href,passed:result.passed,firstFailure:result.first,failures:result.failures,characters:rows,note:'Runtime acceptance summary. Visual likeness and target-device rendering still require human review.'}
   const blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json'})
