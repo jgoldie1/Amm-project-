@@ -1,4 +1,5 @@
 import {useEffect,useMemo,useRef,useState} from 'react'
+import {playOmniMediaCue} from '../runtime/OmniMediaFxBank'
 
 export type StreetVerseReelContext={
  source?:string
@@ -32,7 +33,7 @@ export default function StreetVerseReelRecorder({open,onClose,context={}}:{open:
   const video=videoRef.current
   if(!video||!url)return
   let announced=false
-  const previewReady=()=>{if(announced)return;announced=true;window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-preview-ready',{detail:{source:'streetverse-reel-recorder',localPreview:true}}))}
+  const previewReady=()=>{if(announced)return;announced=true;window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-preview-ready',{detail:{source:'streetverse-reel-recorder',localPreview:true}}));playOmniMediaCue('reel.preview',{audible:false})}
   video.srcObject=null
   video.src=url
   video.controls=true
@@ -55,11 +56,11 @@ export default function StreetVerseReelRecorder({open,onClose,context={}}:{open:
    recorderRef.current=recorder;chunksRef.current=[]
    recorder.ondataavailable=e=>{if(e.data.size)chunksRef.current.push(e.data)}
    recorder.onstop=()=>{const blob=new Blob(chunksRef.current,{type:recorder.mimeType||'video/webm'});const next=URL.createObjectURL(blob);setUrl(next);setRecording(false);stopStream();window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-recorded',{detail:{source:'media-recorder',size:blob.size,type:blob.type}}))}
-   recorder.start(500);setRecording(true)
+   recorder.start(500);setRecording(true);playOmniMediaCue('reel.record',{audible:false})
    window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-recording-started',{detail:{source:'media-recorder',mimeType:recorder.mimeType||mime||'browser-default'}}))
   }catch(e){setError(e instanceof Error?e.message:'Camera access failed')}
  }
- const stopRecording=()=>{const recorder=recorderRef.current;if(recorder&&recorder.state!=='inactive')recorder.stop()}
+ const stopRecording=()=>{const recorder=recorderRef.current;if(recorder&&recorder.state!=='inactive'){recorder.stop();playOmniMediaCue('reel.stop',{audible:false})}}
  const returnToWorld=()=>{if(recording)stopRecording();stopStream();onClose()}
  const share=async()=>{
   if(!url)return
@@ -68,11 +69,11 @@ export default function StreetVerseReelRecorder({open,onClose,context={}}:{open:
    const file=new File([blob],`streetverse-reel-${Date.now()}.${blob.type.includes('mp4')?'mp4':'webm'}`,{type:blob.type})
    if(navigator.share&&navigator.canShare?.({files:[file]})){
     await navigator.share({files:[file],title:missionLabel||'StreetVerse Reel',text:caption})
-    window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-save-share-complete',{detail:{source:'streetverse-reel-recorder',action:'share',type:blob.type,size:blob.size,...missionContext}}))
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-save-share-complete',{detail:{source:'streetverse-reel-recorder',action:'share',type:blob.type,size:blob.size,...missionContext}}));playOmniMediaCue('reel.save',{audible:false})
     return
    }
    const a=document.createElement('a');a.href=url;a.download=file.name;a.rel='noopener';document.body.appendChild(a);a.click();a.remove()
-   window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-save-share-complete',{detail:{source:'streetverse-reel-recorder',action:'download',type:blob.type,size:blob.size,...missionContext}}))
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-save-share-complete',{detail:{source:'streetverse-reel-recorder',action:'download',type:blob.type,size:blob.size,...missionContext}}));playOmniMediaCue('reel.save',{audible:false})
   }catch{setError('Save/share failed. Try IPHONE CAPTURE, then use the iPhone share sheet from the preview.')}
  }
  const publish=async()=>{
@@ -81,14 +82,14 @@ export default function StreetVerseReelRecorder({open,onClose,context={}}:{open:
   try{
    const blob=await fetch(url).then(r=>r.blob())
    const ext=blob.type.includes('mp4')?'mp4':'webm',fileName=`streetverse-reel-${Date.now()}.${ext}`
-   const intent=await fetch('/api/media/upload-intent',{method:'POST',headers:{'content-type':'application/json'},credentials:'include',body:JSON.stringify({fileName,contentType:blob.type||'video/mp4',sizeBytes:blob.size,title:missionLabel||'StreetVerse Reel',caption,composition:{...missionContext,creatorSurface:'streetverse-reel-recorder'}})})
+   const intent=await fetch('/api/media/upload-intent',{method:'POST',headers:{'content-type':'application/json'},credentials:'include',body:JSON.stringify({fileName,contentType:blob.type||'video/mp4',sizeBytes:blob.size,title:missionLabel||'StreetVerse Reel',caption,composition:{...missionContext,creatorSurface:'streetverse-reel-recorder',audioMixVerified:false,gameEffectsRecorded:false,fxBank:'tryamm.omni-media.v1'}})})
    const intentBody=await intent.json();if(!intent.ok)throw new Error(intentBody?.error||'Could not start Reel upload')
    const uploaded=await fetch(intentBody.upload.url,{method:'PUT',headers:{'content-type':blob.type||'video/mp4'},body:blob});if(!uploaded.ok)throw new Error('Reel storage upload failed')
    const complete=await fetch('/api/media/upload-complete',{method:'POST',headers:{'content-type':'application/json'},credentials:'include',body:JSON.stringify({mediaId:intentBody.media.id})})
    const completeBody=await complete.json();if(!complete.ok)throw new Error(completeBody?.error||'Reel upload verification failed')
    const pub=await fetch('/api/media/publish',{method:'POST',headers:{'content-type':'application/json'},credentials:'include',body:JSON.stringify({mediaId:intentBody.media.id,destinations:['reel','creator-profile','omnibox']})})
    const pubBody=await pub.json();if(!pub.ok)throw new Error(pubBody?.error||'Reel publishing failed')
-   setPublished(true);window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-published',{detail:{mediaId:intentBody.media.id,destinations:['reel','creator-profile','omnibox'],caption,...missionContext}}))
+   setPublished(true);playOmniMediaCue('reel.publish',{audible:false});window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-published',{detail:{mediaId:intentBody.media.id,destinations:['reel','creator-profile','omnibox'],caption,...missionContext}}))
   }catch(e){setError(e instanceof Error?e.message:'Reel publishing failed')}
   finally{setPublishing(false)}
  }
