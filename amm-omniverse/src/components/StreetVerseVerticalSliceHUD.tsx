@@ -71,7 +71,7 @@ export default function StreetVerseVerticalSliceHUD(){
    if(next.id==='business'){
      const button=document.querySelector<HTMLButtonElement>('#sv-store-open')||document.querySelector<HTMLButtonElement>('[aria-expanded][aria-label*="SHOPPING"]')
      if(button)button.click()
-     else dispatchEvent(new CustomEvent('tryamm:streetverse-open-shopping',{detail:{storeId:'circle-park-creator-merch',source:'vertical-slice'}}))
+     else dispatchEvent(new CustomEvent('tryamm:streetverse-open-shopping',{detail:{storeId:'creator',source:'vertical-slice'}}))
      return
    }
    if(next.id==='reel'){
