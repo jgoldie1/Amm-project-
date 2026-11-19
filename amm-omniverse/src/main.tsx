@@ -29,6 +29,7 @@ import './accessibility/accessibility.css'
 
 // Entering StreetVerse must not download the entire homepage application first.
 const App=lazy(()=>import('./App'))
+const TryammHoloVerseHome=lazy(()=>import('./components/TryammHoloVerseHome'))
 const StreetVerseGeoSpawnBridge=lazy(()=>import('./components/StreetVerseGeoSpawnBridge'))
 const StreetVerseMobileWorldCore=lazy(()=>import('./components/StreetVerseMobileWorld'))
 // Release compatibility marker required by the StreetVerse living-world smoke contract: const StreetVerseLivingWorld=lazy(()=>import('./components/StreetVerseLivingWorld'))
@@ -70,6 +71,8 @@ let preserveDeterministicSafeRoute = false
 try {
   
   const currentPath=window.location.pathname
+  const isRootHome=currentPath==='/'
+  const isLegacyHome=currentPath==='/legacy'||currentPath==='/legacy/'
   const standaloneMatch=currentPath.match(/^\/standalone\/([^/]+)\/?$/)
   const standaloneSite=standaloneMatch ? getStandaloneSite(standaloneMatch[1]) : undefined
   const reelMatch=currentPath.match(/^\/reels\/([^/]+)\/?$/)
@@ -158,7 +161,9 @@ try {
     <OmniCashLauncher />
   </>
   
-  if(isBJRecovery)routeContent=<Suspense fallback={routeFallback}><BJRecoveryStandalone /></Suspense>
+  if(isRootHome)routeContent=<Suspense fallback={routeFallback}><TryammHoloVerseHome /></Suspense>
+  else if(isLegacyHome)routeContent=mainShell
+  else   if(isBJRecovery)routeContent=<Suspense fallback={routeFallback}><BJRecoveryStandalone /></Suspense>
   else if(reelMatch)routeContent=<Suspense fallback={routeFallback}><PublicReelPage slug={decodeURIComponent(reelMatch[1])} /></Suspense>
   else if(isAssetFactory)routeContent=<Suspense fallback={routeFallback}><MeshyFactoryControlPanel /></Suspense>
   else if(isAccessibility)routeContent=<AccessibilityStatement />
