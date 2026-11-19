@@ -19,15 +19,18 @@ export default function StreetVerseAcceptanceSummaryHUD(){
  const [sequence,setSequence]=useState<string[]>(()=>readSequence())
  const [open,setOpen]=useState(()=>new URLSearchParams(location.search).get('autorun')==='1')
  const [sequenceDone,setSequenceDone]=useState(()=>readSequence().length===ORDER.length)
+ const [terminalFailure,setTerminalFailure]=useState<{character:string;step:StepKey;label?:string}|null>(null)
  useEffect(()=>{
   const refresh=()=>{const nextSequence=readSequence();setRows(readRows());setSequence(nextSequence);setSequenceDone(nextSequence.length===3)}
   const t=window.setInterval(refresh,800)
   addEventListener('storage',refresh)
+  const onFailure=(e:Event)=>{const d=(e as CustomEvent<any>).detail||{};const step=(d.failedStep==='character'?'rig':d.failedStep) as StepKey;setTerminalFailure({character:String(d.character||'Unknown character'),step,label:String(d.failedLabel||'')});setOpen(true)}
+  addEventListener('tryamm:streetverse-vertical-slice-failed',onFailure)
   addEventListener('tryamm:streetverse-recovered-playable-ready',refresh)
   addEventListener('tryamm:streetverse-bj-visible-version',refresh)
   addEventListener('tryamm:streetverse-mission-complete',refresh)
   addEventListener('tryamm:reel-capture-ready',refresh)
-  return()=>{clearInterval(t);removeEventListener('storage',refresh);removeEventListener('tryamm:streetverse-recovered-playable-ready',refresh);removeEventListener('tryamm:streetverse-bj-visible-version',refresh);removeEventListener('tryamm:streetverse-mission-complete',refresh);removeEventListener('tryamm:reel-capture-ready',refresh)}
+  return()=>{clearInterval(t);removeEventListener('storage',refresh);removeEventListener('tryamm:streetverse-vertical-slice-failed',onFailure);removeEventListener('tryamm:streetverse-recovered-playable-ready',refresh);removeEventListener('tryamm:streetverse-bj-visible-version',refresh);removeEventListener('tryamm:streetverse-mission-complete',refresh);removeEventListener('tryamm:reel-capture-ready',refresh)}
  },[])
  const result=useMemo(()=>{
   const failures:Array<{character:string;step:StepKey}>=[]
@@ -44,8 +47,9 @@ export default function StreetVerseAcceptanceSummaryHUD(){
    if(!r.loopComplete){failures.push({character:r.name,step:'fullLoop'});continue}
    if(!sequence.includes(loopIds[id])){failures.push({character:r.name,step:'fullLoop'});continue}
   }
-  return{passed:failures.length===0,failures,first:failures[0]||null}
- },[rows,sequence])
+  const first=terminalFailure||failures[0]||null
+  return{passed:!terminalFailure&&failures.length===0,failures,first}
+ },[rows,sequence,terminalFailure])
  useEffect(()=>{
   if(new URLSearchParams(location.search).get('autorun')!=='1')return
   setOpen(true)
@@ -90,12 +94,13 @@ export default function StreetVerseAcceptanceSummaryHUD(){
   const timer=window.setTimeout(()=>{setOpen(true);exportSummary()},500)
   return()=>window.clearTimeout(timer)
  },[sequenceDone,result.passed])
- return <aside style={sequenceDone?{position:'fixed',inset:'max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))',zIndex:56000,display:'grid',placeItems:'center',fontFamily:'system-ui,sans-serif',pointerEvents:'none'}:{position:'fixed',right:'max(10px,env(safe-area-inset-right))',top:'calc(env(safe-area-inset-top) + 8px)',zIndex:54001,fontFamily:'system-ui,sans-serif'}}>
-  {!sequenceDone&&<button type="button" onClick={()=>setOpen(v=>!v)} style={{minHeight:46,padding:'8px 12px',borderRadius:13,border:'2px solid '+(result.passed?'#86ffb0':'#ffb56f'),background:result.passed?'#0e3320ee':'#3a210bee',color:'#fff',fontWeight:950}}>{result.passed?'✓ ACCEPTANCE PASS':'⚠ ACCEPTANCE CHECK'}</button>}
-  {(open||sequenceDone)&&<div style={{marginTop:7,width:sequenceDone?'min(92vw,560px)':340,maxWidth:'calc(100vw - 20px)',display:'grid',gap:10,padding:sequenceDone?18:12,borderRadius:18,border:'3px solid '+(result.passed?'#86ffb0':'#ff8e8e'),background:result.passed?'rgba(8,55,31,.98)':'rgba(70,18,18,.98)',color:'#fff',boxShadow:'0 18px 60px #000b',pointerEvents:'auto'}}>
-   <strong style={{fontSize:sequenceDone?28:18,textAlign:sequenceDone?'center':'left'}}>{result.passed?'✓ ALL THREE CHARACTER TESTS PASSED':'⚠ FULL TEST STOPPED'}</strong>
-   {result.first?<div style={{fontSize:sequenceDone?18:13,lineHeight:1.45,textAlign:sequenceDone?'center':'left'}}><b>{result.first.character}</b><br/>FIRST FAILURE: {STEP_LABEL[result.first.step]}</div>:<div style={{fontSize:sequenceDone?16:12,color:'#bfffd2',textAlign:sequenceDone?'center':'left'}}>BJ Stubbs, Jacobie Stubbs and LaTeasia Monroe each have all 7 runtime steps: rig, movement, vehicle, mission, business, HoloReel, and return-to-game.</div>}
-   {result.failures.slice(0,6).map((f,i)=><div key={i} style={{fontSize:sequenceDone?13:11,color:'#d8dde8',textAlign:sequenceDone?'center':'left'}}>{f.character} • {STEP_LABEL[f.step]}</div>)}
+ const terminal=sequenceDone||Boolean(terminalFailure)
+ return <aside style={terminal?{position:'fixed',inset:'max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))',zIndex:56000,display:'grid',placeItems:'center',fontFamily:'system-ui,sans-serif',pointerEvents:'none'}:{position:'fixed',right:'max(10px,env(safe-area-inset-right))',top:'calc(env(safe-area-inset-top) + 8px)',zIndex:54001,fontFamily:'system-ui,sans-serif'}}>
+  {!terminal&&<button type="button" onClick={()=>setOpen(v=>!v)} style={{minHeight:46,padding:'8px 12px',borderRadius:13,border:'2px solid '+(result.passed?'#86ffb0':'#ffb56f'),background:result.passed?'#0e3320ee':'#3a210bee',color:'#fff',fontWeight:950}}>{result.passed?'✓ ACCEPTANCE PASS':'⚠ ACCEPTANCE CHECK'}</button>}
+  {(open||terminal)&&<div style={{marginTop:7,width:terminal?'min(92vw,560px)':340,maxWidth:'calc(100vw - 20px)',display:'grid',gap:10,padding:terminal?18:12,borderRadius:18,border:'3px solid '+(result.passed?'#86ffb0':'#ff8e8e'),background:result.passed?'rgba(8,55,31,.98)':'rgba(70,18,18,.98)',color:'#fff',boxShadow:'0 18px 60px #000b',pointerEvents:'auto'}}>
+   <strong style={{fontSize:terminal?28:18,textAlign:terminal?'center':'left'}}>{result.passed?'✓ ALL THREE CHARACTER TESTS PASSED':'⚠ FULL TEST STOPPED'}</strong>
+   {result.first?<div style={{fontSize:terminal?18:13,lineHeight:1.45,textAlign:terminal?'center':'left'}}><b>{result.first.character}</b><br/>FIRST FAILURE: {STEP_LABEL[result.first.step]}</div>:<div style={{fontSize:terminal?16:12,color:'#bfffd2',textAlign:terminal?'center':'left'}}>BJ Stubbs, Jacobie Stubbs and LaTeasia Monroe each have all 7 runtime steps: rig, movement, vehicle, mission, business, HoloReel, and return-to-game.</div>}
+   {result.failures.slice(0,6).map((f,i)=><div key={i} style={{fontSize:terminal?13:11,color:'#d8dde8',textAlign:terminal?'center':'left'}}>{f.character} • {STEP_LABEL[f.step]}</div>)}
    <button type="button" onClick={exportSummary} style={{minHeight:52,borderRadius:12,border:'1px solid #75e7b0',background:'#123d2a',color:'#fff',fontWeight:950,fontSize:15}}>EXPORT PASS / FAIL SUMMARY AGAIN</button>
   </div>}
  </aside>
