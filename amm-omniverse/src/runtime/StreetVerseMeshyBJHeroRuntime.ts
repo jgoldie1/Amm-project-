@@ -370,8 +370,10 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       displayName:'BJ Stubbs',
       namedCharacter:true,
       identityContinuityKey:BJ_MESHY_V6_ASSET.characterId,
-      visualAuthority:usingV15Preview?'bj-actual-v15-remote-preview':usingMetaHumanPreview?'metahuman-web-opt-in-unapproved':BJ_MESHY_V6_ASSET.authority,
+      visualAuthority:sourceUrl===localBJMarker?'bj-v15-device-local-owner-import':usingV15Preview?'bj-actual-v15-preview':usingMetaHumanPreview?'metahuman-web-opt-in-unapproved':BJ_MESHY_V6_ASSET.authority,
       bjV15RealGlbPreview:usingV15Preview,
+      bjV15LocalImported:sourceUrl===localBJMarker,
+      bjV15SourceUrl:sourceUrl,
       prunedInvisibleV15Meshes,
       metahumanWebPreview:usingMetaHumanPreview,
       metaHumanLikenessApproved:false,
@@ -414,6 +416,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       object.traverse(n=>{if(n instanceof THREE.SkinnedMesh)skins++})
       window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-visible-version',{detail:{
         characterId:'bj-stubbs',version:'V15',objectName:object.name,sourceUrl,
+        localImported:sourceUrl===localBJMarker,
         skinnedMeshCount:skins,animationCount:clips.length,facialMorphCount:morphs.names.length,
         productionReleased:false,modelVerified:true,likenessCertified:false,
       }}))
