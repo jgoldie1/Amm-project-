@@ -1,5 +1,6 @@
 import { AccessToken } from 'livekit-server-sdk';
 import { requireUser } from '../_lib/security.js';
+import { adminReady, adminRest } from '../_lib/supabase-admin.js';
 
 const LIVEKIT_URL=()=>String(process.env.LIVEKIT_URL||process.env.LIVEKIT_WS_URL||'').trim();
 const API_KEY=()=>String(process.env.LIVEKIT_API_KEY||'').trim();
@@ -25,9 +26,19 @@ export default async function handler(req,res){
   const user=await requireUser(req,res);
   if(!user)return;
 
-  const body=typeof req.body==='string'?JSON.parse(req.body||'{}'):req.body||{};
+  if(!adminReady())return res.status(503).json({error:'LIVE room authorization unavailable'});
+  let body;
+  try{body=typeof req.body==='string'?JSON.parse(req.body||'{}'):req.body||{}}catch{return res.status(400).json({error:'Invalid LIVE request'})}
   const role=body.role==='viewer'?'viewer':'host';
   const room=cleanRoom(body.room);
+  let roomRecord;
+  try{
+    const records=await adminRest('live_rooms',{query:{room_name:`eq.${room}`,limit:1}});
+    roomRecord=records?.[0];
+  }catch{return res.status(503).json({error:'Could not authorize LIVE room'})}
+  if(!roomRecord)return res.status(404).json({error:'LIVE room not found. Create a room before hosting.'});
+  if(role==='host' && (roomRecord.host_user_id!==user.id || roomRecord.status!=='open'))return res.status(403).json({error:'Only the active room owner can broadcast'});
+  if(role==='viewer' && roomRecord.status!=='open')return res.status(403).json({error:'LIVE room is not open'});
   const displayName=cleanName(body.displayName,user.user_metadata?.display_name||user.email?.split('@')[0]);
   const identity=`${user.id}:${role}`;
 
@@ -42,7 +53,7 @@ export default async function handler(req,res){
     room,
     canSubscribe:true,
     canPublish:role==='host',
-    canPublishData:true
+    canPublishData:role==='host'
   });
 
   const jwt=await token.toJwt();
