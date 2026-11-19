@@ -1,7 +1,7 @@
 import { AccessToken } from 'livekit-server-sdk';
 import { requireUser } from '../_lib/security.js';
 
-const LIVEKIT_URL=()=>String(process.env.LIVEKIT_URL||'').trim();
+const LIVEKIT_URL=()=>String(process.env.LIVEKIT_URL||process.env.LIVEKIT_WS_URL||'').trim();
 const API_KEY=()=>String(process.env.LIVEKIT_API_KEY||'').trim();
 const API_SECRET=()=>String(process.env.LIVEKIT_API_SECRET||'').trim();
 
