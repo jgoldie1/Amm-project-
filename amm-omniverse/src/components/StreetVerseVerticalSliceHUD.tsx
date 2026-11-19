@@ -24,6 +24,7 @@ export default function StreetVerseVerticalSliceHUD(){
  const doneRef=useRef(done)
  const [autoRunning,setAutoRunning]=useState(false)
  const [autoStatus,setAutoStatus]=useState('READY • ONE BUTTON RUNS AND EXPORTS THE TEST')
+ const autoStartedRef=useRef(false)
  useEffect(()=>{doneRef.current=done},[done])
  const character=useMemo(()=>currentCharacter(),[])
  const mark=(id:StepId)=>setDone(v=>({...v,[id]:true}))
@@ -148,6 +149,7 @@ export default function StreetVerseVerticalSliceHUD(){
    note:'Auto-run event-backed vertical-slice evidence. Visual likeness and target-device rendering still require human review.'
  })
  const downloadReport=(report:ReturnType<typeof buildReport>)=>{
+   try{localStorage.setItem('tryamm.streetverse.last-auto-report.v1',JSON.stringify(report))}catch{}
    const blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json'})
    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='StreetVerse_ONE_PUSH_Auto_Report.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)
  }
@@ -174,6 +176,13 @@ export default function StreetVerseVerticalSliceHUD(){
    setAutoStatus('PASS • 7/7 COMPLETE • REPORT EXPORTED')
    setAutoRunning(false)
  }
+ useEffect(()=>{
+   const p=new URLSearchParams(location.search)
+   if(p.get('autorun')!=='1'||autoStartedRef.current)return
+   autoStartedRef.current=true
+   const timer=window.setTimeout(()=>void runFullTest(),1200)
+   return()=>window.clearTimeout(timer)
+ },[])
  const exportReport=()=>downloadReport(buildReport())
  return <aside style={{position:'fixed',left:'50%',transform:'translateX(-50%)',bottom:'calc(env(safe-area-inset-bottom) + 18px)',zIndex:53000,fontFamily:'system-ui,sans-serif'}}>
    <button type="button" onClick={()=>setOpen(v=>!v)} style={{minHeight:50,padding:'8px 14px',borderRadius:16,border:'2px solid #ffd66d',background:'#171406ee',color:'#fff',fontWeight:950}}>FIRST LOOP {count}/7</button>
