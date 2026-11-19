@@ -71,11 +71,13 @@ export function playHoloGiftSound(giftId:string):boolean{
  if(!key)return false; // no mislabeled generic audio for unverified cultural/nature gifts
  try{
   active?.pause();
-  const audio=new Audio(GIFT_SOUND_SOURCES[key]);audio.preload='none';audio.volume=.28;
+  const audio=new Audio();
+  if(!audio.canPlayType('audio/ogg; codecs="vorbis"')){playFallbackTone(key);return true}
+  audio.src=GIFT_SOUND_SOURCES[key];audio.preload='none';audio.volume=.28;
   active=audio;
-  void audio.play().catch(()=>{if(active===audio)active=null});
+  void audio.play().catch(()=>{if(active===audio)active=null;playFallbackTone(key)});
   return true;
- }catch{return false}
+ }catch{playFallbackTone(key);return false}
 }
 export const HOLO_GIFT_AUDIO_STATUS={
  license:'Kenney CC0 1.0',
