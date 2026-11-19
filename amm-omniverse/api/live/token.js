@@ -39,6 +39,9 @@ export default async function handler(req,res){
   if(!roomRecord)return res.status(404).json({error:'LIVE room not found. Create a room before hosting.'});
   if(role==='host' && (roomRecord.host_user_id!==user.id || roomRecord.status!=='open'))return res.status(403).json({error:'Only the active room owner can broadcast'});
   if(role==='viewer' && roomRecord.status!=='open')return res.status(403).json({error:'LIVE room is not open'});
+  // Unlisted/private LIVE sessions are owner-only until a server-verified guest grant exists.
+  // Never treat possession of a room name as an invitation.
+  if(role==='viewer' && roomRecord.host_user_id!==user.id && (roomRecord.visibility==='private'||roomRecord.visibility==='unlisted'))return res.status(403).json({error:'Private LIVE room requires verified invitation'});
   const displayName=cleanName(body.displayName,user.user_metadata?.display_name||user.email?.split('@')[0]);
   const identity=`${user.id}:${role}`;
 
