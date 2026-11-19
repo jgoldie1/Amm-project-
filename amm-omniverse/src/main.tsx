@@ -76,6 +76,7 @@ try {
   const standaloneMatch=currentPath.match(/^\/standalone\/([^/]+)\/?$/)
   const standaloneSite=standaloneMatch ? getStandaloneSite(standaloneMatch[1]) : undefined
   const reelMatch=currentPath.match(/^\/reels\/([^/]+)\/?$/)
+  const isReelsHome=currentPath==='/reels'||currentPath==='/reels/'
   const isBJRecovery=currentPath==='/bj-recovery'||currentPath==='/bj-recovery/'
   const isAccessibility=currentPath==='/accessibility'||currentPath==='/accessibility/'
   const isAssetFactory=['/asset-factory','/asset-factory/','/meshy-factory','/meshy-factory/'].includes(currentPath)
@@ -164,6 +165,7 @@ try {
   if(isRootHome)routeContent=<Suspense fallback={routeFallback}><TryammHoloVerseHome /></Suspense>
   else if(isLegacyHome)routeContent=mainShell
   else   if(isBJRecovery)routeContent=<Suspense fallback={routeFallback}><BJRecoveryStandalone /></Suspense>
+  else if(isReelsHome){window.history.replaceState({},'', '/streetverse?core=1&reel=1');routeContent=<StreetVerseMobileErrorBoundary name="StreetVerse HoloReel"><Suspense fallback={routeFallback}><StreetVerseMobileWorldCore onClose={()=>{window.location.href='/'}}/></Suspense></StreetVerseMobileErrorBoundary>}
   else if(reelMatch)routeContent=<Suspense fallback={routeFallback}><PublicReelPage slug={decodeURIComponent(reelMatch[1])} /></Suspense>
   else if(isAssetFactory)routeContent=<Suspense fallback={routeFallback}><MeshyFactoryControlPanel /></Suspense>
   else if(isAccessibility)routeContent=<AccessibilityStatement />
