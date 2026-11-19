@@ -382,6 +382,8 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
       nativeHero.traverse(object=>{if(/loc|braid/i.test(object.name)){object.userData={...object.userData,windBaseRotation:{x:object.rotation.x,y:object.rotation.y,z:object.rotation.z}};nativeWindLocs.push(object)}})
       announceStreetVerseCharacterReady({id:STREETVERSE_HERO_CHARACTER_ID,assetId:'streetverse-hero-player',era:'current',photoMatched:false,source:'streetverse-mobile-procedural-fallback-until-photo-head-ready'})
     }
+    const requestedCharacterParam=new URLSearchParams(window.location.search).get('character')
+    const requestedRecoveredParam:RecoveredPlayableId|null=requestedCharacterParam==='jacobie'||requestedCharacterParam==='jacobie-stubbs'?'jacobie-stubbs':requestedCharacterParam==='lateasia'||requestedCharacterParam==='lateasia-monroe'?'lateasia-monroe':null
     if(nativeHeroFallback){
       const activateBJHero=()=>{
         const request=++bjHeroLoadEpoch
@@ -482,7 +484,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
       }
       window.addEventListener('tryamm:bj-model-progress',onBJLoadProgress)
       window.addEventListener('tryamm:streetverse-bj-v15-preview',onBJPreviewRequest)
-      activateBJHero()
+      if(!requestedRecoveredParam)activateBJHero()
       // Keep cleanup callable in the unmount scope; no extra global listener.
       onBJProgressCleanup=()=>window.removeEventListener('tryamm:bj-model-progress',onBJLoadProgress)
     }
@@ -553,8 +555,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     const savedPlayable=(()=>{try{return JSON.parse(localStorage.getItem('tryamm.streetverse.playable-character.v1')||'{}')?.character}catch{return null}})()
     if(savedPlayable?.assetId==='sv-james-body-base-v1')void activatePublishedBody(savedPlayable.assetId,String(savedPlayable.label||'JAMES'))
     else if(savedPlayable?.assetId&&savedPlayable.assetId!=='sv-bj-stubbs-v6')void activateFamilyStandIn(String(savedPlayable.assetId),String(savedPlayable.label||'GLOBAL CHARACTER'),String(savedPlayable.id||''))
-    const characterParam=new URLSearchParams(window.location.search).get('character')
-    const recoveredParam:RecoveredPlayableId|null=characterParam==='jacobie'||characterParam==='jacobie-stubbs'?'jacobie-stubbs':characterParam==='lateasia'||characterParam==='lateasia-monroe'?'lateasia-monroe':null
+    const recoveredParam=requestedRecoveredParam
     if(recoveredParam)void activateRecoveredPlayable(recoveredParam)
     nativeResidentRigs=nativeResidents.map(nativeHumanoidRig)
     // Prioritize the main player's 6 MB photo-reference GLB over optional NPCs.
