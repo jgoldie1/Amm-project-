@@ -45,6 +45,7 @@ const AccountPrivacyCenter=lazy(()=>import('./components/AccountPrivacyCenter'))
 const HoloDramaHub=lazy(()=>import('./components/HoloDramaHub'))
 const OmniBoxStoryStudio=lazy(()=>import('./components/OmniBoxStoryStudio'))
 const StreetVerseCinematicMissions=lazy(()=>import('./components/StreetVerseCinematicMissions'))
+const StreetVerseDeviceLiveCertificationHUD=lazy(()=>import('./components/StreetVerseDeviceLiveCertificationHUD'))
 const HoloDeliveryRideEntertainmentHub=lazy(()=>import('./components/HoloDeliveryRideEntertainmentHub'))
 const SpectraStudioCommandCenter=lazy(()=>import('./components/SpectraStudioCommandCenter'))
 const EthiopianBibleMetaverse=lazy(()=>import('./components/EthiopianBibleMetaverse'))
@@ -180,7 +181,7 @@ try {
   else if(businessSlug)routeContent=<FamilyBusinessPublicSite slug={businessSlug} onClose={()=>{window.location.href='/business'}} />
   else if(isTwinWorld)routeContent=<Suspense fallback={routeFallback}><StreetVerseTwinWorld onClose={()=>{window.location.href='/'}} /></Suspense>
   else if(isMeetStubbs)routeContent=<Suspense fallback={routeFallback}><MeetTheStubbsWorldDistrict onClose={()=>{window.location.href='/streetverse'}} /></Suspense>
-  else if(isStreetVerse)routeContent=<>{streetVerseRoute}<Suspense fallback={null}><StreetVerseCinematicMissions/></Suspense></>
+  else if(isStreetVerse)routeContent=<>{streetVerseRoute}<Suspense fallback={null}><StreetVerseCinematicMissions/></Suspense><Suspense fallback={null}><StreetVerseDeviceLiveCertificationHUD/></Suspense></>
   else routeContent=mainShell
   
   
@@ -195,7 +196,7 @@ try {
   if(gameRoute){
     routeContent=fallbackParams.get('safe')==='1'||fallbackParams.get('mode')==='safe'
       ? <><StreetVerseWeatherSync/><StreetVerseSafeWorld onClose={()=>{window.location.href='/'}} /></>
-      : <><Suspense fallback={<div role="status">Opening StreetVerse 3D…</div>}><StreetVerseGeoSpawnBridge onClose={()=>{window.location.href='/'}} /></Suspense><Suspense fallback={null}><StreetVerseCinematicMissions/></Suspense></>
+      : <><Suspense fallback={<div role="status">Opening StreetVerse 3D…</div>}><StreetVerseGeoSpawnBridge onClose={()=>{window.location.href='/'}} /></Suspense><Suspense fallback={null}><StreetVerseCinematicMissions/></Suspense><Suspense fallback={null}><StreetVerseDeviceLiveCertificationHUD/></Suspense></>
   }else{
     routeContent=<Suspense fallback={<div role="status">Opening TRYAMM…</div>}><App /></Suspense>
   }
