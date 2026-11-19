@@ -33,11 +33,14 @@ export default function StreetVerseVerticalSliceHUD(){
  const mark=(id:StepId)=>setDone(v=>({...v,[id]:true}))
  useEffect(()=>{
    const onCharacter=(e?:Event)=>{
+     const d=(e as CustomEvent<any>|undefined)?.detail||{}
      if(character==='BJ Stubbs'){
-       const d=(e as CustomEvent<any>|undefined)?.detail||{}
        if(e&&d.version&&String(d.version)!=='V15')return
+       mark('character')
+       return
      }
-     mark('character')
+     const expected=character==='Jacobie Stubbs'?'jacobie-stubbs':'lateasia-monroe'
+     if(d.mounted===true&&(d.id===expected||d.characterId===expected))mark('character')
    }
    const onMove=()=>mark('move')
    const onVehicle=(e:Event)=>{if((e as CustomEvent<any>).detail?.entered!==false)mark('vehicle')}
@@ -47,7 +50,7 @@ export default function StreetVerseVerticalSliceHUD(){
    const onReturn=()=>mark('return')
    addEventListener('tryamm:streetverse-bj-visible-version',onCharacter)
    addEventListener('tryamm:streetverse-bj-hero-mounted',onCharacter)
-   addEventListener('tryamm:streetverse-recovered-playable-ready',onCharacter)
+   addEventListener('tryamm:streetverse-recovered-playable-mounted',onCharacter)
    const latch=()=>{
      if(character==='BJ Stubbs'){
        const root=document.querySelector<HTMLElement>('[data-streetverse-world-root="true"]')
@@ -65,7 +68,7 @@ export default function StreetVerseVerticalSliceHUD(){
    return()=>{
      removeEventListener('tryamm:streetverse-bj-visible-version',onCharacter)
      removeEventListener('tryamm:streetverse-bj-hero-mounted',onCharacter)
-     removeEventListener('tryamm:streetverse-recovered-playable-ready',onCharacter)
+     removeEventListener('tryamm:streetverse-recovered-playable-mounted',onCharacter)
      window.clearInterval(latchTimer)
      removeEventListener('tryamm:streetverse-player-moved',onMove)
      removeEventListener('tryamm:streetverse-vehicle-controlled',onVehicle)
