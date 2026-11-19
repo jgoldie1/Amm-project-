@@ -44,6 +44,23 @@ let enabled=true;
 let lastGift='';
 let lastAt=0;
 let active:HTMLAudioElement|null=null;
+// Legacy iPhones may reject OGG/Vorbis. Simple original tone fallback keeps preview audible;
+// it is NOT an authentic instrument, song, animal call, or equivalent to the source sound.
+function playFallbackTone(key:GiftSoundKey){
+ try{
+  const Ctor=window.AudioContext;
+  if(!Ctor)return;
+  const ctx=new Ctor();const osc=ctx.createOscillator();const gain=ctx.createGain();
+  osc.type=key==='impact'||key==='blast'?'sawtooth':'sine';
+  osc.frequency.setValueAtTime(key==='bell'?660:key==='impact'?160:440,ctx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(key==='blast'?70:220,ctx.currentTime+.25);
+  gain.gain.setValueAtTime(.0001,ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(.08,ctx.currentTime+.02);
+  gain.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+.38);
+  osc.connect(gain);gain.connect(ctx.destination);osc.start();osc.stop(ctx.currentTime+.4);
+  osc.onended=()=>{void ctx.close().catch(()=>{})};
+ }catch{/* Audio is optional: visual gift remains available. */}
+}
 export function setHoloGiftSoundEnabled(value:boolean){enabled=value;if(!value){active?.pause();active=null}}
 export function playHoloGiftSound(giftId:string):boolean{
  if(!enabled||typeof Audio==='undefined')return false;
