@@ -40,6 +40,7 @@ const ServantsOfChristMinistry=lazy(()=>import('./components/ServantsOfChristMin
 const OmniCareCashSuite=lazy(()=>import('./components/OmniCareCashSuite'))
 const GlobalTradeWorldHub=lazy(()=>import('./components/GlobalTradeWorldHub'))
 const LiveCenter=lazy(()=>import('./components/LiveCenter'))
+const LiveOnePushTest=lazy(()=>import('./components/LiveOnePushTest'))
 const GuardianCommandCenter=lazy(()=>import('./components/GuardianCommandCenter'))
 const AccountPrivacyCenter=lazy(()=>import('./components/AccountPrivacyCenter'))
 const HoloDramaHub=lazy(()=>import('./components/HoloDramaHub'))
@@ -75,6 +76,7 @@ try {
   const isAssetFactory=['/asset-factory','/asset-factory/','/meshy-factory','/meshy-factory/'].includes(currentPath)
   const isWorkstation=currentPath==='/workstation'||currentPath==='/workstation/'
   const isLive=currentPath==='/live'||currentPath==='/live/'
+  const isLiveTest=currentPath==='/live-test'||currentPath==='/live-test/'
   const isGuardian=currentPath==='/guardian'||currentPath==='/guardian/'
   const isAccountDeletion=currentPath==='/account-deletion'||currentPath==='/account-deletion/'
   const isHoloDrama=currentPath==='/holo-drama'||currentPath==='/holo-drama/'
@@ -153,6 +155,7 @@ try {
   else if(isAssetFactory)routeContent=<Suspense fallback={routeFallback}><MeshyFactoryControlPanel /></Suspense>
   else if(isAccessibility)routeContent=<AccessibilityStatement />
   else if(isWorkstation)routeContent=<Suspense fallback={routeFallback}><OmniWorkstation /></Suspense>
+  else if(isLiveTest)routeContent=<Suspense fallback={routeFallback}><LiveOnePushTest /></Suspense>
   else if(isLive)routeContent=<Suspense fallback={routeFallback}><LiveCenter onClose={()=>{window.location.href='/'}} /></Suspense>
   else if(isGuardian)routeContent=<Suspense fallback={routeFallback}><GuardianCommandCenter /></Suspense>
   else if(isAccountDeletion)routeContent=<Suspense fallback={routeFallback}><AccountPrivacyCenter onClose={()=>{window.location.href='/'}} /></Suspense>
