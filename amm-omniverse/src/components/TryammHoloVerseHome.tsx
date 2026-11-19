@@ -109,7 +109,7 @@ export default function TryammHoloVerseHome(){
    <section aria-label="StreetVerse acceptance launcher" style={{display:'grid',gap:10,padding:12,border:'1px solid #8d6c2f',borderRadius:16,background:'#171105cc'}}>
     <strong style={{fontSize:18}}>ONE-PUSH DEVICE ACCEPTANCE</strong>
     <span style={{fontSize:12,color:'#d6c9a4'}}>Run the same 7-step loop for each playable character. Session evidence carries across character switches.</span>
-    <a href="/streetverse?core=1&bj=v15&accept=1&sequence=full" style={{...button,minHeight:64,display:'grid',placeItems:'center',textDecoration:'none',fontSize:17,background:'linear-gradient(135deg,#5e4010,#7b2d6b)',borderColor:'#ffe29a'}}>▶ START FULL TEST • BJ → JACOBIE → LATEASIA</a>
+    <a href="/streetverse?core=1&bj=v15&accept=1&sequence=full" onClick={()=>{try{sessionStorage.removeItem('tryamm.streetverse.acceptance-sequence.v1');sessionStorage.removeItem('tryamm.streetverse.three-cast-evidence.v1')}catch{}}} style={{...button,minHeight:64,display:'grid',placeItems:'center',textDecoration:'none',fontSize:17,background:'linear-gradient(135deg,#5e4010,#7b2d6b)',borderColor:'#ffe29a'}}>▶ START FULL TEST • BJ → JACOBIE → LATEASIA</a>
     <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))',gap:8}}>
      <a href="/streetverse?core=1&bj=v15&accept=1" style={{...button,display:'grid',placeItems:'center',textDecoration:'none',background:'#1d3557'}}>TEST BJ</a>
      <a href="/streetverse?core=1&character=jacobie&world=greenville&accept=1" style={{...button,display:'grid',placeItems:'center',textDecoration:'none',background:'#4b2d5f'}}>TEST JACOBIE</a>
