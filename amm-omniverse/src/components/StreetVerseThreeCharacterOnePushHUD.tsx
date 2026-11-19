@@ -27,6 +27,12 @@ export default function StreetVerseThreeCharacterOnePushHUD(){
  useEffect(()=>{try{sessionStorage.setItem('tryamm.streetverse.three-cast-evidence.v1',JSON.stringify(rows))}catch{}},[rows])
  useEffect(()=>{
    const patch=(id:CastId,data:Partial<Row>)=>setRows(v=>({...v,[id]:{...v[id],...data}}))
+   const latchCurrent=()=>{
+     const root=document.querySelector<HTMLElement>('[data-streetverse-world-root="true"]')
+     if(current==='bj-stubbs'&&root?.dataset.bjActiveVersion==='V15'&&root.dataset.bjLoadState==='ready'){
+       patch('bj-stubbs',{loaded:true,source:'mounted-v15'})
+     }
+   }
    const onRecovered=(e:Event)=>{
      const d=(e as CustomEvent<any>).detail||{}
      if(d.id==='jacobie-stubbs'||d.id==='lateasia-monroe')patch(d.id,{loaded:true,clips:Array.isArray(d.clips)?d.clips.length:Number(d.clipCount||0),source:String(d.source||'recovered')})
@@ -41,11 +47,14 @@ export default function StreetVerseThreeCharacterOnePushHUD(){
    const onReel=()=>patch(current,{reel:true})
    addEventListener('tryamm:streetverse-recovered-playable-ready',onRecovered)
    addEventListener('tryamm:streetverse-bj-visible-version',onBJ)
+   addEventListener('tryamm:streetverse-bj-hero-mounted',onBJ)
+   latchCurrent()
+   const latchTimer=window.setInterval(latchCurrent,250)
    addEventListener('tryamm:streetverse-player-moved',onMove)
    addEventListener('tryamm:streetverse-vehicle-controlled',onVehicle)
    addEventListener('tryamm:streetverse-mission-complete',onMission)
    addEventListener('tryamm:reel-capture-ready',onReel)
-   return()=>{removeEventListener('tryamm:streetverse-recovered-playable-ready',onRecovered);removeEventListener('tryamm:streetverse-bj-visible-version',onBJ);removeEventListener('tryamm:streetverse-player-moved',onMove);removeEventListener('tryamm:streetverse-vehicle-controlled',onVehicle);removeEventListener('tryamm:streetverse-mission-complete',onMission);removeEventListener('tryamm:reel-capture-ready',onReel)}
+   return()=>{removeEventListener('tryamm:streetverse-recovered-playable-ready',onRecovered);removeEventListener('tryamm:streetverse-bj-visible-version',onBJ);removeEventListener('tryamm:streetverse-bj-hero-mounted',onBJ);window.clearInterval(latchTimer);removeEventListener('tryamm:streetverse-player-moved',onMove);removeEventListener('tryamm:streetverse-vehicle-controlled',onVehicle);removeEventListener('tryamm:streetverse-mission-complete',onMission);removeEventListener('tryamm:reel-capture-ready',onReel)}
  },[current])
  const all=Object.values(rows)
  const summary={
