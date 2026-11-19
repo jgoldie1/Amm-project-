@@ -18,6 +18,7 @@ export default function StreetVerseAcceptanceSummaryHUD(){
  const [rows,setRows]=useState<Record<string,Row>>(()=>readRows())
  const [sequence,setSequence]=useState<string[]>(()=>readSequence())
  const [open,setOpen]=useState(()=>new URLSearchParams(location.search).get('autorun')==='1')
+ const [sequenceDone,setSequenceDone]=useState(()=>readSequence().length===3)
  useEffect(()=>{
   const refresh=()=>{const nextSequence=readSequence();setRows(readRows());setSequence(nextSequence);setSequenceDone(nextSequence.length===3)}
   const t=window.setInterval(refresh,800)
@@ -46,15 +47,37 @@ export default function StreetVerseAcceptanceSummaryHUD(){
   if(new URLSearchParams(location.search).get('autorun')!=='1')return
   setOpen(true)
  },[result.passed,result.first?.character,result.first?.step])
- const persistSummary=()=>{
-  const report=persistSummary()
-  try{localStorage.setItem('tryamm.streetverse.last-acceptance-summary.v1',JSON.stringify(report))}catch{}
+ type AcceptanceReport={
+  generatedAt:string
+  device:string
+  route:string
+  passed:boolean
+  firstFailure:{character:string;step:StepKey}|null
+  failures:Array<{character:string;step:StepKey}>
+  characters:Record<string,Row>
+  note:string
+ }
+ const buildSummary=():AcceptanceReport=>({
+  generatedAt:new Date().toISOString(),
+  device:navigator.userAgent,
+  route:location.href,
+  passed:result.passed,
+  firstFailure:result.first,
+  failures:result.failures,
+  characters:rows,
+  note:'Runtime acceptance summary. Visual likeness and target-device rendering still require human review.'
+ })
+ const persistSummary=():AcceptanceReport=>{
+  const report=buildSummary()
+  try{
+   localStorage.setItem('tryamm.streetverse.last-acceptance-summary.v1',JSON.stringify(report))
+   localStorage.setItem('tryamm.streetverse.last-three-cast-summary.v1',JSON.stringify(report))
+  }catch{}
   return report
  }
  useEffect(()=>{persistSummary()},[result.passed,result.failures.length,rows,sequence])
  const exportSummary=()=>{
-  const report={generatedAt:new Date().toISOString(),device:navigator.userAgent,route:location.href,passed:result.passed,firstFailure:result.first,failures:result.failures,characters:rows,note:'Runtime acceptance summary. Visual likeness and target-device rendering still require human review.'}
-  try{localStorage.setItem('tryamm.streetverse.last-three-cast-summary.v1',JSON.stringify(report))}catch{}
+  const report=persistSummary()
   const blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json'})
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='StreetVerse_Acceptance_Summary.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)
  }
