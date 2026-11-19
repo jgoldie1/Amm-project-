@@ -106,6 +106,16 @@ export default function TryammHoloVerseHome(){
     </article>
    </section>
 
+   <section aria-label="StreetVerse acceptance launcher" style={{display:'grid',gap:10,padding:12,border:'1px solid #8d6c2f',borderRadius:16,background:'#171105cc'}}>
+    <strong style={{fontSize:18}}>ONE-PUSH DEVICE ACCEPTANCE</strong>
+    <span style={{fontSize:12,color:'#d6c9a4'}}>Run the same 7-step loop for each playable character. Session evidence carries across character switches.</span>
+    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))',gap:8}}>
+     <a href="/streetverse?core=1&bj=v15&accept=1" style={{...button,display:'grid',placeItems:'center',textDecoration:'none',background:'#1d3557'}}>TEST BJ</a>
+     <a href="/streetverse?core=1&character=jacobie&world=greenville&accept=1" style={{...button,display:'grid',placeItems:'center',textDecoration:'none',background:'#4b2d5f'}}>TEST JACOBIE</a>
+     <a href="/streetverse?core=1&character=lateasia&accept=1" style={{...button,display:'grid',placeItems:'center',textDecoration:'none',background:'#5a2548'}}>TEST LATEASIA</a>
+    </div>
+   </section>
+
    <a href="/streetverse?core=1&bj=v15" style={{...button,minHeight:66,display:'grid',placeItems:'center',textDecoration:'none',fontSize:18,background:'linear-gradient(135deg,#174d8d,#652a9a)',borderColor:'#d9cfff'}}>▶ ENTER STREETVERSE CORE</a>
   </section>
  </main>
