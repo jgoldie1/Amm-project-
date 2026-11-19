@@ -24,6 +24,7 @@ export default function StreetVerseAcceptanceSequenceHUD(){
    try{
      sessionStorage.removeItem('tryamm.streetverse.acceptance-sequence.v1')
      sessionStorage.removeItem('tryamm.streetverse.three-cast-evidence.v1')
+     sessionStorage.removeItem('tryamm.streetverse.acceptance-terminal-failure.v1')
      sessionStorage.setItem('tryamm.streetverse.acceptance-run.v1',Date.now().toString())
    }catch{}
    const nextUrl=new URL(location.href)
