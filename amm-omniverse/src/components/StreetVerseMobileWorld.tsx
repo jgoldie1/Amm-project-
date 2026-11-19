@@ -23,6 +23,7 @@ import StreetVerseChronoShopHUD from './StreetVerseChronoShopHUD'
 import {mountLivingStoreScene,storeInteriorCollision} from '../runtime/StreetVerseLivingStoreScene'
 import {canvasRoundedRect} from '../utils/canvasRoundedRect'
 import {useEffect,useRef,useState} from 'react'
+import {readLocalCastAsset} from '../runtime/StreetVerseCharacterLocalRecovery'
 import './streetverse-mobile-layout.css'
 import {createStreetVerseCameraClearance,resolveStreetVerseThirdPersonCameraSafety,STREETVERSE_CAMERA_MIN_DISTANCE,STREETVERSE_CAMERA_OCCLUSION_PASS} from '../runtime/StreetVerseCameraClearance'
 import {createStreetVerseWestSideVisibleWorld} from '../runtime/StreetVerseWestSideVisibleWorldRuntime'
@@ -182,6 +183,25 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
 
  // Screenshot-driven iPhone clear view: all functionality stays in the quick menu.
  const [focusView,setFocusView]=useState(true)
+ useEffect(()=>{
+  const p=new URLSearchParams(window.location.search)
+  if(p.get('bj')!=='v15'||p.get('accept')!=='1')return
+  let cancelled=false
+  void readLocalCastAsset('bj-stubbs').then(asset=>{
+   if(cancelled||asset)return
+   const q=new URLSearchParams()
+   q.set('accept','1')
+   if(p.get('sequence')==='full')q.set('sequence','full')
+   window.location.replace('/bj-recovery?'+q.toString())
+  }).catch(()=>{
+   if(cancelled)return
+   const q=new URLSearchParams()
+   q.set('accept','1')
+   if(p.get('sequence')==='full')q.set('sequence','full')
+   window.location.replace('/bj-recovery?'+q.toString())
+  })
+  return()=>{cancelled=true}
+ },[])
  const [bjRenderedVersion,setBJRenderedVersion]=useState<string|null>(null)
  const [bjFaceViewPinned,setBjFaceViewPinned]=useState(false)
  const [bjLoadStatus,setBJLoadStatus]=useState<'loading'|'downloading'|'decoding'|'ready'|'fallback'|'error'>('loading')
