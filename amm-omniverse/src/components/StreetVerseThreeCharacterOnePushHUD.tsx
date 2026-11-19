@@ -45,8 +45,8 @@ export default function StreetVerseThreeCharacterOnePushHUD(){
    addEventListener('tryamm:streetverse-world-input',onMove)
    addEventListener('tryamm:streetverse-vehicle-controlled',onVehicle)
    addEventListener('tryamm:streetverse-mission-complete',onMission)
-   addEventListener('tryamm:streetverse-reel-open',onReel)
-   return()=>{removeEventListener('tryamm:streetverse-recovered-playable-ready',onRecovered);removeEventListener('tryamm:streetverse-bj-visible-version',onBJ);removeEventListener('tryamm:streetverse-mobile-movement',onMove);removeEventListener('tryamm:streetverse-world-input',onMove);removeEventListener('tryamm:streetverse-vehicle-controlled',onVehicle);removeEventListener('tryamm:streetverse-mission-complete',onMission);removeEventListener('tryamm:streetverse-reel-open',onReel)}
+   addEventListener('tryamm:reel-capture-ready',onReel)
+   return()=>{removeEventListener('tryamm:streetverse-recovered-playable-ready',onRecovered);removeEventListener('tryamm:streetverse-bj-visible-version',onBJ);removeEventListener('tryamm:streetverse-mobile-movement',onMove);removeEventListener('tryamm:streetverse-world-input',onMove);removeEventListener('tryamm:streetverse-vehicle-controlled',onVehicle);removeEventListener('tryamm:streetverse-mission-complete',onMission);removeEventListener('tryamm:reel-capture-ready',onReel)}
  },[current])
  const all=Object.values(rows)
  const summary={
