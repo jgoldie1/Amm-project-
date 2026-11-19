@@ -94,7 +94,7 @@ export default function StreetVerseVerticalSliceHUD(){
      return
    }
    if(next.id==='mission'){
-     dispatchEvent(new CustomEvent('tryamm:streetverse-first-journey-start',{detail:{source:'vertical-slice-one-push'}}))
+     dispatchEvent(new CustomEvent('tryamm:streetverse-acceptance-complete-mission',{detail:{source:'vertical-slice-one-push'}}))
      return
    }
    if(next.id==='business'){
