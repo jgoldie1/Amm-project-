@@ -11,6 +11,14 @@ export default async function handler(req,res){
     const user=await requireUser(req,res);if(!user)return;
     const mediaId=String(req.body?.mediaId||'').trim();if(!mediaId)return json(res,400,{error:'media_id_required'});
     const mediaRows=await userRest(req,'media_catalog',{query:{id:`eq.${mediaId}`,owner_id:`eq.${user.id}`,select:'*',limit:1}}),media=mediaRows?.[0];if(!media)return json(res,404,{error:'media_not_found'});
+    // Music synchronization/streaming rights are not established by a user-supplied
+    // metadata flag. Require server-side verified rights before music-bearing publication.
+    const composition=media.manifest?.composition||{};
+    const musicUse=String(composition.musicUse||'none').toLowerCase();
+    if(musicUse!=='none'){
+      if(media.rights_status!=='verified'||!media.manifest?.music_rights_evidence_id)
+        return json(res,409,{error:'music_rights_verification_required',next:'Verify master, composition, synchronization and streaming rights before publishing.'});
+    }
     const destinations=[...new Set((Array.isArray(req.body?.destinations)?req.body.destinations:[]).map(x=>String(x||'').trim()).filter(x=>DESTINATIONS.has(x)))];if(!destinations.length)return json(res,400,{error:'destination_required'});
     const ready=media.processing_status==='ready'&&Boolean(media.storage_path||media.manifest?.storage_path),status=ready?'queued':'blocked',errorCode=ready?null:'MEDIA_PROCESSING_NOT_READY';
     const existing=await userRest(req,'media_publish_jobs',{query:{media_id:`eq.${media.id}`,owner_id:`eq.${user.id}`,select:'*',order:'created_at.desc',limit:20}});
