@@ -36,7 +36,9 @@ export default function StreetVerseAcceptanceSequenceHUD(){
  useEffect(()=>{
    const onComplete=(e:Event)=>{
      const d=(e as CustomEvent<any>).detail||{}
-     if(d?.passed===false)return
+     const expectedName=active==='bj'?'BJ Stubbs':active==='jacobie'?'Jacobie Stubbs':'LaTeasia Monroe'
+     const exactSeven=Array.isArray(d.steps)&&d.steps.length===7&&d.steps.every((s:any)=>s?.done===true)
+     if(d?.passed!==true||d.character!==expectedName||!exactSeven)return
      setLoopDone(true)
      setCompleted(prev=>{
        const next=prev.includes(active)?prev:[...prev,active]
