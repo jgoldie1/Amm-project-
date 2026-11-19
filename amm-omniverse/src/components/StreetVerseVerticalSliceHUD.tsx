@@ -19,13 +19,16 @@ function currentCharacter(){
 }
 
 export default function StreetVerseVerticalSliceHUD(){
+ const autoMode=useMemo(()=>new URLSearchParams(location.search).get('autorun')==='1',[])
  const [open,setOpen]=useState(()=>new URLSearchParams(location.search).get('accept')==='1')
  const [done,setDone]=useState<Record<StepId,boolean>>({character:false,move:false,vehicle:false,mission:false,business:false,reel:false,return:false})
  const doneRef=useRef(done)
  const [autoRunning,setAutoRunning]=useState(false)
  const [autoStatus,setAutoStatus]=useState('READY • ONE BUTTON RUNS AND EXPORTS THE TEST')
+ const [lastReport,setLastReport]=useState<any>(null)
  const autoStartedRef=useRef(false)
  useEffect(()=>{doneRef.current=done},[done])
+ useEffect(()=>{try{const raw=localStorage.getItem('tryamm.streetverse.last-auto-report.v1');if(raw)setLastReport(JSON.parse(raw))}catch{}},[])
  const character=useMemo(()=>currentCharacter(),[])
  const mark=(id:StepId)=>setDone(v=>({...v,[id]:true}))
  useEffect(()=>{
@@ -150,6 +153,7 @@ export default function StreetVerseVerticalSliceHUD(){
  })
  const downloadReport=(report:ReturnType<typeof buildReport>)=>{
    try{localStorage.setItem('tryamm.streetverse.last-auto-report.v1',JSON.stringify(report))}catch{}
+   setLastReport(report)
    const blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json'})
    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='StreetVerse_ONE_PUSH_Auto_Report.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)
  }
@@ -185,14 +189,19 @@ export default function StreetVerseVerticalSliceHUD(){
  },[])
  const exportReport=()=>downloadReport(buildReport())
  return <aside style={{position:'fixed',left:'50%',transform:'translateX(-50%)',bottom:'calc(env(safe-area-inset-bottom) + 18px)',zIndex:53000,fontFamily:'system-ui,sans-serif'}}>
-   <button type="button" onClick={()=>setOpen(v=>!v)} style={{minHeight:50,padding:'8px 14px',borderRadius:16,border:'2px solid #ffd66d',background:'#171406ee',color:'#fff',fontWeight:950}}>FIRST LOOP {count}/7</button>
-   {open&&<div style={{marginBottom:7,width:320,maxWidth:'calc(100vw - 20px)',display:'grid',gap:7,padding:10,borderRadius:14,border:'1px solid #8a7137',background:'rgba(14,12,6,.97)',color:'#fff'}}>
-     <strong>{character} • STREETVERSE FIRST COMPLETE LOOP</strong>
-     {steps.map(s=><div key={s.id} style={{fontSize:12,padding:'5px 7px',borderRadius:8,background:s.done?'#153d28':'#222'}}>{s.done?'✓':'○'} {s.label}</div>)}
-     <button type="button" onClick={runFullTest} disabled={autoRunning} aria-label="Run full StreetVerse acceptance test and export report automatically" style={{minHeight:72,borderRadius:16,border:'3px solid #9cffc2',background:autoRunning?'#314b3d':'#0f6b3f',color:'#fff',fontSize:18,fontWeight:1000,padding:'12px 16px',touchAction:'manipulation'}}>{autoRunning?'RUNNING FULL TEST…':'▶ RUN FULL TEST + AUTO EXPORT'}</button>
-     <div role="status" aria-live="polite" style={{fontSize:13,fontWeight:900,padding:'8px 10px',borderRadius:10,background:'#101820',color:'#d7f8ff'}}>{autoStatus}</div>
-     {next?<button type="button" onClick={doNext} disabled={autoRunning} style={{minHeight:50,borderRadius:10,border:'1px solid #ffe59a',background:'#5a4410',color:'#fff',fontWeight:900}}>MANUAL NEXT • {next.label.toUpperCase()}</button>:<div style={{fontWeight:950,color:'#b9ffcd'}}>✓ VERTICAL SLICE COMPLETE</div>}
-     <button type="button" onClick={exportReport} style={{minHeight:50,borderRadius:10,border:'1px solid #75e7b0',background:'#123d2a',color:'#fff',fontWeight:900}}>EXPORT REPORT AGAIN</button>
+   {!autoMode&&<button type="button" onClick={()=>setOpen(v=>!v)} style={{minHeight:50,padding:'8px 14px',borderRadius:16,border:'2px solid #ffd66d',background:'#171406ee',color:'#fff',fontWeight:950}}>FIRST LOOP {count}/7</button>}
+   {(open||autoMode)&&<div style={{marginBottom:7,width:340,maxWidth:'calc(100vw - 20px)',display:'grid',gap:8,padding:12,borderRadius:16,border:'2px solid #8a7137',background:'rgba(14,12,6,.97)',color:'#fff'}}>
+     <strong style={{fontSize:16}}>{character} • {autoMode?'AUTO ACCEPTANCE':'STREETVERSE FIRST COMPLETE LOOP'}</strong>
+     <div role="status" aria-live="polite" style={{fontSize:14,fontWeight:950,padding:'10px 12px',borderRadius:10,background:'#101820',color:'#d7f8ff'}}>{autoStatus}</div>
+     {steps.map(s=><div key={s.id} style={{fontSize:13,padding:'7px 9px',borderRadius:9,background:s.done?'#153d28':'#222'}}>{s.done?'✓':'○'} {s.label}</div>)}
+     {lastReport&&<div style={{padding:'10px 12px',borderRadius:12,border:'1px solid #75e7b0',background:lastReport.passed?'#103e29':'#451c1c',fontWeight:950}}>
+       LAST REPORT • {lastReport.passed?'PASS 7/7':'STOPPED '+(lastReport.steps?.filter((s:any)=>s.done).length||0)+'/7'}
+     </div>}
+     {!autoMode&&<>
+       <button type="button" onClick={runFullTest} disabled={autoRunning} aria-label="Run full StreetVerse acceptance test and export report automatically" style={{minHeight:72,borderRadius:16,border:'3px solid #9cffc2',background:autoRunning?'#314b3d':'#0f6b3f',color:'#fff',fontSize:18,fontWeight:1000,padding:'12px 16px',touchAction:'manipulation'}}>{autoRunning?'RUNNING FULL TEST…':'▶ RUN FULL TEST + AUTO EXPORT'}</button>
+       {next?<button type="button" onClick={doNext} disabled={autoRunning} style={{minHeight:50,borderRadius:10,border:'1px solid #ffe59a',background:'#5a4410',color:'#fff',fontWeight:900}}>MANUAL NEXT • {next.label.toUpperCase()}</button>:<div style={{fontWeight:950,color:'#b9ffcd'}}>✓ VERTICAL SLICE COMPLETE</div>}
+       <button type="button" onClick={exportReport} style={{minHeight:50,borderRadius:10,border:'1px solid #75e7b0',background:'#123d2a',color:'#fff',fontWeight:900}}>EXPORT REPORT AGAIN</button>
+     </>}
    </div>}
  </aside>
 }
