@@ -1,4 +1,4 @@
-export type TransportKind = 'car' | 'suv' | 'van' | 'bus' | 'train' | 'plane' | 'boat' | 'rideshare';
+export type TransportKind = 'car' | 'suv' | 'van' | 'bus' | 'train' | 'plane' | 'jet' | 'helicopter' | 'boat' | 'yacht' | 'ship' | 'rideshare';
 
 export type SeatRole = 'driver' | 'passenger' | 'standing';
 
@@ -44,7 +44,11 @@ export const TRANSPORT_CAPACITIES: Record<TransportKind, { passengers: number; s
   bus: { passengers: 40, standing: 20 },
   train: { passengers: 120, standing: 80 },
   plane: { passengers: 180, standing: 0 },
+  jet: { passengers: 12, standing: 0 },
+  helicopter: { passengers: 6, standing: 0 },
   boat: { passengers: 24, standing: 8 },
+  yacht: { passengers: 32, standing: 12 },
+  ship: { passengers: 1200, standing: 300 },
 };
 
 export const FIVE_SEAT_CAR: TransportSeat[] = [
