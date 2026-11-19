@@ -1,7 +1,7 @@
 import {useEffect,useMemo,useState} from 'react'
 
 type CastId='bj-stubbs'|'jacobie-stubbs'|'lateasia-monroe'
-type Row={id:CastId;name:string;loaded:boolean;clips:number;source:string;movement:boolean;vehicle:boolean;mission:boolean;business:boolean;reel:boolean;returned:boolean}
+type Row={id:CastId;name:string;loaded:boolean;clips:number;source:string;movement:boolean;vehicle:boolean;mission:boolean;business:boolean;reel:boolean;returned:boolean;loopComplete:boolean}
 type StepKey='rig'|'movement'|'vehicle'|'mission'|'business'|'reel'|'return'|'fullLoop'
 
 const ORDER:CastId[]=['bj-stubbs','jacobie-stubbs','lateasia-monroe']
@@ -41,6 +41,7 @@ export default function StreetVerseAcceptanceSummaryHUD(){
    if(!r.business){failures.push({character:r.name,step:'business'});continue}
    if(!r.reel){failures.push({character:r.name,step:'reel'});continue}
    if(!r.returned){failures.push({character:r.name,step:'return'});continue}
+   if(!r.loopComplete){failures.push({character:r.name,step:'fullLoop'});continue}
    if(!sequence.includes(loopIds[id])){failures.push({character:r.name,step:'fullLoop'});continue}
   }
   return{passed:failures.length===0,failures,first:failures[0]||null}
