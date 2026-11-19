@@ -173,6 +173,7 @@ export default function StreetVerseVerticalSliceHUD(){
      if(!ok){
        const report=buildReport()
        downloadReport(report)
+       window.dispatchEvent(new CustomEvent('tryamm:streetverse-vertical-slice-failed',{detail:{...report,failedStep:id,failedLabel:labels[id]}}))
        setAutoStatus('STOPPED • '+labels[id].toUpperCase()+' DID NOT VERIFY • REPORT EXPORTED')
        setAutoRunning(false)
        return
