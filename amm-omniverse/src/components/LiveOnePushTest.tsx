@@ -13,7 +13,8 @@ export default function LiveOnePushTest(){
     try{
       out.push({name:'Secure browser',ok:window.isSecureContext,detail:window.isSecureContext?'Secure HTTPS connection detected':'HTTPS secure context required'})
       out.push({name:'Camera / microphone API',ok:!!navigator.mediaDevices?.getUserMedia,detail:navigator.mediaDevices?.getUserMedia?'Browser can request camera and microphone':'Camera/microphone API unavailable'})
-      out.push({name:'Video playback',ok:!!document.createElement('video').canPlayType,detail:'Browser video element available'})
+      const video=document.createElement('video')
+      out.push({name:'Video playback',ok:'canPlayType' in video,detail:'Browser video element available'})
       out.push({name:'MediaRecorder',ok:typeof MediaRecorder!=='undefined',detail:typeof MediaRecorder!=='undefined'?'Recording API available':'Recording API unavailable'})
       let gl=false
       try{const c=document.createElement('canvas');gl=!!(c.getContext('webgl2')||c.getContext('webgl'))}catch{}
