@@ -1,0 +1,48 @@
+import {useEffect,useMemo,useState} from 'react'
+
+type Cast='bj'|'jacobie'|'lateasia'
+const ORDER:Cast[]=['bj','jacobie','lateasia']
+const LABEL:Record<Cast,string>={bj:'BJ STUBBS',jacobie:'JACOBIE STUBBS',lateasia:'LATEASIA MONROE'}
+
+function current():Cast{
+ const p=new URLSearchParams(location.search),c=p.get('character')||''
+ return c.startsWith('jacobie')?'jacobie':c.startsWith('lateasia')?'lateasia':'bj'
+}
+function urlFor(c:Cast){
+ if(c==='bj')return '/streetverse?core=1&bj=v15&accept=1'
+ if(c==='jacobie')return '/streetverse?core=1&character=jacobie&world=greenville&accept=1'
+ return '/streetverse?core=1&character=lateasia&accept=1'
+}
+
+export default function StreetVerseAcceptanceSequenceHUD(){
+ const active=useMemo(()=>current(),[])
+ const [completed,setCompleted]=useState<Cast[]>(()=>{
+   try{return JSON.parse(sessionStorage.getItem('tryamm.streetverse.acceptance-sequence.v1')||'[]')}catch{return[]}
+ })
+ const [loopDone,setLoopDone]=useState(false)
+ useEffect(()=>{
+   const onComplete=(e:Event)=>{
+     const d=(e as CustomEvent<any>).detail||{}
+     if(d?.passed===false)return
+     setLoopDone(true)
+     setCompleted(prev=>{
+       const next=prev.includes(active)?prev:[...prev,active]
+       try{sessionStorage.setItem('tryamm.streetverse.acceptance-sequence.v1',JSON.stringify(next))}catch{}
+       return next
+     })
+   }
+   addEventListener('tryamm:streetverse-vertical-slice-complete',onComplete)
+   return()=>removeEventListener('tryamm:streetverse-vertical-slice-complete',onComplete)
+ },[active])
+ const next=ORDER.find(x=>!completed.includes(x) && x!==active) || ORDER.find(x=>!completed.includes(x))
+ const doneAll=ORDER.every(x=>completed.includes(x))
+ return <aside style={{position:'fixed',left:'max(10px,env(safe-area-inset-left))',top:'calc(env(safe-area-inset-top) + 8px)',zIndex:54000,fontFamily:'system-ui,sans-serif'}}>
+   <div style={{display:'grid',gap:6,padding:9,borderRadius:14,border:'1px solid #8ac6ff',background:'rgba(4,15,28,.95)',color:'#fff',minWidth:220}}>
+    <strong>ACCEPTANCE SEQUENCE</strong>
+    <span style={{fontSize:11}}>{ORDER.map(x=>completed.includes(x)?'✓ '+LABEL[x]:'○ '+LABEL[x]).join('  ')}</span>
+    {!doneAll&&loopDone&&next&&<a href={urlFor(next)} style={{minHeight:44,display:'grid',placeItems:'center',borderRadius:10,background:'#214c76',color:'#fff',textDecoration:'none',fontWeight:900}}>NEXT • {LABEL[next]}</a>}
+    {doneAll&&<strong style={{color:'#b8ffd0'}}>✓ ALL THREE CHARACTER LOOPS COMPLETE</strong>}
+    <button type="button" onClick={()=>{try{sessionStorage.removeItem('tryamm.streetverse.acceptance-sequence.v1');sessionStorage.removeItem('tryamm.streetverse.three-cast-evidence.v1')}catch{};setCompleted([]);setLoopDone(false)}} style={{minHeight:38,borderRadius:9,border:'1px solid #5d6f83',background:'#172333',color:'#fff',fontWeight:800}}>RESET ACCEPTANCE SESSION</button>
+   </div>
+ </aside>
+}
