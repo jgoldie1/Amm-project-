@@ -90,7 +90,7 @@ export default function StreetVerseVerticalSliceHUD(){
      return
    }
    if(next.id==='vehicle'){
-     dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-interact',{detail:{entered:true,source:'vertical-slice-one-push'}}))
+     dispatchEvent(new CustomEvent('tryamm:streetverse-acceptance-enter-vehicle',{detail:{source:'vertical-slice-one-push'}}))
      return
    }
    if(next.id==='mission'){
