@@ -12,7 +12,8 @@ export default function LiveOnePushTest(){
     const out:Check[]=[]
     try{
       out.push({name:'Secure browser',ok:window.isSecureContext,detail:window.isSecureContext?'Secure HTTPS connection detected':'HTTPS secure context required'})
-      out.push({name:'Camera / microphone API',ok:!!navigator.mediaDevices?.getUserMedia,detail:navigator.mediaDevices?.getUserMedia?'Browser can request camera and microphone':'Camera/microphone API unavailable'})
+      const canUseMedia=typeof navigator.mediaDevices?.getUserMedia==='function'
+      out.push({name:'Camera / microphone API',ok:canUseMedia,detail:canUseMedia?'Browser can request camera and microphone':'Camera/microphone API unavailable'})
       const video=document.createElement('video')
       out.push({name:'Video playback',ok:'canPlayType' in video,detail:'Browser video element available'})
       out.push({name:'MediaRecorder',ok:typeof MediaRecorder!=='undefined',detail:typeof MediaRecorder!=='undefined'?'Recording API available':'Recording API unavailable'})
