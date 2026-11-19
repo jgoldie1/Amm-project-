@@ -1,4 +1,4 @@
-import {useEffect,useMemo,useState} from 'react'
+import {useEffect,useMemo,useRef,useState} from 'react'
 
 type StepId='character'|'move'|'vehicle'|'mission'|'business'|'reel'|'return'
 type Step={id:StepId;label:string;done:boolean}
@@ -21,6 +21,10 @@ function currentCharacter(){
 export default function StreetVerseVerticalSliceHUD(){
  const [open,setOpen]=useState(()=>new URLSearchParams(location.search).get('accept')==='1')
  const [done,setDone]=useState<Record<StepId,boolean>>({character:false,move:false,vehicle:false,mission:false,business:false,reel:false,return:false})
+ const doneRef=useRef(done)
+ const [autoRunning,setAutoRunning]=useState(false)
+ const [autoStatus,setAutoStatus]=useState('READY • ONE BUTTON RUNS AND EXPORTS THE TEST')
+ useEffect(()=>{doneRef.current=done},[done])
  const character=useMemo(()=>currentCharacter(),[])
  const mark=(id:StepId)=>setDone(v=>({...v,[id]:true}))
  useEffect(()=>{
@@ -110,18 +114,76 @@ export default function StreetVerseVerticalSliceHUD(){
      return
    }
  }
- const exportReport=()=>{
-   const report={generatedAt:new Date().toISOString(),character,route:location.href,steps,passed:count===steps.length,device:navigator.userAgent,note:'Event-backed vertical-slice evidence; visual likeness and target-device acceptance still require human review.'}
-   const blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json'})
-   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='StreetVerse_Vertical_Slice_Report.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)
+ const waitForStep=(id:StepId,timeoutMs=8000)=>new Promise<boolean>(resolve=>{
+   if(doneRef.current[id]){resolve(true);return}
+   const started=Date.now()
+   const timer=window.setInterval(()=>{
+     if(doneRef.current[id]){window.clearInterval(timer);resolve(true);return}
+     if(Date.now()-started>=timeoutMs){window.clearInterval(timer);resolve(false)}
+   },120)
+ })
+ const triggerStep=(id:StepId)=>{
+   if(id==='character'){
+     const p=new URLSearchParams(location.search)
+     if(p.get('character')?.startsWith('jacobie')||p.get('character')?.startsWith('lateasia'))dispatchEvent(new CustomEvent('tryamm:streetverse-character-retry',{detail:{character:p.get('character'),source:'full-auto-acceptance'}}))
+     else dispatchEvent(new CustomEvent('tryamm:streetverse-bj-v15-preview',{detail:{source:'full-auto-acceptance'}}))
+     return
+   }
+   if(id==='move'){
+     dispatchEvent(new CustomEvent('tryamm:streetverse-mobile-movement',{detail:{up:true,source:'full-auto-acceptance'}}))
+     window.setTimeout(()=>dispatchEvent(new CustomEvent('tryamm:streetverse-mobile-movement',{detail:{up:false,source:'full-auto-acceptance'}})),900)
+     return
+   }
+   if(id==='vehicle'){dispatchEvent(new CustomEvent('tryamm:streetverse-acceptance-enter-vehicle',{detail:{source:'full-auto-acceptance'}}));return}
+   if(id==='mission'){dispatchEvent(new CustomEvent('tryamm:streetverse-acceptance-complete-mission',{detail:{source:'full-auto-acceptance'}}));return}
+   if(id==='business'){dispatchEvent(new CustomEvent('tryamm:streetverse-acceptance-business-purchase',{detail:{source:'full-auto-acceptance'}}));return}
+   if(id==='reel'){dispatchEvent(new CustomEvent('tryamm:streetverse-acceptance-record-reel',{detail:{source:'full-auto-acceptance'}}));return}
+   if(id==='return'){dispatchEvent(new CustomEvent('tryamm:streetverse-acceptance-return-to-game',{detail:{source:'full-auto-acceptance'}}));return}
  }
+ const buildReport=()=>({
+   generatedAt:new Date().toISOString(),character,route:location.href,
+   steps:order.map(id=>({id,label:labels[id],done:Boolean(doneRef.current[id])})),
+   passed:order.every(id=>Boolean(doneRef.current[id])),
+   device:navigator.userAgent,
+   note:'Auto-run event-backed vertical-slice evidence. Visual likeness and target-device rendering still require human review.'
+ })
+ const downloadReport=(report:ReturnType<typeof buildReport>)=>{
+   const blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json'})
+   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='StreetVerse_ONE_PUSH_Auto_Report.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)
+ }
+ const runFullTest=async()=>{
+   if(autoRunning)return
+   setAutoRunning(true)
+   setAutoStatus('STARTING FULL TEST…')
+   for(const id of order){
+     if(doneRef.current[id])continue
+     setAutoStatus('RUNNING • '+labels[id].toUpperCase())
+     triggerStep(id)
+     const timeout=id==='reel'?12000:id==='mission'?10000:8000
+     const ok=await waitForStep(id,timeout)
+     if(!ok){
+       const report=buildReport()
+       downloadReport(report)
+       setAutoStatus('STOPPED • '+labels[id].toUpperCase()+' DID NOT VERIFY • REPORT EXPORTED')
+       setAutoRunning(false)
+       return
+     }
+   }
+   const report=buildReport()
+   downloadReport(report)
+   setAutoStatus('PASS • 7/7 COMPLETE • REPORT EXPORTED')
+   setAutoRunning(false)
+ }
+ const exportReport=()=>downloadReport(buildReport())
  return <aside style={{position:'fixed',left:'50%',transform:'translateX(-50%)',bottom:'calc(env(safe-area-inset-bottom) + 18px)',zIndex:53000,fontFamily:'system-ui,sans-serif'}}>
    <button type="button" onClick={()=>setOpen(v=>!v)} style={{minHeight:50,padding:'8px 14px',borderRadius:16,border:'2px solid #ffd66d',background:'#171406ee',color:'#fff',fontWeight:950}}>FIRST LOOP {count}/7</button>
    {open&&<div style={{marginBottom:7,width:320,maxWidth:'calc(100vw - 20px)',display:'grid',gap:7,padding:10,borderRadius:14,border:'1px solid #8a7137',background:'rgba(14,12,6,.97)',color:'#fff'}}>
      <strong>{character} • STREETVERSE FIRST COMPLETE LOOP</strong>
      {steps.map(s=><div key={s.id} style={{fontSize:12,padding:'5px 7px',borderRadius:8,background:s.done?'#153d28':'#222'}}>{s.done?'✓':'○'} {s.label}</div>)}
-     {next?<button type="button" onClick={doNext} style={{minHeight:48,borderRadius:10,border:'1px solid #ffe59a',background:'#5a4410',color:'#fff',fontWeight:900}}>NEXT • {next.label.toUpperCase()}</button>:<div style={{fontWeight:950,color:'#b9ffcd'}}>✓ VERTICAL SLICE COMPLETE</div>}
-     <button type="button" onClick={exportReport} style={{minHeight:44,borderRadius:10,border:'1px solid #75e7b0',background:'#123d2a',color:'#fff',fontWeight:900}}>EXPORT FIRST-LOOP REPORT</button>
+     <button type="button" onClick={runFullTest} disabled={autoRunning} aria-label="Run full StreetVerse acceptance test and export report automatically" style={{minHeight:72,borderRadius:16,border:'3px solid #9cffc2',background:autoRunning?'#314b3d':'#0f6b3f',color:'#fff',fontSize:18,fontWeight:1000,padding:'12px 16px',touchAction:'manipulation'}}>{autoRunning?'RUNNING FULL TEST…':'▶ RUN FULL TEST + AUTO EXPORT'}</button>
+     <div role="status" aria-live="polite" style={{fontSize:13,fontWeight:900,padding:'8px 10px',borderRadius:10,background:'#101820',color:'#d7f8ff'}}>{autoStatus}</div>
+     {next?<button type="button" onClick={doNext} disabled={autoRunning} style={{minHeight:50,borderRadius:10,border:'1px solid #ffe59a',background:'#5a4410',color:'#fff',fontWeight:900}}>MANUAL NEXT • {next.label.toUpperCase()}</button>:<div style={{fontWeight:950,color:'#b9ffcd'}}>✓ VERTICAL SLICE COMPLETE</div>}
+     <button type="button" onClick={exportReport} style={{minHeight:50,borderRadius:10,border:'1px solid #75e7b0',background:'#123d2a',color:'#fff',fontWeight:900}}>EXPORT REPORT AGAIN</button>
    </div>}
  </aside>
 }
