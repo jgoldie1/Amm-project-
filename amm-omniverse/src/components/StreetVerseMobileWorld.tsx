@@ -383,9 +383,10 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
           if(!handle){if(request===bjHeroLoadEpoch){setBJLoadStatus('error');setBJRenderedVersion(null);if(requireV15&&nativeHeroFallback)nativeHeroFallback.visible=false;setMessage(requireV15?'REAL BJ V15 NOT LOADED • old BJ blocked • use RESTORE REAL BJ':'BJ V15 NOT AVAILABLE • retry from the BJ button')}return}
           if(nativeCancelled||!nativeLayer||request!==bjHeroLoadEpoch){handle.dispose();return}
           const isV15=handle.object.userData.bjV15RealGlbPreview===true
-          // Fail closed for an explicit restore. Do not silently replace a failed V15 request
-          // with V12/V7/V6 and make the player think the imported model was accepted.
-          if(requireV15&&!isV15){
+          const isLocalOwnerV15=handle.object.userData.bjV15LocalImported===true
+          // Fail closed for an explicit owner V15 restore. A remote V15 preview may be useful
+          // for diagnostics, but it must never be reported as the user's imported real suit GLB.
+          if(requireV15&&(!isV15||!isLocalOwnerV15)){
             handle.dispose()
             bjMeshyHero?.dispose();bjMeshyHero=null
             publishedHeroBody?.dispose();publishedHeroBody=null
@@ -395,7 +396,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
             if(nativeHeroFallback){nativeHero=nativeHeroFallback;nativeHeroFallback.visible=false}
             setBJRenderedVersion(null)
             setBJLoadStatus('error')
-            setMessage('REAL BJ V15 NOT LOADED • old BJ blocked • use RESTORE REAL BJ')
+            setMessage('REAL BJ OWNER V15 NOT LOADED • remote/old BJ blocked • use RESTORE REAL BJ')
             window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-v15-required',{detail:{reason:'fallback-rejected',source:'streetverse-mobile-world'}}))
             return
           }
