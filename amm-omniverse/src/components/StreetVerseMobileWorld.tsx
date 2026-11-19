@@ -1535,7 +1535,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     activeCar.rotation.y=vehicleDynamics.yaw;activeCar.rotation.x=0;activeCar.rotation.z=isMotorcycle?-vehicleDynamics.lean:0
     driveHeading=vehicleDynamics.yaw;driveSpeed=vehicleDynamics.speed;driveSteer=vehicleDynamics.steeringAngle
   }
-  if((collisionX||collisionZ)&&Math.abs(next.speed)>1.6)window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-collision',{detail:{vehicleId:String(activeCar.userData.vehicleId||''),impactSpeed:Math.abs(next.speed),damage:vehicleDynamics.damage,fictional:true}}))
+  if((collisionX||collisionZ)&&Math.abs(driveSpeed)>1.6)window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-collision',{detail:{vehicleId:String(activeCar.userData.vehicleId||''),impactSpeed:Math.abs(driveSpeed),damage:vehicleDynamics?.damage??0,fictional:true}}))
   chicagoDriveMeters+=Math.hypot(activeCar.position.x-oldDriveX,activeCar.position.z-oldDriveZ)
   if(!chicagoDriveReported&&chicagoDriveMeters>=20){chicagoDriveReported=true;window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-distance',{detail:{meters:chicagoDriveMeters,measured:true}}))}
   avatar.position.set(activeCar.position.x,activeCar.position.y,activeCar.position.z)
