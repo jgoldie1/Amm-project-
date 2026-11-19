@@ -9,7 +9,8 @@ function current():Cast{
  return c.startsWith('jacobie')?'jacobie':c.startsWith('lateasia')?'lateasia':'bj'
 }
 function urlFor(c:Cast,auto=false){
- const tail=auto?'&sequence=full&autorun=1':''
+ const master=new URLSearchParams(location.search).get('master')==='1'?'&master=1':''
+ const tail=(auto?'&sequence=full&autorun=1':'')+master
  if(c==='bj')return '/streetverse?core=1&bj=v15&accept=1'+tail
  if(c==='jacobie')return '/streetverse?core=1&character=jacobie&world=greenville&accept=1'+tail
  return '/streetverse?core=1&character=lateasia&accept=1'+tail
