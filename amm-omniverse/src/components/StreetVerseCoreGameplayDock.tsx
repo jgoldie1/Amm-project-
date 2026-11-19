@@ -95,7 +95,7 @@ export default function StreetVerseCoreGameplayDock(){
         <button onClick={tickets} style={{...btn,color:'#b7ffa2'}}>🎟️<br/>TICKETS</button>
         <button onClick={faith} style={{...btn,color:'#e5c56a'}}>📖<br/>FAITH</button>
         <button onClick={exit} disabled={!inVehicle} style={{...btn,color:inVehicle?'#ffcf6b':'#687785',opacity:inVehicle?1:.55}}>🚪<br/>EXIT</button>
-      </div>
+      </div>}
       {expanded&&<div aria-live="polite" style={{marginTop:5,textAlign:'center',fontSize:10,fontWeight:900,color:'#8ea6b7'}}>{status}</div>}
     </div>
   </aside></>
