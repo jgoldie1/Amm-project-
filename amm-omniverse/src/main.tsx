@@ -64,6 +64,7 @@ const PublicReelPage=lazy(()=>import('./components/PublicReelPage'))
 const MeshyFactoryControlPanel=lazy(()=>import('./components/MeshyFactoryControlPanel'))
 const OctoberLaunchLockCenter=lazy(()=>import('./components/OctoberLaunchLockCenter'))
 const StubbsAIHolographicBusinessOS=lazy(()=>import('./components/StubbsAIHolographicBusinessOS'))
+const Aniyah64TrackStudio=lazy(()=>import('./components/Aniyah64TrackStudio'))
 
 let routeContent: React.ReactNode = <Suspense fallback={<div role="status">Opening TRYAMM…</div>}><App /></Suspense>
 let preserveDeterministicSafeRoute = false
@@ -81,6 +82,7 @@ try {
   const isAccessibility=currentPath==='/accessibility'||currentPath==='/accessibility/'
   const isAssetFactory=['/asset-factory','/asset-factory/','/meshy-factory','/meshy-factory/'].includes(currentPath)
   const isWorkstation=currentPath==='/workstation'||currentPath==='/workstation/'
+  const isAniyahStudio=['/aniyah-studio','/aniyah-studio/','/64-track-studio','/64-track-studio/'].includes(currentPath)
   const isLive=currentPath==='/live'||currentPath==='/live/'
   const isGuardian=currentPath==='/guardian'||currentPath==='/guardian/'
   const isAccountDeletion=currentPath==='/account-deletion'||currentPath==='/account-deletion/'
@@ -170,6 +172,7 @@ try {
   else if(isAssetFactory)routeContent=<Suspense fallback={routeFallback}><MeshyFactoryControlPanel /></Suspense>
   else if(isAccessibility)routeContent=<AccessibilityStatement />
   else if(isWorkstation)routeContent=<Suspense fallback={routeFallback}><OmniWorkstation /></Suspense>
+  else if(isAniyahStudio)routeContent=<Suspense fallback={routeFallback}><Aniyah64TrackStudio onClose={()=>{window.location.href='/'}} /></Suspense>
   else if(isLive)routeContent=<Suspense fallback={routeFallback}><LiveCenter onClose={()=>{window.location.href='/'}} /></Suspense>
   else if(isGuardian)routeContent=<Suspense fallback={routeFallback}><GuardianCommandCenter /></Suspense>
   else if(isAccountDeletion)routeContent=<Suspense fallback={routeFallback}><AccountPrivacyCenter onClose={()=>{window.location.href='/'}} /></Suspense>
