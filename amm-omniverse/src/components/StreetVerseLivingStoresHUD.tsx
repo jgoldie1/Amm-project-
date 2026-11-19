@@ -14,6 +14,20 @@ export default function StreetVerseLivingStoresHUD(){
  useEffect(()=>{const onOpen=(e:Event)=>{const id=(e as CustomEvent<{storeId?:string}>).detail?.storeId;if(!id||!ledger.world.stores.some(s=>s.id===id))return;setOpen(true);setMessage('Browsing '+ledger.world.stores.find(s=>s.id===id)?.name+' — game credits only.')};window.addEventListener('tryamm:streetverse-open-shopping',onOpen);return()=>window.removeEventListener('tryamm:streetverse-open-shopping',onOpen)},[ledger.world.stores])
  useEffect(()=>{try{localStorage.setItem(SHOPPING_SAVE_KEY,serializeShoppingLedger(ledger))}catch{}},[ledger])
  useEffect(()=>{
+  const onAcceptancePurchase=()=>{
+   const store=ledger.world.stores[0]
+   if(!store){window.dispatchEvent(new CustomEvent('tryamm:streetverse-acceptance-step-failed',{detail:{step:'business',reason:'no-store'}}));return}
+   const result=buyGameProduct(ledger,store.id,store.sku,1)
+   setMessage(result.message)
+   if(!result.ok){window.dispatchEvent(new CustomEvent('tryamm:streetverse-acceptance-step-failed',{detail:{step:'business',reason:result.message}}));return}
+   setOpen(true)
+   setLedger(result.ledger)
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-store-demo-purchase',{detail:{kind:'purchase',storeId:store.id,sku:store.sku,quantity:1,demo:true,fictional:true,source:'acceptance-one-push'}}))
+  }
+  window.addEventListener('tryamm:streetverse-acceptance-business-purchase',onAcceptancePurchase)
+  return()=>window.removeEventListener('tryamm:streetverse-acceptance-business-purchase',onAcceptancePurchase)
+ },[ledger])
+ useEffect(()=>{
   const onComplete=(event:Event)=>{
    const d=(event as CustomEvent<{missionId?:string;storeId?:string;sku?:string;quantity?:number;rewardCredits?:number;demo?:boolean}>).detail
    if(d?.demo!==true||!d.missionId||!d.storeId||!d.sku)return
