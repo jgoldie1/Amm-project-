@@ -3,7 +3,9 @@ import {useMemo,useState} from 'react'
 type Mode='PLAY'|'CREATE'|'LIVE'|'EARN'|'LEARN'|'DISCOVER'|'MY WORLD'
 const modes:Record<Mode,{tagline:string;items:Array<[string,string,string]>}>={
  PLAY:{tagline:'Enter StreetVerse, GameVerse and the living worlds.',items:[
-  ['STREETVERSE','Real-city RP • BJ, Jacobie, LaTeasia','/streetverse?core=1'],
+  ['PLAY AS BJ','Real BJ V15 • Chicago StreetVerse','/streetverse?core=1&bj=v15'],
+  ['PLAY AS JACOBIE','12-motion rig • Greenville birthday/CampusVerse path','/streetverse?core=1&character=jacobie&world=greenville'],
+  ['PLAY AS LATEASIA','Recovered LaTeasia Monroe rig • StreetVerse','/streetverse?core=1&character=lateasia'],
   ['GAMEVERSE','Arcade • sports • racing • challenges','/gameverse'],
   ['FAITHVERSE','Faith, culture and community worlds','/faithverse'],
   ['GLOBALVERSE','Cities, trade and Cross Borders','/global-trade'],
