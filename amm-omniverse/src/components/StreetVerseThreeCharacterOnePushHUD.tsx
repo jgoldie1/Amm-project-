@@ -16,7 +16,7 @@ function activeId():CastId{
 }
 
 export default function StreetVerseThreeCharacterOnePushHUD(){
- const [open,setOpen]=useState(false)
+ const [open,setOpen]=useState(()=>new URLSearchParams(location.search).get('accept')==='1')
  const [rows,setRows]=useState<Record<CastId,Row>>(()=>{
    try{
      const saved=JSON.parse(sessionStorage.getItem('tryamm.streetverse.three-cast-evidence.v1')||'null')
