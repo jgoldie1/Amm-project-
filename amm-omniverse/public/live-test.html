@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>TRYAMM One Push Test</title>
+<style>
+:root{color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:#07111c;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+main{min-height:100dvh;display:grid;place-items:start center;padding:20px}
+.card{width:min(760px,100%);display:grid;gap:16px}
+h1{font-size:clamp(30px,8vw,56px);margin:0}
+p{font-size:18px;line-height:1.4;margin:0}
+button{width:100%;min-height:88px;border-radius:20px;border:3px solid #fff;color:#fff;font-size:clamp(22px,6vw,34px);font-weight:900;padding:16px;touch-action:manipulation}
+#run{background:#087f5b}
+#export{background:#2457a7}
+#home{background:#293746;min-height:58px;font-size:20px}
+.result{padding:14px 16px;border-radius:14px;background:#101d2b;border:1px solid #31465b;font-size:17px}
+.pass{border-color:#2c8a5d}
+.fail{border-color:#a84a4a}
+.summary{font-size:22px;font-weight:900;padding:16px;border-radius:14px;background:#173624}
+small{opacity:.8}
+</style>
+</head>
+<body>
+<main>
+<section class="card">
+<button id="home" onclick="location.href='/'">← HOME</button>
+<h1>TRYAMM ONE PUSH TEST</h1>
+<p>This page is separate from Holoverse and StreetVerse. Press one button to test the browser and LIVE configuration.</p>
+<button id="run">▶ ONE PUSH LIVE TEST</button>
+<div id="summary" class="summary" hidden></div>
+<div id="results"></div>
+<button id="export" hidden>⬇ EXPORT TEST REPORT</button>
+<small>Public readiness remains false until real host/viewer, OBS, reconnect, recording and playback tests pass.</small>
+</section>
+</main>
+<script>
+const resultsEl=document.getElementById('results');
+const summaryEl=document.getElementById('summary');
+const exportBtn=document.getElementById('export');
+let report=null;
+document.getElementById('run').addEventListener('click',async()=>{
+  resultsEl.innerHTML='';
+  summaryEl.hidden=true;
+  exportBtn.hidden=true;
+  const checks=[];
+  const add=(name,ok,detail)=>checks.push({name,ok,detail});
+  try{
+    add('Secure browser',window.isSecureContext,window.isSecureContext?'Secure HTTPS connection detected':'Secure HTTPS connection required');
+    const canMedia=typeof navigator.mediaDevices?.getUserMedia==='function';
+    add('Camera / microphone API',canMedia,canMedia?'Browser can request camera and microphone':'Camera/microphone API unavailable');
+    add('Video playback','canPlayType' in document.createElement('video'),'Browser video element available');
+    add('MediaRecorder',typeof MediaRecorder!=='undefined',typeof MediaRecorder!=='undefined'?'Recording API available':'Recording API unavailable');
+    let gl=false;try{const c=document.createElement('canvas');gl=!!(c.getContext('webgl2')||c.getContext('webgl'))}catch{}
+    add('WebGL',gl,gl?'3D rendering context created':'3D rendering unavailable');
+    const r=await fetch('/api/live/status',{cache:'no-store'});
+    if(!r.ok) throw new Error('LIVE status HTTP '+r.status);
+    const body=await r.json();
+    add('LIVEKIT_URL',body?.checks?.LIVEKIT_URL===true,body?.checks?.LIVEKIT_URL===true?'Configured':'Missing');
+    add('LIVEKIT_API_KEY',body?.checks?.LIVEKIT_API_KEY===true,body?.checks?.LIVEKIT_API_KEY===true?'Configured':'Missing');
+    add('LIVEKIT_API_SECRET',body?.checks?.LIVEKIT_API_SECRET===true,body?.checks?.LIVEKIT_API_SECRET===true?'Configured':'Missing');
+    add('Private LIVE readiness',body?.readyForPrivateTest===true,String(body?.activation?.state||'Unknown state'));
+    const passed=checks.every(x=>x.ok);
+    report={
+      schema:'tryamm.one-push-live-test.v3',
+      exportedAt:new Date().toISOString(),
+      url:location.href,
+      userAgent:navigator.userAgent,
+      viewport:{width:innerWidth,height:innerHeight},
+      passed,
+      readinessState:body?.activation?.state||null,
+      readyForPublic:body?.readyForPublic===true,
+      checks,
+      nextManualTests:[
+        'Chromebook/iPhone host','second-device viewer','camera and microphone',
+        'host-to-viewer audio/video','viewer cannot publish',
+        'reconnect after background/interruption','private OBS ingest',
+        'recording/egress','recording playback'
+      ]
+    };
+    summaryEl.textContent=passed?'✓ PRIVATE LIVE TEST READY':'○ SOME CHECKS NEED ATTENTION';
+    summaryEl.hidden=false;
+    resultsEl.innerHTML=checks.map(x=>'<div class="result '+(x.ok?'pass':'fail')+'"><b>'+(x.ok?'✓':'✕')+' '+x.name+'</b><div>'+x.detail+'</div></div>').join('');
+    exportBtn.hidden=false;
+  }catch(e){
+    summaryEl.textContent='✕ TEST ERROR';
+    summaryEl.hidden=false;
+    resultsEl.innerHTML='<div class="result fail">'+String(e?.message||e)+'</div>';
+    report={schema:'tryamm.one-push-live-test.v3',exportedAt:new Date().toISOString(),passed:false,error:String(e?.message||e)};
+    exportBtn.hidden=false;
+  }
+});
+exportBtn.addEventListener('click',()=>{
+  if(!report)return;
+  const blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='TRYAMM_ONE_PUSH_LIVE_TEST_REPORT.json';
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+});
+</script>
+</body>
+</html>
