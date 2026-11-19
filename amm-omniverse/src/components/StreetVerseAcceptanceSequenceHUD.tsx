@@ -16,6 +16,18 @@ function urlFor(c:Cast){
 
 export default function StreetVerseAcceptanceSequenceHUD(){
  const active=useMemo(()=>current(),[])
+ useEffect(()=>{
+   const p=new URLSearchParams(location.search)
+   if(active!=='bj'||p.get('sequence')!=='full'||p.get('fresh')!=='1')return
+   try{
+     sessionStorage.removeItem('tryamm.streetverse.acceptance-sequence.v1')
+     sessionStorage.removeItem('tryamm.streetverse.three-cast-evidence.v1')
+     sessionStorage.setItem('tryamm.streetverse.acceptance-run.v1',Date.now().toString())
+   }catch{}
+   const nextUrl=new URL(location.href)
+   nextUrl.searchParams.delete('fresh')
+   history.replaceState({},'',nextUrl.pathname+'?'+nextUrl.searchParams.toString())
+ },[active])
  const [completed,setCompleted]=useState<Cast[]>(()=>{
    try{return JSON.parse(sessionStorage.getItem('tryamm.streetverse.acceptance-sequence.v1')||'[]')}catch{return[]}
  })
