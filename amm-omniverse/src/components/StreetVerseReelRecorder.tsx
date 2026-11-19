@@ -82,6 +82,18 @@ export default function StreetVerseReelRecorder({open,onClose,context={}}:{open:
    window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-save-share-complete',{detail:{source:'streetverse-reel-recorder',action:'download',type:blob.type,size:blob.size,...missionContext}}));playOmniMediaCue('reel.save',{audible:false})
   }catch{setError('Save/share failed. Try IPHONE CAPTURE, then use the iPhone share sheet from the preview.')}
  }
+ const verifyPlayback=async(playbackUrl:string)=>{
+  await new Promise<void>((resolve,reject)=>{
+   const video=document.createElement('video')
+   video.preload='metadata';video.muted=true;video.playsInline=true
+   let finished=false
+   const done=(error?:Error)=>{if(finished)return;finished=true;clearTimeout(timer);video.removeAttribute('src');video.load();error?reject(error):resolve()}
+   const timer=window.setTimeout(()=>done(new Error('Uploaded video could not be verified before timeout. Keep your local copy.')),12000)
+   video.onloadedmetadata=()=>Number.isFinite(video.duration)&&video.duration>0?done():done(new Error('Uploaded media has invalid duration.'))
+   video.onerror=()=>done(new Error('Uploaded media could not be decoded for playback on this device.'))
+   video.src=playbackUrl;video.load()
+  })
+ }
  const publish=async()=>{
   if(!url||publishing)return
   setPublishing(true);setPublished(false);setError('');setPublicationStatus('')
@@ -97,6 +109,7 @@ export default function StreetVerseReelRecorder({open,onClose,context={}}:{open:
    const completeBody=await complete.json();if(!complete.ok)throw new Error(completeBody?.error||'Reel upload verification failed')
    if(completeBody.processing!=='ready')throw new Error('Upload saved, but video processing is not finished. Your local recording is still available to save or share.')
    if(!completeBody.playbackUrl)throw new Error('Upload verified without a playback URL. Keep the local copy until playback can be checked.')
+   await verifyPlayback(String(completeBody.playbackUrl))
    const pub=await fetch('/api/media/publish',{method:'POST',headers:authHeaders,body:JSON.stringify({mediaId:intentBody.media.id,destinations:['reel','creator-profile','omnibox']})})
    const pubBody=await pub.json();if(!pub.ok)throw new Error(pubBody?.error||'Reel publishing failed')
    const jobStatus=String(pubBody?.job?.status||'unknown')
