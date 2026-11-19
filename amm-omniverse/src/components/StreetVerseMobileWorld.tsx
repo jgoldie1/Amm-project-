@@ -556,6 +556,12 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     const savedPlayable=(()=>{try{return JSON.parse(localStorage.getItem('tryamm.streetverse.playable-character.v1')||'{}')?.character}catch{return null}})()
     if(savedPlayable?.assetId==='sv-james-body-base-v1')void activatePublishedBody(savedPlayable.assetId,String(savedPlayable.label||'JAMES'))
     else if(savedPlayable?.assetId&&savedPlayable.assetId!=='sv-bj-stubbs-v6')void activateFamilyStandIn(String(savedPlayable.assetId),String(savedPlayable.label||'GLOBAL CHARACTER'),String(savedPlayable.id||''))
+    const onRecoveredRetry=(event:Event)=>{
+      const requested=String((event as CustomEvent<{character?:string}>).detail?.character||'')
+      const id:RecoveredPlayableId|null=requested.startsWith('jacobie')?'jacobie-stubbs':requested.startsWith('lateasia')?'lateasia-monroe':null
+      if(id)void activateRecoveredPlayable(id)
+    }
+    addEventListener('tryamm:streetverse-character-retry',onRecoveredRetry)
     const recoveredParam=requestedRecoveredParam
     if(recoveredParam)void activateRecoveredPlayable(recoveredParam)
     nativeResidentRigs=nativeResidents.map(nativeHumanoidRig)
@@ -596,6 +602,8 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     }
     window.addEventListener('tryamm:streetverse-bj-hero-mounted',onBJBeforeNpc,{once:true})
     residentCleanup=()=>window.removeEventListener('tryamm:streetverse-bj-hero-mounted',onBJBeforeNpc)
+    const previousResidentCleanup=residentCleanup
+    residentCleanup=()=>{previousResidentCleanup?.();window.removeEventListener('tryamm:streetverse-character-retry',onRecoveredRetry)}
     residentFallbackTimer=window.setTimeout(onBJBeforeNpc,46000)
     nativeTrafficCars=Array.from({length:14},(_,i)=>result.group.getObjectByName(`mobile-native-traffic-car-${i+1}`)).filter((item):item is THREE.Object3D=>Boolean(item))
     nativeBuildings=Array.from({length:NATIVE_CITY_BLOCKS.length},(_,i)=>result.group.getObjectByName(nativeBuildingLabel(i))).filter((item):item is THREE.Object3D=>Boolean(item))
