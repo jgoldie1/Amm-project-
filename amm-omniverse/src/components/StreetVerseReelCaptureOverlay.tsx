@@ -5,6 +5,7 @@ export default function StreetVerseReelCaptureOverlay(){
  const [state,setState]=useState<StreetVerseReelCaptureState>('idle')
  const [ready,setReady]=useState<StreetVerseReelCaptureReady|null>(null)
  const [seconds,setSeconds]=useState(0)
+ const [reelModeOpen,setReelModeOpen]=useState(()=>new URLSearchParams(window.location.search).get('reel')==='1')
 
  useEffect(()=>{
   const onState=(e:Event)=>{const d=(e as CustomEvent<{state?:StreetVerseReelCaptureState}>).detail||{};if(d.state)setState(d.state)}
@@ -27,6 +28,14 @@ export default function StreetVerseReelCaptureOverlay(){
  }
  if(state==='unsupported')return <div aria-label="Reel capture unsupported" style={{position:'fixed',right:18,bottom:100,zIndex:43000,padding:'8px 10px',borderRadius:12,background:'#111d',color:'#fff',font:'800 10px system-ui'}}>REEL • DEVICE CAPTURE UNAVAILABLE</div>
  return <>
+  {reelModeOpen&&state==='idle'&&<section aria-label="HoloReel mode" style={{position:'fixed',left:'50%',top:'max(78px,calc(env(safe-area-inset-top) + 78px))',transform:'translateX(-50%)',zIndex:47990,width:'min(92vw,420px)',padding:14,borderRadius:18,border:'1px solid #ff8bc7',background:'rgba(19,7,20,.96)',color:'#fff',boxShadow:'0 18px 48px #000a',fontFamily:'system-ui'}}>
+   <strong style={{fontSize:20}}>HOLOREEL MODE</strong>
+   <p style={{margin:'7px 0 12px',fontSize:13,lineHeight:1.4,color:'#e7d5e2'}}>Record up to 30 seconds of the live StreetVerse canvas. When the Reel is ready, preview it, share/save it, then return directly to the game.</p>
+   <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+    <button type="button" onClick={()=>{setReelModeOpen(false);toggle()}} style={{minHeight:54,borderRadius:12,border:'1px solid #ffc1df',background:'#7b234d',color:'#fff',fontWeight:950}}>● START RECORDING</button>
+    <button type="button" onClick={()=>setReelModeOpen(false)} style={{minHeight:54,borderRadius:12,border:'1px solid #596273',background:'#1a2130',color:'#fff',fontWeight:900}}>CONTINUE GAME</button>
+   </div>
+  </section>}
   <button aria-label={state==='recording'?'Stop StreetVerse Reel recording':'Start StreetVerse Reel recording'} onClick={toggle} style={{position:'fixed',top:'max(12px,calc(env(safe-area-inset-top) + 12px))',right:'max(126px,calc(env(safe-area-inset-right) + 126px))',zIndex:43000,minWidth:state==='recording'?88:46,width:state==='recording'?88:46,height:46,padding:'6px',borderRadius:23,border:'2px solid #ff4f6d',background:state==='recording'?'#8b1026ee':'#180a10ee',color:'#fff',font:'950 12px system-ui',boxShadow:'0 0 20px #ff315755',touchAction:'manipulation'}}>
    {state==='recording'?'■ '+seconds+'s':'🎥'}
   </button>
