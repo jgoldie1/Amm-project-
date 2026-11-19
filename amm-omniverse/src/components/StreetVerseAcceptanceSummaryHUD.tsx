@@ -19,7 +19,7 @@ export default function StreetVerseAcceptanceSummaryHUD(){
  const [sequence,setSequence]=useState<string[]>(()=>readSequence())
  const [open,setOpen]=useState(()=>new URLSearchParams(location.search).get('autorun')==='1')
  useEffect(()=>{
-  const refresh=()=>{setRows(readRows());setSequence(readSequence())}
+  const refresh=()=>{const nextSequence=readSequence();setRows(readRows());setSequence(nextSequence);setSequenceDone(nextSequence.length===3)}
   const t=window.setInterval(refresh,800)
   addEventListener('storage',refresh)
   addEventListener('tryamm:streetverse-recovered-playable-ready',refresh)
@@ -54,16 +54,23 @@ export default function StreetVerseAcceptanceSummaryHUD(){
  useEffect(()=>{persistSummary()},[result.passed,result.failures.length,rows,sequence])
  const exportSummary=()=>{
   const report={generatedAt:new Date().toISOString(),device:navigator.userAgent,route:location.href,passed:result.passed,firstFailure:result.first,failures:result.failures,characters:rows,note:'Runtime acceptance summary. Visual likeness and target-device rendering still require human review.'}
+  try{localStorage.setItem('tryamm.streetverse.last-three-cast-summary.v1',JSON.stringify(report))}catch{}
   const blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json'})
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='StreetVerse_Acceptance_Summary.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)
  }
- return <aside style={{position:'fixed',right:'max(10px,env(safe-area-inset-right))',top:'calc(env(safe-area-inset-top) + 8px)',zIndex:54001,fontFamily:'system-ui,sans-serif'}}>
-  <button type="button" onClick={()=>setOpen(v=>!v)} style={{minHeight:46,padding:'8px 12px',borderRadius:13,border:'2px solid '+(result.passed?'#86ffb0':'#ffb56f'),background:result.passed?'#0e3320ee':'#3a210bee',color:'#fff',fontWeight:950}}>{result.passed?'✓ ACCEPTANCE PASS':'⚠ ACCEPTANCE CHECK'}</button>
-  {open&&<div style={{marginTop:7,width:340,maxWidth:'calc(100vw - 20px)',display:'grid',gap:8,padding:12,borderRadius:16,border:'2px solid '+(result.passed?'#86ffb0':'#ffb56f'),background:'rgba(7,13,20,.98)',color:'#fff',boxShadow:'0 12px 38px #000a'}}>
-   <strong style={{fontSize:18}}>{result.passed?'✓ FULL TEST PASSED':'⚠ FULL TEST STOPPED'}</strong>
-   {result.first?<div style={{fontSize:13,lineHeight:1.4}}><b>{result.first.character}</b><br/>Needs: {STEP_LABEL[result.first.step]}</div>:<div style={{fontSize:12,color:'#bfffd2'}}>BJ, Jacobie and LaTeasia have rig, movement, vehicle, mission and Reel evidence.</div>}
-   {result.failures.slice(0,6).map((f,i)=><div key={i} style={{fontSize:11,color:'#d8dde8'}}>{f.character} • {STEP_LABEL[f.step]}</div>)}
-   <button type="button" onClick={exportSummary} style={{minHeight:44,borderRadius:10,border:'1px solid #75e7b0',background:'#123d2a',color:'#fff',fontWeight:900}}>EXPORT PASS / FAIL SUMMARY</button>
+ useEffect(()=>{
+  const auto=new URLSearchParams(location.search).get('autorun')==='1'
+  if(!auto||!sequenceDone)return
+  const timer=window.setTimeout(()=>{setOpen(true);exportSummary()},500)
+  return()=>window.clearTimeout(timer)
+ },[sequenceDone,result.passed])
+ return <aside style={sequenceDone?{position:'fixed',inset:'max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))',zIndex:56000,display:'grid',placeItems:'center',fontFamily:'system-ui,sans-serif',pointerEvents:'none'}:{position:'fixed',right:'max(10px,env(safe-area-inset-right))',top:'calc(env(safe-area-inset-top) + 8px)',zIndex:54001,fontFamily:'system-ui,sans-serif'}}>
+  {!sequenceDone&&<button type="button" onClick={()=>setOpen(v=>!v)} style={{minHeight:46,padding:'8px 12px',borderRadius:13,border:'2px solid '+(result.passed?'#86ffb0':'#ffb56f'),background:result.passed?'#0e3320ee':'#3a210bee',color:'#fff',fontWeight:950}}>{result.passed?'✓ ACCEPTANCE PASS':'⚠ ACCEPTANCE CHECK'}</button>}
+  {(open||sequenceDone)&&<div style={{marginTop:7,width:sequenceDone?'min(92vw,560px)':340,maxWidth:'calc(100vw - 20px)',display:'grid',gap:10,padding:sequenceDone?18:12,borderRadius:18,border:'3px solid '+(result.passed?'#86ffb0':'#ff8e8e'),background:result.passed?'rgba(8,55,31,.98)':'rgba(70,18,18,.98)',color:'#fff',boxShadow:'0 18px 60px #000b',pointerEvents:'auto'}}>
+   <strong style={{fontSize:sequenceDone?28:18,textAlign:sequenceDone?'center':'left'}}>{result.passed?'✓ ALL THREE CHARACTER TESTS PASSED':'⚠ FULL TEST STOPPED'}</strong>
+   {result.first?<div style={{fontSize:sequenceDone?18:13,lineHeight:1.45,textAlign:sequenceDone?'center':'left'}}><b>{result.first.character}</b><br/>FIRST FAILURE: {STEP_LABEL[result.first.step]}</div>:<div style={{fontSize:sequenceDone?16:12,color:'#bfffd2',textAlign:sequenceDone?'center':'left'}}>BJ Stubbs, Jacobie Stubbs and LaTeasia Monroe have the required runtime acceptance evidence.</div>}
+   {result.failures.slice(0,6).map((f,i)=><div key={i} style={{fontSize:sequenceDone?13:11,color:'#d8dde8',textAlign:sequenceDone?'center':'left'}}>{f.character} • {STEP_LABEL[f.step]}</div>)}
+   <button type="button" onClick={exportSummary} style={{minHeight:52,borderRadius:12,border:'1px solid #75e7b0',background:'#123d2a',color:'#fff',fontWeight:950,fontSize:15}}>EXPORT PASS / FAIL SUMMARY AGAIN</button>
   </div>}
  </aside>
 }
