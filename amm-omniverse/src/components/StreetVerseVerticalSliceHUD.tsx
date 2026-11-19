@@ -27,8 +27,8 @@ export default function StreetVerseVerticalSliceHUD(){
    const onCharacter=()=>mark('character')
    const onMove=()=>mark('move')
    const onVehicle=(e:Event)=>{if((e as CustomEvent<any>).detail?.entered!==false)mark('vehicle')}
-   const onMission=()=>mark('mission')
-   const onBusiness=()=>mark('business')
+   const onMission=(e:Event)=>{const d=(e as CustomEvent<any>).detail||{};if(d.missionId||d.id)mark('mission')}
+   const onBusiness=(e:Event)=>{const d=(e as CustomEvent<any>).detail||{};if(d.storeId||d.orderId||d.purchaseId)mark('business')}
    const onReel=()=>mark('reel')
    const onReturn=()=>mark('return')
    addEventListener('tryamm:streetverse-bj-visible-version',onCharacter)
@@ -36,7 +36,6 @@ export default function StreetVerseVerticalSliceHUD(){
    addEventListener('tryamm:streetverse-player-moved',onMove)
    addEventListener('tryamm:streetverse-vehicle-controlled',onVehicle)
    addEventListener('tryamm:streetverse-mission-complete',onMission)
-   addEventListener('tryamm:streetverse-open-shopping',onBusiness)
    addEventListener('tryamm:streetverse-store-demo-purchase',onBusiness)
    addEventListener('tryamm:reel-capture-ready',onReel)
    addEventListener('tryamm:streetverse-reel-return',onReturn)
@@ -46,7 +45,6 @@ export default function StreetVerseVerticalSliceHUD(){
      removeEventListener('tryamm:streetverse-player-moved',onMove)
      removeEventListener('tryamm:streetverse-vehicle-controlled',onVehicle)
      removeEventListener('tryamm:streetverse-mission-complete',onMission)
-     removeEventListener('tryamm:streetverse-open-shopping',onBusiness)
      removeEventListener('tryamm:streetverse-store-demo-purchase',onBusiness)
      removeEventListener('tryamm:reel-capture-ready',onReel)
      removeEventListener('tryamm:streetverse-reel-return',onReturn)
@@ -62,27 +60,43 @@ export default function StreetVerseVerticalSliceHUD(){
    if(!next)return
    if(next.id==='character'){
      const p=new URLSearchParams(location.search)
-     if(p.get('character')?.startsWith('jacobie')||p.get('character')?.startsWith('lateasia')) location.reload()
-     else dispatchEvent(new CustomEvent('tryamm:streetverse-bj-v15-preview',{detail:{source:'vertical-slice'}}))
+     if(p.get('character')?.startsWith('jacobie')||p.get('character')?.startsWith('lateasia')){
+       dispatchEvent(new CustomEvent('tryamm:streetverse-character-retry',{detail:{character:p.get('character'),source:'vertical-slice'}}))
+     }else{
+       dispatchEvent(new CustomEvent('tryamm:streetverse-bj-v15-preview',{detail:{source:'vertical-slice'}}))
+     }
      return
    }
-   if(next.id==='move'){dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:'Use the joystick to move your character.'}}));return}
-   if(next.id==='vehicle'){dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-interact',{detail:{entered:true,source:'vertical-slice'}}));return}
-   if(next.id==='mission'){dispatchEvent(new CustomEvent('tryamm:streetverse-first-journey-start',{detail:{source:'vertical-slice'}}));return}
+   if(next.id==='move'){
+     dispatchEvent(new CustomEvent('tryamm:streetverse-mobile-movement',{detail:{up:true,source:'vertical-slice-one-push'}}))
+     window.setTimeout(()=>dispatchEvent(new CustomEvent('tryamm:streetverse-mobile-movement',{detail:{up:false,source:'vertical-slice-one-push'}})),900)
+     return
+   }
+   if(next.id==='vehicle'){
+     dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-interact',{detail:{entered:true,source:'vertical-slice-one-push'}}))
+     return
+   }
+   if(next.id==='mission'){
+     dispatchEvent(new CustomEvent('tryamm:streetverse-first-journey-start',{detail:{source:'vertical-slice-one-push'}}))
+     return
+   }
    if(next.id==='business'){
      const button=document.querySelector<HTMLButtonElement>('#sv-store-open')||document.querySelector<HTMLButtonElement>('[aria-expanded][aria-label*="SHOPPING"]')
-     if(button)button.click()
-     else dispatchEvent(new CustomEvent('tryamm:streetverse-open-shopping',{detail:{storeId:'creator',source:'vertical-slice'}}))
+     if(button){button.click();return}
+     dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:'STORE CONTROL NOT READY • move near a business and try NEXT again.'}}))
      return
    }
    if(next.id==='reel'){
      const button=document.querySelector<HTMLButtonElement>('[aria-label="Start StreetVerse Reel recording"]')
-     if(button)button.click()
-     else dispatchEvent(new CustomEvent('tryamm:reel-capture-toggle',{detail:{source:'vertical-slice'}}))
+     if(button){button.click();return}
+     dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:'REEL CONTROL NOT READY • open HoloReel and try NEXT again.'}}))
      return
    }
    if(next.id==='return'){
-     dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:'Tap BACK TO GAME on the Reel-ready screen to finish the loop.'}}))
+     const buttons=Array.from(document.querySelectorAll<HTMLButtonElement>('button'))
+     const back=buttons.find(b=>/BACK TO GAME/i.test(b.textContent||''))
+     if(back){back.click();return}
+     dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:'BACK TO GAME CONTROL NOT READY • finish the Reel capture first.'}}))
      return
    }
  }
