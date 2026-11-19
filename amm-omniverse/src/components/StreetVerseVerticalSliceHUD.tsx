@@ -84,7 +84,7 @@ export default function StreetVerseVerticalSliceHUD(){
      return
    }
    if(next.id==='return'){
-     dispatchEvent(new CustomEvent('tryamm:streetverse-reel-return',{detail:{source:'vertical-slice'}}))
+     dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:'Tap BACK TO GAME on the Reel-ready screen to finish the loop.'}}))
      return
    }
  }
