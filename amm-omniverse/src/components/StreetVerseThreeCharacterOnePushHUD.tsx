@@ -33,9 +33,10 @@ export default function StreetVerseThreeCharacterOnePushHUD(){
        patch('bj-stubbs',{loaded:true,source:'mounted-v15'})
      }
    }
-   const onRecovered=(e:Event)=>{
+   const onRecoveredMounted=(e:Event)=>{
      const d=(e as CustomEvent<any>).detail||{}
-     if(d.id==='jacobie-stubbs'||d.id==='lateasia-monroe')patch(d.id,{loaded:true,clips:Array.isArray(d.clips)?d.clips.length:Number(d.clipCount||0),source:String(d.source||'recovered')})
+     if(d.mounted!==true)return
+     if(d.id==='jacobie-stubbs'||d.id==='lateasia-monroe')patch(d.id,{loaded:true,clips:Array.isArray(d.clips)?d.clips.length:Number(d.clipCount||0),source:String(d.source||'mounted-recovered')})
    }
    const onBJ=(e:Event)=>{
      const d=(e as CustomEvent<any>).detail||{}
@@ -45,7 +46,7 @@ export default function StreetVerseThreeCharacterOnePushHUD(){
    const onVehicle=(e:Event)=>{const d=(e as CustomEvent<any>).detail||{};if(d.entered!==false)patch(current,{vehicle:true})}
    const onMission=(e:Event)=>{const d=(e as CustomEvent<any>).detail||{};if(d.missionId||d.id)patch(current,{mission:true})}
    const onReel=()=>patch(current,{reel:true})
-   addEventListener('tryamm:streetverse-recovered-playable-ready',onRecovered)
+   addEventListener('tryamm:streetverse-recovered-playable-mounted',onRecoveredMounted)
    addEventListener('tryamm:streetverse-bj-visible-version',onBJ)
    addEventListener('tryamm:streetverse-bj-hero-mounted',onBJ)
    latchCurrent()
@@ -54,7 +55,7 @@ export default function StreetVerseThreeCharacterOnePushHUD(){
    addEventListener('tryamm:streetverse-vehicle-controlled',onVehicle)
    addEventListener('tryamm:streetverse-mission-complete',onMission)
    addEventListener('tryamm:reel-capture-ready',onReel)
-   return()=>{removeEventListener('tryamm:streetverse-recovered-playable-ready',onRecovered);removeEventListener('tryamm:streetverse-bj-visible-version',onBJ);removeEventListener('tryamm:streetverse-bj-hero-mounted',onBJ);window.clearInterval(latchTimer);removeEventListener('tryamm:streetverse-player-moved',onMove);removeEventListener('tryamm:streetverse-vehicle-controlled',onVehicle);removeEventListener('tryamm:streetverse-mission-complete',onMission);removeEventListener('tryamm:reel-capture-ready',onReel)}
+   return()=>{removeEventListener('tryamm:streetverse-recovered-playable-mounted',onRecoveredMounted);removeEventListener('tryamm:streetverse-bj-visible-version',onBJ);removeEventListener('tryamm:streetverse-bj-hero-mounted',onBJ);window.clearInterval(latchTimer);removeEventListener('tryamm:streetverse-player-moved',onMove);removeEventListener('tryamm:streetverse-vehicle-controlled',onVehicle);removeEventListener('tryamm:streetverse-mission-complete',onMission);removeEventListener('tryamm:reel-capture-ready',onReel)}
  },[current])
  const all=Object.values(rows)
  const summary={
