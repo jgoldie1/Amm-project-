@@ -39,7 +39,7 @@ export default function BJRecoveryStandalone(){
         {busy?'SAVING…':status}
       </div>
       <button type="button" disabled={!ready||busy}
-        onClick={()=>{window.location.href='/streetverse?core=1&bj=v15'}}
+        onClick={()=>{const p=new URLSearchParams(window.location.search);const accept=p.get('accept')==='1';const sequence=p.get('sequence')==='full';window.location.href='/streetverse?core=1&bj=v15'+(accept?'&accept=1':'')+(sequence?'&sequence=full':'')}}
         style={{width:'100%',minHeight:64,borderRadius:14,border:'2px solid #d9fff0',background:ready?'#166946':'#46525a',color:'#fff',font:'950 18px system-ui',touchAction:'manipulation'}}>
         {ready?'2. OPEN STREETVERSE CORE':'2. UPLOAD BJ FIRST'}
       </button>
