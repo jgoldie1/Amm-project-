@@ -1,12 +1,12 @@
 import {useEffect,useMemo,useState} from 'react'
 
 type CastId='bj-stubbs'|'jacobie-stubbs'|'lateasia-monroe'
-type Row={id:CastId;name:string;loaded:boolean;clips:number;source:string;movement:boolean;vehicle:boolean;mission:boolean;business:boolean;reel:boolean;returned:boolean}
+type Row={id:CastId;name:string;loaded:boolean;clips:number;source:string;movement:boolean;vehicle:boolean;mission:boolean;business:boolean;reel:boolean;returned:boolean;loopComplete:boolean}
 
 const EMPTY:Record<CastId,Row>={
- 'bj-stubbs':{id:'bj-stubbs',name:'BJ Stubbs',loaded:false,clips:0,source:'',movement:false,vehicle:false,mission:false,business:false,reel:false,returned:false},
- 'jacobie-stubbs':{id:'jacobie-stubbs',name:'Jacobie Stubbs',loaded:false,clips:0,source:'',movement:false,vehicle:false,mission:false,business:false,reel:false,returned:false},
- 'lateasia-monroe':{id:'lateasia-monroe',name:'LaTeasia Monroe',loaded:false,clips:0,source:'',movement:false,vehicle:false,mission:false,business:false,reel:false,returned:false},
+ 'bj-stubbs':{id:'bj-stubbs',name:'BJ Stubbs',loaded:false,clips:0,source:'',movement:false,vehicle:false,mission:false,business:false,reel:false,returned:false,loopComplete:false},
+ 'jacobie-stubbs':{id:'jacobie-stubbs',name:'Jacobie Stubbs',loaded:false,clips:0,source:'',movement:false,vehicle:false,mission:false,business:false,reel:false,returned:false,loopComplete:false},
+ 'lateasia-monroe':{id:'lateasia-monroe',name:'LaTeasia Monroe',loaded:false,clips:0,source:'',movement:false,vehicle:false,mission:false,business:false,reel:false,returned:false,loopComplete:false},
 }
 
 function activeId():CastId{
@@ -48,6 +48,12 @@ export default function StreetVerseThreeCharacterOnePushHUD(){
    const onBusiness=(e:Event)=>{const d=(e as CustomEvent<any>).detail||{};if(d.storeId||d.orderId||d.purchaseId)patch(current,{business:true})}
    const onReel=()=>patch(current,{reel:true})
    const onReturn=()=>patch(current,{returned:true})
+   const onLoopComplete=(e:Event)=>{
+     const d=(e as CustomEvent<any>).detail||{}
+     const expectedName=current==='bj-stubbs'?'BJ Stubbs':current==='jacobie-stubbs'?'Jacobie Stubbs':'LaTeasia Monroe'
+     const allDone=Array.isArray(d.steps)&&d.steps.length===7&&d.steps.every((s:any)=>s?.done===true)
+     if(d.passed===true&&d.character===expectedName&&allDone)patch(current,{loopComplete:true})
+   }
    addEventListener('tryamm:streetverse-recovered-playable-mounted',onRecoveredMounted)
    addEventListener('tryamm:streetverse-bj-visible-version',onBJ)
    addEventListener('tryamm:streetverse-bj-hero-mounted',onBJ)
@@ -59,7 +65,8 @@ export default function StreetVerseThreeCharacterOnePushHUD(){
    addEventListener('tryamm:streetverse-store-demo-purchase',onBusiness)
    addEventListener('tryamm:reel-capture-ready',onReel)
    addEventListener('tryamm:streetverse-reel-return',onReturn)
-   return()=>{removeEventListener('tryamm:streetverse-recovered-playable-mounted',onRecoveredMounted);removeEventListener('tryamm:streetverse-bj-visible-version',onBJ);removeEventListener('tryamm:streetverse-bj-hero-mounted',onBJ);window.clearInterval(latchTimer);removeEventListener('tryamm:streetverse-player-moved',onMove);removeEventListener('tryamm:streetverse-vehicle-controlled',onVehicle);removeEventListener('tryamm:streetverse-mission-complete',onMission);removeEventListener('tryamm:streetverse-store-demo-purchase',onBusiness);removeEventListener('tryamm:reel-capture-ready',onReel);removeEventListener('tryamm:streetverse-reel-return',onReturn)}
+   addEventListener('tryamm:streetverse-vertical-slice-complete',onLoopComplete)
+   return()=>{removeEventListener('tryamm:streetverse-recovered-playable-mounted',onRecoveredMounted);removeEventListener('tryamm:streetverse-bj-visible-version',onBJ);removeEventListener('tryamm:streetverse-bj-hero-mounted',onBJ);window.clearInterval(latchTimer);removeEventListener('tryamm:streetverse-player-moved',onMove);removeEventListener('tryamm:streetverse-vehicle-controlled',onVehicle);removeEventListener('tryamm:streetverse-mission-complete',onMission);removeEventListener('tryamm:streetverse-store-demo-purchase',onBusiness);removeEventListener('tryamm:reel-capture-ready',onReel);removeEventListener('tryamm:streetverse-reel-return',onReturn);removeEventListener('tryamm:streetverse-vertical-slice-complete',onLoopComplete)}
  },[current])
  const all=Object.values(rows)
  const summary={
@@ -70,6 +77,7 @@ export default function StreetVerseThreeCharacterOnePushHUD(){
    business:all.filter(r=>r.business).length,
    reel:all.filter(r=>r.reel).length,
    returned:all.filter(r=>r.returned).length,
+   completeLoops:all.filter(r=>r.loopComplete).length,
  }
  const exportAll=()=>{
    const report={generatedAt:new Date().toISOString(),device:navigator.userAgent,route:location.href,currentCharacter:current,summary,characters:rows,finalVisualLikenessCertified:false,note:'Runtime evidence only. Final visual likeness and target-device acceptance require human review.'}
@@ -83,7 +91,8 @@ export default function StreetVerseThreeCharacterOnePushHUD(){
      {all.map(r=><div key={r.id} style={{padding:8,borderRadius:10,background:r.id===current?'#153447':'#0c1720',fontSize:11,lineHeight:1.45}}>
        <b>{r.name}</b> • {r.loaded?'RIG ✓':'RIG —'} • {r.clips} clips<br/>
        MOVE {r.movement?'✓':'—'} • VEHICLE {r.vehicle?'✓':'—'} • MISSION {r.mission?'✓':'—'}<br/>
-       BUSINESS {r.business?'✓':'—'} • REEL {r.reel?'✓':'—'} • RETURN {r.returned?'✓':'—'}
+       BUSINESS {r.business?'✓':'—'} • REEL {r.reel?'✓':'—'} • RETURN {r.returned?'✓':'—'}<br/>
+       LOOP {r.loopComplete?'7/7 ✓':'—'}
      </div>)}
      <div style={{fontSize:11,color:'#b8c6d4'}}>For full 3/3 evidence, test each character once using the CHARACTER switcher. Evidence now survives character-route reloads during this browser session.</div>
      <button type="button" onClick={()=>{try{sessionStorage.removeItem('tryamm.streetverse.three-cast-evidence.v1')}catch{};setRows(EMPTY)}} style={{minHeight:42,borderRadius:10,border:'1px solid #6f7682',background:'#252933',color:'#fff',fontWeight:850}}>RESET 3-CAST SESSION</button>
