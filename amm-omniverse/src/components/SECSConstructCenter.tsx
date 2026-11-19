@@ -40,7 +40,8 @@ export default function SECSConstructCenter({onClose}:{onClose?:()=>void}){
     if(!frame){setStatus('Compile a construct first.');return}
     const result=sendConstructToPrototype(frame)
     setHardware(getConstructHardwareReadiness())
-    setStatus(result.sent?'Prototype command emitted with verified hardware telemetry.':'Hardware send blocked • '+String(result.reason||'readiness gate'))
+    const blockedReason='reason' in result?String(result.reason||'readiness gate'):'readiness gate'
+    setStatus(result.sent?'Prototype command emitted with verified hardware telemetry.':'Hardware send blocked • '+blockedReason)
   }
 
   return <div role="dialog" aria-label="SECS Construct Center" style={{position:'fixed',inset:0,zIndex:12400,overflowY:'auto',background:'radial-gradient(circle at 50% 0,#173345,#050812 55%,#020306)',color:'#fff',fontFamily:'system-ui,sans-serif'}}>
