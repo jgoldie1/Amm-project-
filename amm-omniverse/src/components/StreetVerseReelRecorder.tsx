@@ -161,7 +161,7 @@ export default function StreetVerseReelRecorder({open,onClose,context={}}:{open:
    {error&&<p role='alert' style={{color:'#ffd27a'}}>{error}</p>}
    {publicationStatus&&<p role='status' style={{color:'#8effb7'}}>{publicationStatus}</p>}
    {draftStatus&&<p role='status' style={{color:'#8effb7'}}>{draftStatus}</p>}
-   {url&&!recording&&<button onClick={()=>{void Promise.all([clearReelDraft(),clearPartialReel()]).then(()=>setDraftStatus('Offline backup cleared. Save the clip before closing this window.')).catch(()=>setDraftStatus('Could not clear offline recovery.'))}} style={btn}>CLEAR OFFLINE BACKUP</button>}}
+   {url&&!recording&&<button onClick={()=>{void Promise.all([clearReelDraft(),clearPartialReel()]).then(()=>setDraftStatus('Offline backup cleared. Save the clip before closing this window.')).catch(()=>setDraftStatus('Could not clear offline recovery.'))}} style={btn}>CLEAR OFFLINE BACKUP</button>}
    <p style={{fontSize:12,color:'#b9c7d3'}}>On Safari/iPhone, tap IPHONE CAPTURE if browser recording is unavailable. After capture, the clip now opens in the preview above. Tap PUBLISH TO TRYAMM to upload and queue the Reel to the Reel feed, creator profile and OmniBox. SAVE / SHARE still uses the iPhone share sheet.</p>
   </div>
  </div>
