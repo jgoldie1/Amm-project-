@@ -1,4 +1,4 @@
-export type TransportKind = 'car' | 'suv' | 'van' | 'bus' | 'train' | 'plane' | 'jet' | 'helicopter' | 'boat' | 'yacht' | 'ship' | 'rideshare';
+export type TransportKind = 'car' | 'flying-car' | 'suv' | 'van' | 'bus' | 'train' | 'plane' | 'jet' | 'helicopter' | 'boat' | 'yacht' | 'ship' | 'rideshare';
 
 export type SeatRole = 'driver' | 'passenger' | 'standing';
 
@@ -38,6 +38,7 @@ export const MOBILE_TRANSPORT_VISUAL_POLICY: TransportVisualPolicy = {
 
 export const TRANSPORT_CAPACITIES: Record<TransportKind, { passengers: number; standing: number }> = {
   car: { passengers: 4, standing: 0 },
+  'flying-car': { passengers: 4, standing: 0 },
   rideshare: { passengers: 4, standing: 0 },
   suv: { passengers: 6, standing: 0 },
   van: { passengers: 7, standing: 0 },
@@ -75,7 +76,7 @@ export function createTransportManifest(
   standingCapacity?: number,
 ): TransportManifest {
   const seats =
-    kind === 'car' || kind === 'rideshare'
+    kind === 'car' || kind === 'flying-car' || kind === 'rideshare'
       ? FIVE_SEAT_CAR
       : [
           { id: 'operator', role: 'driver' as const, row: 0, side: 'left' as const },
@@ -209,7 +210,7 @@ export function planTransportSwarm(
   members: readonly TransportPartyMember[],
   kind: TransportKind = 'car',
 ): TransportSwarmPlan {
-  const perVehicle = kind === 'car' || kind === 'rideshare'
+  const perVehicle = kind === 'car' || kind === 'flying-car' || kind === 'rideshare'
     ? FIVE_SEAT_CAR.length
     : defaultPassengerCapacity(kind) + 1;
   const assignments: TransportSwarmPlan['assignments'] = [];
