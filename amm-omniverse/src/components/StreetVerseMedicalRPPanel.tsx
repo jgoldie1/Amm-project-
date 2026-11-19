@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import {useEffect,useState} from 'react'
 
 /** Fictional game-only missions. Never dispatch real emergency calls, collect PHI,
  * represent clinical triage, or activate real telehealth/telesales integrations. */
@@ -36,9 +36,11 @@ export default function StreetVerseMedicalRPPanel(){
    else complete(scenario)
  }
  const onePush=()=>complete(scenario)
- const runAll=()=>{setProgress(Object.fromEntries(SCENARIOS.map(c=>[c[0],3])) as Progress);setCompleted(SCENARIOS.map(c=>c[0]))}
+ const persistResult=(payload:any)=>{try{localStorage.setItem('tryamm.streetverse.medical-rp.last-report.v1',JSON.stringify(payload))}catch{};window.dispatchEvent(new CustomEvent('tryamm:streetverse-medical-rp-test-result',{detail:payload}))}
+ const runAll=()=>{const allProgress=Object.fromEntries(SCENARIOS.map(c=>[c[0],3])) as Progress;const allCompleted=SCENARIOS.map(c=>c[0]);setProgress(allProgress);setCompleted(allCompleted);persistResult({schema:'streetverse.medical-rp.live-branch-preview.v1',actor,scenario,progress:allProgress,completed:allCompleted,choice,fictional:true,clinicalServiceActive:false,model3DVerified:false,deviceAcceptanceVerified:false,serverPersisted:false,exportedAt:new Date().toISOString()})}
+ useEffect(()=>{const onMaster=()=>runAll();window.addEventListener('tryamm:streetverse-medical-rp-test-all',onMaster);return()=>window.removeEventListener('tryamm:streetverse-medical-rp-test-all',onMaster)},[actor,scenario,choice])
  const report=()=>{
-   const payload={schema:'streetverse.medical-rp.live-branch-preview.v1',actor,scenario,progress,completed,choice,fictional:true,clinicalServiceActive:false,model3DVerified:false,deviceAcceptanceVerified:false,serverPersisted:false,exportedAt:new Date().toISOString()}
+   const payload={schema:'streetverse.medical-rp.live-branch-preview.v1',actor,scenario,progress,completed,choice,fictional:true,clinicalServiceActive:false,model3DVerified:false,deviceAcceptanceVerified:false,serverPersisted:false,exportedAt:new Date().toISOString()};persistResult(payload)
    const url=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}))
    const anchor=document.createElement('a');anchor.href=url;anchor.download='StreetVerse_Medical_RP_Branch_Report.json';document.body.appendChild(anchor);anchor.click();anchor.remove();window.setTimeout(()=>URL.revokeObjectURL(url),1000)
  }
