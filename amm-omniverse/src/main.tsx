@@ -59,6 +59,7 @@ const KingdomYahisraelCenter=lazy(()=>import('./components/KingdomYahisraelCente
 const KingdomWorkbookCenter=lazy(()=>import('./components/KingdomWorkbookCenter'))
 const TimeMachineWorldFoundryCenter=lazy(()=>import('./components/TimeMachineWorldFoundryCenter'))
 const HoloLabGateway=lazy(()=>import('./components/HoloLabGateway'))
+const SECSConstructCenter=lazy(()=>import('./components/SECSConstructCenter'))
 const Chicago77HolographicAtlas=lazy(()=>import('./components/Chicago77HolographicAtlas'))
 const PublicReelPage=lazy(()=>import('./components/PublicReelPage'))
 const MeshyFactoryControlPanel=lazy(()=>import('./components/MeshyFactoryControlPanel'))
@@ -102,6 +103,7 @@ try {
   const isKingdomDistrict=currentPath==='/kingdom'||currentPath==='/kingdom/'
   const isTimeMachineFoundry=['/time-machine-foundry','/time-machine-foundry/','/chrono-foundry','/chrono-foundry/','/world-foundry','/world-foundry/'].includes(currentPath)
   const isHoloLabStandalone=currentPath==='/holo-lab'||currentPath==='/holo-lab/'
+  const isSECSConstruct=['/secs-construct','/secs-construct/','/construct','/construct/'].includes(currentPath)
   const isChicago77Atlas=['/chicago77','/chicago77/','/chicago-77','/chicago-77/'].includes(currentPath)
   const isLaunchLock=['/launch-lock','/launch-lock/','/october-launch','/october-launch/'].includes(currentPath)
   const isGlobalTradeWorld=['/global-trade','/global-trade/','/my-world','/my-world/','/we-are-the-world','/we-are-the-world/'].includes(currentPath)
@@ -192,6 +194,7 @@ try {
   else if(isKingdomDistrict)routeContent=<Suspense fallback={routeFallback}><KingdomDistrictRoute /></Suspense>
   else if(isTimeMachineFoundry)routeContent=<Suspense fallback={routeFallback}><TimeMachineWorldFoundryCenter /></Suspense>
   else if(isHoloLabStandalone)routeContent=<Suspense fallback={routeFallback}><HoloLabGateway onClose={()=>{window.location.href='/'}} /></Suspense>
+  else if(isSECSConstruct)routeContent=<Suspense fallback={routeFallback}><SECSConstructCenter onClose={()=>{window.location.href='/holo-lab'}} /></Suspense>
   else if(isChicago77Atlas)routeContent=<Suspense fallback={routeFallback}><Chicago77HolographicAtlas /></Suspense>
   else if(isLaunchLock)routeContent=<Suspense fallback={routeFallback}><OctoberLaunchLockCenter /></Suspense>
   else if(isGlobalTradeWorld)routeContent=<Suspense fallback={routeFallback}><GlobalTradeWorldHub /></Suspense>
