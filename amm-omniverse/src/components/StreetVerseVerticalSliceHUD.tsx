@@ -166,9 +166,9 @@ export default function StreetVerseVerticalSliceHUD(){
    setAutoStatus('STARTING FULL TEST…')
    for(const id of order){
      if(doneRef.current[id])continue
-     setAutoStatus('RUNNING • '+labels[id].toUpperCase())
+     setAutoStatus(id==='character'?'LOADING / VERIFYING • '+character.toUpperCase()+' RIG':'RUNNING • '+labels[id].toUpperCase())
      triggerStep(id)
-     const timeout=id==='reel'?12000:id==='mission'?10000:8000
+     const timeout=id==='character'?45000:id==='reel'?12000:id==='mission'?10000:8000
      const ok=await waitForStep(id,timeout)
      if(!ok){
        const report=buildReport()
