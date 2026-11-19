@@ -538,7 +538,9 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
       nativeHero.rotation.y=avatar.rotation.y
       nativeHeroRig=null
       try{localStorage.setItem('tryamm.streetverse.recovered-playable.v1',id)}catch{}
-      window.dispatchEvent(new CustomEvent('tryamm:streetverse-hero-visual-authority',{detail:{characterId:id,displayName:handle.name,authoritative3DMesh:true,recoveredRig:true,clipCount:handle.clips.length,source:handle.source,proceduralFallbackSuppressed:true}}))
+      const mountedDetail={id,characterId:id,name:handle.name,displayName:handle.name,source:handle.source,clips:handle.clips.map(c=>c.name),clipCount:handle.clips.length,mounted:true,active3DMesh:true}
+      window.dispatchEvent(new CustomEvent('tryamm:streetverse-hero-visual-authority',{detail:{...mountedDetail,authoritative3DMesh:true,recoveredRig:true,proceduralFallbackSuppressed:true}}))
+      window.dispatchEvent(new CustomEvent('tryamm:streetverse-recovered-playable-mounted',{detail:mountedDetail}))
       setMessage(handle.name.toUpperCase()+' • PLAYABLE RIG LIVE • '+handle.clips.length+' MOTIONS')
     }
     onPlayerAssetSelect=(event:Event)=>{
