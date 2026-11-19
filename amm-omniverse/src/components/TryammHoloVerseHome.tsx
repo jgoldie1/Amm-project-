@@ -20,7 +20,7 @@ const modes:Record<Mode,{tagline:string;items:Array<[string,string,string]>}>={
   ['TRYAMM LIVE','Live studio and CrossVerse broadcast','/live'],
   ['ISAIAH AI TV','Who Wants to Be a Star • AI TV','/isaiah-ai-tv'],
   ['ALL AMERICAN NETWORK','TV • radio • creator channels','/network'],
-  ['HOLOREEL','Capture, watch and re-enter worlds','/reels'],
+  ['HOLOREEL','Capture, watch and re-enter worlds','/streetverse?core=1&reel=1'],
  ]},
  EARN:{tagline:'Businesses, creators and services earn from one economy.',items:[
   ['MARKETPLACE','Digital • physical • services','/marketplace'],
