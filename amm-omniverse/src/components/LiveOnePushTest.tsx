@@ -35,6 +35,38 @@ export default function LiveOnePushTest(){
   }
 
   const passed=checks.length>0&&checks.every(x=>x.ok)
+  const exportReport=()=>{
+    const payload={
+      schema:'tryamm.one-push-live-test.v2',
+      exportedAt:new Date().toISOString(),
+      url:window.location.href,
+      userAgent:navigator.userAgent,
+      viewport:{width:window.innerWidth,height:window.innerHeight},
+      passed,
+      checks,
+      error:error||null,
+      nextManualTests:[
+        'Chromebook/iPhone host',
+        'second-device viewer',
+        'camera and microphone',
+        'host-to-viewer audio/video',
+        'viewer cannot publish',
+        'reconnect after background/interruption',
+        'private OBS ingest',
+        'recording/egress',
+        'recording playback'
+      ]
+    }
+    const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'})
+    const href=URL.createObjectURL(blob)
+    const a=document.createElement('a')
+    a.href=href
+    a.download='TRYAMM_ONE_PUSH_LIVE_TEST_REPORT.json'
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    setTimeout(()=>URL.revokeObjectURL(href),1000)
+  }
   return <main style={{minHeight:'100dvh',background:'#050b12',color:'#fff',fontFamily:'system-ui,sans-serif',padding:'24px 16px',display:'grid',alignContent:'start',gap:18}}>
     <section style={{width:'min(760px,100%)',margin:'0 auto',display:'grid',gap:16}}>
       <button onClick={()=>{window.location.href='/'}} style={{justifySelf:'start',minHeight:48,padding:'10px 16px',borderRadius:12,border:'1px solid #789',background:'#152433',color:'#fff',fontWeight:800}}>← HOME</button>
@@ -52,6 +84,7 @@ export default function LiveOnePushTest(){
           <div style={{fontSize:18,fontWeight:900}}>{x.ok?'✓':'✕'} {x.name}</div>
           <div style={{opacity:.88}}>{x.detail}</div>
         </div>)}
+        <button onClick={exportReport} style={{minHeight:78,fontSize:'clamp(20px,5vw,30px)',fontWeight:950,borderRadius:18,border:'3px solid #fff',background:'#1f5fa8',color:'#fff',touchAction:'manipulation'}}>⬇ EXPORT TEST REPORT</button>
         <div style={{padding:14,borderRadius:12,background:'#101b28',border:'1px solid #31475c'}}>
           <b>Next manual test</b>
           <div>Chromebook host + second-device viewer. Camera, microphone, audio/video, viewer permissions, reconnect, OBS ingest, recording, and playback still require real-device testing.</div>
