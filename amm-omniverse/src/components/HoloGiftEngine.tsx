@@ -1,4 +1,4 @@
-import {useMemo,useRef,useState} from 'react'
+import {useMemo,useState} from 'react'
 import {getAccessToken} from '../services/supabaseClient'
 import {HOLOGRAPHIC_GIFT_KIT,lottieForGift} from '../game/gifts/HolographicGiftKit'
 import {playHoloGiftSound,setHoloGiftSoundEnabled} from '../game/gifts/HoloGiftAudio'
