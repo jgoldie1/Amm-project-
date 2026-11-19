@@ -131,6 +131,8 @@ export default function App() {
   const [showStaysAgencyFamily, setShowStaysAgencyFamily] = useState(false)
   const [staysAgencyFamilyInitialTab, setStaysAgencyFamilyInitialTab] = useState<'stays'|'passport'>('stays')
   const [showNexus, setShowNexus] = useState(false)
+  const [showQuickTools, setShowQuickTools] = useState(false)
+  const [clearStreetVerseView, setClearStreetVerseView] = useState(false)
   const [showSparrowMap, setShowSparrowMap] = useState(false)
   const [showBJViewer, setShowBJViewer] = useState(() => ['/bj-v7-preview','/bj-v8-preview','/bj-v9-preview','/bj-v10-preview','/bj-preview'].includes(window.location.pathname.replace(/\/+$/, '')))
   const [showSwipeTip, setShowSwipeTip] = useState(() => !localStorage.getItem('amm_swiped'))
@@ -345,6 +347,16 @@ export default function App() {
     <SwipeNavigator>
       <Suspense fallback={null}>
       <div style={{ width: '100%', minHeight: '100dvh', height: isGameplay ? '100dvh' : 'auto', overflowX: 'hidden', overflowY: isGameplay ? 'hidden' : 'auto', WebkitOverflowScrolling: 'touch', background: '#020212' }}>
+        {/* Always accessible above the game and its floating HUDs. Never covers the joystick. */}
+        <div aria-label="TRYAMM quick access" style={{position:'fixed',left:'max(8px, env(safe-area-inset-left))',top:'max(8px, env(safe-area-inset-top))',zIndex:2147483640,display:'flex',flexDirection:'column',alignItems:'flex-start',gap:6,maxWidth:'calc(100vw - 16px)'}}>
+          <button type="button" aria-expanded={showQuickTools} aria-controls="tryamm-quick-tools" onClick={()=>setShowQuickTools(v=>!v)} style={{minHeight:52,minWidth:124,border:'2px solid #77f4ff',borderRadius:14,background:'#062031',color:'#fff',fontSize:16,fontWeight:900,padding:'10px 14px',touchAction:'manipulation'}}>{showQuickTools?'× CLOSE TOOLS':'☰ LIVE / TOOLS'}</button>
+          {showQuickTools&&<div id="tryamm-quick-tools" style={{display:'flex',flexWrap:'wrap',gap:7,maxWidth:'min(94vw,460px)',padding:8,background:'#081520f2',border:'1px solid #77f4ff',borderRadius:14}}>
+            <button type="button" onClick={()=>{setShowQuickTools(false);setShowLive(true)}} style={{minHeight:54,padding:'10px 13px',borderRadius:12,background:'#bd2445',border:'2px solid #ffa6b8',color:'#fff',fontSize:15,fontWeight:900}}>● OPEN LIVE</button>
+            <button type="button" onClick={()=>window.location.assign('/live-test.html')} style={{minHeight:54,padding:'10px 13px',borderRadius:12,background:'#134a69',border:'2px solid #8feaff',color:'#fff',fontSize:15,fontWeight:900}}>✓ RUN TEST</button>
+            <button type="button" aria-pressed={clearStreetVerseView} onClick={()=>{setClearStreetVerseView(v=>!v);setShowQuickTools(false)}} style={{minHeight:54,padding:'10px 13px',borderRadius:12,background:'#26364c',border:'2px solid #bbdbff',color:'#fff',fontSize:15,fontWeight:900}}>{clearStreetVerseView?'SHOW HUD':'CLEAR GAME VIEW'}</button>
+          </div>}
+        </div>
+        {clearStreetVerseView&&<style>{`[data-streetverse-life-missions], [data-bj-anatomy-controls] { display:none!important; }`}</style>}
         <LivingWorldsBridge />
         {screen === 'intro' && <TryAMMHome />}
         {screen === 'city' && <StreetVerseMobileErrorBoundary name="StreetVerse City"><CityView /></StreetVerseMobileErrorBoundary>}
