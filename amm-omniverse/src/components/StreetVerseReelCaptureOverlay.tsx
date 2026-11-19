@@ -16,6 +16,27 @@ export default function StreetVerseReelCaptureOverlay(){
  },[])
 
  useEffect(()=>{if(state!=='recording'){setSeconds(0);return}const started=Date.now();const timer=window.setInterval(()=>setSeconds(Math.min(30,Math.floor((Date.now()-started)/1000))),250);return()=>window.clearInterval(timer)},[state])
+ useEffect(()=>{
+  const onAcceptanceReel=()=>{
+   if(state==='unsupported'){window.dispatchEvent(new CustomEvent('tryamm:streetverse-acceptance-step-failed',{detail:{step:'reel',reason:'capture-unsupported'}}));return}
+   if(state==='idle'){
+    window.dispatchEvent(new CustomEvent('tryamm:reel-capture-toggle',{detail:{source:'acceptance-one-push'}}))
+    window.setTimeout(()=>window.dispatchEvent(new CustomEvent('tryamm:reel-capture-toggle',{detail:{source:'acceptance-one-push-auto-stop'}})),1800)
+   }
+  }
+  const onAcceptanceReturn=()=>{
+   if(!ready||state!=='ready'){window.dispatchEvent(new CustomEvent('tryamm:streetverse-acceptance-step-failed',{detail:{step:'return',reason:'reel-not-ready'}}));return}
+   const detail={source:'streetverse-reel-overlay-acceptance',fileName:ready.fileName,durationMs:ready.durationMs}
+   setReady(null);setState('idle')
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-return',{detail}))
+  }
+  window.addEventListener('tryamm:streetverse-acceptance-record-reel',onAcceptanceReel)
+  window.addEventListener('tryamm:streetverse-acceptance-return-to-game',onAcceptanceReturn)
+  return()=>{
+   window.removeEventListener('tryamm:streetverse-acceptance-record-reel',onAcceptanceReel)
+   window.removeEventListener('tryamm:streetverse-acceptance-return-to-game',onAcceptanceReturn)
+  }
+ },[state,ready])
 
  const toggle=()=>window.dispatchEvent(new CustomEvent('tryamm:reel-capture-toggle'))
  const share=async()=>{
