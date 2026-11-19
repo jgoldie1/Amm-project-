@@ -7,9 +7,9 @@ const must=(ok,msg)=>{if(!ok)throw new Error('MOBILE PLAY-FIRST CONTRACT FAIL: '
 
 for(const token of [
   "window.matchMedia('(max-width: 700px)').matches",
-  "const [open,setOpen]=useState(()=>!mobile||startInRP)",
+  "const [open,setOpen]=useState(()=>startInRP)",
   "const [rpOpen,setRpOpen]=useState(startInRP)",
-  "if(mobile&&!open)return <div",
+  "if(!open)return <div",
   "Open StreetVerse RP RPG emoji and GIF actions",
   "ctx.broken?'🔧 REPAIR':'⚡ ACTIONS'",
   "🎮 PLAY",
@@ -20,6 +20,8 @@ for(const token of [
   "tryamm:streetverse-vehicle-input",
 ]) must(actions.includes(token),'actions missing '+token)
 
+must(!actions.includes('if(!mobile)setOpen(true)'),'desktop context must not force-open the actions panel')
+must(actions.includes('aria-label="Close Holo Actions panel"')&&actions.includes('aria-label="Return to gameplay and collapse Holo Actions"'),'visible collapse controls required')
 must(actions.includes('{(!mobile||rpOpen)&&<><div')&&actions.includes('<StreetVerseRPActionSearch compact/><StreetVerseRPOmnibar compact/></>}'),'RP stack is not conditionally hidden on mobile')
 must(actions.includes("get('open')==='rp'"),'RP URL must be an explicit opt-in; normal mobile play starts compact')
 must(actions.includes("event.type==='tryamm:streetverse-player-position'&&Number(detail.speed||0)<0.1"),'idle world telemetry must not close RP/GIF browser')

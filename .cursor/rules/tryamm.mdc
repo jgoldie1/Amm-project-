@@ -1,0 +1,42 @@
+---
+description: TRYAMM / StreetVerse repository rules for Cursor
+alwaysApply: true
+---
+
+# TRYAMM Cursor Rules
+
+## Release-candidate priority
+- Treat `amm-omniverse` as the active app.
+- Preserve the current StreetVerse release path: character → movement → vehicle → mission → business → HoloReel → return → acceptance report.
+- Do not replace real runtime events with mocked success.
+- Do not mark BJ, Jacobie, or LaTeasia visual likeness as accepted without human device review.
+- Keep one-handed mobile controls and Safari/iOS 15 compatibility.
+
+## Character authority
+- BJ owner V15 must fail closed when `?bj=v15` is requested and the owner-imported device asset is unavailable.
+- Jacobie and LaTeasia requested through the `character` query parameter are authoritative at boot; do not start BJ in parallel.
+- Preserve the three-character acceptance evidence and 7/7 loop requirements.
+
+## Validation before proposing completion
+From `amm-omniverse`, prefer:
+- `npm run typecheck`
+- the relevant focused contract test
+- `npm run build` for release-impacting changes
+- `npm run smoke` when broad behavior changed
+
+Do not claim a feature is production-ready solely because TypeScript compiles.
+
+## Performance
+- Keep heavy 3D, MapLibre, LiveKit, media, AI, and vision features lazy-loaded.
+- Avoid adding large assets to initial page preload.
+- Protect Chromebook/iPhone low-memory paths.
+
+## Safety and commerce
+- Preserve server-authoritative payment and payout gates.
+- Preserve age, moderation, privacy, and account-deletion controls.
+- SECS Construct remains a software/bench prototype unless real hardware telemetry and physical validation are present.
+
+## Editing discipline
+- Prefer repairing existing systems over creating parallel demos.
+- Reuse existing events, runtimes, stores, and route surfaces.
+- Keep changes small and reversible on the release-candidate branch.

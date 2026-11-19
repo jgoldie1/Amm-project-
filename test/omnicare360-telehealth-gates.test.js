@@ -1,0 +1,20 @@
+'use strict'
+const assert = require('node:assert/strict')
+const { REQUIREMENTS, readiness, handleClinicalRequest } = require('../lib/omnicare360-telehealth-gates')
+assert.ok(REQUIREMENTS.length >= 17)
+assert.equal(new Set(REQUIREMENTS.map(x=>x.id)).size, REQUIREMENTS.length)
+assert.equal(readiness().clinicalEnabled, false)
+assert.equal(readiness().readyForIndependentAudit, false)
+assert.equal(readiness().missing.length, REQUIREMENTS.length)
+assert.equal(handleClinicalRequest({ action:'public_information' }).allowed, true)
+assert.equal(handleClinicalRequest({ action:'care_access_preview' }).allowed, true)
+for (const action of ['book_visit','start_video','get_patient_record','prescribe','diagnose','send_clinical_message']) {
+  assert.equal(handleClinicalRequest({ action }).allowed, false, action)
+}
+assert.equal(handleClinicalRequest({action:'public_information', patientId:'secret'}).allowed, false)
+assert.equal(handleClinicalRequest({action:'care_access_preview', containsHealthData:true}).allowed, false)
+assert.equal(handleClinicalRequest({action:'care_access_preview', sessionToken:'secret'}).allowed, false)
+const claimedEvidence = Object.fromEntries(REQUIREMENTS.map(item=>[item.id,{approved:true,reviewer:'external reviewer',evidenceRef:'evidence-placeholder',independentReview:true}]))
+assert.equal(readiness(claimedEvidence).readyForIndependentAudit, true)
+assert.equal(readiness(claimedEvidence).clinicalEnabled, false)
+console.log('OmniCare360 release gates: policy contract passes; clinical sessions remain disabled.')

@@ -25,7 +25,7 @@ function launch(exp:Experience){
   window.dispatchEvent(new CustomEvent('tryamm:faith-chrono-launched',{detail:{id:exp.id,title:exp.title,mode:exp.mode}}))
 }
 
-export default function FaithChronoLauncher(){
+export default function FaithChronoLauncher({onOpenGalilee}:{onOpenGalilee?:()=>void}={}){
   return <section id="faith-chrono" style={{marginTop:18,border:'1px solid #7f6b32',borderRadius:20,padding:18,background:'linear-gradient(145deg,#171107,#080807 65%,#0c1720)'}}>
     <div style={{fontSize:11,letterSpacing:2.4,color:'#f1d36d',fontWeight:950}}>QUANTUM TIME MACHINE · FAITH CHRONO LAB</div>
     <h2 style={{margin:'7px 0 8px',fontSize:'clamp(25px,4vw,42px)'}}>Bring the Bible world to life</h2>
@@ -36,7 +36,7 @@ export default function FaithChronoLauncher(){
       <div style={{fontSize:11,color:'#e5c56a'}}>{exp.era}</div>
       <p style={{fontSize:13,color:'#d9cfb3',lineHeight:1.5}}>{exp.description}</p>
       <p style={{fontSize:12,color:'#9fb4c1',lineHeight:1.45}}><b>Mission:</b> {exp.objective}</p>
-      <button type="button" onClick={()=>launch(exp)} style={button}>ENTER TIME MACHINE</button>
+      <button type="button" onClick={()=>{launch(exp);if(onOpenGalilee&&(exp.id==='walk-with-messiah'||exp.id==='galilee-fishing'))onOpenGalilee()}} style={button}>ENTER TIME MACHINE</button>
     </article>)}</div>
     <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:14}}>
       <a href="/holo-lab" style={link}>OPEN HOLO LAB</a>

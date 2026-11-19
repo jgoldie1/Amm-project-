@@ -108,6 +108,8 @@ jobs:
         run: node tests/streetverse-food-economy-contract.mjs
       - name: Verify BJ rescue mission
         run: node tests/streetverse-bj-rescue-contract.mjs
+      - name: Verify parkour, movie ABCD decisions and justice roleplay
+        run: node tests/streetverse-parkour-movie-justice-contract.mjs
       - name: Verify BJ injury reactions
         run: node tests/streetverse-bj-injury-reaction-contract.mjs
       - name: Verify BJ injury and After Dark consent contracts
@@ -122,5 +124,16 @@ jobs:
           node tests/bj-mobile-visual-acceptance-contract.mjs
       - name: Build frontend
         run: npm run build
-      - name: Inspect published BJ V12 skeletal rig
-        run: node scripts/inspect-bj-glb-rig.mjs
+      - name: Verify current BJ V15 release authority
+        run: node tests/streetverse-bj-v15-real-model-visibility-contract.mjs
+      - name: Verify legacy BJ V12 remains fail-closed and non-authoritative
+        run: |
+          set +e
+          node scripts/inspect-bj-glb-rig.mjs public/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V12.glb
+          code=$?
+          set -e
+          if [ "$code" -ne 2 ]; then
+            echo "Expected legacy V12 to remain blocked with exit code 2; got $code"
+            exit 1
+          fi
+          echo "Legacy BJ V12 correctly blocked; V15 is the release authority."

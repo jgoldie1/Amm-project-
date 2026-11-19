@@ -13,6 +13,7 @@ const MODES:LabMode[]=[
   {id:'worlds',label:'Immersive World Lab',description:'Test shared world state, portals, avatars and 2D/3D fallback behavior.','route':'/immersive-worlds','gate':'BETA'},
   {id:'faith-chrono',label:'Faith Chrono · Ethiopian Bible Lab',description:'Launch the integrated FaithVerse HoloBook: Ethiopian Orthodox 81-book canon metadata, TRYAMM 88-book curriculum, KJV/1611 comparison, Strong’s study, Hebrew/Paleo-script learning and source-grounded immersive reconstruction.','route':'/ethiopian-bible','gate':'SOURCE'},
   {id:'time-foundry',label:'Time Machine World Foundry',description:'Converge source evidence, World Builder/CAD, Genie in the Bottle, Mind Over Matter, HoloForge and Holo Lab hologram previews into one review-gated world build.','route':'/time-machine-foundry','gate':'SOURCE + RIGHTS + QA'},
+  {id:'construct',label:'SECS Construct Lab',description:'Compile safe construct geometry, run software self-tests, inspect hardware readiness and gate prototype commands behind telemetry + E-stop checks.','route':'/secs-construct','gate':'PROTOTYPE + E-STOP'},
   {id:'engine',label:'Quantum / Holographic Engine Lab',description:'Exercise simulation, holographic overlays and sandbox-only experimental systems without silently promoting regulated actions.','route':'/quantum-engine','gate':'SANDBOX'},
   {id:'media',label:'Holo Media Lab',description:'Test Holo Music, Holo Video, Reel creation and network publishing surfaces.','route':'/holo-music','gate':'RIGHTS'},
 ]

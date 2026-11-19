@@ -6,6 +6,9 @@ export type StreetVerseReelCaptureReady=Readonly<{
  fileName:string
  mimeType:string
  durationMs:number
+ width:number
+ height:number
+ aspectRatio:'9:16'
 }>
 
 function chooseMimeType(){
@@ -27,12 +30,29 @@ export function installStreetVerseReelCapture(canvas:HTMLCanvasElement){
  let lastUrl=''
  let disposed=false
  let privacyBlocked=false
+ let portraitCanvas:HTMLCanvasElement|null=null
+ let portraitFrame=0
 
  const emitState=(state:StreetVerseReelCaptureState,detail:Record<string,unknown>={})=>
   window.dispatchEvent(new CustomEvent('tryamm:reel-capture-state',{detail:{state,...detail}}))
 
  const cleanupUrl=()=>{if(lastUrl){URL.revokeObjectURL(lastUrl);lastUrl=''}}
 
+ const stopPortraitLoop=()=>{if(portraitFrame){cancelAnimationFrame(portraitFrame);portraitFrame=0}}
+ const startPortraitLoop=(target:HTMLCanvasElement)=>{
+  const ctx=target.getContext('2d',{alpha:false})
+  if(!ctx)return false
+  const draw=()=>{
+   const sw=canvas.width||canvas.clientWidth,sh=canvas.height||canvas.clientHeight
+   const targetAspect=9/16,sourceAspect=sw/Math.max(1,sh)
+   let sx=0,sy=0,sWidth=sw,sHeight=sh
+   if(sourceAspect>targetAspect){sWidth=sh*targetAspect;sx=(sw-sWidth)/2}
+   else{sHeight=sw/targetAspect;sy=(sh-sHeight)/2}
+   ctx.drawImage(canvas,sx,sy,sWidth,sHeight,0,0,target.width,target.height)
+   portraitFrame=requestAnimationFrame(draw)
+  }
+  draw();return true
+ }
  const stop=()=>{
   if(recorder&&recorder.state!=='inactive')recorder.stop()
  }
@@ -41,7 +61,10 @@ export function installStreetVerseReelCapture(canvas:HTMLCanvasElement){
   if(disposed||recorder?.state==='recording')return
   if(privacyBlocked){emitState('idle',{blocked:true,reason:'school-privacy-zone'});window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:'REEL CAPTURE OFF • privacy zone'}}));return}
   if(typeof MediaRecorder==='undefined'||typeof canvas.captureStream!=='function'){emitState('unsupported');return}
-  const stream=canvas.captureStream(24)
+  portraitCanvas=document.createElement('canvas')
+  portraitCanvas.width=540;portraitCanvas.height=960
+  if(!startPortraitLoop(portraitCanvas)){emitState('unsupported');return}
+  const stream=portraitCanvas.captureStream(24)
   const mimeType=chooseMimeType()
   try{recorder=new MediaRecorder(stream,mimeType?{mimeType,videoBitsPerSecond:2_500_000}:{videoBitsPerSecond:2_500_000})}
   catch{emitState('unsupported');stream.getTracks().forEach(t=>t.stop());return}
@@ -55,10 +78,11 @@ export function installStreetVerseReelCapture(canvas:HTMLCanvasElement){
    cleanupUrl();lastUrl=URL.createObjectURL(blob)
    const ext=actualType.includes('mp4')?'mp4':'webm'
    const stamp=new Date().toISOString().replace(/[:.]/g,'-')
-   const detail:StreetVerseReelCaptureReady={blob,url:lastUrl,fileName:'streetverse-reel-'+stamp+'.'+ext,mimeType:actualType,durationMs}
+   const detail:StreetVerseReelCaptureReady={blob,url:lastUrl,fileName:'streetverse-reel-'+stamp+'.'+ext,mimeType:actualType,durationMs,width:540,height:960,aspectRatio:'9:16'}
    window.dispatchEvent(new CustomEvent('tryamm:reel-capture-ready',{detail}))
    emitState('ready',{durationMs,mimeType:actualType})
    stream.getTracks().forEach(t=>t.stop())
+   stopPortraitLoop();portraitCanvas=null
    recorder=null
   }
   recorder.start(500)
@@ -79,6 +103,6 @@ export function installStreetVerseReelCapture(canvas:HTMLCanvasElement){
 
  return{
   start,stop,toggle,
-  dispose:()=>{disposed=true;if(stopTimer)window.clearTimeout(stopTimer);if(recorder?.state==='recording')recorder.stop();window.removeEventListener('tryamm:reel-capture-toggle',onToggle);window.removeEventListener('tryamm:reel-capture-stop',onStop);window.removeEventListener('tryamm:reel-moment',onMoment);window.removeEventListener('tryamm:school-privacy-zone',onPrivacyZone);cleanupUrl()}
+  dispose:()=>{disposed=true;if(stopTimer)window.clearTimeout(stopTimer);stopPortraitLoop();if(recorder?.state==='recording')recorder.stop();window.removeEventListener('tryamm:reel-capture-toggle',onToggle);window.removeEventListener('tryamm:reel-capture-stop',onStop);window.removeEventListener('tryamm:reel-moment',onMoment);window.removeEventListener('tryamm:school-privacy-zone',onPrivacyZone);cleanupUrl()}
  }
 }

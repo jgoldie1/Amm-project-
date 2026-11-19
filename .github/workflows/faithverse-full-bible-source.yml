@@ -1,0 +1,106 @@
+name: FaithVerse Public-Domain Full Bible Ingest and EPUB QA
+on:
+  pull_request:
+    paths:
+      - 'amm-omniverse/scripts/faithverse_import_web.py'
+      - 'amm-omniverse/tests/test_faithverse_import_web.py'
+      - 'amm-omniverse/src/components/FaithVerseWebReader.tsx'
+      - 'amm-omniverse/src/components/FaithVerseBusinessFunnel.tsx'
+      - 'amm-omniverse/src/components/FaithVerseScrollsApocrypha.tsx'
+      - 'amm-omniverse/src/components/FaithVerseLanguageAcademy.tsx'
+      - 'test/faithverse-bible-kingdoms-press-integration.test.js'
+      - 'amm-omniverse/src/components/FaithGalileeRoleplay.tsx'
+      - 'amm-omniverse/src/components/FaithVerseAncientQuestControls.tsx'
+      - 'amm-omniverse/src/components/FaithVerseAncientCreature3D.tsx'
+      - 'amm-omniverse/src/components/FaithVerseAncientStoriesTheater.tsx'
+      - 'amm-omniverse/src/data/FaithVerseCreatureArtDirection.ts'
+      - 'test/faithverse-creature-canon-contract.test.js'
+      - 'amm-omniverse/src/runtime/StreetVerseVehicleDynamics.ts'
+      - 'amm-omniverse/tests/streetverse-vehicle-physics-runtime.mjs'
+      - 'amm-omniverse/src/components/StreetVerseMobileWorld.tsx'
+      - 'amm-omniverse/src/components/StreetVerseVehicleDynamicsHUD.tsx'
+      - 'amm-omniverse/src/runtime/StreetVerseVehicleDynamics.mjs'
+      - 'amm-omniverse/src/runtime/StreetVerseVehicleDynamics.d.mts'
+      - 'test/streetverse-vehicle-faithverse-ancient-contract.test.js'
+      - 'amm-omniverse/src/components/FaithVerseMiraclesTheater.tsx'
+      - 'amm-omniverse/src/components/FaithVerseTreeAndNations.tsx'
+      - 'amm-omniverse/src/data/FaithVerseMiraclesCatalog.ts'
+      - 'amm-omniverse/src/data/FaithVerseNationCastAndTree.ts'
+      - 'amm-omniverse/src/data/FaithVerseCharacterProductionGate.ts'
+      - 'test/faithverse-miracles-nations-tree-contract.test.js'
+      - 'amm-omniverse/src/components/FaithChronoLauncher.tsx'
+      - 'amm-omniverse/src/data/FaithVerseStudyLibrary.ts'
+      - 'test/faithverse-mycelium-galilee-contract.test.js'
+      - 'test/faithverse-commerce-contract.test.js'
+      - 'lib/faithverse-mycelium-rpg-contract.js'
+      - 'lib/faithverse-commerce-routes.js'
+      - 'amm-omniverse/src/components/FaithVerseBusinessEnrollment.tsx'
+      - 'server.js'
+      - 'amm-omniverse/src/components/FaithVerseBibleHub.tsx'
+      - 'amm-omniverse/src/runtime/FaithVerseBibleEdition.ts'
+      - '.github/workflows/faithverse-full-bible-source.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-and-package-full-web:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate TRYAMM FaithVerse landing funnel, Scrolls and Apocrypha integration
+        run: node test/faithverse-bible-kingdoms-press-integration.test.js
+      - name: Verify Galilee/Mycelium roleplay and consent-based business checkout contracts
+        run: |
+          node test/faithverse-mycelium-galilee-contract.test.js
+          node test/faithverse-commerce-contract.test.js
+      - name: Verify miracle scenes, cast readiness and Yeshua hung-on-tree references
+        run: node test/faithverse-miracles-nations-tree-contract.test.js
+      - name: Test StreetVerse car/motorcycle physics and Bible ancient-story RPG objectives
+        run: node test/streetverse-vehicle-faithverse-ancient-contract.test.js
+      - name: Verify distinct source traditions for Nephilim, Watchers and Goliath
+        run: node test/faithverse-creature-canon-contract.test.js
+      - name: Run source parser, completeness guard and EPUB structure unit tests
+        run: python3 amm-omniverse/tests/test_faithverse_import_web.py
+      - name: Download official public-domain World English Bible USFM and generate 66-book asset bundle
+        run: python3 amm-omniverse/scripts/faithverse_import_web.py --download
+      - name: Independently verify edition counts and no Ethiopian mislabel
+        run: |
+          python3 - <<'PY'
+          import json, pathlib
+          root=pathlib.Path('amm-omniverse/public/faithverse-bibles/engwebp')
+          m=json.loads((root/'manifest.json').read_text())
+          assert m['bookCount']==66 and m['chapterCount']==1189 and 30000<=m['verseCount']<=33000
+          assert len(m['books'])==66 and 'Ethiopian' not in m['canon']
+          assert (root/m['epub']).is_file()
+          assert all((root/x['file']).is_file() for x in m['books'])
+          for x in m['books']:
+              book=json.loads((root/x['file']).read_text())
+              assert book['id']==x['id'] and len(book['chapters'])==x['chapterCount']
+              assert sum(sum(verse is not None for verse in chapter) for chapter in book['chapters'])==x['verseCount']
+          print('FAITHVERSE FULL WEB SOURCE QA PASS',m['bookCount'],m['chapterCount'],m['verseCount'],m['sourceArchiveSHA256'])
+          PY
+      - name: Verify browser TypeScript and Vite output with full Bible bundled
+        working-directory: amm-omniverse
+        run: |
+          npm ci
+          node tests/streetverse-vehicle-physics-runtime.mjs
+          npm run typecheck
+          npx vite build
+      - name: Archive complete Bible reader data and EPUB for approved release pipeline
+        uses: actions/upload-artifact@v4
+        with:
+          name: faithverse-world-english-bible-66-books-epub
+          path: amm-omniverse/public/faithverse-bibles/engwebp/
+          retention-days: 30
+      - name: Archive Vite built preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: faithverse-web-reader-vite-preview
+          path: amm-omniverse/dist/
+          retention-days: 7

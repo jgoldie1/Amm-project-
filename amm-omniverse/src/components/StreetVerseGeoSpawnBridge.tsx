@@ -75,6 +75,9 @@ function shouldUseIndependentSafeBoot(){
  if(typeof navigator==='undefined'||typeof window==='undefined')return false
  const params=new URLSearchParams(window.location.search)
  if(params.get('safe')==='1'||params.get('mode')==='safe')return true
+ // Explicit playable 3D request from the recovery link must not be downgraded
+ // simply because a Chromebook has a small viewport or limited deviceMemory.
+ if(params.get('graphics')==='3d')return false
  const ua=navigator.userAgent||''
  const appleMobile=/iPhone|iPad|iPod/i.test(ua)
  const memory=Number((navigator as Navigator & {deviceMemory?:number}).deviceMemory||0)

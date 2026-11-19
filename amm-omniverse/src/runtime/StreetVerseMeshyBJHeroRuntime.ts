@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import {readLocalCastAsset} from './StreetVerseCharacterLocalRecovery'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js'
 import {normalizeStreetVerseHumanHeight} from './StreetVerseHumanScale'
 import {BJ_STUBBS_BODY_PROFILE} from '../data/StreetVerseBJBodyProfile'
@@ -223,6 +224,12 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   // On slow iPhone connections that unbounded manifest request left the UI at
   // "BJ V15 LOADING" even though the V15 asset itself was healthy.
   const v15PreviewUrl=getBJPreviewV15Url()
+  // Prefer user-owned recovered rigged V15 files when present in TRYAMM public assets.
+  // Missing local files fail quickly and fall back to the existing V15 CDN URL.
+  const v15LocalUrls=v15PreviewUrl?[
+    '/tryamm-assets/meshy/characters/BJ_Stubbs_V15_Black_Suit_Purple_Shirt_Restore.glb',
+    '/tryamm-assets/meshy/characters/BJ_STUBBS_V15_MOTION_ENHANCED.glb',
+  ]:[]
   const published=v15PreviewUrl?null:await Promise.race([
     resolvePublishedMeshyAsset('sv-bj-stubbs-v6',cityScope),
     new Promise<null>(resolve=>window.setTimeout(()=>resolve(null),3000)),
@@ -230,7 +237,10 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   // Never load a MetaHuman candidate by default; preview is explicitly opted-in.
   const metaHumanPreviewUrl=getPreviewBJMetaHumanUrl()
   // Default to the actual V15 hero; ?bj=legacy preserves a manual fallback.
-  const candidates=[v15PreviewUrl,metaHumanPreviewUrl,published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
+  const localImportedBJ=await readLocalCastAsset('bj-stubbs').catch(()=>null)
+  const localBJMarker='local-device:bj-stubbs-v15'
+  const candidates=[...(localImportedBJ?[localBJMarker]:[]),...v15LocalUrls,v15PreviewUrl,metaHumanPreviewUrl,published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
+  const v15Candidates=new Set<string>([localBJMarker,...v15LocalUrls,...(v15PreviewUrl?[v15PreviewUrl]:[])])
   let sourceUrl=''
   let publishedGlb:Awaited<ReturnType<typeof loader.loadAsync>>|null=null
   let usingMetaHumanPreview=false
@@ -251,15 +261,17 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       let candidateGlb:Awaited<ReturnType<typeof loader.loadAsync>>
       try{
         window.dispatchEvent(new CustomEvent('tryamm:bj-model-progress',{detail:{
-          stage:'fetching',source:candidate===v15PreviewUrl?'v15':'fallback',
+          stage:'fetching',source:v15Candidates.has(candidate)?'v15':'fallback',
         }}))
-        const response=await fetch(candidate,{signal:controller.signal,mode:'cors'})
-        if(!response.ok)throw new Error('BJ GLB HTTP '+response.status)
-        const bytes=await response.arrayBuffer()
+        const bytes= candidate===localBJMarker&&localImportedBJ ? localImportedBJ : await (async()=>{
+          const response=await fetch(candidate,{signal:controller.signal,mode:'cors'})
+          if(!response.ok)throw new Error('BJ GLB HTTP '+response.status)
+          return response.arrayBuffer()
+        })()
         window.dispatchEvent(new CustomEvent('tryamm:bj-model-progress',{detail:{
-          stage:'decoding',sizeBytes:bytes.byteLength,source:candidate===v15PreviewUrl?'v15':'fallback',
+          stage:'decoding',sizeBytes:bytes.byteLength,source:v15Candidates.has(candidate)?'v15':'fallback',
         }}))
-        const basePath=new URL('.',new URL(candidate,window.location.href)).href
+        const basePath=candidate===localBJMarker?window.location.origin+'/':new URL('.',new URL(candidate,window.location.href)).href
         let decodeTimer=0
         try{
           candidateGlb=await Promise.race([
@@ -282,7 +294,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
         if(!audit.ok){disposeObject(candidateGlb.scene);continue}
         usingMetaHumanPreview=true
       }
-      if(candidate===v15PreviewUrl){
+      if(v15Candidates.has(candidate)){
         const faceNames=new Set<string>()
         candidateGlb.scene.traverse(n=>{
           if(n instanceof THREE.Mesh)for(const name of Object.keys(n.morphTargetDictionary||{}))faceNames.add(name)
@@ -358,8 +370,10 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       displayName:'BJ Stubbs',
       namedCharacter:true,
       identityContinuityKey:BJ_MESHY_V6_ASSET.characterId,
-      visualAuthority:usingV15Preview?'bj-actual-v15-remote-preview':usingMetaHumanPreview?'metahuman-web-opt-in-unapproved':BJ_MESHY_V6_ASSET.authority,
+      visualAuthority:sourceUrl===localBJMarker?'bj-v15-device-local-owner-import':usingV15Preview?'bj-actual-v15-preview':usingMetaHumanPreview?'metahuman-web-opt-in-unapproved':BJ_MESHY_V6_ASSET.authority,
       bjV15RealGlbPreview:usingV15Preview,
+      bjV15LocalImported:sourceUrl===localBJMarker,
+      bjV15SourceUrl:sourceUrl,
       prunedInvisibleV15Meshes,
       metahumanWebPreview:usingMetaHumanPreview,
       metaHumanLikenessApproved:false,
@@ -402,6 +416,7 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
       object.traverse(n=>{if(n instanceof THREE.SkinnedMesh)skins++})
       window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-visible-version',{detail:{
         characterId:'bj-stubbs',version:'V15',objectName:object.name,sourceUrl,
+        localImported:sourceUrl===localBJMarker,
         skinnedMeshCount:skins,animationCount:clips.length,facialMorphCount:morphs.names.length,
         productionReleased:false,modelVerified:true,likenessCertified:false,
       }}))
