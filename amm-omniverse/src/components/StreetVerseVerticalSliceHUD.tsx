@@ -98,22 +98,15 @@ export default function StreetVerseVerticalSliceHUD(){
      return
    }
    if(next.id==='business'){
-     const button=document.querySelector<HTMLButtonElement>('#sv-store-open')||document.querySelector<HTMLButtonElement>('[aria-expanded][aria-label*="SHOPPING"]')
-     if(button){button.click();return}
-     dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:'STORE CONTROL NOT READY • move near a business and try NEXT again.'}}))
+     dispatchEvent(new CustomEvent('tryamm:streetverse-acceptance-business-purchase',{detail:{source:'vertical-slice-one-push'}}))
      return
    }
    if(next.id==='reel'){
-     const button=document.querySelector<HTMLButtonElement>('[aria-label="Start StreetVerse Reel recording"]')
-     if(button){button.click();return}
-     dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:'REEL CONTROL NOT READY • open HoloReel and try NEXT again.'}}))
+     dispatchEvent(new CustomEvent('tryamm:streetverse-acceptance-record-reel',{detail:{source:'vertical-slice-one-push'}}))
      return
    }
    if(next.id==='return'){
-     const buttons=Array.from(document.querySelectorAll<HTMLButtonElement>('button'))
-     const back=buttons.find(b=>/BACK TO GAME/i.test(b.textContent||''))
-     if(back){back.click();return}
-     dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:'BACK TO GAME CONTROL NOT READY • finish the Reel capture first.'}}))
+     dispatchEvent(new CustomEvent('tryamm:streetverse-acceptance-return-to-game',{detail:{source:'vertical-slice-one-push'}}))
      return
    }
  }
