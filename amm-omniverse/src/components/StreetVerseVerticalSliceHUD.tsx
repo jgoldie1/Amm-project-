@@ -39,8 +39,7 @@ export default function StreetVerseVerticalSliceHUD(){
    addEventListener('tryamm:streetverse-mission-complete',onMission)
    addEventListener('tryamm:streetverse-open-shopping',onBusiness)
    addEventListener('tryamm:streetverse-store-demo-purchase',onBusiness)
-   addEventListener('tryamm:open-reel-creator',onReel)
-   addEventListener('tryamm:streetverse-reel-open',onReel)
+   addEventListener('tryamm:reel-capture-ready',onReel)
    addEventListener('tryamm:streetverse-reel-return',onReturn)
    return()=>{
      removeEventListener('tryamm:streetverse-bj-visible-version',onCharacter)
@@ -51,8 +50,7 @@ export default function StreetVerseVerticalSliceHUD(){
      removeEventListener('tryamm:streetverse-mission-complete',onMission)
      removeEventListener('tryamm:streetverse-open-shopping',onBusiness)
      removeEventListener('tryamm:streetverse-store-demo-purchase',onBusiness)
-     removeEventListener('tryamm:open-reel-creator',onReel)
-     removeEventListener('tryamm:streetverse-reel-open',onReel)
+     removeEventListener('tryamm:reel-capture-ready',onReel)
      removeEventListener('tryamm:streetverse-reel-return',onReturn)
    }
  },[])
@@ -79,7 +77,7 @@ export default function StreetVerseVerticalSliceHUD(){
    if(next.id==='reel'){
      const button=document.querySelector<HTMLButtonElement>('[aria-label="Start StreetVerse Reel recording"]')
      if(button)button.click()
-     else dispatchEvent(new CustomEvent('tryamm:open-reel-creator',{detail:{source:'vertical-slice',missionId:'vertical-slice',missionLabel:'StreetVerse First Complete Loop'}}))
+     else dispatchEvent(new CustomEvent('tryamm:reel-capture-toggle',{detail:{source:'vertical-slice'}}))
      return
    }
    if(next.id==='return'){
