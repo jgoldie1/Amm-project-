@@ -9,26 +9,38 @@ type ThreeCastRow={loaded?:boolean;movement?:boolean;vehicle?:boolean;mission?:b
 const btn:React.CSSProperties={minHeight:58,borderRadius:13,padding:'10px 14px',border:'1px solid #9fe6ff',background:'#12465e',color:'#fff',fontWeight:900,fontSize:15,touchAction:'manipulation'}
 const sleep=(ms:number)=>new Promise(resolve=>window.setTimeout(resolve,ms))
 function readJson<T>(key:string,fallback:T):T{try{return JSON.parse(sessionStorage.getItem(key)||'null')||fallback}catch{return fallback}}
+function readTerminalFailure():any{try{return JSON.parse(sessionStorage.getItem('tryamm.streetverse.acceptance-terminal-failure.v1')||'null')}catch{return null}}
 function waitForEvent(name:string,timeout=5000):Promise<any>{return new Promise((resolve,reject)=>{const timer=window.setTimeout(()=>{window.removeEventListener(name,onEvent);reject(Error(name+' timed out'))},timeout);function onEvent(e:Event){window.clearTimeout(timer);window.removeEventListener(name,onEvent);resolve((e as CustomEvent<any>).detail||{})}window.addEventListener(name,onEvent)})}
 function download(report:any){try{localStorage.setItem('tryamm.streetverse.master-system-report.v1',JSON.stringify(report))}catch{};const u=URL.createObjectURL(new Blob([JSON.stringify(report,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=u;a.download='StreetVerse_Master_System_Acceptance_Report.json';document.body.appendChild(a);a.click();a.remove();window.setTimeout(()=>URL.revokeObjectURL(u),1200)}
 export default function StreetVerseMasterSystemAcceptanceHUD(){
  const auto=new URLSearchParams(location.search).get('master')==='1'
- const [open,setOpen]=useState(auto),[running,setRunning]=useState(false),[checks,setChecks]=useState<Check[]>([]),[status,setStatus]=useState('READY • MASTER SYSTEM TEST'),[report,setReport]=useState<any>(null)
+ const [open,setOpen]=useState(auto),[running,setRunning]=useState(false),[checks,setChecks]=useState<Check[]>([]),[status,setStatus]=useState('WAITING • COMPLETE BJ → JACOBIE → LATEASIA FIRST'),[report,setReport]=useState<any>(null),[characterReady,setCharacterReady]=useState(false),[terminalFailure,setTerminalFailure]=useState<any>(()=>readTerminalFailure())
  const started=useRef(false)
  const add=(list:Check[],id:string,label:string,status:Status,detail:string,critical=true)=>{list.push({id,label,status,detail,critical});setChecks([...list])}
  const run=async()=>{
   if(running)return
+  const seqNow=readJson<string[]>('tryamm.streetverse.acceptance-sequence.v1',[])
+  const terminalNow=readTerminalFailure()
+  if(seqNow.length!==3&&!terminalNow){setStatus('WAITING • FINISH THE 3-CHARACTER TEST FIRST');return}
   setRunning(true);setOpen(true);setChecks([]);setStatus('RUNNING • MASTER SYSTEM ACCEPTANCE')
   const out:Check[]=[]
   const three=readJson<Record<string,ThreeCastRow>>('tryamm.streetverse.three-cast-evidence.v1',{})
   const sequence=readJson<string[]>('tryamm.streetverse.acceptance-sequence.v1',[])
+  const characterFailure=readTerminalFailure()
   const castIds=[['bj-stubbs','BJ Stubbs'],['jacobie-stubbs','Jacobie Stubbs'],['lateasia-monroe','LaTeasia Monroe']] as const
   for(const [id,name] of castIds){
     const r=three[id]||{}
     const done=Boolean(r.loaded&&r.movement&&r.vehicle&&r.mission&&r.business&&r.reel&&r.returned&&r.loopComplete)
-    add(out,'cast-'+id,name+' 7/7 route',done?'pass':'fail',done?`Rig + movement + vehicle + mission + business + HoloReel + return verified. Clips: ${Number(r.clips||0)}.`:`Missing evidence: ${['loaded','movement','vehicle','mission','business','reel','returned','loopComplete'].filter(k=>!(r as any)[k]).join(', ')||'unknown'}`)
+    const failedCharacter=characterFailure&&String(characterFailure.character||'')===name
+    if(failedCharacter){
+      add(out,'cast-'+id,name+' 7/7 route','fail',`Exact acceptance failure: ${String(characterFailure.failedLabel||characterFailure.failedStep||'unknown step')}`)
+    }else if(sequence.length===3){
+      add(out,'cast-'+id,name+' 7/7 route',done?'pass':'fail',done?`Rig + movement + vehicle + mission + business + HoloReel + return verified. Clips: ${Number(r.clips||0)}.`:`Missing evidence: ${['loaded','movement','vehicle','mission','business','reel','returned','loopComplete'].filter(k=>!(r as any)[k]).join(', ')||'unknown'}`)
+    }else{
+      add(out,'cast-'+id,name+' 7/7 route','needs-device','Not reached because the character sequence stopped before this route completed',false)
+    }
   }
-  add(out,'cast-sequence','Three-character route order',sequence.length===3&&['bj','jacobie','lateasia'].every(x=>sequence.includes(x))?'pass':'fail',sequence.length===3?'BJ → Jacobie → LaTeasia sequence recorded':'Sequence evidence incomplete: '+sequence.join(' → '))
+  add(out,'cast-sequence','Three-character route order',sequence.length===3&&['bj','jacobie','lateasia'].every(x=>sequence.includes(x))?'pass':characterFailure?'fail':'needs-device',sequence.length===3?'BJ → Jacobie → LaTeasia sequence recorded':characterFailure?`Sequence stopped at ${String(characterFailure.character||'unknown')} • ${String(characterFailure.failedLabel||characterFailure.failedStep||'unknown step')}`:'Sequence not complete',Boolean(characterFailure))
 
   const canvas=document.querySelector('canvas')
   add(out,'canvas','StreetVerse gameplay canvas',canvas?'pass':'fail',canvas?'Gameplay canvas mounted':'No gameplay canvas found')
@@ -115,10 +127,21 @@ export default function StreetVerseMasterSystemAcceptanceHUD(){
  }
  useEffect(()=>{
    if(!auto||started.current)return
-   const timer=window.setInterval(()=>{
+   const check=()=>{
      const seq=readJson<string[]>('tryamm.streetverse.acceptance-sequence.v1',[])
-     if(seq.length===3){window.clearInterval(timer);started.current=true;void run()}
-   },700)
+     const failure=readTerminalFailure()
+     setCharacterReady(seq.length===3)
+     setTerminalFailure(failure)
+     if(seq.length===3||failure){
+       window.clearInterval(timer)
+       started.current=true
+       window.setTimeout(()=>void run(),500)
+     }else{
+       setStatus('WAITING • BJ → JACOBIE → LATEASIA ACCEPTANCE')
+     }
+   }
+   const timer=window.setInterval(check,500)
+   check()
    return()=>window.clearInterval(timer)
  },[auto])
  return <aside style={{position:'fixed',left:'50%',transform:'translateX(-50%)',top:'calc(env(safe-area-inset-top) + 70px)',zIndex:58000,fontFamily:'system-ui,sans-serif',pointerEvents:'none'}}>
@@ -127,7 +150,7 @@ export default function StreetVerseMasterSystemAcceptanceHUD(){
    {open&&<section style={{width:'min(92vw,620px)',maxHeight:'76dvh',overflowY:'auto',display:'grid',gap:9,padding:14,borderRadius:18,border:'3px solid '+(report?.firstFailure?'#ff8f8f':report?'#8effb0':'#82cfff'),background:'rgba(5,16,27,.98)',color:'#fff',boxShadow:'0 18px 70px #000d'}}>
     <strong style={{fontSize:24,textAlign:'center'}}>STREETVERSE MASTER SYSTEM TEST</strong>
     <div role="status" aria-live="polite" style={{padding:10,borderRadius:10,background:'#101f2b',fontWeight:950,textAlign:'center'}}>{status}</div>
-    <button style={btn} onClick={()=>{void run()}} disabled={running}>{running?'RUNNING EVERYTHING…':'▶ RUN BIG TEST + EXPORT REPORT'}</button>
+    <button style={btn} onClick={()=>{void run()}} disabled={running||(!characterReady&&!terminalFailure)}>{running?'RUNNING EVERYTHING…':characterReady?'▶ RUN BIG TEST + EXPORT REPORT':terminalFailure?'▶ BUILD MASTER REPORT FROM FIRST FAILURE':'WAITING FOR 3-CHARACTER TEST…'}</button>
     {checks.map(c=><div key={c.id} style={{fontSize:12,padding:'7px 8px',borderRadius:9,background:c.status==='pass'?'#123d29':c.status==='fail'?'#521f1f':'#39321a'}}><b>{c.status==='pass'?'✓':c.status==='fail'?'✕':'○'} {c.label} • {c.status.toUpperCase()}</b><div>{c.detail}</div></div>)}
     {report&&<div style={{padding:12,borderRadius:12,border:'2px solid '+(report.firstFailure?'#ff8f8f':'#8effb0'),fontWeight:900,textAlign:'center'}}>{report.firstFailure?'FIRST FAILURE: '+report.firstFailure.label:report.blockers.length?'AUTOMATED PASS • '+report.blockers.length+' BLOCKERS REMAIN':'MASTER PASS'}</div>}
     {report&&<button style={btn} onClick={()=>download(report)}>EXPORT MASTER REPORT AGAIN</button>}
