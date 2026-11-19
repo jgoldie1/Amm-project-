@@ -86,7 +86,7 @@ export default function StreetVerseReelRecorder({open,onClose,context={}}:{open:
    }
    recorder.start(1000);setRecording(true);playOmniMediaCue('reel.record',{audible:false})
    window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-recording-started',{detail:{source:'media-recorder',mimeType:recorder.mimeType||mime||'browser-default'}}))
-  }catch(e){setError(e instanceof Error?e.message:'Camera access failed')}
+  }catch(e){stopStream();setError(e instanceof Error?e.message:'Camera access failed')}
  }
  const stopRecording=()=>{const recorder=recorderRef.current;if(recorder&&recorder.state!=='inactive'){recorder.stop();playOmniMediaCue('reel.stop',{audible:false})}}
  const returnToWorld=()=>{if(recording)stopRecording();stopStream();onClose()}
