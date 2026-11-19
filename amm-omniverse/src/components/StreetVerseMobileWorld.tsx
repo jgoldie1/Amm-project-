@@ -189,16 +189,12 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   let cancelled=false
   void readLocalCastAsset('bj-stubbs').then(asset=>{
    if(cancelled||asset)return
-   const q=new URLSearchParams()
-   q.set('accept','1')
-   if(p.get('sequence')==='full')q.set('sequence','full')
-   window.location.replace('/bj-recovery?'+q.toString())
+   setMessage('OWNER BJ V15 NOT SAVED ON THIS BROWSER • starting hosted V15 fallback so StreetVerse remains playable')
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-owner-v15-missing',{detail:{fallback:'hosted-v15',acceptanceOwnerImportComplete:false}}))
   }).catch(()=>{
    if(cancelled)return
-   const q=new URLSearchParams()
-   q.set('accept','1')
-   if(p.get('sequence')==='full')q.set('sequence','full')
-   window.location.replace('/bj-recovery?'+q.toString())
+   setMessage('OWNER BJ V15 STORAGE CHECK FAILED • starting hosted V15 fallback so StreetVerse remains playable')
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-owner-v15-missing',{detail:{fallback:'hosted-v15',acceptanceOwnerImportComplete:false,storageCheckFailed:true}}))
   })
   return()=>{cancelled=true}
  },[])
