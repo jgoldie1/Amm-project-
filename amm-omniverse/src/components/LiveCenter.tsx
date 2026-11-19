@@ -116,6 +116,13 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
     try {
       if(youthViewerOnly&&role!=='viewer')throw new Error('Youth Viewer Mode keeps camera, microphone and hosting disabled in this release.')
       await preflightHostMedia()
+      if(role==='host'){
+        const auth=await getAccessToken()
+        if(!auth)throw new Error('Sign in before creating a LIVE room.')
+        const response=await fetch('/api/live/panel',{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${auth}`},body:JSON.stringify({action:'create_room',room:roomName,title})})
+        const result=await response.json().catch(()=>({}))
+        if(!response.ok)throw new Error(result.error||'Could not create an authorized LIVE room')
+      }
       stageRef.current?.replaceChildren()
       const { room, session } = await connectLiveRoom({
         roomName,
