@@ -17,8 +17,14 @@ function activeId():CastId{
 
 export default function StreetVerseThreeCharacterOnePushHUD(){
  const [open,setOpen]=useState(false)
- const [rows,setRows]=useState(EMPTY)
+ const [rows,setRows]=useState<Record<CastId,Row>>(()=>{
+   try{
+     const saved=JSON.parse(sessionStorage.getItem('tryamm.streetverse.three-cast-evidence.v1')||'null')
+     return saved?{...EMPTY,...saved}:EMPTY
+   }catch{return EMPTY}
+ })
  const current=useMemo(()=>activeId(),[])
+ useEffect(()=>{try{sessionStorage.setItem('tryamm.streetverse.three-cast-evidence.v1',JSON.stringify(rows))}catch{}},[rows])
  useEffect(()=>{
    const patch=(id:CastId,data:Partial<Row>)=>setRows(v=>({...v,[id]:{...v[id],...data}}))
    const onRecovered=(e:Event)=>{
@@ -63,7 +69,8 @@ export default function StreetVerseThreeCharacterOnePushHUD(){
        <b>{r.name}</b> • {r.loaded?'RIG ✓':'RIG —'} • {r.clips} clips<br/>
        MOVE {r.movement?'✓':'—'} • VEHICLE {r.vehicle?'✓':'—'} • MISSION {r.mission?'✓':'—'} • REEL {r.reel?'✓':'—'}
      </div>)}
-     <div style={{fontSize:11,color:'#b8c6d4'}}>For full 3/3 evidence, test each character once using the CHARACTER switcher. Evidence is retained only during this browser session.</div>
+     <div style={{fontSize:11,color:'#b8c6d4'}}>For full 3/3 evidence, test each character once using the CHARACTER switcher. Evidence now survives character-route reloads during this browser session.</div>
+     <button type="button" onClick={()=>{try{sessionStorage.removeItem('tryamm.streetverse.three-cast-evidence.v1')}catch{};setRows(EMPTY)}} style={{minHeight:42,borderRadius:10,border:'1px solid #6f7682',background:'#252933',color:'#fff',fontWeight:850}}>RESET 3-CAST SESSION</button>
      <button type="button" onClick={exportAll} style={{minHeight:46,borderRadius:10,border:'1px solid #75e7b0',background:'#123d2a',color:'#fff',fontWeight:900}}>EXPORT COMBINED REPORT</button>
    </div>}
  </aside>
