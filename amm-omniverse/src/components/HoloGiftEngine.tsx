@@ -1,6 +1,5 @@
 import {useMemo,useRef,useState} from 'react'
 import {getAccessToken} from '../services/supabaseClient'
-import {Howl} from 'howler'
 import {HOLOGRAPHIC_GIFT_KIT,lottieForGift} from '../game/gifts/HolographicGiftKit'
 
 const API=(import.meta as any).env?.VITE_API_URL??''
@@ -57,10 +56,6 @@ const GIFTS:Gift[]=[
   G('world-takeover','World Takeover','🌐','Entire room transforms into creator-selected world skin',25000,'vr','world','WORLD DROPS','WORLD'),
 ]
 
-const SILENT_WAV='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA='
-const cueNames=[...new Set(GIFTS.map(g=>g.musicCue))]
-const CUES:Record<string,string>=Object.fromEntries(cueNames.map(name=>[name,SILENT_WAV]))
-
 type Props={recipientId?:string;previewOnly?:boolean}
 
 export default function HoloGiftEngine({recipientId='demo-host',previewOnly=false}:Props){
@@ -68,12 +63,10 @@ export default function HoloGiftEngine({recipientId='demo-host',previewOnly=fals
   const [amount,setAmount]=useState(gift.suggested)
   const [burst,setBurst]=useState(0)
   const [mode,setMode]=useState<'screen'|'ar'|'vr'>('screen')
-  const [musicEnabled,setMusicEnabled]=useState(true)
   const [tier,setTier]=useState<Gift['tier']|'ALL'>('ALL')
   const [message,setMessage]=useState('Gift prices are proposed previews only. This screen does not charge money or credit a creator.')
   const [busy,setBusy]=useState(false)
   const rings=useMemo(()=>Array.from({length:gift.id==='america250'?12:gift.tier==='WORLD'?10:8}),[gift.id,gift.tier])
-  const soundRef=useRef<Howl|null>(null)
   const visible=tier==='ALL'?GIFTS:GIFTS.filter(item=>item.tier===tier)
 
   function playCue(){/* Audio cues are silent placeholders until licensed original sound assets are installed. */}
@@ -114,7 +107,7 @@ export default function HoloGiftEngine({recipientId='demo-host',previewOnly=fals
     <style>{`@keyframes tryammGiftRing{from{transform:scale(.15) rotate(0);opacity:1}to{transform:scale(1.9) rotate(38deg);opacity:0}}@keyframes tryammGiftFade{0%,80%{opacity:1}100%{opacity:0}}`}</style>
     <div style={{fontSize:10,letterSpacing:2.5,color:'#4fe3ff',fontWeight:950}}>TRYAMM HOLO GIFT UNIVERSE • AR / VR / MUSIC</div>
     <div style={{marginTop:6,fontSize:8,color:'#84dca9',fontWeight:900}}>OWNED LOTTIE KIT • {HOLOGRAPHIC_GIFT_KIT.specificMappings} DIRECT MAPS • FALLBACK GUARANTEED • NO REMOTE ANIMATION DEPENDENCY</div>
-    <div style={{display:'flex',gap:7,flexWrap:'wrap',marginTop:10}}>{(['screen','ar','vr'] as const).map(id=><button key={id} onClick={()=>id==='screen'?setMode('screen'):enterXR(id)} style={{padding:'8px 11px',borderRadius:11,border:`1px solid ${mode===id?'#4fe3ff':'#2d4050'}`,background:mode===id?'#0c2b39':'#081019',color:'#fff',fontWeight:900,cursor:'pointer'}}>{id.toUpperCase()}</button>)}<button onClick={()=>setMusicEnabled(v=>!v)} style={{padding:'8px 11px',borderRadius:11,border:'1px solid #e8b94466',background:'#151007',color:'#fff',fontWeight:900,cursor:'pointer'}}>♫ SOUND PENDING</button></div>
+    <div style={{display:'flex',gap:7,flexWrap:'wrap',marginTop:10}}>{(['screen','ar','vr'] as const).map(id=><button key={id} onClick={()=>id==='screen'?setMode('screen'):enterXR(id)} style={{padding:'8px 11px',borderRadius:11,border:`1px solid ${mode===id?'#4fe3ff':'#2d4050'}`,background:mode===id?'#0c2b39':'#081019',color:'#fff',fontWeight:900,cursor:'pointer'}}>{id.toUpperCase()}</button>)}<button disabled aria-label="Audio gift cues not yet installed" style={{padding:'8px 11px',borderRadius:11,border:'1px solid #e8b94466',background:'#151007',color:'#fff',fontWeight:900,cursor:'pointer'}}>♫ SOUND PENDING</button></div>
     <div style={{display:'flex',gap:6,flexWrap:'wrap',marginTop:9}}>{(['ALL','MICRO','REACTION','MUSIC','PRESTIGE','SET-APART','PK','WORLD'] as const).map(id=><button key={id} onClick={()=>setTier(id)} style={{padding:'6px 9px',borderRadius:999,border:`1px solid ${tier===id?'#4fe3ff':'#253645'}`,background:tier===id?'#0b2937':'#071019',color:'#dce8ef',fontSize:9,fontWeight:900,cursor:'pointer'}}>{id}</button>)}</div>
     <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(124px,1fr))',gap:7,marginTop:10,maxHeight:460,overflowY:'auto'}}>{visible.map(item=><button key={item.id} onClick={()=>{setGift(item);setAmount(item.suggested)}} style={{padding:9,borderRadius:12,border:`1px solid ${gift.id===item.id?'#4fe3ff':'#26394b'}`,background:gift.id===item.id?'#0c2837':'#080d14',color:'#fff',cursor:'pointer'}}><div style={{fontSize:25}}>{item.icon}</div><div style={{fontSize:10,fontWeight:900}}>{item.label}</div><div style={{fontSize:8,color:'#899aa8',marginTop:3}}>{item.effect}</div><div style={{fontSize:7,color:item.collection==='AMERICA 250'?'#fff':'#e8b944',marginTop:4,letterSpacing:.5}}>{item.collection}</div><div style={{fontSize:8,color:'#4fe3ff',marginTop:3}}>{item.spatial.toUpperCase()} • {item.tier} • ${(item.suggested/100).toFixed(2)} USD proposed</div></button>)}</div>
     <div style={{fontSize:11,color:'#e8b944',marginTop:10,fontWeight:800}}>PROPOSED PRICE: ${(gift.suggested/100).toFixed(2)} USD • PREVIEW ONLY • NO PAYMENT</div>
