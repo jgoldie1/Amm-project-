@@ -27,7 +27,8 @@ function withStores<T>(mode:IDBTransactionMode,stores:string[],callback:(tx:IDBT
   const fail=(e:Error)=>{if(!completed){completed=true;reject(e)}}
   tx.onerror=()=>fail(tx.error||new Error('Local storage transaction failed'))
   tx.onabort=()=>fail(tx.error||new Error('Local storage transaction aborted'))
-  tx.oncomplete=()=>{d.close()}
+  tx.addEventListener('complete',()=>d.close())
+  tx.addEventListener('abort',()=>d.close())
   callback(tx,succeed,fail)
  }))
 }
