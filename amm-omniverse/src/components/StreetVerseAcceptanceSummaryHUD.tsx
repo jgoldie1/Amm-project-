@@ -18,7 +18,7 @@ export default function StreetVerseAcceptanceSummaryHUD(){
  const [rows,setRows]=useState<Record<string,Row>>(()=>readRows())
  const [sequence,setSequence]=useState<string[]>(()=>readSequence())
  const [open,setOpen]=useState(()=>new URLSearchParams(location.search).get('autorun')==='1')
- const [sequenceDone,setSequenceDone]=useState(()=>readSequence().length===3)
+ const [sequenceDone,setSequenceDone]=useState(()=>readSequence().length===ORDER.length)
  useEffect(()=>{
   const refresh=()=>{const nextSequence=readSequence();setRows(readRows());setSequence(nextSequence);setSequenceDone(nextSequence.length===3)}
   const t=window.setInterval(refresh,800)
