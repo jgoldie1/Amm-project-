@@ -23,18 +23,18 @@ export default function StreetVerseCharacterSwitchHUD(){
  useEffect(()=>{
    const onRecovered=(event:Event)=>{
      const d=(event as CustomEvent<any>).detail||{}
-     setEvidence(v=>({...v,[d.id]:{id:d.id,name:d.name||d.id,loaded:true,clips:Array.isArray(d.clips)?d.clips.length:Number(d.clipCount||0),source:d.source}}))
+     setEvidence(v=>({...v,[d.id]:{id:d.id,name:d.name||d.id,loaded:d.mounted===true&&d.active3DMesh===true,clips:Array.isArray(d.clips)?d.clips.length:Number(d.clipCount||0),source:d.source}}))
    }
    const onBJ=(event:Event)=>{
      const d=(event as CustomEvent<any>).detail||{}
      setEvidence(v=>({...v,['bj-stubbs']:{id:'bj-stubbs',name:'BJ Stubbs',loaded:true,clips:Number(d.animationCount||0),source:d.localImported?'device-local-owner':'preview'}}))
    }
    const onMove=()=>setMoved(true)
-   addEventListener('tryamm:streetverse-recovered-playable-ready',onRecovered)
+   addEventListener('tryamm:streetverse-recovered-playable-mounted',onRecovered)
    addEventListener('tryamm:streetverse-bj-visible-version',onBJ)
    addEventListener('tryamm:streetverse-mobile-movement',onMove)
    addEventListener('tryamm:streetverse-world-input',onMove)
-   return()=>{removeEventListener('tryamm:streetverse-recovered-playable-ready',onRecovered);removeEventListener('tryamm:streetverse-bj-visible-version',onBJ);removeEventListener('tryamm:streetverse-mobile-movement',onMove);removeEventListener('tryamm:streetverse-world-input',onMove)}
+   return()=>{removeEventListener('tryamm:streetverse-recovered-playable-mounted',onRecovered);removeEventListener('tryamm:streetverse-bj-visible-version',onBJ);removeEventListener('tryamm:streetverse-mobile-movement',onMove);removeEventListener('tryamm:streetverse-world-input',onMove)}
  },[])
 
  const activeId=active==='bj'?'bj-stubbs':active==='jacobie'?'jacobie-stubbs':'lateasia-monroe'
