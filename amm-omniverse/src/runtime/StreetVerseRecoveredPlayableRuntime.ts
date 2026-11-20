@@ -21,6 +21,7 @@ export async function loadRecoveredPlayable(id:RecoveredPlayableId):Promise<Reco
  const entry=STREETVERSE_RECOVERED_THREE_CAST.find(x=>x.id===id)
  if(!entry)return null
  const resourcePath=new URL('.',new URL(entry.url,window.location.href)).href
+ const fail=(reason:string)=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-recovered-playable-error',{detail:{characterId:id,reason}}))
  const parseRig=async(bytes:ArrayBuffer)=>{
    if(bytes.byteLength<20||new DataView(bytes).getUint32(0,true)!==0x46546c67)return null
    const rig=await loader.parseAsync(bytes,resourcePath)
@@ -33,11 +34,12 @@ export async function loadRecoveredPlayable(id:RecoveredPlayableId):Promise<Reco
    source='app-asset'
    try{
      const response=await fetch(entry.url,{cache:'no-store'})
-     if(!response.ok||(response.headers.get('content-type')||'').includes('text/html'))return null
+     if(!response.ok){fail('GLB HTTP '+response.status);return null}
+     if((response.headers.get('content-type')||'').includes('text/html')){fail('GLB URL returned HTML instead of model');return null}
      gltf=await parseRig(await response.arrayBuffer())
-   }catch{return null}
+   }catch(error){fail('Model network/decoder error: '+String(error).slice(0,170));return null}
  }
- if(!gltf)return null
+ if(!gltf){fail('GLB missing, invalid, or lacking rigged animations');return null}
  const clips=gltf.animations
  const object=gltf.scene
  object.name='streetverse-playable-'+id
