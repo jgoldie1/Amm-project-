@@ -130,7 +130,7 @@ export default function StreetVerseVerticalSliceHUD(){
      if(Date.now()-started>=timeoutMs){window.clearInterval(timer);resolve(false)}
    },120)
  })
- const triggerStep=(id:StepId)=>{
+ const triggerStep=(id:StepId,attempt=1)=>{
    if(id==='character'){
      const p=new URLSearchParams(location.search)
      if(p.get('character')?.startsWith('jacobie')||p.get('character')?.startsWith('lateasia'))dispatchEvent(new CustomEvent('tryamm:streetverse-character-retry',{detail:{character:p.get('character'),source:'full-auto-acceptance'}}))
@@ -138,8 +138,10 @@ export default function StreetVerseVerticalSliceHUD(){
      return
    }
    if(id==='move'){
-     dispatchEvent(new CustomEvent('tryamm:streetverse-mobile-movement',{detail:{up:true,source:'full-auto-acceptance'}}))
-     window.setTimeout(()=>dispatchEvent(new CustomEvent('tryamm:streetverse-mobile-movement',{detail:{up:false,source:'full-auto-acceptance'}})),900)
+     const dirs=[{up:true},{right:true},{left:true},{down:true}]
+     const dir=dirs[(Math.max(1,attempt)-1)%dirs.length]
+     dispatchEvent(new CustomEvent('tryamm:streetverse-mobile-movement',{detail:{...dir,source:'full-auto-acceptance',attempt}}))
+     window.setTimeout(()=>dispatchEvent(new CustomEvent('tryamm:streetverse-mobile-movement',{detail:{up:false,down:false,left:false,right:false,source:'full-auto-acceptance',attempt}})),1400)
      return
    }
    if(id==='vehicle'){dispatchEvent(new CustomEvent('tryamm:streetverse-acceptance-enter-vehicle',{detail:{source:'full-auto-acceptance'}}));return}
@@ -182,7 +184,7 @@ export default function StreetVerseVerticalSliceHUD(){
      let ok=false
      for(let attempt=1;attempt<=maxAttempts&&!ok;attempt++){
        setAutoStatus((id==='character'?'LOADING / VERIFYING • '+character.toUpperCase()+' RIG':'RUNNING • '+labels[id].toUpperCase())+' • TRY '+attempt+'/'+maxAttempts)
-       triggerStep(id)
+       triggerStep(id,attempt)
        const timeout=id==='character'?30000:id==='reel'?9000:id==='mission'?8000:6500
        ok=await waitForStep(id,timeout)
        if(!ok&&attempt<maxAttempts)await new Promise(resolve=>window.setTimeout(resolve,700))
