@@ -138,9 +138,10 @@ export default function StreetVerseVerticalSliceHUD(){
      return
    }
    if(id==='move'){
+     dispatchEvent(new CustomEvent('tryamm:streetverse-acceptance-safe-spawn',{detail:{source:'full-auto-acceptance',character}}))
      const dirs=[{up:true},{right:true},{left:true},{down:true}]
      const dir=dirs[(Math.max(1,attempt)-1)%dirs.length]
-     dispatchEvent(new CustomEvent('tryamm:streetverse-mobile-movement',{detail:{...dir,source:'full-auto-acceptance',attempt}}))
+     window.setTimeout(()=>dispatchEvent(new CustomEvent('tryamm:streetverse-mobile-movement',{detail:{...dir,source:'full-auto-acceptance',attempt}})),220)
      window.setTimeout(()=>dispatchEvent(new CustomEvent('tryamm:streetverse-mobile-movement',{detail:{up:false,down:false,left:false,right:false,source:'full-auto-acceptance',attempt}})),1400)
      return
    }
