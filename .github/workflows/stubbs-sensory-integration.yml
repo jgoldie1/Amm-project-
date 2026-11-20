@@ -1,0 +1,24 @@
+name: Stubbs AI Sensory Integration CI
+on:
+  pull_request:
+    paths:
+      - 'lib/stubbs-sensory-*.js'
+      - 'lib/stubbs-ai-routes.js'
+      - 'server.js'
+      - 'test/stubbs-sensory-core.test.js'
+      - '.github/workflows/stubbs-sensory-integration.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  sensor-integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+      - run: node --check server.js && node --check lib/stubbs-sensory-core.js && node --check lib/stubbs-sensory-routes.js
+      - run: node --test test/stubbs-sensory-core.test.js
