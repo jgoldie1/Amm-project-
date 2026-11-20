@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs'
 const code=readFileSync(new URL('../src/components/StreetVerseMobileWorld.tsx',import.meta.url),'utf8')
 test('Jacobie and LaTeasia begin loading before optional native scenery',()=>{
  const priority=code.indexOf('if(eagerRecoveredId)void loadRecoveredPlayable(eagerRecoveredId)')
- const scenery=code.indexOf('void loadTryammNativeCircleParkLayer({placements:mobileNativePlacements})')
+ const scenery=code.indexOf('void loadTryammNativeCircleParkLayer({placements:greenvilleBirthdayMode?[]:mobileNativePlacements})')
  assert.ok(priority>0,'priority loader exists')
  assert.ok(scenery>priority,'priority loader starts before scenery')
  assert.match(code,/scene\.add\(handle\.object\)/,'real GLB mounts in scene independently of delayed layer')
