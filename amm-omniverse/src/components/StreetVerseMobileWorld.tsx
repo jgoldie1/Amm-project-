@@ -374,10 +374,10 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     scene.add(handle.object)
     nativeHero=handle.object;nativeHeroRig=null
     nativeHero.position.copy(avatar.position);nativeHero.rotation.y=avatar.rotation.y
-    const mountedDetail={id:eagerRecoveredId,characterId:eagerRecoveredId,name:handle.name,displayName:handle.name,source:handle.source,clips:handle.clips.map(c=>c.name),clipCount:handle.clips.length,mounted:true,active3DMesh:true,priorityLoader:true}
+    const mountedDetail={id:eagerRecoveredId,characterId:eagerRecoveredId,name:handle.name,displayName:handle.name,source:handle.source,clips:handle.clips.map(c=>c.name),clipCount:handle.clips.length,mounted:true,active3DMesh:true,textureVerified:handle.object.userData.textureVerified===true,diagnosticAppearance:handle.object.userData.diagnosticAppearance===true,priorityLoader:true}
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-hero-visual-authority',{detail:{...mountedDetail,authoritative3DMesh:true,recoveredRig:true,proceduralFallbackSuppressed:true}}))
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-recovered-playable-mounted',{detail:mountedDetail}))
-    setMessage(handle.name.toUpperCase()+' • ORIGINAL 3D RIG MOUNTED • '+handle.clips.length+' animations')
+    setMessage(handle.name.toUpperCase()+' • '+(handle.object.userData.textureVerified?'TEXTURED ORIGINAL':'DIAGNOSTIC APPEARANCE')+' • '+handle.clips.length+' animations')
   }).catch(error=>{
     if(!nativeCancelled)window.dispatchEvent(new CustomEvent('tryamm:streetverse-recovered-playable-error',{detail:{characterId:eagerRecoveredId,reason:'priority-model-error: '+String(error).slice(0,180)}}))
   })
@@ -600,10 +600,10 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
       nativeHero.rotation.y=avatar.rotation.y
       nativeHeroRig=null
       try{localStorage.setItem('tryamm.streetverse.recovered-playable.v1',id)}catch{}
-      const mountedDetail={id,characterId:id,name:handle.name,displayName:handle.name,source:handle.source,clips:handle.clips.map(c=>c.name),clipCount:handle.clips.length,mounted:true,active3DMesh:true}
+      const mountedDetail={id,characterId:id,name:handle.name,displayName:handle.name,source:handle.source,clips:handle.clips.map(c=>c.name),clipCount:handle.clips.length,mounted:true,active3DMesh:true,textureVerified:handle.object.userData.textureVerified===true,diagnosticAppearance:handle.object.userData.diagnosticAppearance===true}
       window.dispatchEvent(new CustomEvent('tryamm:streetverse-hero-visual-authority',{detail:{...mountedDetail,authoritative3DMesh:true,recoveredRig:true,proceduralFallbackSuppressed:true}}))
       window.dispatchEvent(new CustomEvent('tryamm:streetverse-recovered-playable-mounted',{detail:mountedDetail}))
-      setMessage(handle.name.toUpperCase()+' • PLAYABLE RIG LIVE • '+handle.clips.length+' MOTIONS')
+      setMessage(handle.name.toUpperCase()+' • '+(handle.object.userData.textureVerified?'TEXTURED ORIGINAL':'DIAGNOSTIC APPEARANCE')+' • '+handle.clips.length+' MOTIONS')
     }
     const onRecoveredRetry=(event:Event)=>{
       const d=(event as CustomEvent<{character?:string;characterId?:string;id?:string}>).detail||{}
