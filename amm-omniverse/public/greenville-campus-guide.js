@@ -10,7 +10,7 @@ const campus={
  birthday:{title:'Birthday missions',message:'Jacobie’s eight-stage mission visits arrival, mansion, fraternity, sorority, school, sports, birthday courtyard and HoloReel. Reach each location before completing its checkpoint. Progress is stored locally in your browser.',url:'#birthday'},
  creator:{title:'Creator studio',message:'Visit the HoloReel stage in the game to access the existing creator flow. Publishing, revenue payouts and live broadcasting require separate production verification.',url:'#play'},
  access:{title:'Accessibility and controls',message:'The game includes one-hand control work and graphics fallbacks. Final Chromebook and mobile acceptance is still pending. Use the large Enter 3D Campus button to launch.',url:'#play'},
- start:{title:'Start playing',message:'Open Greenville in StreetVerse using the Enter 3D Campus button. This preview can contain incomplete character rendering and controls.',url:'/streetverse?core=1&character=jacobie&world=greenville&graphics=3d'}
+ start:{title:'Start playing',message:'Open Greenville in StreetVerse using the Enter 3D Campus button. This preview can contain incomplete character rendering and controls.',url:'/streetverse?core=1&character=jacobie&world=greenville'}
 };
 const intents=[
 [/dorm|housing|resident|frat|soror|room|suite/i,'housing'],
