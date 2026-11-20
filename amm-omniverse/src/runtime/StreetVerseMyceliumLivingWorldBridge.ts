@@ -150,7 +150,9 @@ export function createStreetVerseMyceliumLivingBridge(){
   const species=String(d.species||'')
   const id=d.characterId||ecosystemActor(species)
   if(!id||!creatures.has(id))return
-  const kind=d.kind==='recover'?'recover':d.kind==='moderate'?'moderate':'light'
+  // Shot and stab are fictional, non-graphic moderate injury events. They do
+  // not bypass the separate protected-species hunting/conservation authority.
+  const kind=d.kind==='recover'?'recover':d.kind==='moderate'||d.kind==='shot'||d.kind==='stab'||d.cause==='shot'||d.cause==='stab'?'moderate':'light'
   relay('wildlife-care',{species,characterId:id,kind,cause:d.cause||'injury'})
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-character-injury',{detail:{characterId:id,kind,cause:d.cause||'injury',graphic:false,fictional:true}}))
  }
