@@ -70,6 +70,9 @@ export default function StreetVerseThreeCastAssetAuditHUD(){
         const results=await importStreetVerseCharacterFiles(files)
         setImportMessage(results.map(x=>x.name+': '+(x.stored?'saved on device':x.error)).join(' • '))
         if(results.some(x=>x.id==='bj-stubbs'&&x.stored))window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-v15-preview',{detail:{source:'three-cast-local-import'}}))
+        const active=new URLSearchParams(window.location.search).get('character')||''
+        const recoveredId=active.startsWith('jacobie')?'jacobie-stubbs':active.startsWith('lateasia')?'lateasia-monroe':null
+        if(recoveredId&&results.some(x=>x.id===recoveredId&&x.stored))window.dispatchEvent(new CustomEvent('tryamm:streetverse-character-retry',{detail:{characterId:recoveredId,source:'three-cast-local-import'}}))
         window.dispatchEvent(new CustomEvent('tryamm:streetverse-cast-stage-open'))
        }catch(error){setImportMessage(String(error))}
        finally{setImporting(false);e.target.value=''}
