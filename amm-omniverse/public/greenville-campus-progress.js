@@ -34,5 +34,5 @@ render();
 refresh.addEventListener('click',render);
 window.addEventListener('storage',event=>{if(event.key===key)render()});
 window.addEventListener('pageshow',render);
-resume.addEventListener('click',()=>{window.location.assign('/streetverse?core=1&character=jacobie&world=greenville')});
+resume.addEventListener('click',()=>{window.location.assign('/streetverse?core=1&character=jacobie&world=greenville&graphics=character')});
 })();
