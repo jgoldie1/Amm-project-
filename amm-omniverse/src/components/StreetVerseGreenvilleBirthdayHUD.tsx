@@ -3,11 +3,13 @@ import {GREENVILLE_CAMPUS_ZONES} from '../runtime/StreetVerseGreenvilleCampusBir
 
 const STAGES=[
  {id:'GV01',title:'ARRIVE AT GREENVILLE',objective:'Begin Jacobie’s birthday CampusVerse chapter at the campus welcome zone.'},
- {id:'GV02',title:'MOVE INTO RESIDENCE HALL',objective:'Visit Jacobie’s housing checkpoint and enter the CampusVerse residence hall.'},
- {id:'GV03',title:'SCHOOL + STUDENT UNION',objective:'Check in at Academic Hall and the Student Union for the school-life mission.'},
- {id:'GV04',title:'ATHLETICS + SPORTS',objective:'Reach the athletics field, complete the sports checkpoint, and visit the bleachers.'},
- {id:'GV05',title:'BIRTHDAY PARTY',objective:'Go to Jacobie’s birthday pavilion with balloons, cake, and party stage.'},
- {id:'GV06',title:'BIRTHDAY HOLOREEL',objective:'Record Jacobie’s birthday HoloReel on the campus stage and finish the chapter.'},
+ {id:'GV02',title:'JACOBIE MANSION + SUITE 01',objective:'Enter Jacobie’s on-campus mansion and visit his private master suite, Suite 01.'},
+ {id:'GV03',title:'FRATERNITY HOUSE',objective:'Visit the Greenville fraternity house and complete the student-housing checkpoint.'},
+ {id:'GV04',title:'SORORITY RESIDENCE',objective:'Visit the Greenville sorority residence and complete the women’s housing checkpoint.'},
+ {id:'GV05',title:'SCHOOL + STUDENT UNION',objective:'Check in at Academic Hall and the Student Union for the school-life mission.'},
+ {id:'GV06',title:'ATHLETICS + SPORTS',objective:'Reach the athletics field, complete the sports checkpoint, and visit the bleachers.'},
+ {id:'GV07',title:'BIRTHDAY PARTY AT THE MANSION',objective:'Return to Jacobie’s mansion estate for the birthday party with courtyard, balloons, cake, and family areas.'},
+ {id:'GV08',title:'BIRTHDAY HOLOREEL',objective:'Record Jacobie’s birthday HoloReel on the campus stage and finish the chapter.'},
 ] as const
 
 export default function StreetVerseGreenvilleBirthdayHUD(){
@@ -17,7 +19,7 @@ export default function StreetVerseGreenvilleBirthdayHUD(){
  const complete=()=>{
    if(!stage)return
    window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-complete',{detail:{missionId:stage.id,title:stage.title,world:'greenville',characterId:'jacobie-stubbs',source:'greenville-birthday'}}))
-   if(stage.id==='GV06')window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-open',{detail:{source:'jacobie-greenville-birthday',characterId:'jacobie-stubbs',world:'greenville'}}))
+   if(stage.id==='GV08')window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-open',{detail:{source:'jacobie-greenville-birthday',characterId:'jacobie-stubbs',world:'greenville'}}))
    setIndex(i=>Math.min(STAGES.length,i+1))
  }
  const progress=useMemo(()=>Math.round((Math.min(index,STAGES.length)/STAGES.length)*100),[index])
@@ -34,7 +36,7 @@ export default function StreetVerseGreenvilleBirthdayHUD(){
        <button type="button" onClick={complete} style={{minHeight:48,borderRadius:12,border:'1px solid #a9ffc6',background:'#18583a',color:'#fff',fontWeight:900}}>✓ COMPLETE CHECKPOINT</button>
      </>:<><strong>🎉 BIRTHDAY CHAPTER COMPLETE</strong><span style={{fontSize:12,color:'#cbd5e8'}}>Jacobie’s Greenville CampusVerse chapter is complete. Continue to HoloReel, Chicago, or another Verse.</span>
        <button type="button" onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-open',{detail:{source:'jacobie-greenville-birthday-complete',characterId:'jacobie-stubbs'}}))} style={{minHeight:48,borderRadius:12,border:'1px solid #ffb6e8',background:'#512144',color:'#fff',fontWeight:900}}>🎬 OPEN HOLOREEL</button></>}
-     <small style={{color:'#8293ad'}}>Residence Hall • Academic Hall • Student Union • Athletics • Birthday Pavilion • HoloReel Stage</small>
+     <small style={{color:'#8293ad'}}>Jacobie Mansion • Suite 01 • Fraternity House • Sorority Residence • Academic Hall • Student Union • Athletics • Mansion Birthday Party • HoloReel</small>
    </div>}
  </aside>
 }
