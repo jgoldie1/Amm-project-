@@ -35,7 +35,7 @@ import {createMultiMediumVehicleState,stepMultiMediumVehicle} from '../runtime/S
 import StreetVerseFlyingCarHUD from './StreetVerseFlyingCarHUD'
 import StreetVerseMasterSystemAcceptanceHUD from './StreetVerseMasterSystemAcceptanceHUD'
 import {installStreetVerseBJAnatomy} from '../runtime/StreetVerseBJAnatomyRuntime'
-import {createUniversalCharacterHealth,isCastId,isCastInjuryKind,supportsHumanOrganOverlay,supportsAnimalOrganOverlay,isAnatomyProfile,type CreatureEnvironment,type AnatomyProfile,type StreetVerseCastId} from '../runtime/StreetVerseThreeCastHealthRuntime'
+import {createUniversalCharacterHealth,isCastId,isCastInjuryKind,supportsHumanOrganOverlay,supportsAnimalOrganOverlay,type CreatureEnvironment,type AnatomyProfile,type StreetVerseCastId} from '../runtime/StreetVerseThreeCastHealthRuntime'
 import {createBJHapticRuntime,type BJHapticCue} from '../runtime/StreetVerseBJHapticRuntime'
 import {applyBJInjury,initialBJInjuryState,type BJInjuryKind} from '../runtime/StreetVerseBJInjuryBridgeRuntime'
 import {createBJInjuryReaction} from '../runtime/StreetVerseBJInjuryReactionRuntime'
