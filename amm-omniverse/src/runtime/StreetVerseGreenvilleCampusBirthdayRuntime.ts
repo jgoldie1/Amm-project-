@@ -89,6 +89,52 @@ export function installGreenvilleCampusBirthdayWorld(scene:THREE.Scene){
  box([8,.5,3],[-48,4.3,2.5],blue,'greenville-fraternity-entry-canopy')
  box([8,.5,3],[48,4.3,2.5],party,'greenville-sorority-entry-canopy')
 
+ // Greenville visual upgrade: simple, low-poly landmark details (no new texture downloads).
+ const hedge=mat(0x245d3b),flowerPink=mat(0xea6ca6),flowerGold=mat(0xf3be61),roofSlate=mat(0x253852),court=mat(0x476d94),iron=mat(0x515963)
+ for(const [x,z] of [[-13,59],[-17,59],[18,58],[22,58],[-60,43],[58,30],[-57,-19],[52,-26]] as [number,number][]){
+   box([3,.8,1.4],[x,.42,z],hedge,'greenville-low-hedge')
+   for(const dx of [-.85,0,.85]){const bloom=new THREE.Mesh(geo(new THREE.IcosahedronGeometry(.22,0)),dx===0?flowerPink:flowerGold);bloom.position.set(x+dx,1,z);bloom.name='greenville-flower';root.add(bloom)}
+ }
+ // A landmark bell tower and skyline break up the rectangular academic blockout.
+ box([7,4,7],[18,18.4,34],stone,'greenville-academic-bell-tower')
+ box([8,.6,8],[18,20.8,34],roofSlate,'greenville-academic-bell-tower-cap')
+ const bell=new THREE.Mesh(geo(new THREE.SphereGeometry(1,10,7)),copper);bell.position.set(18,22,34);bell.name='greenville-academic-bell';root.add(bell)
+ for(const x of [-34,-26])box([1.5,3.4,.4],[x,4,26.7],glass,'jacobie-mansion-front-door-glass')
+ for(const x of [-45,-38,-31,-24,-17])box([.65,1.4,1],[x,.7,27.1],flowerGold,'jacobie-mansion-entry-path-light')
+ // School courtyard seats and a clear student-union outdoor meeting space.
+ box([12,.14,9],[18,.12,1],court,'greenville-student-union-plaza')
+ for(const x of [12,24]){
+   box([4,.45,1.6],[x,.7,0],stone,'greenville-student-union-table')
+   for(const z of [-2,2])box([3,.5,.9],[x,.3,z],roofSlate,'greenville-student-union-bench')
+ }
+ // Goalposts, score marker, basketball practice pad and spectator signage.
+ for(const z of [-18.8,2.4]){
+   box([.28,4,.28],[28,2,z],iron,'greenville-football-upright-base')
+   box([8,.28,.28],[28,4,z],flowerGold,'greenville-football-crossbar')
+   for(const x of [24,32])box([.25,3,.25],[x,5.4,z],flowerGold,'greenville-football-upright')
+ }
+ box([12,.12,9],[54,.11,-1],court,'greenville-basketball-practice-pad')
+ const hoop=new THREE.Mesh(geo(new THREE.TorusGeometry(.75,.09,6,18)),flowerGold);hoop.rotation.x=Math.PI/2;hoop.position.set(54,2.75,-5);hoop.name='greenville-practice-basketball-hoop';root.add(hoop)
+ box([2,.2,3],[54,3.3,-5.8],white,'greenville-practice-backboard')
+ // Dorm entrances and student-life lighting.
+ for(const x of [-48,48]){
+   for(const dx of [-4.5,4.5]){
+     box([2.5,.3,1.3],[x+dx,3,-.3],gold,'greenville-residence-entrance-accent')
+     box([1.9,2.4,.12],[x+dx,1.9,3.85],glass,'greenville-residence-entrance-window')
+   }
+ }
+ // Distinct birthday destination with a cake table, presents and a lit photo wall.
+ box([6,.45,3],[-30,.85,17],stone,'greenville-birthday-cake-table')
+ for(const [x,z,m] of [[-39,16,party],[-21,16,gold],[-37,11,blue],[-23,11,flowerPink]] as [number,number,THREE.Material][]){
+   box([1.8,1.1,1.8],[x,.6,z],m,'greenville-birthday-wrapped-gift')
+   box([.18,1.17,1.9],[x,.61,z],white,'greenville-gift-ribbon')
+ }
+ box([12,5,.5],[-30,3,7],blue,'greenville-birthday-photo-wall')
+ box([12,.4,.6],[-30,5.6,7],gold,'greenville-birthday-photo-wall-top-trim')
+ // HoloReel lights are emissive, but do not add expensive dynamic shadow casters.
+ const glow=mat(0x76d7e5,.35);(glow as THREE.MeshStandardMaterial).emissive=new THREE.Color(0x1c6e87)
+ for(const x of [-7,7])box([.8,3.2,.8],[x,2,-38],glow,'greenville-holoreel-light-tower')
+
  GREENVILLE_CAMPUS_ZONES.forEach(zone=>{const beacon=new THREE.Mesh(geo(new THREE.CylinderGeometry(.55,.55,6,10)),new THREE.MeshBasicMaterial({color:zone.kind==='party'?0xff70c8:zone.kind==='sports'?0x64e680:0x6fdcff,transparent:true,opacity:.55}));mats.push(beacon.material as THREE.Material);beacon.position.set(zone.x,3,zone.z);beacon.name='greenville-zone-'+zone.id;root.add(beacon)})
  document.documentElement.dataset.greenvilleCampusReady='true'
  window.dispatchEvent(new CustomEvent('tryamm:greenville-campus-assets-ready',{detail:{zones:GREENVILLE_CAMPUS_ZONES.map(z=>z.id),housing:true,mansion:true,masterSuite:'Suite 01',fraternityHouse:true,sororityResidence:true,school:true,sports:true,birthdayPartyAtMansion:true,holoReelStage:true}}))
