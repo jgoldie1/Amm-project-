@@ -80,23 +80,40 @@ export async function loadRecoveredPlayable(id:RecoveredPlayableId):Promise<Reco
  let source:'device-local'|'app-asset'='device-local'
  if(!gltf){
    source='app-asset'
-   const controller=new AbortController()
-   const deadline=window.setTimeout(()=>controller.abort(),20000)
-   try{
-     const response=await fetch(entry.url,{cache:'no-store',signal:controller.signal})
-     if(!response.ok){fail('GLB HTTP '+response.status+' at '+entry.url);return null}
-     if((response.headers.get('content-type')||'').includes('text/html')){fail('GLB URL returned HTML instead of model');return null}
-     const bytes=await response.arrayBuffer()
-     if(bytes.byteLength<20){fail('Model returned empty GLB ('+bytes.byteLength+' bytes)');return null}
-     let decodeTimer:number|undefined
+   // A binary asset can be omitted by the hosting pipeline even when it exists
+   // in GitHub. Try the hosted GLB first, then the repository's raw original.
+   // LaTeasia's approved textured recovery has its own versioned path; it is
+   // NEVER misrepresented as installed when it returns a 404.
+   const repoRoot='https://raw.githubusercontent.com/jgoldie1/Amm-project-/feature/ai-commons-one-push-20261118/amm-omniverse/public'
+   const candidates=id==='lateasia-monroe'
+     ? ['/tryamm-assets/meshy/characters/LaTeasia_Monroe_Textured_Seven_Motion_Recovery.glb',entry.url,repoRoot+entry.url]
+     : [entry.url,repoRoot+entry.url]
+   const attempts:string[]=[]
+   for(const candidate of candidates){
+     const controller=new AbortController()
+     const deadline=window.setTimeout(()=>controller.abort(),16000)
      try{
-       gltf=await Promise.race([
-         parseRig(bytes),
-         new Promise<null>(resolve=>{decodeTimer=window.setTimeout(()=>{fail('GLB decode timeout after 20 seconds');resolve(null)},20000)}),
-       ])
-     }finally{if(decodeTimer!==undefined)window.clearTimeout(decodeTimer)}
-   }catch(error){fail(controller.signal.aborted?'GLB download timed out (20 seconds)':'Model network/decoder error: '+String(error).slice(0,170));return null}
-   finally{window.clearTimeout(deadline)}
+       const response=await fetch(candidate,{cache:'no-store',signal:controller.signal})
+       if(!response.ok){attempts.push(response.status+' '+candidate);continue}
+       if((response.headers.get('content-type')||'').includes('text/html')){attempts.push('HTML instead of GLB '+candidate);continue}
+       const bytes=await response.arrayBuffer()
+       if(bytes.byteLength<20){attempts.push('Empty GLB '+candidate);continue}
+       let decodeTimer:number|undefined
+       try{
+         gltf=await Promise.race([
+           parseRig(bytes),
+           new Promise<null>(resolve=>{decodeTimer=window.setTimeout(()=>resolve(null),16000)}),
+         ])
+       }finally{if(decodeTimer!==undefined)window.clearTimeout(decodeTimer)}
+       if(gltf){
+         window.dispatchEvent(new CustomEvent('tryamm:streetverse-original-model-source',{detail:{characterId:id,url:candidate,bytes:bytes.byteLength}}))
+         break
+       }
+       attempts.push('Unusable animated rig '+candidate)
+     }catch(error){attempts.push((controller.signal.aborted?'Timed out':'Network or decoder error')+' '+candidate+' '+String(error).slice(0,60))}
+     finally{window.clearTimeout(deadline)}
+   }
+   if(!gltf)fail('All original GLB sources failed: '+attempts.join(' | ').slice(0,480))
  }
  if(!gltf){fail('GLB missing, invalid, or lacking rigged animations');return null}
  const clips=gltf.animations
