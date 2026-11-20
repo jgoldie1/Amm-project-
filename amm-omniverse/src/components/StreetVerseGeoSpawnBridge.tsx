@@ -78,6 +78,11 @@ function shouldUseIndependentSafeBoot(){
  // Explicit playable 3D request from the recovery link must not be downgraded
  // simply because a Chromebook has a small viewport or limited deviceMemory.
  if(params.get('graphics')==='3d')return false
+ // A requested original 3D character must reach the playable GLB scene too.
+ // Previously graphics=character was still classified as safe boot on low-memory
+ // Chromebooks, so Jacobie/LaTeasia appeared to load but never got a 3D canvas.
+ if(params.get('graphics')==='character'&&
+    ['bj','jacobie','jacobie-stubbs','lateasia','lateasia-monroe'].includes(params.get('character')||''))return false
  const ua=navigator.userAgent||''
  const appleMobile=/iPhone|iPad|iPod/i.test(ua)
  const memory=Number((navigator as Navigator & {deviceMemory?:number}).deviceMemory||0)
