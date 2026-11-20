@@ -20,6 +20,7 @@ function currentCharacter(){
 
 export default function StreetVerseVerticalSliceHUD(){
  const autoMode=useMemo(()=>new URLSearchParams(location.search).get('autorun')==='1',[])
+ const masterSequence=useMemo(()=>{const p=new URLSearchParams(location.search);return p.get('sequence')==='full'&&p.get('master')==='1'},[])
  const [open,setOpen]=useState(()=>new URLSearchParams(location.search).get('accept')==='1')
  const [done,setDone]=useState<Record<StepId,boolean>>({character:false,move:false,vehicle:false,mission:false,business:false,reel:false,return:false})
  const doneRef=useRef(done)
@@ -154,9 +155,10 @@ export default function StreetVerseVerticalSliceHUD(){
    device:navigator.userAgent,
    note:'Auto-run event-backed vertical-slice evidence. Visual likeness and target-device rendering still require human review.'
  })
- const downloadReport=(report:ReturnType<typeof buildReport>)=>{
+ const downloadReport=(report:ReturnType<typeof buildReport>,shouldDownload=true)=>{
    try{localStorage.setItem('tryamm.streetverse.last-auto-report.v1',JSON.stringify(report))}catch{}
    setLastReport(report)
+   if(!shouldDownload)return
    const blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json'})
    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='StreetVerse_ONE_PUSH_Auto_Report.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)
  }
@@ -172,7 +174,7 @@ export default function StreetVerseVerticalSliceHUD(){
      const ok=await waitForStep(id,timeout)
      if(!ok){
        const report=buildReport()
-       downloadReport(report)
+       downloadReport(report,!masterSequence)
        const failure={...report,failedStep:id,failedLabel:labels[id]}
        try{sessionStorage.setItem('tryamm.streetverse.acceptance-terminal-failure.v1',JSON.stringify(failure))}catch{}
        window.dispatchEvent(new CustomEvent('tryamm:streetverse-vertical-slice-failed',{detail:failure}))
@@ -182,8 +184,8 @@ export default function StreetVerseVerticalSliceHUD(){
      }
    }
    const report=buildReport()
-   downloadReport(report)
-   setAutoStatus('PASS • 7/7 COMPLETE • REPORT EXPORTED')
+   downloadReport(report,!masterSequence)
+   setAutoStatus(masterSequence?'PASS • 7/7 COMPLETE • CONTINUING MASTER TEST…':'PASS • 7/7 COMPLETE • REPORT EXPORTED')
    setAutoRunning(false)
  }
  useEffect(()=>{
