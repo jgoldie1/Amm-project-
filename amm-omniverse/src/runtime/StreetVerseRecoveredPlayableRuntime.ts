@@ -80,10 +80,13 @@ export async function loadRecoveredPlayable(id:RecoveredPlayableId):Promise<Reco
      if((response.headers.get('content-type')||'').includes('text/html')){fail('GLB URL returned HTML instead of model');return null}
      const bytes=await response.arrayBuffer()
      if(bytes.byteLength<20){fail('Model returned empty GLB ('+bytes.byteLength+' bytes)');return null}
-     gltf=await Promise.race([
-       parseRig(bytes),
-       new Promise<null>((resolve)=>window.setTimeout(()=>{fail('GLB decode timeout after 20 seconds');resolve(null)},20000)),
-     ])
+     let decodeTimer:ReturnType<typeof setTimeout>|undefined
+     try{
+       gltf=await Promise.race([
+         parseRig(bytes),
+         new Promise<null>(resolve=>{decodeTimer=window.setTimeout(()=>{fail('GLB decode timeout after 20 seconds');resolve(null)},20000)}),
+       ])
+     }finally{if(decodeTimer!==undefined)window.clearTimeout(decodeTimer)}
    }catch(error){fail(controller.signal.aborted?'GLB download timed out (20 seconds)':'Model network/decoder error: '+String(error).slice(0,170));return null}
    finally{window.clearTimeout(deadline)}
  }
