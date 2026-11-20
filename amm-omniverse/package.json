@@ -7,6 +7,7 @@
   },
   "scripts": {
     "dev": "vite",
+    "characters:verify": "node --test tests/streetverse-original-library-glbs.test.mjs tests/streetverse-original-character-startup-liveness.test.mjs tests/streetverse-priority-character-mount.test.mjs tests/greenville-original-characters-color-scene-contract.mjs",
     "faithverse:test": "python3 tests/test_faithverse_import_web.py",
     "faithverse:import:web": "python3 scripts/faithverse_import_web.py --download",
     "faithverse:build:full": "npm run faithverse:import:web && npm run build",
