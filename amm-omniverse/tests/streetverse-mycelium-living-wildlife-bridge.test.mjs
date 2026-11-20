@@ -21,3 +21,16 @@ test('species physiology and organ names differ, and habitat requirements are bo
  assert.match(health,/function simulateCreatureNeeds/)
  assert.match(anatomy,/function organLayoutForProfile\(profile:AnatomyProfile\)/)
 })
+
+test('existing ecology life-cycle rules remain the source of truth for births, migration and hunting',()=>{
+ const ecology=src('../public/streetverse-ecology-lifecycle.js')
+ for(const event of ['tryamm:streetverse-wildlife-offspring','tryamm:streetverse-wildlife-matured','tryamm:streetverse-wildlife-seasonal','tryamm:streetverse-predator-prey','tryamm:streetverse-wildlife-harvest']){
+  assert.ok(ecology.includes(event),'existing producer '+event)
+  assert.ok(mycelium.includes(event),'bridge listener '+event)
+ }
+ assert.match(mycelium,/if\(d\.ok!==true\)return/,'reject protected or failed harvests')
+ assert.match(ecology,/population-conservation-floor/,'existing conservation rules remain')
+ assert.match(ecology,/protected-game-species/,'existing protected species remain')
+ assert.match(mycelium,/tryamm:streetverse-wildlife-injury/,'individual animal injury and care signal')
+ assert.match(mycelium,/tryamm:streetverse-character-injury/,'universal character health is updated')
+})
