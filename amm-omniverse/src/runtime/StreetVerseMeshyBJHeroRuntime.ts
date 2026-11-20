@@ -494,9 +494,9 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
     let gestureUntil=0
     let previousNow=performance.now()
     const gesturePatterns:Record<BJGesture,RegExp>={
-      'nod':/BJ_V15_ListenAndNod/i,
-      'look-around':/BJ_V15_LookAround/i,
-      'acknowledge':/BJ_V15_AcknowledgeAndSmile/i,
+      'nod':/BJ_V15_(?:ListenAndNod|Listening_Nod)/i,
+      'look-around':/BJ_V15_(?:LookAround|Observe_Left_Right)/i,
+      'acknowledge':/BJ_V15_(?:AcknowledgeAndSmile|Conversational_Gesture)/i,
       'converse':/BJ_V14_Speaking_Visemes/i,
       'greet':/BJ_Greeting_Wave/i,
     }
