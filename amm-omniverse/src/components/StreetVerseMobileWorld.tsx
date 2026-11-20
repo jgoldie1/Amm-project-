@@ -235,7 +235,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
  useEffect(()=>{
   const mount=mountRef.current;if(!mount)return
   let renderer:THREE.WebGLRenderer
-  try{renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'default',alpha:false})}catch(err){setStatus('WEBGL UNAVAILABLE');setMessage('This browser could not start the 3D renderer. Close other tabs and retry 3D.');window.setTimeout(()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-renderer-failed',{detail:{reason:'webgl-renderer-init-failed',source:'streetverse-mobile-world'}})),0);return}
+  try{renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'default',alpha:false})}catch(err){setGraphicsFailed(true);setStatus('WEBGL UNAVAILABLE');setMessage('The 3D renderer could not start. Use the visible graphics recovery controls to reopen safely.');try{localStorage.setItem('tryamm:streetverse:graphics-mode','lite')}catch{};window.setTimeout(()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-renderer-failed',{detail:{reason:'webgl-renderer-init-failed',source:'streetverse-mobile-world'}})),0);return}
   const mobileGpuBudget=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||window.matchMedia('(max-width: 750px)').matches
   const preferLiteGraphics=mobileGpuBudget||(()=>{try{return localStorage.getItem('tryamm:streetverse:graphics-mode')==='lite'}catch{return false}})()
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,preferLiteGraphics ? 0.85 : 1.25));renderer.shadowMap.enabled=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.1;mount.appendChild(renderer.domElement)
