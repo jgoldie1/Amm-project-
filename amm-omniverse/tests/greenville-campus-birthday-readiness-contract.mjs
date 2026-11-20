@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict'
+import {readFileSync} from 'node:fs'
+const runtime=readFileSync(new URL('../src/runtime/StreetVerseGreenvilleCampusBirthdayRuntime.ts',import.meta.url),'utf8')
+const hud=readFileSync(new URL('../src/components/StreetVerseGreenvilleBirthdayHUD.tsx',import.meta.url),'utf8')
+assert.match(runtime,/dataset\.greenvilleCampusReady='true'/,'3D world must expose readiness to late subscribers')
+assert.match(runtime,/delete document\.documentElement\.dataset\.greenvilleCampusReady/,'world disposal must reset readiness')
+assert.match(hud,/dataset\.greenvilleCampusReady==='true'/,'HUD must observe already-mounted world')
+assert.match(hud,/tryamm:streetverse-player-position/,'HUD must track real player position')
+assert.match(hud,/distance<=10/,'checkpoint completion must require player proximity')
+assert.match(hud,/if\(!stage\|\|!withinCheckpoint\)return/,'do not complete missions remotely')
+assert.match(hud,/localStorage\.setItem\('tryamm\.greenville\.birthday\.stage\.v2'/,'persist local chapter progress')
+assert.match(runtime,/Jacobie Mansion/,'preserve mansion scene')
+assert.match(runtime,/Sorority Residence/,'preserve sorority residence')
+assert.match(runtime,/Athletics Field/,'preserve athletics')
+console.log('Greenville campus readiness and checkpoint-source contract PASS')
