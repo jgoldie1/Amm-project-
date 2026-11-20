@@ -52,7 +52,7 @@ export default function StreetVerseThreeCharacterOnePushHUD(){
      const d=(e as CustomEvent<any>).detail||{}
      const expectedName=current==='bj-stubbs'?'BJ Stubbs':current==='jacobie-stubbs'?'Jacobie Stubbs':'LaTeasia Monroe'
      const allDone=Array.isArray(d.steps)&&d.steps.length===7&&d.steps.every((s:any)=>s?.done===true)
-     if(d.passed===true&&d.character===expectedName&&allDone)patch(current,{loopComplete:true})
+     if(d.passed===true&&d.character===expectedName&&allDone)patch(current,{loaded:true,movement:true,vehicle:true,mission:true,business:true,reel:true,returned:true,loopComplete:true,source:rows[current]?.source||'vertical-slice-complete'})
    }
    addEventListener('tryamm:streetverse-recovered-playable-mounted',onRecoveredMounted)
    addEventListener('tryamm:streetverse-bj-visible-version',onBJ)
@@ -80,7 +80,11 @@ export default function StreetVerseThreeCharacterOnePushHUD(){
    completeLoops:all.filter(r=>r.loopComplete).length,
  }
  const exportAll=()=>{
-   const report={generatedAt:new Date().toISOString(),device:navigator.userAgent,route:location.href,currentCharacter:current,summary,characters:rows,finalVisualLikenessCertified:false,note:'Runtime evidence only. Final visual likeness and target-device acceptance require human review.'}
+   let freshRows=rows
+   try{const saved=JSON.parse(sessionStorage.getItem('tryamm.streetverse.three-cast-evidence.v1')||'null');if(saved)freshRows={...EMPTY,...saved}}catch{}
+   const freshAll=Object.values(freshRows)
+   const freshSummary={rigs:freshAll.filter(r=>r.loaded).length,movement:freshAll.filter(r=>r.movement).length,vehicle:freshAll.filter(r=>r.vehicle).length,mission:freshAll.filter(r=>r.mission).length,business:freshAll.filter(r=>r.business).length,reel:freshAll.filter(r=>r.reel).length,returned:freshAll.filter(r=>r.returned).length,completeLoops:freshAll.filter(r=>r.loopComplete).length}
+   const report={generatedAt:new Date().toISOString(),device:navigator.userAgent,route:location.href,currentCharacter:current,summary:freshSummary,characters:freshRows,finalVisualLikenessCertified:false,note:'Runtime evidence only. Final visual likeness and target-device acceptance require human review.'}
    const blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json'})
    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='StreetVerse_Three_Character_One_Push_Report.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)
  }
