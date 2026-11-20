@@ -495,7 +495,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
       }
       window.addEventListener('tryamm:bj-model-progress',onBJLoadProgress)
       window.addEventListener('tryamm:streetverse-bj-v15-preview',onBJPreviewRequest)
-      if(!requestedRecoveredParam)activateBJHero()
+      if(!requestedRecoveredParam&&nativeHeroFallback)activateBJHero()
       // Keep cleanup callable in the unmount scope; no extra global listener.
       onBJProgressCleanup=()=>window.removeEventListener('tryamm:bj-model-progress',onBJLoadProgress)
     }
