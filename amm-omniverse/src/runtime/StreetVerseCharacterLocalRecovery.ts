@@ -7,6 +7,14 @@ const DB='streetverse-character-local-assets-v1'
 const STORE='glbs'
 export type CastImportResult={name:string;id:string;size:number;stored:boolean;error?:string}
 export const CAST_FILES=STREETVERSE_RECOVERED_THREE_CAST.map(x=>({id:x.id,name:x.name,file:x.url.split('/').pop()!}))
+const CAST_IMPORT_ALIASES:Record<string,string>={
+ 'LaTeasia_Monroe_Textured_Seven_Motion_Recovery.glb':'lateasia-monroe',
+}
+function characterForFilename(filename:string){
+ const base=filename.split('/').pop()||''
+ const alias=CAST_IMPORT_ALIASES[base]
+ return alias?CAST_FILES.find(x=>x.id===alias):CAST_FILES.find(x=>x.file===base)
+}
 function dbOpen():Promise<IDBDatabase>{
  return new Promise((resolve,reject)=>{
   const request=indexedDB.open(DB,1)
@@ -67,7 +75,7 @@ async function loadZipEntries(zip:ArrayBuffer):Promise<Array<{filename:string;by
   const local=v.getUint32(pos+42,true)
   const filename=new TextDecoder().decode(new Uint8Array(zip,pos+46,nameSize))
   pos+=46+nameSize+extra+comment
-  if(!CAST_FILES.some(x=>filename.endsWith('/'+x.file)||filename===x.file))continue
+  if(!characterForFilename(filename))continue
   if(raw>12_000_000||size>15_000_000)throw Error('Character file exceeds 15 MB limit')
   if(local+30>zip.byteLength||v.getUint32(local,true)!==0x04034b50)throw Error('Invalid ZIP local header')
   const dataStart=local+30+v.getUint16(local+26,true)+v.getUint16(local+28,true)
@@ -95,7 +103,7 @@ export async function importStreetVerseCharacterFiles(files:FileList|File[]):Pro
   if(file.name.toLowerCase().endsWith('.zip'))entries=await loadZipEntries(await file.arrayBuffer())
   else if(file.name.toLowerCase().endsWith('.glb'))entries=[{filename:file.name,bytes:await file.arrayBuffer()}]
   for(const item of entries){
-   const info=CAST_FILES.find(x=>item.filename===x.file||item.filename.endsWith('/'+x.file))
+   const info=characterForFilename(item.filename)
    if(!info)continue
    try{
     if(!checkGLB(item.bytes))throw Error('Invalid GLB')
