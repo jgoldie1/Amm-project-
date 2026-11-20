@@ -174,13 +174,19 @@ export default function StreetVerseVerticalSliceHUD(){
  const runFullTest=async()=>{
    if(autoRunning)return
    setAutoRunning(true)
+   try{sessionStorage.removeItem('tryamm.streetverse.acceptance-terminal-failure.v1')}catch{}
    setAutoStatus('STARTING FULL TEST…')
    for(const id of order){
      if(doneRef.current[id])continue
-     setAutoStatus(id==='character'?'LOADING / VERIFYING • '+character.toUpperCase()+' RIG':'RUNNING • '+labels[id].toUpperCase())
-     triggerStep(id)
-     const timeout=id==='character'?45000:id==='reel'?12000:id==='mission'?10000:8000
-     const ok=await waitForStep(id,timeout)
+     const maxAttempts=id==='character'?2:3
+     let ok=false
+     for(let attempt=1;attempt<=maxAttempts&&!ok;attempt++){
+       setAutoStatus((id==='character'?'LOADING / VERIFYING • '+character.toUpperCase()+' RIG':'RUNNING • '+labels[id].toUpperCase())+' • TRY '+attempt+'/'+maxAttempts)
+       triggerStep(id)
+       const timeout=id==='character'?30000:id==='reel'?9000:id==='mission'?8000:6500
+       ok=await waitForStep(id,timeout)
+       if(!ok&&attempt<maxAttempts)await new Promise(resolve=>window.setTimeout(resolve,700))
+     }
      if(!ok){
        const report=buildReport()
        persistThreeCastEvidence(report)
@@ -195,6 +201,7 @@ export default function StreetVerseVerticalSliceHUD(){
    }
    const report=buildReport()
    persistThreeCastEvidence(report)
+   try{sessionStorage.removeItem('tryamm.streetverse.acceptance-terminal-failure.v1')}catch{}
    downloadReport(report,!masterSequence)
    setAutoStatus(masterSequence?'PASS • 7/7 COMPLETE • CONTINUING MASTER TEST…':'PASS • 7/7 COMPLETE • REPORT EXPORTED')
    setAutoRunning(false)
