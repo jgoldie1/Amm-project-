@@ -381,7 +381,10 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   }).catch(error=>{
     if(!nativeCancelled)window.dispatchEvent(new CustomEvent('tryamm:streetverse-recovered-playable-error',{detail:{characterId:eagerRecoveredId,reason:'priority-model-error: '+String(error).slice(0,180)}}))
   })
-  void loadTryammNativeCircleParkLayer({placements:mobileNativePlacements}).then(result=>{
+  // Greenville has its own optimized procedural campus. Do not download Chicago
+  // traffic, residents, buildings or vehicle GLBs before rendering Jacobie.
+  // An empty native group still initializes the common gameplay bridge safely.
+  void loadTryammNativeCircleParkLayer({placements:greenvilleBirthdayMode?[]:mobileNativePlacements}).then(result=>{
     if(nativeCancelled){disposeNativeAssetLayer(result.group);return}
     nativeLayer=result.group
     nativeHero=result.group.getObjectByName('mobile-native-hero')||null
