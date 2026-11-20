@@ -14,14 +14,14 @@ function waitForEvent(name:string,timeout=5000):Promise<any>{return new Promise(
 function download(report:any){try{localStorage.setItem('tryamm.streetverse.master-system-report.v1',JSON.stringify(report))}catch{};const u=URL.createObjectURL(new Blob([JSON.stringify(report,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=u;a.download='StreetVerse_Master_System_Acceptance_Report.json';document.body.appendChild(a);a.click();a.remove();window.setTimeout(()=>URL.revokeObjectURL(u),1200)}
 export default function StreetVerseMasterSystemAcceptanceHUD(){
  const auto=new URLSearchParams(location.search).get('master')==='1'
- const [open,setOpen]=useState(auto),[running,setRunning]=useState(false),[checks,setChecks]=useState<Check[]>([]),[status,setStatus]=useState('WAITING • COMPLETE BJ → JACOBIE → LATEASIA FIRST'),[report,setReport]=useState<any>(null),[characterReady,setCharacterReady]=useState(false),[terminalFailure,setTerminalFailure]=useState<any>(()=>readTerminalFailure())
+ const [open,setOpen]=useState(auto),[running,setRunning]=useState(false),[checks,setChecks]=useState<Check[]>([]),[status,setStatus]=useState('WAITING • COMPLETE BJ → JACOBIE → LATEASIA FIRST'),[report,setReport]=useState<any>(()=>{try{return JSON.parse(localStorage.getItem('tryamm.streetverse.master-system-report.v1')||'null')}catch{return null}}),[characterReady,setCharacterReady]=useState(false),[terminalFailure,setTerminalFailure]=useState<any>(()=>readTerminalFailure())
  const started=useRef(false)
  const add=(list:Check[],id:string,label:string,status:Status,detail:string,critical=true)=>{list.push({id,label,status,detail,critical});setChecks([...list])}
  const startFullAppTest=()=>{
   if(running)return
   const seqNow=readJson<string[]>('tryamm.streetverse.acceptance-sequence.v1',[])
   const terminalNow=readTerminalFailure()
-  if(seqNow.length===3||terminalNow){void run();return}
+  if(seqNow.length===3){void run();return}
   try{
    sessionStorage.removeItem('tryamm.streetverse.acceptance-sequence.v1')
    sessionStorage.removeItem('tryamm.streetverse.three-cast-evidence.v1')
@@ -136,7 +136,7 @@ export default function StreetVerseMasterSystemAcceptanceHUD(){
   const automatedPass=!firstFailure
   const launchReady=automatedPass&&blockers.length===0
   const payload={schema:'streetverse.master-system-acceptance.v1',generatedAt:new Date().toISOString(),device:navigator.userAgent,route:location.href,automatedPass,launchReady,firstFailure,blockers,summary:{pass:out.filter(c=>c.status==='pass').length,fail:out.filter(c=>c.status==='fail').length,needsDevice:out.filter(c=>c.status==='needs-device').length,notConfigured:out.filter(c=>c.status==='not-configured').length,total:out.length},checks:out,note:'Master acceptance separates automated runtime evidence from physical-device, production-streaming, full aerodynamics and buoyancy certification. No unverified system is promoted to PASS.'}
-  setReport(payload);download(payload);setStatus(firstFailure?'FIRST FAILURE • '+firstFailure.label.toUpperCase():blockers.length?'AUTOMATED PASS • '+blockers.length+' LAUNCH BLOCKER(S) REMAIN':'PASS • MASTER SYSTEM ACCEPTANCE');setRunning(false)
+  setReport(payload);download(payload);setStatus((firstFailure?'FIRST FAILURE • '+firstFailure.label.toUpperCase():blockers.length?'AUTOMATED PASS • '+blockers.length+' LAUNCH BLOCKER(S) REMAIN':'PASS • MASTER SYSTEM ACCEPTANCE')+' • FINAL REPORT READY');setRunning(false)
  }
  useEffect(()=>{
    if(!auto||started.current)return
@@ -163,11 +163,11 @@ export default function StreetVerseMasterSystemAcceptanceHUD(){
    {open&&<section style={{width:'min(92vw,620px)',maxHeight:'76dvh',overflowY:'auto',display:'grid',gap:9,padding:14,borderRadius:18,border:'3px solid '+(report?.firstFailure?'#ff8f8f':report?'#8effb0':'#82cfff'),background:'rgba(5,16,27,.98)',color:'#fff',boxShadow:'0 18px 70px #000d'}}>
     <strong style={{fontSize:24,textAlign:'center'}}>STREETVERSE MASTER SYSTEM TEST</strong>
     <div role="status" aria-live="polite" style={{padding:10,borderRadius:10,background:'#101f2b',fontWeight:950,textAlign:'center'}}>{status}</div>
-    <button style={{...btn,minHeight:82,fontSize:19,border:'3px solid #8effb0',background:'#0b5c36'}} onClick={startFullAppTest} disabled={running}>{running?'RUNNING FULL APP TEST…':characterReady?'▶ RUN FULL APP TEST + DOWNLOAD REPORT':terminalFailure?'▶ BUILD REPORT FROM FIRST FAILURE':'▶ START FULL APP TEST • BJ → JACOBIE → LATEASIA'}</button>
+    <button style={{...btn,minHeight:82,fontSize:19,border:'3px solid #8effb0',background:'#0b5c36'}} onClick={startFullAppTest} disabled={running}>{running?'RUNNING FULL APP TEST…':characterReady?'▶ RUN MASTER CHECKS + DOWNLOAD REPORT':terminalFailure?'↻ RETRY FULL APP TEST • BJ → JACOBIE → LATEASIA':'▶ START FULL APP TEST • BJ → JACOBIE → LATEASIA'}</button>
     {!report&&<button style={{...btn,background:'#27384a',opacity:.58}} disabled>⬇ DOWNLOAD REPORT • UNLOCKS AFTER TEST FINISHES</button>}
     {checks.map(c=><div key={c.id} style={{fontSize:12,padding:'7px 8px',borderRadius:9,background:c.status==='pass'?'#123d29':c.status==='fail'?'#521f1f':'#39321a'}}><b>{c.status==='pass'?'✓':c.status==='fail'?'✕':'○'} {c.label} • {c.status.toUpperCase()}</b><div>{c.detail}</div></div>)}
     {report&&<div style={{padding:12,borderRadius:12,border:'2px solid '+(report.firstFailure?'#ff8f8f':'#8effb0'),fontWeight:900,textAlign:'center'}}>{report.firstFailure?'FIRST FAILURE: '+report.firstFailure.label:report.blockers.length?'AUTOMATED PASS • '+report.blockers.length+' BLOCKERS REMAIN':'MASTER PASS'}</div>}
-    {report&&<button style={btn} onClick={()=>download(report)}>EXPORT MASTER REPORT AGAIN</button>}
+    {report&&<button style={{...btn,minHeight:72,fontSize:18,border:'3px solid #9cffc2',background:'#0f6b3f'}} onClick={()=>download(report)}>⬇ DOWNLOAD FINAL MASTER REPORT</button>}
     <button style={{...btn,background:'#27384a'}} onClick={()=>setOpen(false)} aria-label="Minimize master test and return to gameplay">▼ MINIMIZE • RETURN TO GAME</button>
    </section>}
   </div>
