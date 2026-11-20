@@ -405,25 +405,25 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     nativeResidents.forEach((resident,i)=>normalizeStreetVerseHumanHeight(resident,residentHeight(i)))
     if(legacySceneHero){
       normalizeStreetVerseHumanHeight(legacySceneHero,STREETVERSE_HUMAN_HEIGHT_METERS.adultHero)
-      nativeHero.userData={...nativeHero.userData,characterId:STREETVERSE_HERO_CHARACTER_ID,displayName:'BJ Stubbs',identityContinuityKey:STREETVERSE_HERO_CHARACTER_ID,namedCharacter:true,era:'current',headArchitecture:'bj-v5-photo-match-ready',photoMatchedAssetId:BJ_PHOTOMATCH_ASSET.id,visualContinuity:'current-era-reference-locked',autonomicLifeV7:true,autonomicLifeV12:true}
+      legacySceneHero.userData={...legacySceneHero.userData,characterId:STREETVERSE_HERO_CHARACTER_ID,displayName:'BJ Stubbs',identityContinuityKey:STREETVERSE_HERO_CHARACTER_ID,namedCharacter:true,era:'current',headArchitecture:'bj-v5-photo-match-ready',photoMatchedAssetId:BJ_PHOTOMATCH_ASSET.id,visualContinuity:'current-era-reference-locked',autonomicLifeV7:true,autonomicLifeV12:true}
       bjPhotoMatch?.dispose()
       // A reference photo is an optional preview, never the default game face.
       const previewPhotoHead=new URLSearchParams(window.location.search).get('svPhotoHead')==='1'
-      bjPhotoMatch=previewPhotoHead?installBJPhotoMatchedHead(nativeHero):null
+      bjPhotoMatch=previewPhotoHead?installBJPhotoMatchedHead(legacySceneHero):null
       bjPhotoMatchReady=false
       if(bjPhotoMatch)void bjPhotoMatch.ready.then(ok=>{
         if(nativeCancelled)return
         bjPhotoMatchReady=ok
         if(ok){
-          nativeHero!.userData={...nativeHero!.userData,photoMatchedHeadActive:true,photoMatchedAssetId:BJ_PHOTOMATCH_ASSET.id,photoReferenceTextureAuthority:true}
+          legacySceneHero.userData={...legacySceneHero.userData,photoMatchedHeadActive:true,photoMatchedAssetId:BJ_PHOTOMATCH_ASSET.id,photoReferenceTextureAuthority:true}
           announceStreetVerseCharacterReady({id:STREETVERSE_HERO_CHARACTER_ID,assetId:BJ_PHOTOMATCH_ASSET.id,era:'current',photoMatched:canClaimPhotoMatched(STREETVERSE_HERO_CHARACTER_ID),source:'streetverse-mobile-approved-bj-head'})
           window.dispatchEvent(new CustomEvent('tryamm:streetverse-hero-visual-authority',{detail:{characterId:STREETVERSE_HERO_CHARACTER_ID,displayName:'BJ Stubbs',assetId:BJ_PHOTOMATCH_ASSET.id,referenceMatchedPreview:true,photoMatched:canClaimPhotoMatched(STREETVERSE_HERO_CHARACTER_ID),certifiedLikeness:canClaimPhotoMatched(STREETVERSE_HERO_CHARACTER_ID),active3DMesh:true,approvedReferencePixels:true,proceduralFaceHidden:true}}))
         }
       })
       bjHeadRuntime?.dispose()
-      bjHeadRuntime=installStreetVerseCharacterHeadRuntime(nativeHero,STREETVERSE_HERO_CHARACTER_ID)
+      bjHeadRuntime=installStreetVerseCharacterHeadRuntime(legacySceneHero,STREETVERSE_HERO_CHARACTER_ID)
       nativeWindLocs=[]
-      nativeHero.traverse(object=>{if(/loc|braid/i.test(object.name)){object.userData={...object.userData,windBaseRotation:{x:object.rotation.x,y:object.rotation.y,z:object.rotation.z}};nativeWindLocs.push(object)}})
+      legacySceneHero.traverse(object=>{if(/loc|braid/i.test(object.name)){object.userData={...object.userData,windBaseRotation:{x:object.rotation.x,y:object.rotation.y,z:object.rotation.z}};nativeWindLocs.push(object)}})
       announceStreetVerseCharacterReady({id:STREETVERSE_HERO_CHARACTER_ID,assetId:'streetverse-hero-player',era:'current',photoMatched:false,source:'streetverse-mobile-procedural-fallback-until-photo-head-ready'})
     }
     const requestedCharacterParam=new URLSearchParams(window.location.search).get('character')
