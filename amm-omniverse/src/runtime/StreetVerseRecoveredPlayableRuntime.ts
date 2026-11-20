@@ -31,7 +31,10 @@ export async function loadRecoveredPlayable(id:RecoveredPlayableId):Promise<Reco
    const rig=await loader.parseAsync(bytes,resourcePath)
    return rig.scene.getObjectsByProperty('type','SkinnedMesh').length&&rig.animations.length?rig:null
  }
- const local=await readLocalCastAsset(id).catch(()=>null)
+ // Old browser-side imports must never silently replace the original Library-backed cast.
+ // Use an owner-imported file only after an explicit import selection.
+ const preferLocal=(()=>{try{return localStorage.getItem('tryamm:streetverse:cast-source:'+id)==='device-local'}catch{return false}})()
+ const local=preferLocal?await readLocalCastAsset(id).catch(()=>null):null
  let gltf=local?await parseRig(local).catch(()=>null):null
  let source:'device-local'|'app-asset'='device-local'
  if(!gltf){
