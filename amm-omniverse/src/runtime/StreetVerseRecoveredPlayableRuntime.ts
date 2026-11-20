@@ -17,6 +17,46 @@ export type RecoveredPlayableHandle={
 
 const loader=new GLTFLoader()
 
+/** Diagnostic LaTeasia GLB has one untextured neutral material.
+ * Apply a low-cost temporary costume/skin/hair palette to its existing skinned mesh.
+ * This is visual styling, NOT a recovered facial likeness or final body model.
+ */
+function styleLaTeasiaDiagnostic(object:THREE.Object3D){
+ object.traverse(node=>{
+  if(!(node instanceof THREE.SkinnedMesh))return
+  const geometry=node.geometry.clone()
+  geometry.computeBoundingBox()
+  const bounds=geometry.boundingBox
+  const position=geometry.getAttribute('position')
+  if(!bounds||!position)return
+  const colors=new Float32Array(position.count*3)
+  const height=Math.max(.01,bounds.max.y-bounds.min.y)
+  const cx=(bounds.min.x+bounds.max.x)/2
+  const halfWidth=Math.max(.01,(bounds.max.x-bounds.min.x)/2)
+  const skin=new THREE.Color(0x986047),hair=new THREE.Color(0x231925)
+  const outfit=new THREE.Color(0x7134aa),trim=new THREE.Color(0xd8ae63)
+  const trousers=new THREE.Color(0x29243c),shoes=new THREE.Color(0x17131b)
+  for(let i=0;i<position.count;i++){
+   const y=(position.getY(i)-bounds.min.y)/height
+   const x=Math.abs(position.getX(i)-cx)/halfWidth
+   let color:THREE.Color
+   if(y>.95&&x>.36)color=hair
+   else if(y>.83)color=skin
+   else if(y<.075)color=shoes
+   else if(y<.39)color=trousers
+   else if(x>.68&&y>.43)color=skin
+   else if(y>.76&&y<.80)color=trim
+   else color=outfit
+   colors[3*i]=color.r;colors[3*i+1]=color.g;colors[3*i+2]=color.b
+  }
+  geometry.setAttribute('color',new THREE.BufferAttribute(colors,3))
+  node.geometry=geometry
+  const old=Array.isArray(node.material)?node.material[0]:node.material
+  node.material=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.79,metalness:.03,side:old?.side??THREE.FrontSide})
+  node.userData={...node.userData,temporaryDiagnosticPalette:true,originalMaterialPreserved:false}
+ })
+}
+
 export async function loadRecoveredPlayable(id:RecoveredPlayableId):Promise<RecoveredPlayableHandle|null>{
  const entry=STREETVERSE_RECOVERED_THREE_CAST.find(x=>x.id===id)
  if(!entry)return null
@@ -44,6 +84,7 @@ export async function loadRecoveredPlayable(id:RecoveredPlayableId):Promise<Reco
  const object=gltf.scene
  object.name='streetverse-playable-'+id
  object.userData={...object.userData,recoveredPlayable:true,characterId:id,displayName:entry.name,source,clipCount:clips.length}
+ if(id==='lateasia-monroe')styleLaTeasiaDiagnostic(object)
  normalizeStreetVerseHumanHeight(object,1.82)
  object.traverse(node=>{
    if(node instanceof THREE.Mesh){node.castShadow=true;node.receiveShadow=true;node.frustumCulled=true}
