@@ -56,14 +56,33 @@ export async function loadRecoveredPlayable(id:RecoveredPlayableId):Promise<Reco
  }
  if(!gltf){fail('GLB missing, invalid, or lacking rigged animations');return null}
  const clips=gltf.animations
- const object=gltf.scene
+ // Keep the animated glTF scene intact inside a separate movable player root.
+ // A player position update must not erase the original model's centering,
+ // skeleton transforms or grounded feet.
+ const model=gltf.scene
+ normalizeStreetVerseHumanHeight(model,1.82)
+ const bounds=new THREE.Box3().setFromObject(model)
+ const center=new THREE.Vector3();bounds.getCenter(center)
+ if(bounds.isEmpty()||!Number.isFinite(center.x)||!Number.isFinite(bounds.min.y)){
+   fail('GLB has no measurable visible geometry');return null
+ }
+ model.position.x-=center.x
+ model.position.z-=center.z
+ model.position.y-=bounds.min.y
+ const object=new THREE.Group()
  object.name='streetverse-playable-'+id
- object.userData={...object.userData,recoveredPlayable:true,characterId:id,displayName:entry.name,source,clipCount:clips.length,diagnosticAppearance:id==='lateasia-monroe',likenessVerified:false}
- normalizeStreetVerseHumanHeight(object,1.82)
+ object.userData={recoveredPlayable:true,characterId:id,displayName:entry.name,source,clipCount:clips.length,diagnosticAppearance:id==='lateasia-monroe',likenessVerified:false}
+ object.add(model)
  object.traverse(node=>{
-   if(node instanceof THREE.Mesh){node.castShadow=true;node.receiveShadow=true;node.frustumCulled=true}
+   if(node instanceof THREE.Mesh){
+     node.castShadow=true;node.receiveShadow=true
+     // Skinned poses can extend beyond static imported bounds and disappear
+     // when culled by the GPU; original character geometry is always rendered.
+     node.frustumCulled=!(node instanceof THREE.SkinnedMesh)
+     node.visible=true
+   }
  })
- const mixer=new THREE.AnimationMixer(object)
+ const mixer=new THREE.AnimationMixer(model)
  const find=(patterns:RegExp[])=>clips.find(c=>patterns.some(p=>p.test(c.name)))
  const map={
    idle:find([/idle/i,/stand/i,/breath/i]),
