@@ -68,6 +68,7 @@ export default function StreetVerseThreeCastAssetAuditHUD(){
        setImporting(true)
        try{
         const results=await importStreetVerseCharacterFiles(files)
+        for(const item of results)if(item.stored)try{localStorage.setItem('tryamm:streetverse:cast-source:'+item.id,'device-local')}catch{}
         setImportMessage(results.map(x=>x.name+': '+(x.stored?'saved on device':x.error)).join(' • '))
         if(results.some(x=>x.id==='bj-stubbs'&&x.stored))window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-v15-preview',{detail:{source:'three-cast-local-import'}}))
         const active=new URLSearchParams(window.location.search).get('character')||''
@@ -79,6 +80,7 @@ export default function StreetVerseThreeCastAssetAuditHUD(){
       }} style={{display:'block',maxWidth:'100%',minHeight:52}}/>
     </label>
     <p role="status" style={{fontSize:12,margin:0}}>{importing?'Importing original model files…':importMessage}</p>
+    <button style={{...btn,background:'#54402c'}} onClick={()=>{try{localStorage.removeItem('tryamm:streetverse:cast-source:jacobie-stubbs');localStorage.removeItem('tryamm:streetverse:cast-source:lateasia-monroe')}catch{};setImportMessage('Restored original Library-backed hosted GLB preference.');window.dispatchEvent(new CustomEvent('tryamm:streetverse-character-retry',{detail:{characterId:selectedActor,source:'restore-hosted-original'}}))}}>RESTORE ORIGINAL LIBRARY MODELS</button>
     <button style={btn} disabled={loading} onClick={()=>{void test()}}>{loading?'CHECKING…':'ONE PUSH — VERIFY ALL 3'}</button>
     {results.map(r=><div key={r.id} style={{borderBottom:'1px solid #33546a',paddingBottom:7,fontSize:13}}><b>{r.name}: {r.status.toUpperCase()}</b><div>{r.meshes} meshes · {r.skins} skinned meshes · {r.clips.length} animations</div>{r.error&&<div>{r.error}</div>}</div>)}
     <button style={btn} disabled={!results.length||loading} onClick={exportReport}>EXPORT CHARACTER REPORT</button>
