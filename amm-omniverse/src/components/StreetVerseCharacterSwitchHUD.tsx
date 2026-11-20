@@ -94,6 +94,7 @@ export default function StreetVerseCharacterSwitchHUD(){
        Source: {activeEvidence?.source??'—'}<br/>       Textured model: {activeEvidence?.textureVerified?'YES — SOURCE TEXTURES':activeEvidence?.diagnosticAppearance?'NO — DIAGNOSTIC':'UNVERIFIED'}<br/>
        Movement input: {moved?'SEEN':'NOT YET'}
      </div>
+     <a href="/streetverse-character-asset-check.html" target="_blank" rel="noopener noreferrer" style={{minHeight:55,display:"grid",placeItems:"center",borderRadius:10,border:"1px solid #ffe58b",background:"#5d4621",color:"#fff",fontWeight:900,textAlign:"center",textDecoration:"none"}}>CHECK ORIGINAL GLB FILES — ONE PUSH</a>
      <button type="button" onClick={exportReport} style={{minHeight:44,borderRadius:10,border:'1px solid #75e7b0',background:'#123d2a',color:'#fff',fontWeight:900}}>EXPORT ONE-PUSH REPORT</button>
    </div>}
  </aside>
