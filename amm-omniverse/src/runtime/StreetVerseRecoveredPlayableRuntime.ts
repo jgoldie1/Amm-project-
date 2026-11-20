@@ -20,19 +20,25 @@ const loader=new GLTFLoader()
 export async function loadRecoveredPlayable(id:RecoveredPlayableId):Promise<RecoveredPlayableHandle|null>{
  const entry=STREETVERSE_RECOVERED_THREE_CAST.find(x=>x.id===id)
  if(!entry)return null
- let bytes=await readLocalCastAsset(id).catch(()=>null)
- let source:'device-local'|'app-asset'='device-local'
- if(!bytes){
-   source='app-asset'
-   const response=await fetch(entry.url,{cache:'no-store'})
-   if(!response.ok||(response.headers.get('content-type')||'').includes('text/html'))return null
-   bytes=await response.arrayBuffer()
+ const resourcePath=new URL('.',new URL(entry.url,window.location.href)).href
+ const parseRig=async(bytes:ArrayBuffer)=>{
+   if(bytes.byteLength<20||new DataView(bytes).getUint32(0,true)!==0x46546c67)return null
+   const rig=await loader.parseAsync(bytes,resourcePath)
+   return rig.scene.getObjectsByProperty('type','SkinnedMesh').length&&rig.animations.length?rig:null
  }
- if(bytes.byteLength<20||new DataView(bytes).getUint32(0,true)!==0x46546c67)return null
- const gltf=await loader.parseAsync(bytes,new URL('.',new URL(entry.url,window.location.href)).href)
- const clips=gltf.animations||[]
- const skinned=gltf.scene.getObjectsByProperty('type','SkinnedMesh').length
- if(!skinned||!clips.length)return null
+ const local=await readLocalCastAsset(id).catch(()=>null)
+ let gltf=local?await parseRig(local).catch(()=>null):null
+ let source:'device-local'|'app-asset'='device-local'
+ if(!gltf){
+   source='app-asset'
+   try{
+     const response=await fetch(entry.url,{cache:'no-store'})
+     if(!response.ok||(response.headers.get('content-type')||'').includes('text/html'))return null
+     gltf=await parseRig(await response.arrayBuffer())
+   }catch{return null}
+ }
+ if(!gltf)return null
+ const clips=gltf.animations
  const object=gltf.scene
  object.name='streetverse-playable-'+id
  object.userData={...object.userData,recoveredPlayable:true,characterId:id,displayName:entry.name,source,clipCount:clips.length}
