@@ -52,9 +52,9 @@ export default function StreetVerseCharacterSwitchHUD(){
    const blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json'})
    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='StreetVerse_Character_Acceptance_'+activeId+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)
  }
- return <aside style={{position:'fixed',left:'max(10px,env(safe-area-inset-left))',bottom:'calc(env(safe-area-inset-bottom) + 88px)',zIndex:52000,fontFamily:'system-ui,sans-serif'}}>
-   <button type="button" onClick={()=>setOpen(v=>!v)} style={{minHeight:48,padding:'8px 12px',borderRadius:14,border:'2px solid #c59cff',background:'#16102aee',color:'#fff',fontWeight:950}}>👤 {LABELS[active]}</button>
-   {open&&<div style={{marginTop:7,width:260,maxWidth:'calc(100vw - 20px)',display:'grid',gap:7,padding:10,borderRadius:14,border:'1px solid #694a98',background:'rgba(7,7,18,.96)',color:'#fff'}}>
+ return <aside style={{position:'fixed',left:'max(10px,env(safe-area-inset-left))',top:'max(8px,env(safe-area-inset-top))',zIndex:2147483646,fontFamily:'system-ui,sans-serif'}}>
+   <button type="button" onClick={()=>setOpen(v=>!v)} style={{minHeight:48,padding:'8px 12px',borderRadius:14,border:'2px solid #c59cff',background:'#16102aee',color:'#fff',fontWeight:950}}>Switch character · {LABELS[active]}</button>
+   {open&&<div style={{maxHeight:'65vh',overflowY:'auto',marginTop:7,width:260,maxWidth:'calc(100vw - 20px)',display:'grid',gap:7,padding:10,borderRadius:14,border:'1px solid #694a98',background:'rgba(7,7,18,.96)',color:'#fff'}}>
      <strong>PLAYABLE CHARACTER</strong>
      {(['bj','jacobie','lateasia'] as Character[]).map(id=><a key={id} href={targetUrl(id)} style={{minHeight:44,display:'grid',placeItems:'center',borderRadius:10,border:id===active?'1px solid #fff':'1px solid #37415c',background:id===active?'#4d2f79':'#111827',color:'#fff',fontWeight:900,textDecoration:'none'}}>PLAY AS {LABELS[id]}</a>)}
      <div style={{fontSize:11,lineHeight:1.35,color:'#cbd1dd'}}>
