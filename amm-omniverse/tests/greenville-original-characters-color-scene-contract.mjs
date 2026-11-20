@@ -11,9 +11,9 @@ test('LaTeasia remains faithful to the original Library model; no fabricated lik
  assert.match(cast,/diagnosticAppearance:id==='lateasia-monroe'/,'identify unfinished asset accurately')
 })
 test('Jacobie original GLB has bounded network and decode checks',()=>{
- assert.match(cast,/controller\.abort\(\),20000/)
- assert.match(cast,/GLB HTTP/)
- assert.match(cast,/GLB decode timeout after 20 seconds/)
+ assert.match(cast,/controller\.abort\(\),16000/)
+ assert.match(cast,/response\.status/)
+ assert.match(cast,/new Promise<null>\(resolve=>\{decodeTimer=/)
  assert.match(cast,/window\.clearTimeout\(decodeTimer\)/,'successful model decodes must not report false timeouts')
  assert.match(world,/if\(eagerRecoveredId\)void loadRecoveredPlayable\(eagerRecoveredId\)/)
  assert.match(world,/scene\.add\(handle\.object\)/)
