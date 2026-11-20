@@ -79,7 +79,9 @@ export default function StreetVerseThreeCharacterOnePushHUD(){
    returned:all.filter(r=>r.returned).length,
    completeLoops:all.filter(r=>r.loopComplete).length,
  }
+ const allThreeComplete=summary.completeLoops===3
  const exportAll=()=>{
+   if(!allThreeComplete)return
    let freshRows=rows
    try{const saved=JSON.parse(sessionStorage.getItem('tryamm.streetverse.three-cast-evidence.v1')||'null');if(saved)freshRows={...EMPTY,...saved}}catch{}
    const freshAll=Object.values(freshRows)
@@ -100,7 +102,7 @@ export default function StreetVerseThreeCharacterOnePushHUD(){
      </div>)}
      <div style={{fontSize:11,color:'#b8c6d4'}}>For full 3/3 evidence, test each character once using the CHARACTER switcher. Evidence now survives character-route reloads during this browser session.</div>
      <button type="button" onClick={()=>{try{sessionStorage.removeItem('tryamm.streetverse.three-cast-evidence.v1')}catch{};setRows(EMPTY)}} style={{minHeight:42,borderRadius:10,border:'1px solid #6f7682',background:'#252933',color:'#fff',fontWeight:850}}>RESET 3-CAST SESSION</button>
-     <button type="button" onClick={exportAll} style={{minHeight:46,borderRadius:10,border:'1px solid #75e7b0',background:'#123d2a',color:'#fff',fontWeight:900}}>EXPORT COMBINED REPORT</button>
+     <button type="button" onClick={exportAll} disabled={!allThreeComplete} style={{minHeight:58,borderRadius:10,border:'2px solid '+(allThreeComplete?'#75e7b0':'#66717d'),background:allThreeComplete?'#123d2a':'#27313b',color:'#fff',fontWeight:900,opacity:allThreeComplete?1:.6}}>{allThreeComplete?'⬇ DOWNLOAD 3-CHARACTER FINAL REPORT':'🔒 REPORT LOCKED • FINISH BJ → JACOBIE → LATEASIA'}</button>
    </div>}
  </aside>
 }
