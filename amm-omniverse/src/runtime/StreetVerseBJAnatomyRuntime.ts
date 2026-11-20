@@ -20,7 +20,7 @@ const ORGAN_LAYOUT:{name:BJOrganName;position:[number,number,number];size:[numbe
   {name:'left-kidney',position:[-.14,.99,-.055],size:[.065,.09,.05],color:0x9d5964},
   {name:'right-kidney',position:[.14,.99,-.055],size:[.065,.09,.05],color:0x9d5964},
 ]
-export function installStreetVerseBJAnatomy(hero:THREE.Object3D,characterId:'bj-stubbs'|'jacobie-stubbs'|'lateasia-monroe'='bj-stubbs'):BJAnatomyHandle{
+export function installStreetVerseBJAnatomy(hero:THREE.Object3D,characterId:string='bj-stubbs'):BJAnatomyHandle{
   const overlayName=characterId+'-anatomy-overlay'
   const existing=hero.getObjectByName(overlayName)
   if(existing){existing.traverse(object=>{if(object instanceof THREE.Mesh){object.geometry.dispose();if(Array.isArray(object.material))object.material.forEach(material=>material.dispose());else object.material.dispose()}});existing.parent?.remove(existing)}
