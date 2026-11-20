@@ -89,7 +89,7 @@ export function createStreetVerseMyceliumLivingBridge(){
  const animalGroup:Record<string,AnatomyProfile>={
   fish:'fish',butterfly:'insect',roach:'insect',spider:'insect',bee:'insect',
   pigeon:'bird',goose:'bird',parrot:'bird',hawk:'bird',owl:'bird',
-  crocodile:'reptile',rabbit:'mammal',deer:'mammal',squirrel:'mammal',
+  crocodile:'reptile',turtle:'reptile',lizard:'reptile',snake:'reptile',frog:'amphibian',salamander:'amphibian',newt:'amphibian',rabbit:'mammal',deer:'mammal',squirrel:'mammal',
   lion:'mammal',elephant:'mammal',giraffe:'mammal',wolf:'mammal',coyote:'mammal',
  }
  const ecosystemActor=(species:string)=>{
