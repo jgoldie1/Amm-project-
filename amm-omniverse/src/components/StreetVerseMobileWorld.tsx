@@ -543,13 +543,17 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     }
     const activateRecoveredPlayable=async(id:RecoveredPlayableId)=>{
       const epoch=++playableLoadEpoch
+      // On explicit original-character routes, never show the BJ procedural
+      // stand-in as though the character conversion succeeded.
+      if(nativeHeroFallback)nativeHeroFallback.visible=false
       setMessage((id==='jacobie-stubbs'?'JACOBIE':'LATEASIA')+' • loading original 3D character')
       const handle=await loadRecoveredPlayable(id)
       if(handle&&epoch!==playableLoadEpoch){handle.dispose();return}
       if(!handle){
         const displayName=id==='jacobie-stubbs'?'JACOBIE':'LATEASIA'
         if(epoch!==playableLoadEpoch)return
-        setMessage(displayName+' • recovered rig not installed • open BJ / JACOBIE / LaTEASIA and import the recovery ZIP or GLB')
+        if(nativeHeroFallback)nativeHeroFallback.visible=false
+        setMessage(displayName+' • original GLB FAILED. Check original-character panel for reason; no fake character swap.')
         window.dispatchEvent(new CustomEvent('tryamm:streetverse-recovered-playable-missing',{detail:{id,characterId:id,displayName,reason:'asset-not-installed',mounted:false}}))
         return
       }
