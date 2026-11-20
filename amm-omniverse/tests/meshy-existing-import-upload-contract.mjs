@@ -35,9 +35,10 @@ must(panel.includes("accept=\".glb,model/gltf-binary,application/octet-stream\""
 
 must(manifest.includes('/api/meshy/asset-manifest'),'runtime manifest bridge missing')
 must(hero.includes("resolvePublishedMeshyAsset('sv-bj-stubbs-v6'"),'BJ runtime must resolve durable Meshy manifest asset')
-must(hero.includes("const candidates=[v15PreviewUrl,metaHumanPreviewUrl,published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url]"),'BJ runtime must preserve explicit previews, then published Meshy, V12, V7 and V6 fallback order')
+must(hero.includes("const localRecoveredV15="),'BJ runtime must consider recovered owner V15 before legacy fallbacks')
+must(hero.includes("const candidates=[localRecoveredV15,v15PreviewUrl,metaHumanPreviewUrl,published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url]"),'BJ runtime must preserve recovered V15, explicit previews, published Meshy, V12, V7 and V6 fallback order')
 must(hero.includes("productionUrl:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V12.glb'"),'BJ runtime must expose the owned V12 production fallback')
 must(hero.includes("legacyProductionUrl:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V7.glb'"),'BJ runtime must preserve the owned V7 compatibility fallback')
 must(hero.includes("url:'/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V6.glb'"),'BJ runtime must preserve the V6 compatibility fallback')
 
-console.log('MESHY END-TO-END IMPORT CONTRACT PASS: API import + iPhone upload + manifest + published Meshy -> owned V12 -> V7 -> V6 fallback order')
+console.log('MESHY END-TO-END IMPORT CONTRACT PASS: API import + iPhone upload + manifest + recovered V15 -> published Meshy -> owned V12 -> V7 -> V6 fallback order')

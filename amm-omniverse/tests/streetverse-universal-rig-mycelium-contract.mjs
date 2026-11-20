@@ -1,0 +1,45 @@
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+import {test} from 'node:test'
+import {build} from 'esbuild'
+const read=(p)=>fs.readFileSync(new URL('../'+p,import.meta.url),'utf8')
+const rig=read('src/runtime/StreetVerseUniversalCharacterRigRuntime.ts')
+const factory=read('src/data/streetVerseCharacterFactory.ts')
+const world=read('src/components/StreetVerseMobileWorld.tsx')
+const cast=read('src/runtime/StreetVerseRecoveredCastRuntime.ts')
+const medical=read('src/runtime/StreetVerseSharedCastMedicalRuntime.ts')
+for(const label of ['hips','spine','chest','head','leftHand','rightHand','leftLowerLeg','rightLowerLeg','leftFoot','rightFoot']){
+ assert.ok(rig.includes(label),'Missing rig mapping: '+label)
+}
+assert.match(rig,/skinWeightErrors/);assert.match(rig,/zeroWeightVertices/)
+assert.match(rig,/requireReviewedSkinWeights:true/);assert.match(rig,/requireClothingFitReview:true/)
+assert.match(rig,/const setPose=\(pose:InjuryMotion/)
+assert.match(factory,/INJURY \+ RECOVERY ANIMATION RETARGET/)
+assert.match(factory,/MYCELIUM CHARACTER CONDITION BRIDGE/)
+assert.match(factory,/futureCharacterRequiresRigQualityGate:true/)
+assert.match(factory,/futureCharacterMyceliumConnected:true/)
+assert.match(world,/installStreetVerseMyceliumCharacterBridge\(\)/)
+assert.match(world,/myceliumCast\.dispose\(\)/)
+assert.match(cast,/createUniversalInjuryAnimationController\(/)
+assert.match(cast,/tryamm:streetverse-character-registered/)
+assert.match(cast,/tryamm:streetverse-character-reaction-request/)
+assert.match(medical,/tryamm:streetverse-character-reaction-request/)
+const out=await build({entryPoints:[new URL('../src/runtime/StreetVerseMyceliumCharacterBridge.ts',import.meta.url).pathname],bundle:true,platform:'node',format:'esm',write:false,logLevel:'silent'})
+const m=await import('data:text/javascript;base64,'+Buffer.from(out.outputFiles[0].text).toString('base64'))
+test('Mycelium validates and preserves health conditions for any future unique character',()=>{
+ const c=m.createMyceliumCharacterState({characterId:'future-person-01',condition:'injured',health:34,updatedAt:100})
+ assert.equal(c.needsRescue,true)
+ assert.equal(c.health,34)
+ assert.equal(c.condition,'injured')
+ const b=m.createMyceliumCharacterState({characterId:'future-person-01',condition:'severe-allergy',health:95})
+ assert.equal(b.needsRescue,true)
+ const save=m.readMyceliumSavedCharacters(JSON.stringify({'future-person-01':c}))
+ assert.equal(save['future-person-01'].condition,'injured')
+ assert.equal(m.readMyceliumSavedCharacters('broken')['future-person-01'],undefined)
+})
+test('No health event may create unvalidated medical condition or out of range health',()=>{
+ assert.equal(m.normalizeMyceliumCondition('unknown'),'healthy')
+ assert.equal(m.createMyceliumCharacterState({characterId:'npc-safe',condition:'healthy',health:-500}).health,0)
+ assert.equal(m.createMyceliumCharacterState({characterId:'npc-safe',condition:'healthy',health:300}).health,100)
+})
+console.log('Universal character rig/factory/Mycelium integration PASS')

@@ -1,0 +1,58 @@
+name: StreetVerse private recovered cast validation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# This manual gate never publishes original character files to the public repository
+# or uploads raw GLBs as GitHub Actions artifacts.
+jobs:
+  verify-private-cast:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Require protected asset URL
+        env:
+          CAST_ARCHIVE_URL: ${{ secrets.STREETVERSE_CAST_ARCHIVE_URL }}
+        run: |
+          if [ -z "$CAST_ARCHIVE_URL" ]; then
+            echo 'BLOCKED: Set STREETVERSE_CAST_ARCHIVE_URL to a short-lived HTTPS signed URL to the exact recovered ZIP. No model was published.' >&2
+            exit 1
+          fi
+          case "$CAST_ARCHIVE_URL" in
+            https://*) ;;
+            *) echo 'BLOCKED: Asset URL must use HTTPS.' >&2; exit 1 ;;
+          esac
+          mkdir -p assets
+          curl --fail --location --silent --show-error --retry 2 --max-time 180 --output assets/StreetVerse_3_Character_GLBS_Extracted.zip "$CAST_ARCHIVE_URL"
+      - name: Verify original models and rigged BJ V15
+        run: |
+          node scripts/import-recovered-cast.mjs
+          node scripts/verify-recovered-cast-assets.mjs
+          node scripts/inspect-bj-glb-rig.mjs
+      - name: Run independent gameplay contracts with real models staged
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          node tests/streetverse-iphone-player-journey-contract.mjs
+          node tests/streetverse-interior-shopping-contract.mjs
+          node tests/crossverse-live-release-contract.mjs
+      - name: Remove private models from runner workspace
+        if: always()
+        run: |
+          rm -f assets/StreetVerse_3_Character_GLBS_Extracted.zip
+          rm -f public/tryamm-assets/recovered-characters/BJ_STUBBS_V15_MOTION_ENHANCED.glb
+          rm -f public/tryamm-assets/recovered-characters/Jacobie_Greenville_Recovered.glb
+          rm -f public/tryamm-assets/recovered-characters/LaTeasia_RIGGED_DIAGNOSTIC.glb

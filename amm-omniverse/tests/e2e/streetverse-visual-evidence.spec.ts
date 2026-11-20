@@ -60,13 +60,11 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await expect(mission).toBeVisible({ timeout: 20_000 });
 
     type Rect={x:number;y:number;width:number;height:number};
-    const travel=page.getByRole('button',{name:'Travel to Taylor Street UIC Medical District'});
-    const stores=page.locator('#sv-retail-open');
-    const enterStore=page.locator('#sv-store-open');
-    await expect(travel).toBeVisible();
+    // The iPhone clear-view layout intentionally keeps travel and store shortcuts
+    // in the single compact menu, instead of stacking legacy fixed buttons.
+    const stores=page.getByRole('button',{name:/STREETVERSE SHOPPING MALL/});
     await expect(stores).toBeVisible();
-    await expect(enterStore).toBeVisible();
-    const visibleCore=[joystick,quickMenu,page.getByRole('button',{name:'Open Holo FON'}),mission,travel,stores,enterStore];
+    const visibleCore=[joystick,quickMenu,page.getByRole('button',{name:'Open Holo FON'}),mission,stores];
     const boxes:Rect[]=[];
     for(const locator of visibleCore){
       const box=await locator.boundingBox();
@@ -95,12 +93,26 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await quickMenu.click();
     const menu=page.getByRole('menu',{name:'StreetVerse quick navigation'});
     await expect(menu).toBeVisible();
-    const bjView=page.getByRole('menuitem',{name:/BJ V12 VIEW/});
+    // Exercise real, mounted West Side route handling instead of the removed HUD button.
+    await page.evaluate(()=>{
+      (window as any).__streetverseTravelProof=null;
+      window.addEventListener('tryamm:west-side-route-arrived',(e:Event)=>{
+        (window as any).__streetverseTravelProof=(e as CustomEvent).detail?.missionId||null;
+      },{once:true});
+    });
+    await page.getByRole('menuitem',{name:/TAYLOR \/ UIC/}).click();
+    await expect.poll(()=>page.evaluate(()=>(window as any).__streetverseTravelProof),{timeout:10_000}).toBe('market');
+    await quickMenu.click();
+    await page.getByRole('menuitem',{name:/STORES/}).click();
+    await expect(stores).toHaveAttribute('aria-expanded','true');
+    await quickMenu.click();
+    await expect(menu).toBeVisible();
+    const bjView=page.getByRole('menuitem',{name:/BJ CLOSE-UP/});
     await expect(bjView).toBeVisible();
     await bjView.click();
     await page.waitForTimeout(1400);
     await page.screenshot({
-      path:testInfo.outputPath('streetverse-bj-v12-character-view.png'),
+      path:testInfo.outputPath('streetverse-bj-character-closeup.png'),
       fullPage:false,
     });
     await quickMenu.click();
@@ -122,12 +134,12 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     await page.getByRole('menuitem',{name:/RIGHT HAND/}).click();
     await expect(page.locator('[data-streetverse-world-root]')).toHaveAttribute('data-control-side','right');
     const rightJoystick=await joystick.boundingBox();
-    for(const launcher of [stores,enterStore]){
-      const box=await launcher.boundingBox();
-      expect(box).not.toBeNull();
-      expect(rightJoystick).not.toBeNull();
-      expect(overlaps(box!,rightJoystick!)).toBe(0);
-    }
+    // The mall is a real visible launcher; the old #sv-store-open button
+    // is intentionally absent from clear-view mobile mode.
+    const storeBox=await stores.boundingBox();
+    expect(storeBox).not.toBeNull();
+    expect(rightJoystick).not.toBeNull();
+    expect(overlaps(storeBox!,rightJoystick!)).toBe(0);
     await quickMenu.click();
     await page.getByRole('menuitem',{name:/LEFT HAND/}).click();
     // Social shortcuts are intentionally collapsed by default on iPhone. Exercise the

@@ -1,8 +1,13 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
-const file=process.argv[2]||'public/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V12.glb'
+// Prefer the exact recovered, animated BJ V15 rig when the verified archive
+// has been injected into the build. Never treat the unrigged legacy V12 as V15.
+const recovered='public/tryamm-assets/recovered-characters/BJ_STUBBS_V15_MOTION_ENHANCED.glb'
+const legacy='public/tryamm-assets/meshy/characters/SV_HERO_BJ_STUBBS_V12.glb'
+const file=process.argv[2]||(fs.existsSync(recovered)?recovered:legacy)
 if(!fs.existsSync(file)){console.error('BJ RIG AUDIT FAIL: GLB missing:',file);process.exit(1)}
+if(file===legacy)console.error('BJ V15 asset not available in this build; checking the legacy V12 honestly (it may be unrigged).')
 const bytes=fs.readFileSync(file)
 if(bytes.length<20||bytes.toString('ascii',0,4)!=='glTF'||bytes.readUInt32LE(4)!==2||bytes.readUInt32LE(8)!==bytes.length){
   console.error('BJ RIG AUDIT FAIL: invalid GLB v2 header/length');process.exit(1)

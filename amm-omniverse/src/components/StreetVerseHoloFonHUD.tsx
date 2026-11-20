@@ -30,7 +30,7 @@ export default function StreetVerseHoloFonHUD(){
  {call.status==='ringing'&&<><button style={btn} onClick={()=>act('answer')}>ANSWER</button><button style={btn} onClick={()=>act('reject')}>DECLINE</button></>}
  {call.status==='connected'&&<><div role="status" aria-live="polite">{subtitle|| (call.contact?HOLOFON_CONTACTS[call.contact].line:'')}</div>{missionId&&getHoloFonMission(missionId)&&<button style={btn} onClick={()=>{const mission=getHoloFonMission(missionId);if(mission)window.dispatchEvent(new CustomEvent('tryamm:streetverse-holofon-destination',{detail:{missionId:mission.id,destination:mission.destination}}))}}>SHOW MISSION DESTINATION: {getHoloFonMission(missionId)?.destination}</button>}<button style={btn} onClick={()=>act('toggle-mute')}>{call.muted?'UNMUTE':'MUTE'} (demo)</button><button style={btn} onClick={()=>act('end')}>END CALL</button></>}
  <label style={{minHeight:44,display:'flex',alignItems:'center',gap:8}}><input type="checkbox" checked={voiceEnabled} onChange={e=>{setVoiceEnabled(e.target.checked);if(!e.target.checked)stopHoloFonSpeech()}}/> NPC voice (device speech)</label><label style={{minHeight:44,display:'flex',alignItems:'center',gap:8}}><input type="checkbox" checked={soundEnabled} onChange={e=>setSoundEnabled(e.target.checked)}/> Ring sound</label>
- <small>NPC scripted voice uses built-in device speech, not ElevenLabs or cloned voices. Destination button emits a map-request event; an actual map marker requires world integration.</small>
+ <small>NPC script demo only. NPC scripted voice uses built-in device speech, not ElevenLabs or cloned voices. Destination button emits a map-request event; an actual map marker requires world integration.</small>
  </div>}
  </div>
 }

@@ -1,4 +1,5 @@
 import {useEffect,useMemo,useState} from 'react'
+import {getAccessToken} from '../services/supabaseClient'
 
 export type SocialIntent='live'|'pk'
 export type AudienceBand='under-12'|'age-12'|'teen'|'adult'
@@ -56,6 +57,7 @@ export default function SocialAgeSafetyGate({open,intent,onAllow,onClose}:{open:
   const [birthDate,setBirthDate]=useState('')
   const [error,setError]=useState('')
   const [confirmed,setConfirmed]=useState(false)
+  const [checkingHost,setCheckingHost]=useState(false)
 
   useEffect(()=>{
     if(!open)return
@@ -85,11 +87,32 @@ export default function SocialAgeSafetyGate({open,intent,onAllow,onClose}:{open:
     setError('')
   }
 
-  const continueSafe=()=>{
-    if(!band||band==='under-12')return
+  const continueSafe=async()=>{
+    if(!band||band==='under-12'||checkingHost)return
+    setCheckingHost(true)
+    let canHost=false
+    if(band!=='age-12'){
+      try{
+        const token=await getAccessToken()
+        if(token){
+          const response=await fetch('/api/live/host-eligibility',{cache:'no-store',headers:{Authorization:'Bearer '+token}})
+          if(response.ok){
+            const result=await response.json()
+            canHost=result.canHost===true
+          }
+        }
+      }catch{/* Viewer access does not require publisher eligibility. */}
+    }
     saveAck(band,intent)
-    const youthViewerOnly=band==='age-12'
-    onAllow({band,youthViewerOnly})
+    setCheckingHost(false)
+    onAllow({band,youthViewerOnly:!canHost})
+  }
+
+  const openSchool=()=>{
+    onClose()
+    try{localStorage.setItem('tryamm_school_network_target','aau')}catch{}
+    const open=(window as unknown as Record<string,unknown>).__showSchoolNetwork
+    if(typeof open==='function')open()
   }
 
   const resetAge=()=>{
@@ -115,6 +138,7 @@ export default function SocialAgeSafetyGate({open,intent,onAllow,onClose}:{open:
 
       {band==='under-12'&&<div style={{marginTop:18}}>
         <div style={alert}>This release is designed for ages 12 and up. LIVE/PK social features are not available for this age band.</div>
+        <button onClick={openSchool} style={smallButton}>OPEN K–12 LEARNING</button>
         <button onClick={resetAge} style={smallButton}>Correct date of birth</button>
       </div>}
 
@@ -124,13 +148,15 @@ export default function SocialAgeSafetyGate({open,intent,onAllow,onClose}:{open:
           <p style={{margin:'7px 0 0',lineHeight:1.45}}>You can watch age-appropriate LIVE/PK rooms. Camera, microphone, freeform personal-information exchange, paid gifts/tips and hosting stay off in this release until adult-managed social controls are verified.</p>
         </div>
         <div style={safetyBox}><b>Stay safe online.</b> Do not share your full name, address, school, phone number, passwords or exact location. Leave, block or report anyone who makes you uncomfortable.</div>
-        <button onClick={continueSafe} style={primary}>I understand • continue as viewer</button>
+        <button onClick={()=>void continueSafe()} style={primary}>I understand • continue as viewer</button>
+        <button onClick={openSchool} style={smallButton}>OPEN K–12 CREATOR LEARNING</button>
         <button onClick={resetAge} style={linkButton}>Correct date of birth</button>
       </div>}
 
       {(band==='teen'||band==='adult')&&<div style={{marginTop:18}}>
-        <div style={safetyBox}><b>{band==='teen'?'Teen safety reminder':'LIVE/PK reminder'}</b><br/>Protect personal information, use block/report controls when needed, and remember that online interactions can create real-world risk.</div>
-        <button onClick={continueSafe} style={primary}>{confirmed?'Continue':'I understand • continue'}</button>
+        <div style={safetyBox}><b>{band==='teen'?'Teen viewer mode':'LIVE/PK reminder'}</b><br/>{band==='teen'?'Teen Creator LIVE is part of Agency and Family. Verified, guardian-approved and moderated teen creators can host. Otherwise, age-appropriate viewing remains available. Creator Academy, school simulations, StreetVerse gameplay and local recording stay available without public broadcasting.':'Protect personal information, use block/report controls when needed, and remember that online interactions can create real-world risk.'}</div>
+        <button disabled={checkingHost} onClick={()=>void continueSafe()} style={primary}>{checkingHost?'Checking verified host permission…':band==='teen'?'JOIN LIVE · VERIFIED TEEN HOST OR VIEWER':confirmed?'Continue':'I understand • continue'}</button>
+        {band==='teen'&&<button onClick={openSchool} style={smallButton}>OPEN ALL AMERICAN UNIVERSITY · TEEN CREATOR ACADEMY</button>}
         <button onClick={resetAge} style={linkButton}>Correct date of birth</button>
       </div>}
     </section>

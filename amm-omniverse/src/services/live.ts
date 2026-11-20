@@ -43,6 +43,7 @@ export async function connectLiveRoom(opts: {
   displayName?: string
   onParticipants?: (count: number) => void
   onTrack?: (element: HTMLMediaElement, participantIdentity: string) => void
+  onDisconnected?: () => void
 }) {
   const [{ Room, RoomEvent, Track }, session] = await Promise.all([
     import('livekit-client'),
@@ -53,6 +54,7 @@ export async function connectLiveRoom(opts: {
   const updateCount = () => opts.onParticipants?.(room.remoteParticipants.size + 1)
   room.on(RoomEvent.ParticipantConnected, updateCount)
   room.on(RoomEvent.ParticipantDisconnected, updateCount)
+  room.on(RoomEvent.Disconnected, () => opts.onDisconnected?.())
   room.on(RoomEvent.TrackSubscribed, (track, _publication, participant) => {
     if (track.kind === Track.Kind.Audio || track.kind === Track.Kind.Video) {
       const element = track.attach()

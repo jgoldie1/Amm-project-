@@ -1,5 +1,6 @@
 import { AccessToken } from 'livekit-server-sdk';
 import { requireUser } from '../_lib/security.js';
+import { liveHostDecision } from '../_lib/live-host-authorization.js';
 
 const LIVEKIT_URL=()=>String(process.env.LIVEKIT_URL||'').trim();
 const API_KEY=()=>String(process.env.LIVEKIT_API_KEY||'').trim();
@@ -27,6 +28,10 @@ export default async function handler(req,res){
 
   const body=typeof req.body==='string'?JSON.parse(req.body||'{}'):req.body||{};
   const role=body.role==='viewer'?'viewer':'host';
+  if(role==='host'){
+    const approval=liveHostDecision(user);
+    if(!approval.allowed)return res.status(403).json({error:'LIVE publishing requires verified operator or supervised creator approval',reason:approval.reason});
+  }
   const room=cleanRoom(body.room);
   const displayName=cleanName(body.displayName,user.user_metadata?.display_name||user.email?.split('@')[0]);
   const identity=`${user.id}:${role}`;
@@ -42,7 +47,7 @@ export default async function handler(req,res){
     room,
     canSubscribe:true,
     canPublish:role==='host',
-    canPublishData:true
+    canPublishData:role==='host'
   });
 
   const jwt=await token.toJwt();

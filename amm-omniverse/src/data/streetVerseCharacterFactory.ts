@@ -1,5 +1,6 @@
 import {BJ_STUBBS_DNA} from './streetVerseBJStubbsCharacter'
 import {cloneStreetVerseCharacterDNA,type StreetVerseCharacterDNA} from './streetVerseCharacterDNA'
+import {STREETVERSE_CHARACTER_RIG_CONTRACT} from '../runtime/StreetVerseUniversalCharacterRigRuntime'
 
 export const STREETVERSE_CHARACTER_FACTORY_PIPELINE=[
  'IDENTITY',
@@ -8,6 +9,9 @@ export const STREETVERSE_CHARACTER_FACTORY_PIPELINE=[
  'PROCEDURAL BLOCKOUT',
  'FACE / HAIR / WARDROBE PASS',
  'RIG CONTRACT',
+ 'WEIGHT / KNEE / HAND / CLOTHING QA',
+ 'INJURY + RECOVERY ANIMATION RETARGET',
+ 'MYCELIUM CHARACTER CONDITION BRIDGE',
  'ANIMATION SLOTS',
  'GAMEPLAY DEVELOPMENT',
  'LIKENESS QA',
@@ -52,6 +56,10 @@ export function requestStreetVerseCharacterBuild(dna:StreetVerseCharacterDNA){
   pipeline:STREETVERSE_CHARACTER_FACTORY_PIPELINE,
   source:'streetverse-character-factory',
   preserveRigContract:true,
+  rigContract:STREETVERSE_CHARACTER_RIG_CONTRACT,
+  requiresProductionRigAudit:true,
+  requiresInjuryReactionMapping:true,
+  requiresMyceliumLivingWorldCondition:true,
   preserveIdentityContinuity:true,
  }}))
 }
@@ -76,6 +84,10 @@ export const STREETVERSE_CHARACTER_FACTORY={
  templateVersion:'bj-v5-photo-match-ready',
  dnaVersion:'character-dna-v1',
  sameRigForNamedCharacters:true,
+ rigContract:STREETVERSE_CHARACTER_RIG_CONTRACT,
+ neverCertifyFromPlaceholder:true,
+ futureCharacterRequiresRigQualityGate:true,
+ futureCharacterMyceliumConnected:true,
  sameDevelopmentRuntimeForNamedCharacters:true,
  photoMatchCanReplaceHeadWithoutResettingGameplay:true,
  liveMicLipSyncReady:true,

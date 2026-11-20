@@ -8,7 +8,7 @@ const pkg=JSON.parse(fs.readFileSync(new URL('../package.json',import.meta.url),
 
 const must=(ok,msg)=>{if(!ok)throw new Error('TRYAMM NATIVE RUNTIME ASSET CONTRACT FAIL: '+msg)}
 
-must(pkg.scripts['native:assets']==='node scripts/tryamm-native-asset-foundry.mjs public/generated-assets/native','native assets must be generated into Vite public build input')
+must(pkg.scripts['native:assets']==='node scripts/tryamm-native-asset-foundry.mjs public/generated-assets/native && node scripts/import-recovered-cast.mjs','native assets must be generated into Vite public build input and then import the recovered cast')
 must(String(pkg.scripts['assets:prebuild']||'').includes('npm run native:assets'),'native generation must be part of the shared asset prebuild')
 must(String(pkg.scripts.build).startsWith('npm run assets:prebuild &&'),'shared asset prebuild must run before the normal build')
 

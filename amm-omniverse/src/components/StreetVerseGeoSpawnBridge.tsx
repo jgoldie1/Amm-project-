@@ -145,6 +145,24 @@ function prepareSpawn(){
  return {destination,mapped}
 }
 
+// Mounted outside the lazy 3D scene so these essentials remain visible during
+// world restarts, renderer recovery and iPhone-size loading states.
+function StreetVerseMobileEssentials(){
+ const travel=()=>{
+  window.dispatchEvent(new CustomEvent('tryamm:west-side-route-request',{detail:{x:24,z:-8,missionId:'taylor-single-canvas',source:'streetverse-mobile-navigation'}}))
+  window.dispatchEvent(new CustomEvent('tryamm:accessibility-announce',{detail:{text:'Taylor Street and UIC route selected. Park the car before walking.'}}))
+ }
+ const store=(storeId:string)=>{
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-open-shopping',{detail:{storeId,source:'streetverse-mobile-navigation'}}))
+ }
+ const base:React.CSSProperties={position:'fixed',left:'max(10px,env(safe-area-inset-left))',zIndex:41006,width:103,minHeight:48,padding:'7px 5px',borderRadius:12,color:'#fff',font:'900 12px system-ui',textAlign:'center',touchAction:'manipulation'}
+ return <>
+  <button type="button" data-streetverse-travel="true" aria-label="Travel to Taylor Street UIC Medical District" onClick={travel} style={{...base,top:'max(220px,calc(env(safe-area-inset-top) + 212px))',left:'auto',right:'max(10px,env(safe-area-inset-right))',border:'1px solid #6ee7ff',background:'#082e3af0'}}>TAYLOR / UIC</button>
+  <button type="button" id="sv-retail-open" aria-label="Open StreetVerse retail stores" onClick={()=>store('creator')} style={{...base,top:'max(220px,calc(env(safe-area-inset-top) + 212px))',border:'1px solid #7deac2',background:'#0b3024ef'}}>🏬 STORES</button>
+  <button type="button" id="sv-store-open" aria-label="Enter StreetVerse store" onClick={()=>store('creator')} style={{...base,top:'max(278px,calc(env(safe-area-inset-top) + 270px))',border:'1px solid #94c5ff',background:'#122744ef'}}>🛍 ENTER STORE</button>
+ </>
+}
+
 export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  const prepared=useMemo(()=>prepareSpawn(),[])
  const bootSafe=useMemo(shouldUseIndependentSafeBoot,[])
@@ -281,6 +299,7 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
     <button aria-label="Retry StreetVerse 3D" onClick={retry3D} style={{minHeight:48,border:'1px solid #8fffe2',borderRadius:9,padding:'8px 15px',background:'#073f38',color:'#fff',fontWeight:900}}>RETRY 3D CHICAGO</button>
     {graphicsStatus&&<div role="status" style={{fontSize:11,marginTop:7}}>{graphicsStatus}</div>}
   </div>}
+  {mobile&&<StreetVerseMobileEssentials/>}
   <StreetVerseWestSideWorldBuilder/>
   <BuildSwarmControl/>
   <StreetVerseWeatherSync/>
@@ -290,9 +309,10 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  </>
 
  return <>
+  {mobile&&<StreetVerseMobileEssentials/>}
   <BuildSwarmControl/>
   {nearWestOpen&&<div style={{position:'fixed',inset:0,zIndex:14980,background:'#07101d'}}><Suspense fallback={null}><StreetVerseNearWest3D/></Suspense><button aria-label="Return to StreetVerse Chicago" onClick={()=>setNearWestOpen(false)} style={{position:'fixed',top:76,right:12,zIndex:14990,border:'1px solid #6ee7ff',borderRadius:12,background:'#07131f',color:'#fff',padding:'10px 12px',fontWeight:900}}>← CHICAGO</button></div>}
-  {!nearWestOpen&&<button data-streetverse-travel="true" aria-label="Travel to Taylor Street UIC Medical District" onClick={()=>{if(mobile){window.dispatchEvent(new CustomEvent('tryamm:west-side-route-request',{detail:{x:24,z:-8,missionId:'taylor-single-canvas',source:'streetverse-main-travel-shortcut'}}))}else setNearWestOpen(true)}} style={{position:'fixed',top:118,right:12,zIndex:14970,border:'1px solid #6ee7ff',borderRadius:12,background:'#062333e8',color:'#fff',padding:'10px 12px',fontWeight:900}}>TAYLOR / UIC</button>}
+  {!mobile&&!nearWestOpen&&<button data-streetverse-travel="true" aria-label="Travel to Taylor Street UIC Medical District" onClick={()=>{if(mobile){window.dispatchEvent(new CustomEvent('tryamm:west-side-route-request',{detail:{x:24,z:-8,missionId:'taylor-single-canvas',source:'streetverse-main-travel-shortcut'}}))}else setNearWestOpen(true)}} style={{position:'fixed',top:118,right:12,zIndex:14970,border:'1px solid #6ee7ff',borderRadius:12,background:'#062333e8',color:'#fff',padding:'10px 12px',fontWeight:900}}>TAYLOR / UIC</button>}
   <Suspense fallback={<div aria-label="StreetVerse playable world loading" style={{position:'fixed',inset:0,zIndex:14990,display:'grid',placeItems:'center',background:'#07101d',color:'#fff',fontFamily:'system-ui',fontWeight:900}}>STREETVERSE • LOADING PLAYABLE WORLD…</div>}>
    <StreetVersePlayableWorld onClose={closeStreetVerse}/>
   </Suspense>

@@ -1,0 +1,35 @@
+name: StreetVerse Universal Health Scenarios
+on:
+  pull_request:
+    paths:
+      - 'amm-omniverse/src/runtime/StreetVerseHealthEpisodeRuntime.ts'
+      - 'amm-omniverse/src/components/StreetVerseMobileWorld.tsx'
+      - 'amm-omniverse/tests/streetverse-three-character-health-episodes.test.mjs'
+      - 'amm-omniverse/src/runtime/StreetVerseUniversalCharacterRigRuntime.ts'
+      - 'amm-omniverse/src/runtime/StreetVerseMyceliumCharacterBridge.ts'
+      - 'amm-omniverse/src/data/streetVerseCharacterFactory.ts'
+      - 'amm-omniverse/tests/streetverse-universal-rig-mycelium-contract.mjs'
+      - '.github/workflows/streetverse-health-episodes.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-health-episodes:
+    name: Verify three-character stroke nosebleed and allergies
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Health scenario regression tests
+        run: node --test tests/streetverse-three-character-health-episodes.test.mjs tests/streetverse-universal-rig-mycelium-contract.mjs
+      - name: TypeScript check
+        run: npm run typecheck

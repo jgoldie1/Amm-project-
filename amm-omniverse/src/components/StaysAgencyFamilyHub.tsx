@@ -72,13 +72,15 @@ export default function StaysAgencyFamilyHub({onClose,initialTab='stays'}:Props)
           <FeatureGrid items={TRYAMM_CREATOR_AGENCIES.surfaces}/>
           <Boundary title="Creator earnings protection">{TRYAMM_CREATOR_AGENCIES.earningsRule}</Boundary>
           <Boundary title="Youth participation">{TRYAMM_CREATOR_AGENCIES.minorRule}</Boundary>
-          <div style={{display:'flex',flexWrap:'wrap',gap:8,marginTop:18}}><Action label="Open TRYAMM LIVE" onClick={()=>openSystem('__showTryAMMLive')}/><Action label="Creator Commerce connection" onClick={()=>openSystem('__showEconomicLoop')}/></div>
+          <div style={{display:'flex',flexWrap:'wrap',gap:8,marginTop:18}}><Action label="Open TRYAMM LIVE" onClick={()=>openSystem('__showTryAMMLive')}/><Action label="Creator Commerce connection" onClick={()=>openSystem('__showEconomicLoop')}/><Action label="All American University · Creator Academy" onClick={()=>{try{localStorage.setItem('tryamm_school_network_target','aau')}catch{}openSystem('__showSchoolNetwork')}}/></div>
         </>}
 
         {tab==='family'&&<>
           <FeatureGrid items={TRYAMM_FAMILY_STREAMING.surfaces}/>
           <Boundary title="Privacy defaults">{TRYAMM_FAMILY_STREAMING.privacy.join(' · ')}</Boundary>
           <Boundary title="Family safety">{TRYAMM_FAMILY_STREAMING.safety.join(' · ')}</Boundary>
+          <Boundary title="K–12 → teen creators → college → adults">All American University already supports Pre-K, K–12, GED, trades, college and lifelong study. Younger learners use supervised, age-appropriate game simulations and recorded practice. Verified guardian-approved teen streaming requires moderated rooms and server authorization. Public livestream hosting is not automatically enabled from a browser-selected age.</Boundary>
+          <div style={{display:'flex',flexWrap:'wrap',gap:8,marginTop:12}}><Action label="All American University · K–12 & College" onClick={()=>{try{localStorage.setItem('tryamm_school_network_target','aau')}catch{}openSystem('__showSchoolNetwork')}}/><Action label="StreetVerse age-appropriate gameplay" onClick={()=>{onClose();window.location.href='/streetverse'}}/></div>
           <Boundary title="Accessibility">{TRYAMM_FAMILY_STREAMING.accessibility.join(' · ')}</Boundary>
           <div style={{display:'flex',flexWrap:'wrap',gap:8,marginTop:18}}><Action label="Open Set Apart Passport" onClick={()=>setTab('passport')}/><Action label="Open TRYAMM LIVE" onClick={()=>openSystem('__showTryAMMLive')}/><Action label="Open Family Legacy" onClick={()=>openSystem('__showFamilyLegacy')}/></div>
         </>}
