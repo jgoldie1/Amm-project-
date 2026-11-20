@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict'
+import {readFileSync} from 'node:fs'
+const scene=readFileSync(new URL('../src/components/StreetVerseMobileWorld.tsx',import.meta.url),'utf8')
+const audit=readFileSync(new URL('../src/components/StreetVerseThreeCastAssetAuditHUD.tsx',import.meta.url),'utf8')
+const loader=readFileSync(new URL('../src/runtime/StreetVerseRecoveredPlayableRuntime.ts',import.meta.url),'utf8')
+const cast=readFileSync(new URL('../src/data/StreetVerseRecoveredThreeCast.ts',import.meta.url),'utf8')
+assert.match(scene,/let playableLoadEpoch=0/,'each async hero request has an epoch')
+assert.match(scene,/if\(handle&&epoch!==playableLoadEpoch\)\{handle\.dispose\(\);return\}/,'superseded hero load is disposed')
+assert.match(scene,/if\(!requestedRecoveredParam&&savedPlayable\?\.assetId/,'saved stand-in does not override explicit Jacobie or LaTeasia')
+assert.match(scene,/if\(requestedRecoveredParam\)\{void activateRecoveredPlayable\(requestedRecoveredParam\);return\}/,'asset selection preserves selected recovered character')
+assert.match(scene,/if\(recoveredParam\)void activateRecoveredPlayable\(recoveredParam\)/,'requested recovered character is mounted')
+assert.match(audit,/tryamm:streetverse-character-retry/,'import of active original model triggers character refresh')
+assert.match(audit,/results\.some\(x=>x\.id===recoveredId&&x\.stored\)/,'refresh only after verified import')
+assert.match(loader,/gltf\.animations\.length/,'reject non-animated GLB')
+assert.match(cast,/Jacobie_Stubbs_12_Motions_Restore\.glb/,'original Jacobie rig is still selected')
+assert.match(cast,/LaTeasia_Monroe_7_Motions_Diagnostic\.glb/,'original LaTeasia rig is still selected')
+console.log('StreetVerse original-character override source contract PASS')
