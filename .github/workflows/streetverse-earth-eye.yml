@@ -1,0 +1,36 @@
+name: StreetVerse Earth Eye Regression
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'amm-omniverse/src/runtime/StreetVerseEarthEyeDirector.ts'
+      - 'amm-omniverse/src/components/StreetVerseEarthEyeDock.tsx'
+      - 'amm-omniverse/src/components/StreetVerseEarthEyeMap.tsx'
+      - 'amm-omniverse/src/components/StreetVerseGeoSpawnBridge.tsx'
+      - 'amm-omniverse/tests/streetverse-earth-eye-director.test.mjs'
+      - '.github/workflows/streetverse-earth-eye.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Run original Earth Eye integration tests
+        run: node --test tests/streetverse-earth-eye-director.test.mjs
+      - name: TypeScript check
+        run: npm run typecheck
+      - name: Build
+        run: npm run build
