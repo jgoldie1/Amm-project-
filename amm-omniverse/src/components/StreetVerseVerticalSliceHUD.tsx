@@ -148,6 +148,15 @@ export default function StreetVerseVerticalSliceHUD(){
    if(id==='reel'){dispatchEvent(new CustomEvent('tryamm:streetverse-acceptance-record-reel',{detail:{source:'full-auto-acceptance'}}));return}
    if(id==='return'){dispatchEvent(new CustomEvent('tryamm:streetverse-acceptance-return-to-game',{detail:{source:'full-auto-acceptance'}}));return}
  }
+ const persistThreeCastEvidence=(report:any)=>{
+   const id=character==='BJ Stubbs'?'bj-stubbs':character==='Jacobie Stubbs'?'jacobie-stubbs':'lateasia-monroe'
+   try{
+     const saved=JSON.parse(sessionStorage.getItem('tryamm.streetverse.three-cast-evidence.v1')||'{}')||{}
+     const byId=Object.fromEntries((report.steps||[]).map((s:any)=>[s.id,Boolean(s.done)]))
+     saved[id]={...(saved[id]||{}),id,name:character,loaded:Boolean(byId.character),movement:Boolean(byId.move),vehicle:Boolean(byId.vehicle),mission:Boolean(byId.mission),business:Boolean(byId.business),reel:Boolean(byId.reel),returned:Boolean(byId.return),loopComplete:Boolean(report.passed),source:(saved[id]||{}).source||'vertical-slice-report',clips:Number((saved[id]||{}).clips||0)}
+     sessionStorage.setItem('tryamm.streetverse.three-cast-evidence.v1',JSON.stringify(saved))
+   }catch{}
+ }
  const buildReport=()=>({
    generatedAt:new Date().toISOString(),character,route:location.href,
    steps:order.map(id=>({id,label:labels[id],done:Boolean(doneRef.current[id])})),
@@ -174,6 +183,7 @@ export default function StreetVerseVerticalSliceHUD(){
      const ok=await waitForStep(id,timeout)
      if(!ok){
        const report=buildReport()
+       persistThreeCastEvidence(report)
        downloadReport(report,!masterSequence)
        const failure={...report,failedStep:id,failedLabel:labels[id]}
        try{sessionStorage.setItem('tryamm.streetverse.acceptance-terminal-failure.v1',JSON.stringify(failure))}catch{}
@@ -184,6 +194,7 @@ export default function StreetVerseVerticalSliceHUD(){
      }
    }
    const report=buildReport()
+   persistThreeCastEvidence(report)
    downloadReport(report,!masterSequence)
    setAutoStatus(masterSequence?'PASS • 7/7 COMPLETE • CONTINUING MASTER TEST…':'PASS • 7/7 COMPLETE • REPORT EXPORTED')
    setAutoRunning(false)
