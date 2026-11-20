@@ -26,6 +26,8 @@ export default function StreetVerseGreenvilleBirthdayHUD(){
    const d=(event as CustomEvent<{zones?:string[]}>).detail
    if(d?.zones?.includes('GV01'))setWorldReady(true)
   }
+  // The 3D scene may initialize before this React HUD subscribes.
+  if(document.documentElement.dataset.greenvilleCampusReady==='true')setWorldReady(true)
   window.addEventListener('tryamm:streetverse-player-position',onPosition)
   window.addEventListener('tryamm:greenville-campus-assets-ready',onReady)
   return()=>{window.removeEventListener('tryamm:streetverse-player-position',onPosition);window.removeEventListener('tryamm:greenville-campus-assets-ready',onReady)}
