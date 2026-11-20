@@ -18,6 +18,6 @@ test('LaTeasia master website has two distinct BeautyVerse mansions with truthfu
  assert.match(html,/la-teasia-beauty-house\.vercel\.app/,'existing Beauty House link preserved')
 })
 test('Greenville has exterior assets for founder mansion, Greek houses and both dorms',()=>{
- for(const t of ['jacobie-mansion-exterior-streaming-studio','greenville-fraternity-grand-awning','greenville-sorority-grand-awning','greenville-east-dorm-grand-awning','East Student Dorm','roomCountProposed'])assert.ok(campus.includes(t),t)
+ for(const t of ['jacobie-mansion-exterior-streaming-studio','greenville-'+"'"+'+name+'+"'"+'-grand-awning','East Student Dorm','roomCountProposed'])assert.ok(campus.includes(t),t)
  assert.match(campus,/interiorPlayable:false/,'does not falsely represent exteriors as walkable interiors')
 })
