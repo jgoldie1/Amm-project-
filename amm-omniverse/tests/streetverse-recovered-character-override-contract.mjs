@@ -8,7 +8,7 @@ assert.match(scene,/let playableLoadEpoch=0/,'each async hero request has an epo
 assert.match(scene,/if\(handle&&epoch!==playableLoadEpoch\)\{handle\.dispose\(\);return\}/,'superseded hero load is disposed')
 assert.match(scene,/if\(!requestedRecoveredParam&&savedPlayable\?\.assetId/,'saved stand-in does not override explicit Jacobie or LaTeasia')
 assert.match(scene,/if\(requestedRecoveredParam\)\{void activateRecoveredPlayable\(requestedRecoveredParam\);return\}/,'asset selection preserves selected recovered character')
-assert.match(scene,/if\(recoveredParam\)void activateRecoveredPlayable\(recoveredParam\)/,'requested recovered character is mounted')
+assert.match(scene,/if\(recoveredParam&&!eagerRecoveredId\)void activateRecoveredPlayable\(recoveredParam\)/,'requested recovered character is mounted')
 assert.match(audit,/tryamm:streetverse-character-retry/,'import of active original model triggers character refresh')
 assert.match(audit,/results\.some\(x=>x\.id===recoveredId&&x\.stored\)/,'refresh only after verified import')
 assert.match(loader,/gltf\.animations\.length/,'reject non-animated GLB')
