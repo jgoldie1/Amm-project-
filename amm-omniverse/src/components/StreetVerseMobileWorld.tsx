@@ -392,7 +392,9 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     }
     const requestedCharacterParam=new URLSearchParams(window.location.search).get('character')
     const requestedRecoveredParam:RecoveredPlayableId|null=requestedCharacterParam==='jacobie'||requestedCharacterParam==='jacobie-stubbs'?'jacobie-stubbs':requestedCharacterParam==='lateasia'||requestedCharacterParam==='lateasia-monroe'?'lateasia-monroe':null
-    if(nativeHeroFallback){
+    // Recovered characters load independently from the procedural hero asset.
+    // The old starter hero can be absent without blocking original GLB playback.
+    if(nativeLayer){
       const activateBJHero=()=>{
         const request=++bjHeroLoadEpoch
         const requireV15=new URLSearchParams(window.location.search).get('bj')==='v15'
