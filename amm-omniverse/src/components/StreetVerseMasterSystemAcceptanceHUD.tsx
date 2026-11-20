@@ -17,6 +17,19 @@ export default function StreetVerseMasterSystemAcceptanceHUD(){
  const [open,setOpen]=useState(auto),[running,setRunning]=useState(false),[checks,setChecks]=useState<Check[]>([]),[status,setStatus]=useState('WAITING • COMPLETE BJ → JACOBIE → LATEASIA FIRST'),[report,setReport]=useState<any>(null),[characterReady,setCharacterReady]=useState(false),[terminalFailure,setTerminalFailure]=useState<any>(()=>readTerminalFailure())
  const started=useRef(false)
  const add=(list:Check[],id:string,label:string,status:Status,detail:string,critical=true)=>{list.push({id,label,status,detail,critical});setChecks([...list])}
+ const startFullAppTest=()=>{
+  if(running)return
+  const seqNow=readJson<string[]>('tryamm.streetverse.acceptance-sequence.v1',[])
+  const terminalNow=readTerminalFailure()
+  if(seqNow.length===3||terminalNow){void run();return}
+  try{
+   sessionStorage.removeItem('tryamm.streetverse.acceptance-sequence.v1')
+   sessionStorage.removeItem('tryamm.streetverse.three-cast-evidence.v1')
+   sessionStorage.removeItem('tryamm.streetverse.acceptance-terminal-failure.v1')
+   sessionStorage.setItem('tryamm.streetverse.acceptance-run.v1',Date.now().toString())
+  }catch{}
+  location.assign('/streetverse?core=1&bj=v15&accept=1&sequence=full&fresh=1&autorun=1&master=1')
+ }
  const run=async()=>{
   if(running)return
   const seqNow=readJson<string[]>('tryamm.streetverse.acceptance-sequence.v1',[])
@@ -144,13 +157,14 @@ export default function StreetVerseMasterSystemAcceptanceHUD(){
    check()
    return()=>window.clearInterval(timer)
  },[auto])
- return <aside style={{position:'fixed',left:'50%',transform:'translateX(-50%)',top:'calc(env(safe-area-inset-top) + 70px)',zIndex:58000,fontFamily:'system-ui,sans-serif',pointerEvents:'none'}}>
-  <div style={{pointerEvents:'auto'}}>
-   {!open&&<button style={btn} onClick={()=>setOpen(true)}>🧪 MASTER TEST</button>}
+ return <aside style={{position:'fixed',left:'50%',transform:'translateX(-50%)',top:'calc(env(safe-area-inset-top) + 8px)',zIndex:90000,fontFamily:'system-ui,sans-serif',pointerEvents:'none',width:'min(96vw,720px)'}}>
+  <div style={{pointerEvents:'auto',display:'grid',gap:8}}>
+   {!open&&<button style={{...btn,minHeight:78,fontSize:20,border:'3px solid #8effb0',background:'#0b5c36',boxShadow:'0 8px 30px #000b'}} onClick={()=>setOpen(true)}>🧪 TEST ENTIRE STREETVERSE APP</button>}
    {open&&<section style={{width:'min(92vw,620px)',maxHeight:'76dvh',overflowY:'auto',display:'grid',gap:9,padding:14,borderRadius:18,border:'3px solid '+(report?.firstFailure?'#ff8f8f':report?'#8effb0':'#82cfff'),background:'rgba(5,16,27,.98)',color:'#fff',boxShadow:'0 18px 70px #000d'}}>
     <strong style={{fontSize:24,textAlign:'center'}}>STREETVERSE MASTER SYSTEM TEST</strong>
     <div role="status" aria-live="polite" style={{padding:10,borderRadius:10,background:'#101f2b',fontWeight:950,textAlign:'center'}}>{status}</div>
-    <button style={btn} onClick={()=>{void run()}} disabled={running||(!characterReady&&!terminalFailure)}>{running?'RUNNING EVERYTHING…':characterReady?'▶ RUN BIG TEST + EXPORT REPORT':terminalFailure?'▶ BUILD MASTER REPORT FROM FIRST FAILURE':'WAITING FOR 3-CHARACTER TEST…'}</button>
+    <button style={{...btn,minHeight:82,fontSize:19,border:'3px solid #8effb0',background:'#0b5c36'}} onClick={startFullAppTest} disabled={running}>{running?'RUNNING FULL APP TEST…':characterReady?'▶ RUN FULL APP TEST + DOWNLOAD REPORT':terminalFailure?'▶ BUILD REPORT FROM FIRST FAILURE':'▶ START FULL APP TEST • BJ → JACOBIE → LATEASIA'}</button>
+    {!report&&<button style={{...btn,background:'#27384a',opacity:.58}} disabled>⬇ DOWNLOAD REPORT • UNLOCKS AFTER TEST FINISHES</button>}
     {checks.map(c=><div key={c.id} style={{fontSize:12,padding:'7px 8px',borderRadius:9,background:c.status==='pass'?'#123d29':c.status==='fail'?'#521f1f':'#39321a'}}><b>{c.status==='pass'?'✓':c.status==='fail'?'✕':'○'} {c.label} • {c.status.toUpperCase()}</b><div>{c.detail}</div></div>)}
     {report&&<div style={{padding:12,borderRadius:12,border:'2px solid '+(report.firstFailure?'#ff8f8f':'#8effb0'),fontWeight:900,textAlign:'center'}}>{report.firstFailure?'FIRST FAILURE: '+report.firstFailure.label:report.blockers.length?'AUTOMATED PASS • '+report.blockers.length+' BLOCKERS REMAIN':'MASTER PASS'}</div>}
     {report&&<button style={btn} onClick={()=>download(report)}>EXPORT MASTER REPORT AGAIN</button>}
