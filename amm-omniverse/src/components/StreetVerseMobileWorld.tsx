@@ -356,6 +356,31 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   const nativeResidentVisualScale=[.94,1.04,.98,1.09,.92,1.06,1.00,1.11] as const
   for(let i=0;i<12;i++)mobileNativePlacements.push({asset:nativeResidentCycle[i%nativeResidentCycle.length],position:[0,0,0],scale:nativeResidentVisualScale[i%nativeResidentVisualScale.length],label:`mobile-native-resident-${i+1}`})
   for(let i=0;i<14;i++)mobileNativePlacements.push({asset:'sportSedan2027',position:[0,0,0],label:`mobile-native-traffic-car-${i+1}`})
+  // Original characters are priority content: load them immediately, not after all
+  // scenery/NPC assets have finished loading. The native scenery layer is optional.
+  const initialHeroParam=new URLSearchParams(window.location.search).get('character')||''
+  const eagerRecoveredId:RecoveredPlayableId|null=initialHeroParam.startsWith('jacobie')?'jacobie-stubbs':initialHeroParam.startsWith('lateasia')?'lateasia-monroe':null
+  if(eagerRecoveredId)void loadRecoveredPlayable(eagerRecoveredId).then(handle=>{
+    if(nativeCancelled){handle?.dispose();return}
+    if(!handle){
+      setMessage((eagerRecoveredId==='jacobie-stubbs'?'JACOBIE':'LATEASIA')+' • original 3D file unavailable; retry or import the original GLB')
+      window.dispatchEvent(new CustomEvent('tryamm:streetverse-recovered-playable-missing',{detail:{id:eagerRecoveredId,characterId:eagerRecoveredId,reason:'priority-model-load-failed',mounted:false}}))
+      return
+    }
+    recoveredPlayableHandle?.dispose();recoveredPlayableHandle=handle
+    familyHeroHandle?.dispose();familyHeroHandle=null
+    publishedHeroBody?.dispose();publishedHeroBody=null
+    if(nativeHeroFallback)nativeHeroFallback.visible=false
+    scene.add(handle.object)
+    nativeHero=handle.object;nativeHeroRig=null
+    nativeHero.position.copy(avatar.position);nativeHero.rotation.y=avatar.rotation.y
+    const mountedDetail={id:eagerRecoveredId,characterId:eagerRecoveredId,name:handle.name,displayName:handle.name,source:handle.source,clips:handle.clips.map(c=>c.name),clipCount:handle.clips.length,mounted:true,active3DMesh:true,priorityLoader:true}
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-hero-visual-authority',{detail:{...mountedDetail,authoritative3DMesh:true,recoveredRig:true,proceduralFallbackSuppressed:true}}))
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-recovered-playable-mounted',{detail:mountedDetail}))
+    setMessage(handle.name.toUpperCase()+' • ORIGINAL 3D RIG MOUNTED • '+handle.clips.length+' animations')
+  }).catch(error=>{
+    if(!nativeCancelled)window.dispatchEvent(new CustomEvent('tryamm:streetverse-recovered-playable-error',{detail:{characterId:eagerRecoveredId,reason:'priority-model-error: '+String(error).slice(0,180)}}))
+  })
   void loadTryammNativeCircleParkLayer({placements:mobileNativePlacements}).then(result=>{
     if(nativeCancelled){disposeNativeAssetLayer(result.group);return}
     nativeLayer=result.group
@@ -392,6 +417,11 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     }
     const requestedCharacterParam=new URLSearchParams(window.location.search).get('character')
     const requestedRecoveredParam:RecoveredPlayableId|null=requestedCharacterParam==='jacobie'||requestedCharacterParam==='jacobie-stubbs'?'jacobie-stubbs':requestedCharacterParam==='lateasia'||requestedCharacterParam==='lateasia-monroe'?'lateasia-monroe':null
+    // Keep a priority-loaded real player when the delayed native asset layer arrives.
+    if(recoveredPlayableHandle?.id===requestedRecoveredParam&&recoveredPlayableHandle.object.parent){
+      if(nativeHeroFallback)nativeHeroFallback.visible=false
+      nativeHero=recoveredPlayableHandle.object;nativeHeroRig=null
+    }
     // Recovered characters load independently from the procedural hero asset.
     // The old starter hero can be absent without blocking original GLB playback.
     if(nativeLayer){
@@ -592,7 +622,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     if(!requestedRecoveredParam&&savedPlayable?.assetId==='sv-james-body-base-v1')void activatePublishedBody(savedPlayable.assetId,String(savedPlayable.label||'JAMES'))
     else if(!requestedRecoveredParam&&savedPlayable?.assetId&&savedPlayable.assetId!=='sv-bj-stubbs-v6')void activateFamilyStandIn(String(savedPlayable.assetId),String(savedPlayable.label||'GLOBAL CHARACTER'),String(savedPlayable.id||''))
     const recoveredParam=requestedRecoveredParam
-    if(recoveredParam)void activateRecoveredPlayable(recoveredParam)
+    if(recoveredParam&&!eagerRecoveredId)void activateRecoveredPlayable(recoveredParam)
     nativeResidentRigs=nativeResidents.map(nativeHumanoidRig)
     // Prioritize the main player's 6 MB photo-reference GLB over optional NPCs.
     // Four parallel NPC downloads/rigs can overwhelm memory on an iPhone 8.
