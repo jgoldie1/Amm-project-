@@ -387,16 +387,24 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   void loadTryammNativeCircleParkLayer({placements:greenvilleBirthdayMode?[]:mobileNativePlacements}).then(result=>{
     if(nativeCancelled){disposeNativeAssetLayer(result.group);return}
     nativeLayer=result.group
-    nativeHero=result.group.getObjectByName('mobile-native-hero')||null
-    nativeHeroFallback=nativeHero
+    // Late scenery must not overwrite a player that has already mounted.
+    // This matters on Greenville, where the optional native layer is empty.
+    const legacySceneHero=result.group.getObjectByName('mobile-native-hero')||null
+    nativeHeroFallback=legacySceneHero
+    if(recoveredPlayableHandle?.object.parent){
+      nativeHero=recoveredPlayableHandle.object
+      nativeHeroRig=null
+    }else{
+      nativeHero=legacySceneHero
+      nativeHeroRig=nativeHumanoidRig(nativeHero)
+    }
     nativeTrain=result.group.getObjectByName('mobile-native-train')||null
     nativeStarterCar=result.group.getObjectByName('mobile-starter-car-native')||null
     nativeRepairCar=result.group.getObjectByName('mobile-repair-car-native')||null
     nativeResidents=Array.from({length:12},(_,i)=>result.group.getObjectByName(`mobile-native-resident-${i+1}`)).filter((item):item is THREE.Object3D=>Boolean(item))
     nativeResidents.forEach((resident,i)=>normalizeStreetVerseHumanHeight(resident,residentHeight(i)))
-    nativeHeroRig=nativeHumanoidRig(nativeHero)
-    if(nativeHero){
-      normalizeStreetVerseHumanHeight(nativeHero,STREETVERSE_HUMAN_HEIGHT_METERS.adultHero)
+    if(legacySceneHero){
+      normalizeStreetVerseHumanHeight(legacySceneHero,STREETVERSE_HUMAN_HEIGHT_METERS.adultHero)
       nativeHero.userData={...nativeHero.userData,characterId:STREETVERSE_HERO_CHARACTER_ID,displayName:'BJ Stubbs',identityContinuityKey:STREETVERSE_HERO_CHARACTER_ID,namedCharacter:true,era:'current',headArchitecture:'bj-v5-photo-match-ready',photoMatchedAssetId:BJ_PHOTOMATCH_ASSET.id,visualContinuity:'current-era-reference-locked',autonomicLifeV7:true,autonomicLifeV12:true}
       bjPhotoMatch?.dispose()
       // A reference photo is an optional preview, never the default game face.
