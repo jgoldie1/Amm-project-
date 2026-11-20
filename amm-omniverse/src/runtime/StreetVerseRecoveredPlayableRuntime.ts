@@ -2,7 +2,6 @@ import * as THREE from 'three'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js'
 import {STREETVERSE_RECOVERED_THREE_CAST} from '../data/StreetVerseRecoveredThreeCast'
 import {readLocalCastAsset} from './StreetVerseCharacterLocalRecovery'
-import {normalizeStreetVerseHumanHeight} from './StreetVerseHumanScale'
 
 export type RecoveredPlayableId='jacobie-stubbs'|'lateasia-monroe'
 export type RecoveredPlayableHandle={
@@ -16,6 +15,48 @@ export type RecoveredPlayableHandle={
 }
 
 const loader=new GLTFLoader()
+
+// Imported Mixamo/Blender assets can have a 0.01 armature transform while mesh
+// vertices are authored in meters. Static geometry bounding boxes are not a
+// reliable measure of the skinned, posed character in this situation.
+function posedCharacterBounds(model:THREE.Object3D):THREE.Box3{
+ model.updateMatrixWorld(true)
+ const bounds=new THREE.Box3()
+ let found=false
+ const vertex=new THREE.Vector3()
+ model.traverse(node=>{
+  if(!(node instanceof THREE.SkinnedMesh))return
+  const positions=node.geometry.getAttribute('position')
+  if(!positions)return
+  node.skeleton.update()
+  const stride=Math.max(1,Math.floor(positions.count/4500))
+  for(let i=0;i<positions.count;i+=stride){
+   vertex.fromBufferAttribute(positions,i)
+   node.applyBoneTransform(i,vertex)
+   node.localToWorld(vertex)
+   if(Number.isFinite(vertex.x)&&Number.isFinite(vertex.y)&&Number.isFinite(vertex.z)){
+    bounds.expandByPoint(vertex);found=true
+   }
+  }
+ })
+ if(!found)bounds.setFromObject(model)
+ return bounds
+}
+function fitRecoveredCharacter(model:THREE.Object3D,targetHeight=1.82){
+ // Fit the *posed* skinned vertices, not the armature helper nodes.
+ const initial=posedCharacterBounds(model)
+ const size=new THREE.Vector3();initial.getSize(size)
+ if(initial.isEmpty()||!Number.isFinite(size.y)||size.y<0.0001)throw Error('No measurable posed model geometry')
+ const scale=THREE.MathUtils.clamp(targetHeight/size.y,.005,300)
+ model.scale.multiplyScalar(scale)
+ const measured=posedCharacterBounds(model),center=new THREE.Vector3()
+ measured.getCenter(center)
+ model.position.set(model.position.x-center.x,model.position.y-measured.min.y,model.position.z-center.z)
+ const final=posedCharacterBounds(model),extents=new THREE.Vector3()
+ final.getSize(extents)
+ if(!Number.isFinite(extents.y)||extents.y<.5||extents.y>4)throw Error('Model remains outside playable human scale: '+extents.y.toFixed(2)+'m')
+ return {height:extents.y,scale,sourceHeight:size.y}
+}
 
 // The archived LaTeasia model is an untextured diagnostic placeholder.
 // Keep its original topology and material intact. An unrelated color gradient
@@ -63,15 +104,8 @@ export async function loadRecoveredPlayable(id:RecoveredPlayableId):Promise<Reco
  // A player position update must not erase the original model's centering,
  // skeleton transforms or grounded feet.
  const model=gltf.scene
- normalizeStreetVerseHumanHeight(model,1.82)
- const bounds=new THREE.Box3().setFromObject(model)
- const center=new THREE.Vector3();bounds.getCenter(center)
- if(bounds.isEmpty()||!Number.isFinite(center.x)||!Number.isFinite(bounds.min.y)){
-   fail('GLB has no measurable visible geometry');return null
- }
- model.position.x-=center.x
- model.position.z-=center.z
- model.position.y-=bounds.min.y
+ let fitted:{height:number;scale:number;sourceHeight:number}
+ try{fitted=fitRecoveredCharacter(model)}catch(error){fail('Rig framing failed: '+String(error).slice(0,160));return null}
  const object=new THREE.Group()
  object.name='streetverse-playable-'+id
  let hasPhotoTextures=false
@@ -83,7 +117,7 @@ export async function loadRecoveredPlayable(id:RecoveredPlayableId):Promise<Reco
  object.userData={recoveredPlayable:true,characterId:id,displayName:entry.name,source,clipCount:clips.length,
    textureVerified:hasPhotoTextures,diagnosticAppearance:id==='lateasia-monroe'&&!hasPhotoTextures,
    experimentalSkinTransfer:id==='lateasia-monroe'&&hasPhotoTextures&&source==='device-local',
-   likenessVerified:false}
+   likenessVerified:false,visualHeightMeters:fitted.height,modelScaleCorrection:fitted.scale,sourcePosedHeightMeters:fitted.sourceHeight}
  object.add(model)
  object.traverse(node=>{
    if(node instanceof THREE.Mesh){
