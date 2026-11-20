@@ -74,7 +74,16 @@ export async function loadRecoveredPlayable(id:RecoveredPlayableId):Promise<Reco
  model.position.y-=bounds.min.y
  const object=new THREE.Group()
  object.name='streetverse-playable-'+id
- object.userData={recoveredPlayable:true,characterId:id,displayName:entry.name,source,clipCount:clips.length,diagnosticAppearance:id==='lateasia-monroe',likenessVerified:false}
+ let hasPhotoTextures=false
+ model.traverse(node=>{
+   if(!(node instanceof THREE.Mesh))return
+   const materials=Array.isArray(node.material)?node.material:[node.material]
+   if(materials.some(m=>m instanceof THREE.MeshStandardMaterial&&Boolean(m.map)))hasPhotoTextures=true
+ })
+ object.userData={recoveredPlayable:true,characterId:id,displayName:entry.name,source,clipCount:clips.length,
+   textureVerified:hasPhotoTextures,diagnosticAppearance:id==='lateasia-monroe'&&!hasPhotoTextures,
+   experimentalSkinTransfer:id==='lateasia-monroe'&&hasPhotoTextures&&source==='device-local',
+   likenessVerified:false}
  object.add(model)
  object.traverse(node=>{
    if(node instanceof THREE.Mesh){
