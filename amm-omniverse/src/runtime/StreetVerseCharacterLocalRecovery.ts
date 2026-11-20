@@ -10,6 +10,14 @@ export const CAST_FILES=STREETVERSE_RECOVERED_THREE_CAST.map(x=>({id:x.id,name:x
 const CAST_IMPORT_ALIASES:Record<string,string>={
  'LaTeasia_Monroe_Textured_Seven_Motion_Recovery.glb':'lateasia-monroe',
 }
+const LATEASIA_TEXTURED_SHA256='e5799b3daf6ebb26cd12c6f7a7f5ba9c4a3c6711d4a6e00eeb9a2263d27762fa'
+async function verifyTexturedRecovery(filename:string,bytes:ArrayBuffer){
+ if(filename.split('/').pop()!=='LaTeasia_Monroe_Textured_Seven_Motion_Recovery.glb')return
+ if(!globalThis.crypto?.subtle)throw Error('Secure browser required to verify the recovery GLB')
+ const hash=await crypto.subtle.digest('SHA-256',bytes)
+ const hex=Array.from(new Uint8Array(hash),n=>n.toString(16).padStart(2,'0')).join('')
+ if(hex!==LATEASIA_TEXTURED_SHA256)throw Error('Textured LaTeasia file does not match the verified Library recovery')
+}
 function characterForFilename(filename:string){
  const base=filename.split('/').pop()||''
  const alias=CAST_IMPORT_ALIASES[base]
@@ -107,6 +115,7 @@ export async function importStreetVerseCharacterFiles(files:FileList|File[]):Pro
    if(!info)continue
    try{
     if(!checkGLB(item.bytes))throw Error('Invalid GLB')
+    await verifyTexturedRecovery(item.filename,item.bytes)
     await storeAsset(info.file,item.bytes)
     const stored=await readLocalCastAsset(info.id)
     if(!stored||stored.byteLength!==item.bytes.byteLength)throw Error('Device storage verification failed')
