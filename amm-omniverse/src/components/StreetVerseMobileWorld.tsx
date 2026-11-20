@@ -412,9 +412,10 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
           if(nativeCancelled||!nativeLayer||request!==bjHeroLoadEpoch){handle.dispose();return}
           const isV15=handle.object.userData.bjV15RealGlbPreview===true
           const isLocalOwnerV15=handle.object.userData.bjV15LocalImported===true
-          // Fail closed for an explicit owner V15 restore. A remote V15 preview may be useful
-          // for diagnostics, but it must never be reported as the user's imported real suit GLB.
-          if(requireV15&&(!isV15||!isLocalOwnerV15)){
+          // Alpha playability accepts a validated animated V15 GLB from either the
+          // owner-local import or the approved V15 CDN source. Likeness certification
+          // remains separate and stays false until the user visually approves it.
+          if(requireV15&&!isV15){
             handle.dispose()
             bjMeshyHero?.dispose();bjMeshyHero=null
             publishedHeroBody?.dispose();publishedHeroBody=null
@@ -424,8 +425,8 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
             if(nativeHeroFallback){nativeHero=nativeHeroFallback;nativeHeroFallback.visible=false}
             setBJRenderedVersion(null)
             setBJLoadStatus('error')
-            setMessage('REAL BJ OWNER V15 NOT LOADED • remote/old BJ blocked • use RESTORE REAL BJ')
-            window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-v15-required',{detail:{reason:'fallback-rejected',source:'streetverse-mobile-world'}}))
+            setMessage('BJ V15 RIG NOT LOADED • use RETRY BJ')
+            window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-v15-required',{detail:{reason:'v15-rig-not-loaded',source:'streetverse-mobile-world'}}))
             return
           }
           bjMeshyHero?.dispose()
@@ -454,8 +455,8 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
             characterId:STREETVERSE_HERO_CHARACTER_ID,displayName:'BJ Stubbs',
             version:isV15?'V15':'V12 fallback',
             assetId:isV15?'streetverse-bj-stubbs-v15':BJ_MESHY_V6_ASSET.id,
-            source:isV15?'streetverse-mobile-actual-v15-glb-preview':'streetverse-mobile-compatible-fallback',
-            referenceMatchedPreview:isV15,photoMatched:false,certifiedLikeness:false,
+            source:isV15?(isLocalOwnerV15?'streetverse-mobile-owner-v15':'streetverse-mobile-validated-v15-cdn'):'streetverse-mobile-compatible-fallback',
+            referenceMatchedPreview:isV15,localOwnerImport:isLocalOwnerV15,photoMatched:false,certifiedLikeness:false,
             authoritative3DMesh:true,actual3DModelMounted:true,facialMorphNames:handle.morphTargetNames,
             skeletonAnimationCount:handle.clips.length,proceduralFallbackSuppressed:true,modelPreview:isV15,
           }
