@@ -497,9 +497,12 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
       // Keep cleanup callable in the unmount scope; no extra global listener.
       onBJProgressCleanup=()=>window.removeEventListener('tryamm:bj-model-progress',onBJLoadProgress)
     }
+    let playableLoadEpoch=0
     const activatePublishedBody=async(assetId:string,label:string)=>{
       if(assetId!=='sv-james-body-base-v1')return
+      const epoch=++playableLoadEpoch
       const handle=await loadStreetVersePublishedBodyBase('sv-james-body-base-v1','global')
+      if(handle&&epoch!==playableLoadEpoch){handle.dispose();return}
       if(!handle){setMessage('JAMES YOUTH BODY BASE • waiting for the real published Meshy rig');return}
       if(nativeCancelled||!nativeLayer){handle.dispose();return}
       publishedHeroBody?.dispose()
@@ -517,7 +520,9 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
       setMessage('JAMES YOUTH BODY BASE LIVE • rigged Meshy body loaded • final face and exact height still need approved reference tuning')
     }
     const activateFamilyStandIn=async(assetId:string,label:string,characterId?:string)=>{
+      const epoch=++playableLoadEpoch
       const handle=await loadStreetVerseMeshyCharacter(assetId)
+      if(handle&&epoch!==playableLoadEpoch){handle.dispose();return}
       if(!handle){setMessage((label||'FAMILY CHARACTER').toUpperCase()+' • waiting for published Meshy stand-in rig');return}
       if(nativeCancelled||!nativeLayer){handle.dispose();return}
       familyHeroHandle?.dispose();familyHeroHandle=handle
@@ -535,9 +540,13 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
       setMessage((label||'FAMILY CHARACTER').toUpperCase()+' • generic rig live • likeness reference still separate')
     }
     const activateRecoveredPlayable=async(id:RecoveredPlayableId)=>{
+      const epoch=++playableLoadEpoch
+      setMessage((id==='jacobie-stubbs'?'JACOBIE':'LATEASIA')+' • loading original 3D character')
       const handle=await loadRecoveredPlayable(id)
+      if(handle&&epoch!==playableLoadEpoch){handle.dispose();return}
       if(!handle){
         const displayName=id==='jacobie-stubbs'?'JACOBIE':'LATEASIA'
+        if(epoch!==playableLoadEpoch)return
         setMessage(displayName+' • recovered rig not installed • open BJ / JACOBIE / LaTEASIA and import the recovery ZIP or GLB')
         window.dispatchEvent(new CustomEvent('tryamm:streetverse-recovered-playable-missing',{detail:{id,characterId:id,displayName,reason:'asset-not-installed',mounted:false}}))
         return
@@ -573,12 +582,13 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
       const d=(event as CustomEvent<{assetId?:string;label?:string;characterId?:string}>).detail||{}
       const assetId=String(d.assetId||'')
       if(assetId==='sv-james-body-base-v1'){void activatePublishedBody(assetId,String(d.label||'JAMES'));return}
+      if(requestedRecoveredParam){void activateRecoveredPlayable(requestedRecoveredParam);return}
       if(assetId&&assetId!=='sv-bj-stubbs-v6')void activateFamilyStandIn(assetId,String(d.label||'FAMILY CHARACTER'),String(d.characterId||''))
     }
     addEventListener('tryamm:streetverse-player-asset-select',onPlayerAssetSelect)
     const savedPlayable=(()=>{try{return JSON.parse(localStorage.getItem('tryamm.streetverse.playable-character.v1')||'{}')?.character}catch{return null}})()
-    if(savedPlayable?.assetId==='sv-james-body-base-v1')void activatePublishedBody(savedPlayable.assetId,String(savedPlayable.label||'JAMES'))
-    else if(savedPlayable?.assetId&&savedPlayable.assetId!=='sv-bj-stubbs-v6')void activateFamilyStandIn(String(savedPlayable.assetId),String(savedPlayable.label||'GLOBAL CHARACTER'),String(savedPlayable.id||''))
+    if(!requestedRecoveredParam&&savedPlayable?.assetId==='sv-james-body-base-v1')void activatePublishedBody(savedPlayable.assetId,String(savedPlayable.label||'JAMES'))
+    else if(!requestedRecoveredParam&&savedPlayable?.assetId&&savedPlayable.assetId!=='sv-bj-stubbs-v6')void activateFamilyStandIn(String(savedPlayable.assetId),String(savedPlayable.label||'GLOBAL CHARACTER'),String(savedPlayable.id||''))
     const recoveredParam=requestedRecoveredParam
     if(recoveredParam)void activateRecoveredPlayable(recoveredParam)
     nativeResidentRigs=nativeResidents.map(nativeHumanoidRig)
