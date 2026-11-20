@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict'
+import {readFileSync} from 'node:fs'
+const source=p=>readFileSync(new URL(p,import.meta.url),'utf8')
+const main=source('../src/main.tsx')
+const hud=source('../src/components/StreetVerseCharacterSwitchHUD.tsx')
+const loader=source('../src/runtime/StreetVerseRecoveredPlayableRuntime.ts')
+const world=source('../src/components/StreetVerseMobileWorld.tsx')
+assert.match(main,/const isStreetVerseCore=/,'core route is defined in main entrypoint')
+assert.match(main,/StreetVerseMobileWorldCore onClose=/,'core route invokes real world directly')
+assert.match(hud,/useState\(initial!=='bj'\)/,'troubleshooting panel opens for recovered characters')
+assert.match(hud,/RELOAD ORIGINAL/,'one-tap retry exists')
+assert.match(hud,/streetverse-recovered-playable-error/,'visible GLB error listener exists')
+assert.match(loader,/GLB HTTP/,'HTTP status is exposed')
+assert.match(loader,/GLB URL returned HTML/,'protected or wrong GLB response is exposed')
+assert.match(loader,/Model network\/decoder error/,'decoder errors are exposed')
+assert.match(world,/if\(!requestedRecoveredParam&&savedPlayable\?\.assetId/,'old saved family character never overrides requested recovered actor')
+console.log('StreetVerse real-character core-route error diagnostics source contract PASS')
