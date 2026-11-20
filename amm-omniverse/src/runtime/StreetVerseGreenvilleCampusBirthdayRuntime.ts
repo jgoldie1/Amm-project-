@@ -50,6 +50,7 @@ export function installGreenvilleCampusBirthdayWorld(scene:THREE.Scene){
  box([18,.8,7],[0,.4,-38],blue,'greenville-birthday-reel-stage')
  box([12,4,.5],[0,2.4,-41.5],gold,'greenville-birthday-stage-backdrop')
  GREENVILLE_CAMPUS_ZONES.forEach(zone=>{const beacon=new THREE.Mesh(geo(new THREE.CylinderGeometry(.55,.55,6,10)),new THREE.MeshBasicMaterial({color:zone.kind==='party'?0xff70c8:zone.kind==='sports'?0x64e680:0x6fdcff,transparent:true,opacity:.55}));mats.push(beacon.material as THREE.Material);beacon.position.set(zone.x,3,zone.z);beacon.name='greenville-zone-'+zone.id;root.add(beacon)})
+ document.documentElement.dataset.greenvilleCampusReady='true'
  window.dispatchEvent(new CustomEvent('tryamm:greenville-campus-assets-ready',{detail:{zones:GREENVILLE_CAMPUS_ZONES.map(z=>z.id),housing:true,mansion:true,masterSuite:'Suite 01',fraternityHouse:true,sororityResidence:true,school:true,sports:true,birthdayPartyAtMansion:true,holoReelStage:true}}))
- return{root,dispose:()=>{root.removeFromParent();root.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry?.dispose();(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>m?.dispose())}});textures.forEach(t=>t.dispose());geos.forEach(g=>g.dispose());mats.forEach(m=>m.dispose())}}
+ return{root,dispose:()=>{delete document.documentElement.dataset.greenvilleCampusReady;root.removeFromParent();root.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry?.dispose();(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>m?.dispose())}});textures.forEach(t=>t.dispose());geos.forEach(g=>g.dispose());mats.forEach(m=>m.dispose())}}
 }
