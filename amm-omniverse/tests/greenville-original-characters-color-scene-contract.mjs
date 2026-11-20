@@ -5,12 +5,10 @@ const source=p=>readFileSync(new URL(p,import.meta.url),'utf8')
 const cast=source('../src/runtime/StreetVerseRecoveredPlayableRuntime.ts')
 const campus=source('../src/runtime/StreetVerseGreenvilleCampusBirthdayRuntime.ts')
 const world=source('../src/components/StreetVerseMobileWorld.tsx')
-test('LaTeasia diagnostic neutral model receives visible temporary color layers',()=>{
- assert.match(cast,/function styleLaTeasiaDiagnostic\(object:THREE\.Object3D\)/)
- assert.match(cast,/vertexColors:true/)
- assert.match(cast,/geometry\.setAttribute\('color'/)
- assert.match(cast,/if\(id==='lateasia-monroe'\)styleLaTeasiaDiagnostic\(object\)/)
- assert.match(cast,/temporaryDiagnosticPalette:true/)
+test('LaTeasia remains faithful to the original Library model; no fabricated likeness paint',()=>{
+ assert.doesNotMatch(cast,/function styleLaTeasiaDiagnostic/,'do not repaint the archived model')
+ assert.doesNotMatch(cast,/temporaryDiagnosticPalette:true/,'no false styled-likeness flags')
+ assert.match(cast,/diagnosticAppearance:id==='lateasia-monroe'/,'identify unfinished asset accurately')
 })
 test('Jacobie original GLB has bounded network and decode checks',()=>{
  assert.match(cast,/controller\.abort\(\),20000/)
