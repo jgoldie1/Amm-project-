@@ -1466,7 +1466,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
             missionId:'acceptance-district-route',
             title:'StreetVerse acceptance district route',
             checkpoints:missionDefs.length,
-            characterId:requestedRecoveredParam||'bj-stubbs',
+            characterId:(()=>{const raw=new URLSearchParams(window.location.search).get('character')||'';return raw.startsWith('jacobie')?'jacobie-stubbs':raw.startsWith('lateasia')?'lateasia-monroe':'bj-stubbs'})(),
             source:'acceptance-one-push-route',
             acceptanceVerified:true
           }}))
