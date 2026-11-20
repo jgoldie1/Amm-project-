@@ -19,22 +19,22 @@ export default function StreetVerseMasterSystemAcceptanceHUD(){
  const add=(list:Check[],id:string,label:string,status:Status,detail:string,critical=true)=>{list.push({id,label,status,detail,critical});setChecks([...list])}
  const startFullAppTest=()=>{
   if(running)return
-  const seqNow=readJson<string[]>('tryamm.streetverse.acceptance-sequence.v1',[])
-  const terminalNow=readTerminalFailure()
-  if(seqNow.length===3){void run();return}
+  // Always start a fresh whole-app diagnostic; a previous completed cast test
+  // must not turn the main button into a partial "master checks only" action.
   try{
    sessionStorage.removeItem('tryamm.streetverse.acceptance-sequence.v1')
    sessionStorage.removeItem('tryamm.streetverse.three-cast-evidence.v1')
    sessionStorage.removeItem('tryamm.streetverse.acceptance-terminal-failure.v1')
    sessionStorage.setItem('tryamm.streetverse.acceptance-run.v1',Date.now().toString())
   }catch{}
-  location.assign('/streetverse?core=1&bj=v15&accept=1&sequence=full&fresh=1&autorun=1&master=1')
+  location.assign('/streetverse?core=1&graphics=3d&bj=v15&accept=1&sequence=full&fresh=1&autorun=1&master=1')
  }
  const run=async()=>{
   if(running)return
   const seqNow=readJson<string[]>('tryamm.streetverse.acceptance-sequence.v1',[])
   const terminalNow=readTerminalFailure()
-  if(seqNow.length!==3&&!terminalNow){setStatus('WAITING • FINISH THE 3-CHARACTER TEST FIRST');return}
+  // Character results are recorded as pass/fail/needs-device, but never
+  // block unrelated systems from being checked and exported.
   setRunning(true);setOpen(true);setChecks([]);setStatus('RUNNING • MASTER SYSTEM ACCEPTANCE')
   const out:Check[]=[]
   const three=readJson<Record<string,ThreeCastRow>>('tryamm.streetverse.three-cast-evidence.v1',{})
@@ -54,6 +54,30 @@ export default function StreetVerseMasterSystemAcceptanceHUD(){
     }
   }
   add(out,'cast-sequence','Three-character route order',sequence.length===3&&['bj','jacobie','lateasia'].every(x=>sequence.includes(x))?'pass':characterFailure?'fail':'needs-device',sequence.length===3?'BJ → Jacobie → LaTeasia sequence recorded':characterFailure?`Sequence stopped at ${String(characterFailure.character||'unknown')} • ${String(characterFailure.failedLabel||characterFailure.failedStep||'unknown step')}`:'Sequence not complete',Boolean(characterFailure))
+
+  // Independent diagnostics continue even when a named character fails.
+  // This is an integration audit, not a claim that every feature was played.
+  const routeChecks=[
+    ['greenville-website','Greenville University website','/greenville-university.html'],
+    ['jacobie-website','Jacobie Visions website','/jacobie-visions.html'],
+    ['lateasia-website','LaTeasia Beauty House website','/lateasia-beauty-house.html'],
+    ['character-audit','Original character audit page','/streetverse-character-asset-check.html'],
+  ] as const
+  for(const [id,label,path] of routeChecks){
+    try{
+      const controller=new AbortController()
+      const timer=window.setTimeout(()=>controller.abort(),5500)
+      try{
+        const response=await fetch(path,{method:'GET',cache:'no-store',signal:controller.signal})
+        const type=response.headers.get('content-type')||''
+        const body=response.ok?await response.text():''
+        const valid=response.ok&&type.includes('text/html')&&body.length>300&&!body.includes('<title>404')
+        add(out,id,label,valid?'pass':'fail',valid?'HTML route reachable ('+body.length+' characters); browser interaction still unverified':'HTTP '+response.status+' or missing HTML page',false)
+      }finally{window.clearTimeout(timer)}
+    }catch(error){add(out,id,label,'fail','Page request failed: '+String(error),false)}
+  }
+  const controls=Boolean(document.querySelector('[aria-label="StreetVerse analog joystick"]'))
+  add(out,'joystick-mounted','Accessible gameplay joystick',controls?'pass':'fail',controls?'Joystick mounted in the playable scene (movement still requires observed position delta)':'Joystick element not mounted',true)
 
   const canvas=document.querySelector('canvas')
   add(out,'canvas','StreetVerse gameplay canvas',canvas?'pass':'fail',canvas?'Gameplay canvas mounted':'No gameplay canvas found')
@@ -163,7 +187,7 @@ export default function StreetVerseMasterSystemAcceptanceHUD(){
    {open&&<section style={{width:'min(92vw,620px)',maxHeight:'76dvh',overflowY:'auto',display:'grid',gap:9,padding:14,borderRadius:18,border:'3px solid '+(report?.firstFailure?'#ff8f8f':report?'#8effb0':'#82cfff'),background:'rgba(5,16,27,.98)',color:'#fff',boxShadow:'0 18px 70px #000d'}}>
     <strong style={{fontSize:24,textAlign:'center'}}>STREETVERSE MASTER SYSTEM TEST</strong>
     <div role="status" aria-live="polite" style={{padding:10,borderRadius:10,background:'#101f2b',fontWeight:950,textAlign:'center'}}>{status}</div>
-    <button style={{...btn,minHeight:82,fontSize:19,border:'3px solid #8effb0',background:'#0b5c36'}} onClick={startFullAppTest} onPointerUp={(e)=>{if(e.pointerType!=='mouse')startFullAppTest()}} disabled={running}>{running?'RUNNING FULL APP TEST…':characterReady?'▶ RUN MASTER CHECKS + DOWNLOAD REPORT':terminalFailure?'↻ RETRY FULL APP TEST • BJ → JACOBIE → LATEASIA':'▶ START FULL APP TEST • BJ → JACOBIE → LATEASIA'}</button>
+    <button style={{...btn,minHeight:82,fontSize:19,border:'3px solid #8effb0',background:'#0b5c36'}} onClick={startFullAppTest} onPointerUp={(e)=>{if(e.pointerType!=='mouse')startFullAppTest()}} disabled={running}>{running?'RUNNING FULL APP TEST…':'▶ RESTART FULL APP TEST + EXPORT REPORT'}</button>
     {!report&&<button style={{...btn,background:'#27384a',opacity:.58}} disabled>⬇ DOWNLOAD REPORT • UNLOCKS AFTER TEST FINISHES</button>}
     {checks.map(c=><div key={c.id} style={{fontSize:12,padding:'7px 8px',borderRadius:9,background:c.status==='pass'?'#123d29':c.status==='fail'?'#521f1f':'#39321a'}}><b>{c.status==='pass'?'✓':c.status==='fail'?'✕':'○'} {c.label} • {c.status.toUpperCase()}</b><div>{c.detail}</div></div>)}
     {report&&<div style={{padding:12,borderRadius:12,border:'2px solid '+(report.firstFailure?'#ff8f8f':'#8effb0'),fontWeight:900,textAlign:'center'}}>{report.firstFailure?'FIRST FAILURE: '+report.firstFailure.label:report.blockers.length?'AUTOMATED PASS • '+report.blockers.length+' BLOCKERS REMAIN':'MASTER PASS'}</div>}
