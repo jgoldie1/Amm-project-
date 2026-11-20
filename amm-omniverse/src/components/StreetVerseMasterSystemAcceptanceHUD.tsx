@@ -154,7 +154,7 @@ export default function StreetVerseMasterSystemAcceptanceHUD(){
     {checks.map(c=><div key={c.id} style={{fontSize:12,padding:'7px 8px',borderRadius:9,background:c.status==='pass'?'#123d29':c.status==='fail'?'#521f1f':'#39321a'}}><b>{c.status==='pass'?'✓':c.status==='fail'?'✕':'○'} {c.label} • {c.status.toUpperCase()}</b><div>{c.detail}</div></div>)}
     {report&&<div style={{padding:12,borderRadius:12,border:'2px solid '+(report.firstFailure?'#ff8f8f':'#8effb0'),fontWeight:900,textAlign:'center'}}>{report.firstFailure?'FIRST FAILURE: '+report.firstFailure.label:report.blockers.length?'AUTOMATED PASS • '+report.blockers.length+' BLOCKERS REMAIN':'MASTER PASS'}</div>}
     {report&&<button style={btn} onClick={()=>download(report)}>EXPORT MASTER REPORT AGAIN</button>}
-    {!auto&&<button style={{...btn,background:'#27384a'}} onClick={()=>setOpen(false)}>CLOSE</button>}
+    <button style={{...btn,background:'#27384a'}} onClick={()=>setOpen(false)} aria-label="Minimize master test and return to gameplay">▼ MINIMIZE • RETURN TO GAME</button>
    </section>}
   </div>
  </aside>
