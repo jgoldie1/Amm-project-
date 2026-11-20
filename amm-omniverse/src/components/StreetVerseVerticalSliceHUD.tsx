@@ -24,6 +24,7 @@ export default function StreetVerseVerticalSliceHUD(){
  const [open,setOpen]=useState(()=>new URLSearchParams(location.search).get('accept')==='1')
  const [done,setDone]=useState<Record<StepId,boolean>>({character:false,move:false,vehicle:false,mission:false,business:false,reel:false,return:false})
  const doneRef=useRef(done)
+ const bjAnimationClipsRef=useRef(0)
  const [autoRunning,setAutoRunning]=useState(false)
  const [autoStatus,setAutoStatus]=useState('READY • ONE BUTTON RUNS AND EXPORTS THE TEST')
  const [lastReport,setLastReport]=useState<any>(null)
@@ -37,7 +38,11 @@ export default function StreetVerseVerticalSliceHUD(){
      const d=(e as CustomEvent<any>|undefined)?.detail||{}
      if(character==='BJ Stubbs'){
        if(e&&d.version&&String(d.version)!=='V15')return
-       mark('character')
+       // Accept only verified V15 mount evidence with actual animation clips.
+       const clips=Number(d.skeletonAnimationCount??d.animationCount??0)
+       if(Number.isFinite(clips)&&clips>0)bjAnimationClipsRef.current=clips
+       const root=document.querySelector<HTMLElement>('[data-streetverse-world-root="true"]')
+       if(root?.dataset.bjActiveVersion==='V15'&&root.dataset.bjLoadState==='ready'&&bjAnimationClipsRef.current>0)mark('character')
        return
      }
      const expected=character==='Jacobie Stubbs'?'jacobie-stubbs':'lateasia-monroe'
@@ -55,7 +60,7 @@ export default function StreetVerseVerticalSliceHUD(){
    const latch=()=>{
      if(character==='BJ Stubbs'){
        const root=document.querySelector<HTMLElement>('[data-streetverse-world-root="true"]')
-       if(root?.dataset.bjActiveVersion==='V15'&&root.dataset.bjLoadState==='ready')mark('character')
+       if(root?.dataset.bjActiveVersion==='V15'&&root.dataset.bjLoadState==='ready'&&bjAnimationClipsRef.current>0)mark('character')
      }
    }
    latch()
@@ -156,14 +161,15 @@ export default function StreetVerseVerticalSliceHUD(){
    try{
      const saved=JSON.parse(sessionStorage.getItem('tryamm.streetverse.three-cast-evidence.v1')||'{}')||{}
      const byId=Object.fromEntries((report.steps||[]).map((s:any)=>[s.id,Boolean(s.done)]))
-     saved[id]={...(saved[id]||{}),id,name:character,loaded:Boolean(byId.character),movement:Boolean(byId.move),vehicle:Boolean(byId.vehicle),mission:Boolean(byId.mission),business:Boolean(byId.business),reel:Boolean(byId.reel),returned:Boolean(byId.return),loopComplete:Boolean(report.passed),source:(saved[id]||{}).source||'vertical-slice-report',clips:Number((saved[id]||{}).clips||0)}
+     saved[id]={...(saved[id]||{}),id,name:character,loaded:Boolean(byId.character),movement:Boolean(byId.move),vehicle:Boolean(byId.vehicle),mission:Boolean(byId.mission),business:Boolean(byId.business),reel:Boolean(byId.reel),returned:Boolean(byId.return),loopComplete:Boolean(report.passed),source:(saved[id]||{}).source||'vertical-slice-report',clips:character==='BJ Stubbs'?bjAnimationClipsRef.current:Number((saved[id]||{}).clips||0)}
      sessionStorage.setItem('tryamm.streetverse.three-cast-evidence.v1',JSON.stringify(saved))
    }catch{}
  }
  const buildReport=()=>({
    generatedAt:new Date().toISOString(),character,route:location.href,
    steps:order.map(id=>({id,label:labels[id],done:Boolean(doneRef.current[id])})),
-   passed:order.every(id=>Boolean(doneRef.current[id])),
+   passed:order.every(id=>Boolean(doneRef.current[id]))&&(character!=='BJ Stubbs'||bjAnimationClipsRef.current>0),
+   bjAnimationClips:character==='BJ Stubbs'?bjAnimationClipsRef.current:undefined,
    device:navigator.userAgent,
    note:'Auto-run event-backed vertical-slice evidence. Visual likeness and target-device rendering still require human review.'
  })
@@ -204,6 +210,15 @@ export default function StreetVerseVerticalSliceHUD(){
    }
    const report=buildReport()
    persistThreeCastEvidence(report)
+   if(!report.passed){
+     const failure={...report,failedStep:'character',failedLabel:'BJ V15 animation clips not verified'}
+     try{sessionStorage.setItem('tryamm.streetverse.acceptance-terminal-failure.v1',JSON.stringify(failure))}catch{}
+     window.dispatchEvent(new CustomEvent('tryamm:streetverse-vertical-slice-failed',{detail:failure}))
+     downloadReport(report,!masterSequence)
+     setAutoStatus('STOPPED • BJ V15 ANIMATIONS NOT VERIFIED')
+     setAutoRunning(false)
+     return
+   }
    try{sessionStorage.removeItem('tryamm.streetverse.acceptance-terminal-failure.v1')}catch{}
    downloadReport(report,!masterSequence)
    setAutoStatus(masterSequence?'PASS • 7/7 COMPLETE • CONTINUING MASTER TEST…':'PASS • 7/7 COMPLETE • REPORT EXPORTED')
