@@ -1,4 +1,4 @@
-import {useMemo,useState} from 'react'
+import {useEffect,useMemo,useState} from 'react'
 import {GREENVILLE_CAMPUS_ZONES} from '../runtime/StreetVerseGreenvilleCampusBirthdayRuntime'
 
 const STAGES=[
@@ -13,11 +13,31 @@ const STAGES=[
 ] as const
 
 export default function StreetVerseGreenvilleBirthdayHUD(){
- const [index,setIndex]=useState(0)
+ const [index,setIndex]=useState(()=>{try{return Math.max(0,Math.min(STAGES.length,Number(localStorage.getItem('tryamm.greenville.birthday.stage.v2')||0)||0))}catch{return 0}})
+ const [position,setPosition]=useState<{x:number;z:number}|null>(null)
+ const [worldReady,setWorldReady]=useState(false)
+ useEffect(()=>{
+  const onPosition=(event:Event)=>{
+   const d=(event as CustomEvent<{x?:number;z?:number;mobileLite?:boolean}>).detail
+   if(d?.mobileLite!==true||!Number.isFinite(d.x)||!Number.isFinite(d.z))return
+   setPosition({x:Number(d.x),z:Number(d.z)})
+  }
+  const onReady=(event:Event)=>{
+   const d=(event as CustomEvent<{zones?:string[]}>).detail
+   if(d?.zones?.includes('GV01'))setWorldReady(true)
+  }
+  window.addEventListener('tryamm:streetverse-player-position',onPosition)
+  window.addEventListener('tryamm:greenville-campus-assets-ready',onReady)
+  return()=>{window.removeEventListener('tryamm:streetverse-player-position',onPosition);window.removeEventListener('tryamm:greenville-campus-assets-ready',onReady)}
+ },[])
+ useEffect(()=>{try{localStorage.setItem('tryamm.greenville.birthday.stage.v2',String(index))}catch{}},[index])
+ const target=GREENVILLE_CAMPUS_ZONES[index]||null
+ const distance=position&&target?Math.hypot(position.x-target.x,position.z-target.z):null
+ const withinCheckpoint=worldReady&&distance!==null&&distance<=10
  const [open,setOpen]=useState(true)
  const stage=STAGES[index]||null
  const complete=()=>{
-   if(!stage)return
+   if(!stage||!withinCheckpoint)return
    window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-complete',{detail:{missionId:stage.id,title:stage.title,world:'greenville',characterId:'jacobie-stubbs',source:'greenville-birthday'}}))
    if(stage.id==='GV08')window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-open',{detail:{source:'jacobie-greenville-birthday',characterId:'jacobie-stubbs',world:'greenville'}}))
    setIndex(i=>Math.min(STAGES.length,i+1))
@@ -28,12 +48,13 @@ export default function StreetVerseGreenvilleBirthdayHUD(){
    {open&&<div style={{display:'grid',gap:9,padding:12}}>
      <div style={{fontSize:11,fontWeight:900,color:'#ffe89d'}}>GREENVILLE UNIVERSITY • CAMPUSVERSE</div>
      {stage?<><strong style={{fontSize:16}}>{stage.title}</strong><span style={{fontSize:12,lineHeight:1.4,color:'#cbd5e8'}}>{stage.objective}</span>
+       <span role="status" style={{fontSize:12,color:withinCheckpoint?'#b1ffd0':'#ffdca1'}}>{!worldReady?'WAITING FOR 3D CAMPUS':distance===null?'MOVE JACOBIE IN THE WORLD TO START':withinCheckpoint?'✓ LOCATION REACHED • COMPLETE CHECKPOINT':`GO TO MARKER • ${Math.ceil(distance)} WORLD UNITS AWAY`}</span>
        <button type="button" onClick={()=>{
          window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-start',{detail:{missionId:stage.id,title:stage.title,objective:stage.objective,world:'greenville',characterId:'jacobie-stubbs',source:'greenville-birthday'}}))
          const zone=GREENVILLE_CAMPUS_ZONES.find(z=>z.id===stage.id)
          window.dispatchEvent(new CustomEvent('tryamm:city-navigation-target',{detail:{type:'mission',missionId:stage.id,label:stage.title,world:'greenville',x:zone?.x,z:zone?.z}}))
        }} style={{minHeight:48,borderRadius:12,border:'1px solid #7fd8ff',background:'#0f3553',color:'#fff',fontWeight:900}}>START / FOCUS</button>
-       <button type="button" onClick={complete} style={{minHeight:48,borderRadius:12,border:'1px solid #a9ffc6',background:'#18583a',color:'#fff',fontWeight:900}}>✓ COMPLETE CHECKPOINT</button>
+       <button type="button" onClick={complete} disabled={!withinCheckpoint} style={{minHeight:48,borderRadius:12,border:'1px solid #a9ffc6',background:withinCheckpoint?'#18583a':'#35404b',color:'#fff',fontWeight:900,opacity:withinCheckpoint?1:.7}}>{withinCheckpoint?'✓ COMPLETE CHECKPOINT':'REACH THE MARKER FIRST'}</button>
      </>:<><strong>🎉 BIRTHDAY CHAPTER COMPLETE</strong><span style={{fontSize:12,color:'#cbd5e8'}}>Jacobie’s Greenville CampusVerse chapter is complete. Continue to HoloReel, Chicago, or another Verse.</span>
        <button type="button" onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-open',{detail:{source:'jacobie-greenville-birthday-complete',characterId:'jacobie-stubbs'}}))} style={{minHeight:48,borderRadius:12,border:'1px solid #ffb6e8',background:'#512144',color:'#fff',fontWeight:900}}>🎬 OPEN HOLOREEL</button></>}
      <small style={{color:'#8293ad'}}>Jacobie Mansion • Suite 01 • Fraternity House • Sorority Residence • Academic Hall • Student Union • Athletics • Mansion Birthday Party • HoloReel</small>
