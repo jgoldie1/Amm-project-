@@ -1,7 +1,8 @@
 import {useEffect,useState} from 'react'
+import {importStreetVerseCharacterFiles} from '../runtime/StreetVerseCharacterLocalRecovery'
 
 type Character='bj'|'jacobie'|'lateasia'
-type Evidence={id:string;name:string;loaded:boolean;clips:number;source?:string;movement?:boolean}
+type Evidence={id:string;name:string;loaded:boolean;clips:number;source?:string;movement?:boolean;textureVerified?:boolean;diagnosticAppearance?:boolean}
 
 const LABELS:Record<Character,string>={bj:'BJ',jacobie:'JACOBIE',lateasia:'LATEASIA'}
 
@@ -20,12 +21,14 @@ export default function StreetVerseCharacterSwitchHUD(){
  const [evidence,setEvidence]=useState<Record<string,Evidence>>({})
  const [moved,setMoved]=useState(false)
  const [loadIssue,setLoadIssue]=useState('')
+ const [importing,setImporting]=useState(false)
+ const [importNotice,setImportNotice]=useState('')
  const [lastLoadStatus,setLastLoadStatus]=useState<'waiting'|'mounted'|'missing'>('waiting')
 
  useEffect(()=>{
    const onRecovered=(event:Event)=>{
      const d=(event as CustomEvent<any>).detail||{}
-     setEvidence(v=>({...v,[d.id]:{id:d.id,name:d.name||d.id,loaded:d.mounted===true&&d.active3DMesh===true,clips:Array.isArray(d.clips)?d.clips.length:Number(d.clipCount||0),source:d.source}}))
+     setEvidence(v=>({...v,[d.id]:{id:d.id,name:d.name||d.id,loaded:d.mounted===true&&d.active3DMesh===true,clips:Array.isArray(d.clips)?d.clips.length:Number(d.clipCount||0),source:d.source,textureVerified:d.textureVerified===true,diagnosticAppearance:d.diagnosticAppearance===true}}))
    }
    const onMounted=(event:Event)=>{const d=(event as CustomEvent<{characterId?:string}>).detail||{};if(d.characterId===activeId){setLastLoadStatus('mounted');setLoadIssue('')}}
    const onMissing=(event:Event)=>{const d=(event as CustomEvent<{characterId?:string;reason?:string}>).detail||{};if(d.characterId===activeId){setLastLoadStatus('missing');setLoadIssue(d.reason||'Original model not available')}}
@@ -66,10 +69,29 @@ export default function StreetVerseCharacterSwitchHUD(){
      <strong>PLAYABLE CHARACTER</strong>
      {(['bj','jacobie','lateasia'] as Character[]).map(id=><a key={id} href={targetUrl(id)} style={{minHeight:44,display:'grid',placeItems:'center',borderRadius:10,border:id===active?'1px solid #fff':'1px solid #37415c',background:id===active?'#4d2f79':'#111827',color:'#fff',fontWeight:900,textDecoration:'none'}}>PLAY AS {LABELS[id]}</a>)}
      {active!=='bj'&&<><div role="status" style={{fontSize:12,fontWeight:900,color:lastLoadStatus==='mounted'?'#9af8c3':'#ffcf8d'}}>Original 3D model: {lastLoadStatus.toUpperCase()}{loadIssue?' • '+loadIssue:''}</div><button type="button" onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-character-retry',{detail:{characterId:activeId,source:'character-switch-ui'}}))} style={{minHeight:50,borderRadius:10,border:'1px solid #d4a8ff',background:'#3f2765',color:'#fff',fontWeight:900}}>RELOAD ORIGINAL {LABELS[active]} GLB</button></>}
+     {active!=='bj'&&<label style={{display:'grid',gap:6,padding:8,border:'1px solid #9bd5df',borderRadius:10,background:'#123649',fontSize:13,fontWeight:900}}>
+       IMPORT ORIGINAL {LABELS[active]} GLB / ZIP
+       <input aria-label={'Choose original '+LABELS[active]+' model ZIP or GLB'} type="file" accept=".glb,.zip,model/gltf-binary" disabled={importing} onChange={async event=>{
+         const files=event.target.files
+         if(!files?.length)return
+         setImporting(true);setImportNotice('Checking and saving original GLB…')
+         try{
+           const results=await importStreetVerseCharacterFiles(files)
+           const applied=results.find(item=>item.id===activeId&&item.stored)
+           if(!applied){setImportNotice('No matching original '+LABELS[active]+' model was found in the selected file.');return}
+           try{localStorage.setItem('tryamm:streetverse:cast-source:'+activeId,'device-local')}catch{}
+           setImportNotice(applied.name+' imported and verified on this device. Restarting model…')
+           window.location.reload()
+         }catch(error){setImportNotice('Import failed: '+String(error))}
+         finally{setImporting(false);event.target.value=''}
+       }} style={{minHeight:48,width:'100%',fontSize:12,color:'#fff'}}/>
+     </label>}
+     {active!=='bj'&&<button type="button" onClick={()=>{try{localStorage.removeItem('tryamm:streetverse:cast-source:'+activeId)}catch{};window.location.reload()}} style={{minHeight:48,borderRadius:9,border:'1px solid #a5d7b2',background:'#194a34',color:'#fff',fontWeight:900}}>RESTORE HOSTED LIBRARY ORIGINAL</button>}
+     {importNotice&&<div role="status" style={{fontSize:12,color:'#e9d9a0'}}>{importNotice}</div>}
      <div style={{fontSize:11,lineHeight:1.35,color:'#cbd1dd'}}>
        Rig: {activeEvidence?.loaded?'LOADED':'WAITING'}<br/>
        Clips: {activeEvidence?.clips??'—'}<br/>
-       Source: {activeEvidence?.source??'—'}<br/>
+       Source: {activeEvidence?.source??'—'}<br/>       Textured model: {activeEvidence?.textureVerified?'YES — SOURCE TEXTURES':activeEvidence?.diagnosticAppearance?'NO — DIAGNOSTIC':'UNVERIFIED'}<br/>
        Movement input: {moved?'SEEN':'NOT YET'}
      </div>
      <button type="button" onClick={exportReport} style={{minHeight:44,borderRadius:10,border:'1px solid #75e7b0',background:'#123d2a',color:'#fff',fontWeight:900}}>EXPORT ONE-PUSH REPORT</button>
