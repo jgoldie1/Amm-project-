@@ -6,8 +6,8 @@ type Evidence={id:string;name:string;loaded:boolean;clips:number;source?:string;
 const LABELS:Record<Character,string>={bj:'BJ',jacobie:'JACOBIE',lateasia:'LATEASIA'}
 
 function targetUrl(character:Character){
- const base='/streetverse?core=1'
- if(character==='bj')return base+'&bj=v15'
+ const base='/streetverse?core=1&graphics=character'
+ if(character==='bj')return base+'&bj=v15&character=bj'
  if(character==='jacobie')return base+'&character=jacobie&world=greenville'
  return base+'&character=lateasia'
 }
