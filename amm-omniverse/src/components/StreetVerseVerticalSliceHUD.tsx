@@ -143,11 +143,21 @@ export default function StreetVerseVerticalSliceHUD(){
      return
    }
    if(id==='move'){
-     dispatchEvent(new CustomEvent('tryamm:streetverse-acceptance-safe-spawn',{detail:{source:'full-auto-acceptance',character}}))
      const dirs=[{up:true},{right:true},{left:true},{down:true}]
      const dir=dirs[(Math.max(1,attempt)-1)%dirs.length]
-     window.setTimeout(()=>dispatchEvent(new CustomEvent('tryamm:streetverse-mobile-movement',{detail:{...dir,source:'full-auto-acceptance',attempt}})),220)
-     window.setTimeout(()=>dispatchEvent(new CustomEvent('tryamm:streetverse-mobile-movement',{detail:{up:false,down:false,left:false,right:false,source:'full-auto-acceptance',attempt}})),1400)
+     let issued=false
+     const issueMotion=()=>{
+       if(issued)return
+       issued=true
+       window.removeEventListener('tryamm:streetverse-acceptance-spawn-ready',onSpawn)
+       dispatchEvent(new CustomEvent('tryamm:streetverse-mobile-movement',{detail:{...dir,source:'full-auto-acceptance',attempt}}))
+       window.setTimeout(()=>dispatchEvent(new CustomEvent('tryamm:streetverse-mobile-movement',{detail:{up:false,down:false,left:false,right:false,source:'full-auto-acceptance',attempt}})),1800)
+     }
+     const onSpawn=()=>issueMotion()
+     window.addEventListener('tryamm:streetverse-acceptance-spawn-ready',onSpawn,{once:true})
+     dispatchEvent(new CustomEvent('tryamm:streetverse-acceptance-safe-spawn',{detail:{source:'full-auto-acceptance',character}}))
+     // A scene with no spawn acknowledgment still gets a measured movement attempt.
+     window.setTimeout(issueMotion,1100)
      return
    }
    if(id==='vehicle'){dispatchEvent(new CustomEvent('tryamm:streetverse-acceptance-enter-vehicle',{detail:{source:'full-auto-acceptance'}}));return}
