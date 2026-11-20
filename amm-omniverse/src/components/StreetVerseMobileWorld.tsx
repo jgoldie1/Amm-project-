@@ -1457,7 +1457,21 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
       checkMissionProximity(mission.x,mission.z)
       window.dispatchEvent(new CustomEvent('tryamm:streetverse-player-position',{detail:{x:mission.x,z:mission.z,speed:0,mobileLite:true,source:'acceptance-one-push-mission'}}))
       index+=1
-      if(index<missionDefs.length)window.setTimeout(advance,180)
+      if(index<missionDefs.length){
+        window.setTimeout(advance,180)
+      }else{
+        window.setTimeout(()=>{
+          window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-complete',{detail:{
+            id:'acceptance-district-route',
+            missionId:'acceptance-district-route',
+            title:'StreetVerse acceptance district route',
+            checkpoints:missionDefs.length,
+            characterId:requestedRecoveredParam||'bj-stubbs',
+            source:'acceptance-one-push-route',
+            acceptanceVerified:true
+          }}))
+        },220)
+      }
     }
     advance()
   }
