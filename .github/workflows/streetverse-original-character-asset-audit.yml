@@ -1,0 +1,24 @@
+name: StreetVerse Original Character Asset Audit
+on:
+  pull_request:
+    paths:
+      - 'amm-omniverse/public/tryamm-assets/meshy/characters/**'
+      - 'amm-omniverse/src/runtime/StreetVerseRecoveredPlayableRuntime.ts'
+      - 'amm-omniverse/src/runtime/StreetVerseCharacterLocalRecovery.ts'
+      - 'amm-omniverse/src/components/StreetVerseMobileWorld.tsx'
+      - 'amm-omniverse/src/components/StreetVerseCharacterSwitchHUD.tsx'
+      - 'amm-omniverse/tests/streetverse-*character*.mjs'
+      - 'amm-omniverse/tests/streetverse-*library*.mjs'
+      - 'amm-omniverse/package.json'
+  workflow_dispatch:
+jobs:
+  check-original-cast:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify real original character binaries, models, rigs and import routing
+        run: npm --prefix amm-omniverse run characters:verify
