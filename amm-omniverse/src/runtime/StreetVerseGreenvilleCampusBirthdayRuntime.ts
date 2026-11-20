@@ -39,6 +39,35 @@ export function installGreenvilleCampusBirthdayWorld(scene:THREE.Scene){
  const suiteGlass=new THREE.Mesh(geo(new THREE.BoxGeometry(6,3,.3)),glass);suiteGlass.position.set(-37,4,34.9);suiteGlass.name='jacobie-suite-01-window';root.add(suiteGlass)
  building('Fraternity House',-48,12,20,16,13)
  building('Sorority Residence',48,12,20,16,13)
+ // Distinct second dorm wing and recognizable exterior furniture are deliberately
+ // low-poly. These remain EXTERIORS until floorplans, collision and room transitions
+ // are independently implemented and tested.
+ const eastDorm=building('East Student Dorm',6,51,17,12,11)
+ eastDorm.userData={fictionalCampusHousing:true,roomCountProposed:12,accessibleRoomsPlanned:true,interiorPlayable:false}
+ const ivy=mat(0x386b4d),balcony=mat(0x6e8da3,.37),fratBlue=mat(0x173e68),sororityLavender=mat(0x8c6cba),dormCream=mat(0xdcd8c8)
+ for(const [x,z,color,name] of [[-48,3.6,fratBlue,'fraternity'],[48,3.6,sororityLavender,'sorority'],[6,44.7,dormCream,'east-dorm']] as [number,number,THREE.Material,string][]){
+   // Entrance canopy + visible porch with separate identity for each residence.
+   box([8,.28,2.5],[x,4.5,z],color,'greenville-'+name+'-grand-awning')
+   box([7,.1,3],[x,.14,z],stone,'greenville-'+name+'-front-porch')
+   for(const dx of [-3.2,3.2]){
+     box([.2,4,.2],[x+dx,2,z-1.1],darkTrim,'greenville-'+name+'-porch-column')
+     box([1.8,1.3,.13],[x+dx,6,z+1],balcony,'greenville-'+name+'-upper-glass')
+   }
+ }
+ for(const x of [-55,-52,-49,-46,-43])box([1,.5,.5],[x,.4,2.5],ivy,'greenville-fraternity-garden-planter')
+ for(const x of [41,44,47,50,53])box([1,.5,.5],[x,.4,2.5],ivy,'greenville-sorority-garden-planter')
+ for(const z of [43,45,47]){
+   box([2.4,.16,1],[6,.16,z],walk,'greenville-dorm-entrance-stepping-stone')
+ }
+ // Mansion glass-view streaming studio pavilion (exterior), guest suite wing
+ // and visitor forecourt, independent of the mansion's original animated hero.
+ box([10,5,7],[-15,2.5,43],blue,'jacobie-mansion-exterior-streaming-studio')
+ box([8,3,.15],[-15,2.8,39.4],glass,'jacobie-studio-observation-window')
+ box([10,.28,7.2],[-15,5.1,43],gold,'jacobie-studio-gold-roof-line')
+ box([9,5,7],[-45,2.5,44],stone,'jacobie-mansion-guest-wing')
+ box([9,.3,7.5],[-45,5.1,44],darkTrim,'jacobie-mansion-guest-wing-roof')
+ box([6,.09,8],[-30,.13,21],walk,'jacobie-mansion-grand-arrival-drive')
+
  box([34,.08,20],[28,.05,-8],field,'greenville-athletics-field')
  const trackOuter=new THREE.Mesh(geo(new THREE.RingGeometry(12,16,48)),track);trackOuter.rotation.x=-Math.PI/2;trackOuter.position.set(28,.07,-8);root.add(trackOuter)
  for(let i=0;i<4;i++)box([15,.5,1.2],[46,0.35+i*.5,-13+i*1.2],stone,'greenville-bleachers-'+i)
