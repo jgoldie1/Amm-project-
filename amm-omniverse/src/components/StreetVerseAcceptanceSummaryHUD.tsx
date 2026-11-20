@@ -2,10 +2,10 @@ import {useEffect,useMemo,useState} from 'react'
 
 type CastId='bj-stubbs'|'jacobie-stubbs'|'lateasia-monroe'
 type Row={id:CastId;name:string;loaded:boolean;clips:number;source:string;movement:boolean;vehicle:boolean;mission:boolean;business:boolean;reel:boolean;returned:boolean;loopComplete:boolean}
-type StepKey='rig'|'movement'|'vehicle'|'mission'|'business'|'reel'|'return'|'fullLoop'
+type StepKey='rig'|'animation'|'movement'|'vehicle'|'mission'|'business'|'reel'|'return'|'fullLoop'
 
 const ORDER:CastId[]=['bj-stubbs','jacobie-stubbs','lateasia-monroe']
-const STEP_LABEL:Record<StepKey,string>={rig:'character rig',movement:'movement',vehicle:'vehicle entry',mission:'mission completion',business:'business use',reel:'HoloReel',return:'return to game',fullLoop:'complete 7/7 loop'}
+const STEP_LABEL:Record<StepKey,string>={rig:'character rig',animation:'BJ animation clips missing (0)',movement:'movement',vehicle:'vehicle entry',mission:'mission completion',business:'business use',reel:'HoloReel',return:'return to game',fullLoop:'complete 7/7 loop'}
 
 function readRows():Record<string,Row>{
  try{return JSON.parse(sessionStorage.getItem('tryamm.streetverse.three-cast-evidence.v1')||'{}')}catch{return{}}
@@ -38,6 +38,11 @@ export default function StreetVerseAcceptanceSummaryHUD(){
   for(const id of ORDER){
    const r=rows[id]
    if(!r?.loaded){failures.push({character:r?.name||id,step:'rig'});continue}
+   // Do not certify a visually loaded BJ GLB as an animated playable character.
+   // The prior device export reported BJ loaded with 0 clips yet displayed PASS.
+   if(id==='bj-stubbs'&&(!Number.isFinite(Number(r.clips))||Number(r.clips)<1)){
+    failures.push({character:r.name,step:'animation'});continue
+   }
    if(!r.movement){failures.push({character:r.name,step:'movement'});continue}
    if(!r.vehicle){failures.push({character:r.name,step:'vehicle'});continue}
    if(!r.mission){failures.push({character:r.name,step:'mission'});continue}
@@ -72,7 +77,7 @@ export default function StreetVerseAcceptanceSummaryHUD(){
   firstFailure:result.first,
   failures:result.failures,
   characters:rows,
-  note:'Runtime acceptance summary. Visual likeness and target-device rendering still require human review.'
+  note:'Runtime acceptance summary. BJ needs at least one reported animation clip for PASS. Actual visible animation, likeness, joystick and target-device rendering still require human review.'
  })
  const persistSummary=():AcceptanceReport=>{
   const report=buildSummary()
