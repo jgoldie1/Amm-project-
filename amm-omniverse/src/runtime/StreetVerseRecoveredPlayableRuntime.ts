@@ -72,12 +72,20 @@ export async function loadRecoveredPlayable(id:RecoveredPlayableId):Promise<Reco
  let source:'device-local'|'app-asset'='device-local'
  if(!gltf){
    source='app-asset'
+   const controller=new AbortController()
+   const deadline=window.setTimeout(()=>controller.abort(),20000)
    try{
-     const response=await fetch(entry.url,{cache:'no-store'})
-     if(!response.ok){fail('GLB HTTP '+response.status);return null}
+     const response=await fetch(entry.url,{cache:'no-store',signal:controller.signal})
+     if(!response.ok){fail('GLB HTTP '+response.status+' at '+entry.url);return null}
      if((response.headers.get('content-type')||'').includes('text/html')){fail('GLB URL returned HTML instead of model');return null}
-     gltf=await parseRig(await response.arrayBuffer())
-   }catch(error){fail('Model network/decoder error: '+String(error).slice(0,170));return null}
+     const bytes=await response.arrayBuffer()
+     if(bytes.byteLength<20){fail('Model returned empty GLB ('+bytes.byteLength+' bytes)');return null}
+     gltf=await Promise.race([
+       parseRig(bytes),
+       new Promise<null>((resolve)=>window.setTimeout(()=>{fail('GLB decode timeout after 20 seconds');resolve(null)},20000)),
+     ])
+   }catch(error){fail(controller.signal.aborted?'GLB download timed out (20 seconds)':'Model network/decoder error: '+String(error).slice(0,170));return null}
+   finally{window.clearTimeout(deadline)}
  }
  if(!gltf){fail('GLB missing, invalid, or lacking rigged animations');return null}
  const clips=gltf.animations
