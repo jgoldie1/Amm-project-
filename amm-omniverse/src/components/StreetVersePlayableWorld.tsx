@@ -23,6 +23,9 @@ function hasUsableWebGL(){
 }
 export function shouldUseStreetVerseSafeMode(){
  if(typeof navigator==='undefined'||typeof window==='undefined')return false
+ // Explicit safe-play recovery path from Greenville University and low-memory devices.
+ // This is intentionally checked before mobile/Apple capability probing.
+ if(new URLSearchParams(window.location.search).get('graphics')==='lite')return true
  const ua=navigator.userAgent||''
  const appleMobile=/iPhone|iPad|iPod/i.test(ua)
  // Apple's capability probe can fail temporarily even when the Three.js renderer can start.
