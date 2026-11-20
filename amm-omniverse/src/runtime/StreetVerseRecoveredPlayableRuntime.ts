@@ -47,7 +47,7 @@ export async function loadRecoveredPlayable(id:RecoveredPlayableId):Promise<Reco
      if((response.headers.get('content-type')||'').includes('text/html')){fail('GLB URL returned HTML instead of model');return null}
      const bytes=await response.arrayBuffer()
      if(bytes.byteLength<20){fail('Model returned empty GLB ('+bytes.byteLength+' bytes)');return null}
-     let decodeTimer:ReturnType<typeof setTimeout>|undefined
+     let decodeTimer:number|undefined
      try{
        gltf=await Promise.race([
          parseRig(bytes),
