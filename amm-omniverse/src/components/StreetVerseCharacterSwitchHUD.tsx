@@ -69,8 +69,9 @@ export default function StreetVerseCharacterSwitchHUD(){
      <strong>PLAYABLE CHARACTER</strong>
      {(['bj','jacobie','lateasia'] as Character[]).map(id=><a key={id} href={targetUrl(id)} style={{minHeight:44,display:'grid',placeItems:'center',borderRadius:10,border:id===active?'1px solid #fff':'1px solid #37415c',background:id===active?'#4d2f79':'#111827',color:'#fff',fontWeight:900,textDecoration:'none'}}>PLAY AS {LABELS[id]}</a>)}
      {active!=='bj'&&<><div role="status" style={{fontSize:12,fontWeight:900,color:lastLoadStatus==='mounted'?'#9af8c3':'#ffcf8d'}}>Original 3D model: {lastLoadStatus.toUpperCase()}{loadIssue?' • '+loadIssue:''}</div><button type="button" onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-character-retry',{detail:{characterId:activeId,source:'character-switch-ui'}}))} style={{minHeight:50,borderRadius:10,border:'1px solid #d4a8ff',background:'#3f2765',color:'#fff',fontWeight:900}}>RELOAD ORIGINAL {LABELS[active]} GLB</button></>}
+     {active==='lateasia'&&activeEvidence?.diagnosticAppearance&&<div role="alert" style={{padding:10,borderRadius:10,border:'2px solid #ffbb77',background:'#542b17',fontWeight:900,fontSize:13}}>WRONG APPEARANCE • The old untextured LaTeasia diagnostic model loaded. Import LaTeasia_Monroe_Textured_Seven_Motion_Recovery.glb below to replace it on this device. Do not accept this as the finished character.</div>}
      {active!=='bj'&&<label style={{display:'grid',gap:6,padding:8,border:'1px solid #9bd5df',borderRadius:10,background:'#123649',fontSize:13,fontWeight:900}}>
-       IMPORT ORIGINAL {LABELS[active]} GLB / ZIP
+       {active==='lateasia'?'IMPORT CORRECTED COLOR LATEASIA GLB':'IMPORT ORIGINAL '+LABELS[active]+' GLB / ZIP'}
        <input aria-label={'Choose original '+LABELS[active]+' model ZIP or GLB'} type="file" accept=".glb,.zip,model/gltf-binary" disabled={importing} onChange={async event=>{
          const files=event.target.files
          if(!files?.length)return
