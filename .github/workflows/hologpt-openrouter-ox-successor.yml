@@ -1,0 +1,24 @@
+name: HoloGPT OpenRouter Ox Successor Safety Tests
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - lib/openrouter-ox-successor.js
+      - lib/hologpt-chat.js
+      - test/openrouter-ox-successor.test.js
+      - .github/workflows/hologpt-openrouter-ox-successor.yml
+permissions:
+  contents: read
+jobs:
+  test-no-network:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Validate syntax
+        run: node --check lib/openrouter-ox-successor.js && node --check lib/hologpt-chat.js
+      - name: Verify opt-in provider safety with mocked network
+        run: node --test test/openrouter-ox-successor.test.js
