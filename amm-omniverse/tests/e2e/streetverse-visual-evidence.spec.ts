@@ -23,6 +23,17 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
       }
     });
     page.on('requestfailed', request => console.error('[streetverse-requestfailed]', request.url(), request.failure()?.errorText || 'unknown'));
+    // Capture sanitized origin and pathname for HTTP-level failures. Browser requestfailed
+    // does not fire for valid HTTP responses such as 402 and 404.
+    page.on('response', response => {
+      if (response.status() !== 402 && response.status() !== 404) return;
+      try {
+        const url = new URL(response.url());
+        console.error('[streetverse-http-resource-error]', response.status(), url.origin + url.pathname, response.request().resourceType());
+      } catch {
+        console.error('[streetverse-http-resource-error]', response.status(), '[unparseable URL]');
+      }
+    });
     await page.addInitScript(() => {
       try {
         Object.defineProperty(navigator, 'hardwareConcurrency', { configurable: true, get: () => 8 });

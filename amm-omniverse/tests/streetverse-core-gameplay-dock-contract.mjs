@@ -6,6 +6,15 @@ const must=(ok,msg)=>{if(!ok)throw new Error('STREETVERSE CORE GAMEPLAY DOCK CON
 for(const token of ['StreetVerseCoreGameplayDock','StreetVerseMissionWorldBridge','StreetVerseTouchDriveControls','HoloMobilityLauncher','StreetVerseFaithChronoPortal','StreetVerseReelEventBridge','StreetVerseActionCarousel'])must(geo.includes(token),'core route missing '+token)
 for(const label of ['MISSION','REPAIR','RIDE','REEL','FAITH','EXIT'])must(dock.includes(label),'dock missing '+label)
 must(dock.includes("tryamm:streetverse-first-journey-start"),'mission quick-start event missing')
+
+// Check the actual MISSION button wiring and conditional dispatch,
+// rather than merely accepting an unused event-name string.
+must(/<button\s+onClick=\{missionAction\}[^>]*>[^<]*<br\s*\/>MISSION<\/button>/.test(dock),'MISSION button not wired to missionAction')
+const missionHandler=dock.match(/const missionAction=\(\)=>\{([\s\S]*?)\n  \}\n\n  const repair=/)?.[1]||''
+must(/if\(!mission\)\s*\{[\s\S]*?dispatchEvent\(new CustomEvent\('tryamm:streetverse-first-journey-start'/.test(missionHandler),'first-journey event must dispatch when no mission is active')
+must(missionHandler.includes("tryamm:streetverse-cinematic-mission-open"),'mission selector event must remain available')
+must(missionHandler.includes('missionId:mission?.id'),'active mission id must reach selector')
+
 must(dock.includes("tryamm:holo-mobility-open"),'rideshare launcher event missing')
 must(dock.includes("tryamm:open-reel-creator"),'reel launcher event missing')
 must(dock.includes("window.location.href='/faithverse'"),'FaithVerse route missing')
