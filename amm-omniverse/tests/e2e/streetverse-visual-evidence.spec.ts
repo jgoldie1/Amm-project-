@@ -23,6 +23,12 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
       }
     });
     page.on('requestfailed', request => console.error('[streetverse-requestfailed]', request.url(), request.failure()?.errorText || 'unknown'));
+    // Identify the service returning 402 without logging signed URLs or credentials.
+    page.on('response', response => {
+      if (response.status() !== 402) return;
+      const uri = new URL(response.url());
+      console.error('[streetverse-http-402-service]', uri.origin, uri.pathname.split('/').slice(0, 3).join('/'));
+    });
     await page.addInitScript(() => {
       try {
         Object.defineProperty(navigator, 'hardwareConcurrency', { configurable: true, get: () => 8 });
@@ -63,6 +69,17 @@ test.describe('StreetVerse compact iPhone visual evidence', () => {
     const travel=page.getByRole('button',{name:'Travel to Taylor Street UIC Medical District'});
     const stores=page.locator('#sv-retail-open');
     const enterStore=page.locator('#sv-store-open');
+    if (await travel.count() === 0) {
+      // Fail the same release gate, but preserve the state needed to repair it.
+      const diagnosis = await page.evaluate(() => ({
+        renderModes: Array.from(document.querySelectorAll('[data-streetverse-render-mode]')).map(el => el.getAttribute('data-streetverse-render-mode')),
+        safeBoot: document.documentElement.dataset.tryammStreetverseSafe || null,
+        worldRoot: Boolean(document.querySelector('[data-streetverse-world-root]')),
+        safeFallback: Boolean(document.querySelector('[data-streetverse-restore-3d]')),
+        buttons: Array.from(document.querySelectorAll('button')).map(el => el.getAttribute('aria-label') || el.textContent?.trim() || '').filter(label => /Taylor|UIC|3D|mission|vehicle/i.test(label)).slice(0, 30),
+      }));
+      console.error('[streetverse-missing-taylor-diagnostic]', JSON.stringify(diagnosis));
+    }
     await expect(travel).toBeVisible();
     await expect(stores).toBeVisible();
     await expect(enterStore).toBeVisible();
