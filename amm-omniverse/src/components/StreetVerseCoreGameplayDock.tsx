@@ -36,8 +36,15 @@ export default function StreetVerseCoreGameplayDock(){
   },[])
 
   const missionAction=()=>{
+    if (!mission) {
+      // Begin the canonical first journey when no mission is active; keep the
+      // selector available for players returning to the game after a mission.
+      dispatchEvent(new CustomEvent('tryamm:streetverse-first-journey-start',{detail:{source:'streetverse-core-dock'}}))
+      setMessage('STARTING STREETVERSE MISSION')
+    } else {
+      setMessage('SCRIPTED MISSION SELECTOR OPENED')
+    }
     dispatchEvent(new CustomEvent('tryamm:streetverse-cinematic-mission-open',{detail:{missionId:mission?.id,source:'streetverse-core-dock'}}))
-    setMessage('SCRIPTED MISSION SELECTOR OPENED')
   }
 
   const repair=()=>{
