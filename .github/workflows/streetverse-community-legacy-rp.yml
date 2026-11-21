@@ -1,0 +1,47 @@
+name: StreetVerse Community Legacy RP
+
+on:
+  pull_request:
+    paths:
+      - 'amm-omniverse/src/runtime/StreetVerseCommunityLegacyRuntime.ts'
+      - 'amm-omniverse/src/runtime/StreetVerseCommunityLegacyVisuals.ts'
+      - 'amm-omniverse/src/components/StreetVerseCommunityLegacyHUD.tsx'
+      - 'amm-omniverse/src/components/StreetVersePlayableWorld.tsx'
+      - 'amm-omniverse/src/components/StreetVerseMobileWorld.tsx'
+      - 'amm-omniverse/src/components/StreetVerseLivingWorld.tsx'
+      - 'amm-omniverse/tests/streetverse-community-legacy-regression.mjs'
+      - '.github/workflows/streetverse-community-legacy-rp.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: community-legacy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  community-legacy:
+    name: Community Legacy RP contracts and TypeScript
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Verify Community Legacy earn, build, save and visual contracts
+        run: node tests/streetverse-community-legacy-regression.mjs
+      - name: Typecheck both 3D game renderers and the accessibility HUD
+        run: npm run typecheck
+      - name: Report scope
+        if: always()
+        run: |
+          echo 'Community Legacy uses local fictional game points and three decorative 3D improvements.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'No real accessible-route certification, real donations, blockchain tokens, or paid infrastructure is claimed.' >> "$GITHUB_STEP_SUMMARY"
