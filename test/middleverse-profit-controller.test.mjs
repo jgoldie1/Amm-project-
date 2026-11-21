@@ -1,0 +1,11 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {calculateOrderMargin,orderActions,summarizeOrders} from '../lib/middleverse-profit-controller.mjs';
+const order={id:'o1',grossMinor:49900,fulfillmentMinor:15000,processorFeesMinor:1600,commissionBps:1500,reserveTargetMinor:5000,currency:'USD'};
+test('website margin and restricted reserve distinct',()=>{const x=calculateOrderMargin(order);assert.equal(x.commissionMinor,7485);assert.equal(x.contributionMinor,25815);assert.equal(x.unallocatedCashMinor,20815)});
+test('refund zeroes commission',()=>assert.equal(calculateOrderMargin({...order,refundsMinor:49900}).commissionMinor,0));
+test('invalid amounts blocked',()=>{assert.throws(()=>calculateOrderMargin({...order,refundsMinor:50000}));assert.throws(()=>calculateOrderMargin({...order,grossMinor:1.5}))});
+test('unverified payment stops fulfillment',()=>assert.ok(orderActions(order).actions.includes('HOLD_FULFILLMENT_UNVERIFIED_PAYMENT')));
+test('reserve not double-counted as an expense',()=>{const x=calculateOrderMargin(order);assert.equal(x.contributionMinor,x.unallocatedCashMinor+x.reserveAllocatedMinor)});
+test('duplicate IDs blocked',()=>assert.throws(()=>summarizeOrders([order,order])));
+test('mixed currency blocked',()=>assert.throws(()=>summarizeOrders([{...order,currency:'GBP'}])));
+test('no automatic commission release',()=>assert.equal(orderActions({...order,paymentVerified:true,customerApproved:true,fulfilled:true,deliveryAccepted:true}).commissionReleaseApproved,false));
+test('negative contribution flagged',()=>assert.ok(orderActions({...order,fulfillmentMinor:60000}).actions.includes('REPRICE_OR_REVIEW_COSTS')));
