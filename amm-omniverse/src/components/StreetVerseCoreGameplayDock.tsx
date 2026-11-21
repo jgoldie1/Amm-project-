@@ -36,6 +36,7 @@ export default function StreetVerseCoreGameplayDock(){
   },[])
 
   const missionAction=()=>{
+    dispatchEvent(new CustomEvent('tryamm:streetverse-first-journey-start',{detail:{missionId:mission?.id||'streetverse-first-journey',source:'streetverse-core-dock'}}))
     dispatchEvent(new CustomEvent('tryamm:streetverse-cinematic-mission-open',{detail:{missionId:mission?.id,source:'streetverse-core-dock'}}))
     setMessage('SCRIPTED MISSION SELECTOR OPENED')
   }
