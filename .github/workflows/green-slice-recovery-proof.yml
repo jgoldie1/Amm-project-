@@ -1,0 +1,70 @@
+name: Green Slice Recovery Proof
+
+on:
+  push:
+    branches:
+      - agent/green-slice-recovery-20261114
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: green-slice-recovery-proof
+  cancel-in-progress: true
+
+jobs:
+  internal-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout exact recovery commit
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Use Node 24
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+
+      - name: Install Omniverse dependencies
+        run: npm --prefix amm-omniverse ci
+
+      - name: Root syntax proof
+        run: npm run syntax
+
+      - name: Omniverse security proof
+        run: npm --prefix amm-omniverse run security
+
+      - name: Production dependency high-severity audit
+        working-directory: amm-omniverse
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Omniverse typecheck proof
+        run: npm --prefix amm-omniverse run typecheck
+
+      - name: Recovery contract proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f amm-omniverse/src/game/testing/completionGovernor.ts
+          test -f amm-omniverse/src/game/testing/district01ReleaseManifest.ts
+          test -f amm-omniverse/src/game/testing/districtEvidenceIngestion.ts
+          test -f amm-omniverse/src/game/release/districtProofOrchestrator.ts
+          test -f amm-omniverse/src/game/security/guardianGroup.ts
+          test -f amm-omniverse/src/game/story/streetverseCoreCast.ts
+          grep -q "holoGuardian_minor_safety" amm-omniverse/src/game/security/guardianGroup.ts
+          ! grep -q "holGuardian_minor_safety" amm-omniverse/src/game/security/guardianGroup.ts
+          grep -q "Meet the Stubbs" amm-omniverse/src/game/story/streetverseCoreCast.ts
+          grep -q "finish_before_expand_freeze_active" amm-omniverse/src/game/testing/completionGovernor.ts
+
+      - name: Green-slice recovery regression contract
+        run: node amm-omniverse/tests/green-slice-recovery-contract.mjs
+
+      - name: Omniverse smoke contracts
+        run: npm --prefix amm-omniverse run smoke
+
+      - name: Offline production bundle
+        working-directory: amm-omniverse
+        run: npx vite build

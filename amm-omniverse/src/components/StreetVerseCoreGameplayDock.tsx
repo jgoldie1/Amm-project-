@@ -36,8 +36,23 @@ export default function StreetVerseCoreGameplayDock(){
   },[])
 
   const missionAction=()=>{
-    dispatchEvent(new CustomEvent('tryamm:streetverse-cinematic-mission-open',{detail:{missionId:mission?.id,source:'streetverse-core-dock'}}))
-    setMessage('SCRIPTED MISSION SELECTOR OPENED')
+    if(mission){
+      dispatchEvent(new CustomEvent('tryamm:streetverse-cinematic-mission-open',{detail:{missionId:mission.id,source:'streetverse-core-dock'}}))
+      setMessage('SCRIPTED MISSION SELECTOR OPENED')
+      return
+    }
+    const detail={
+      id:'iphone-first-journey',
+      missionId:'iphone-first-journey',
+      title:'FIRST RIDE • REPAIR & DRIVE',
+      objective:'Follow the gold beacon to the orange Repair Mission Car. Repair it, enter, drive, exit, interact with a Chicago NPC, then complete the mission.',
+      source:'streetverse-core-dock',
+      waypoint:{x:-8,z:50,label:'Repair Mission Car'},
+    }
+    dispatchEvent(new CustomEvent('tryamm:streetverse-mission-start',{detail}))
+    dispatchEvent(new CustomEvent('tryamm:streetverse-first-journey-start',{detail}))
+    dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:'FIRST RIDE started • follow the gold beacon to the orange repair car'}}))
+    setMessage('FIRST RIDE STARTED')
   }
 
   const repair=()=>{
