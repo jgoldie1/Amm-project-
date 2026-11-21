@@ -20,6 +20,7 @@
     "reconstruction:evidence": "node scripts/fetch-chicago-reconstruction-evidence.mjs",
     "reconstruction:compile": "node scripts/compile-chicago-proof-zone-v9.mjs",
     "typecheck": "tsc --noEmit",
+    "quantum-cloud-recovery:check": "node --experimental-strip-types --test tests/quantum-cloud-website-recovery.test.mjs",
     "e2e": "playwright test",
     "e2e:install": "playwright install chromium",
     "asset:audit": "node scripts/streetverse-asset-audit.mjs --out asset-audit.json public ../public",
