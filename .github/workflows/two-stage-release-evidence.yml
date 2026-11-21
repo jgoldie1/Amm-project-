@@ -1,0 +1,29 @@
+name: TRYAMM Two-Stage Release Evidence
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/two-stage-release-audit.mjs'
+      - '.github/workflows/two-stage-release-evidence.yml'
+permissions:
+  contents: read
+jobs:
+  source-inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Report source inventory and unverified external gates
+        run: node scripts/two-stage-release-audit.mjs
+      - name: Upload audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tryamm-two-stage-audit
+          path: release-evidence/two-stage-release-audit.json
+          if-no-files-found: warn
