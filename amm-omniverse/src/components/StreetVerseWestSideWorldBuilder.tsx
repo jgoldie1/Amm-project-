@@ -6,6 +6,7 @@ import {ILLINOIS_CAMPUSVERSE_NETWORK} from '../data/campusVerseIllinoisUniversit
 import {CHICAGO_77_SLICES,streetVerseCommunitySpawn} from '../config/streetverseCommunitySlices'
 import {ILLINOIS_STREETVERSE_HUBS,US_STREETVERSE_STATES} from '../data/StreetVerseExpansionHierarchy'
 import {STREETVERSE_GLOBAL_CITIES} from '../data/StreetVerseGlobalRegistry'
+import StreetVerseMyceliumSubmissionPanel from './StreetVerseMyceliumSubmissionPanel'
 
 type Tab='map'|'build'|'missions'|'campuses'
 type Scale='west'|'chicago'|'illinois'|'usa'|'world'
@@ -112,6 +113,14 @@ export default function StreetVerseWestSideWorldBuilder(){
  const [middleverseRepairs,setMiddleverseRepairs]=useState<MiddleverseRepairStateView>({items:[],activeTicketId:null})
  const [layers,setLayers]=useState({neighborhood:true,school:true,faith:true,campus:true,medical:true,transit:true})
  const visible=useMemo(()=>ZONES.filter(z=>layers[z.group]),[layers])
+ useEffect(()=>{
+  if(typeof window==='undefined')return
+  const params=new URLSearchParams(window.location.search)
+  if(params.get('builder')!=='1')return
+  setScale('west');setTab('build');setOpen(true)
+  params.delete('builder')
+  window.history.replaceState(window.history.state,'',window.location.pathname+(params.size?'?'+params.toString():'')+window.location.hash)
+ },[])
 
  useEffect(()=>{
   // Report only models actually attached to a Three.js group. Asset recipes and
@@ -422,6 +431,7 @@ export default function StreetVerseWestSideWorldBuilder(){
     </>}
 
     {tab==='build'&&<>
+     <StreetVerseMyceliumSubmissionPanel />
      <article style={{...card,borderColor:'#72ffb080'}} aria-label="West Side existing asset delivery status">
        <b>EXISTING TRYAMM FORGE ASSETS · DELIVERY PROOF</b>
        <p style={muted}>Foundry defines {Object.keys(TRYAMM_NATIVE_RUNTIME_ASSETS).length} native asset types. A recipe, blueprint or saved GLB link is not proof of an asset appearing on-screen. The counters below show real loaded geometry only when the 3D loader reports it.</p>

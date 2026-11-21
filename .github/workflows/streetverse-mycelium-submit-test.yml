@@ -1,0 +1,50 @@
+name: StreetVerse Mycelium One-Button Submission Test
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'amm-omniverse/scripts/rea-streetverse-evidence.mjs'
+      - 'amm-omniverse/src/runtime/StreetVerseMeshyBJHeroRuntime.ts'
+      - 'amm-omniverse/scripts/build-bj-v15-motion.mjs'
+      - 'amm-omniverse/tests/bj-v15-motion-enhancement.test.mjs'
+      - 'amm-omniverse/tests/bj-threejs-skeletal-playback.test.mjs'
+      - 'amm-omniverse/tests/bj-local-glb-preflight.test.mjs'
+      - 'amm-omniverse/src/runtime/StreetVerseBJLocalAssetPreflight.ts'
+      - 'amm-omniverse/src/runtime/StreetVerseMyceliumNetwork.ts'
+      - 'amm-omniverse/src/runtime/StreetVerseOriginalOpenWorldKernel.ts'
+      - 'amm-omniverse/src/runtime/StreetVerseOriginalDistrictPreview.ts'
+      - 'amm-omniverse/src/runtime/StreetVerseVisibleForgeBridge.ts'
+      - 'amm-omniverse/tests/streetverse-original-district-preview.test.mjs'
+      - 'amm-omniverse/tests/bj-v15-motion-enhancement.test.mjs'
+      - 'amm-omniverse/tests/streetverse-original-open-world-kernel.test.mjs'
+      - 'amm-omniverse/src/runtime/StreetVerseOneButtonSubmissionTest.ts'
+      - 'amm-omniverse/src/components/StreetVerseMyceliumSubmissionPanel.tsx'
+      - 'amm-omniverse/src/components/StreetVerseWestSideWorldBuilder.tsx'
+      - 'amm-omniverse/src/data/StreetVerseLivingCityGenerator.ts'
+      - 'amm-omniverse/tests/streetverse-mycelium-integration.test.mjs'
+      - '.github/workflows/streetverse-mycelium-submit-test.yml'
+permissions:
+  contents: read
+jobs:
+  submission-test:
+    name: Offline simulation and API plan contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Run Mycelium, district and submission tests
+        run: node --test tests/streetverse-mycelium-integration.test.mjs tests/streetverse-original-open-world-kernel.test.mjs tests/streetverse-original-district-preview.test.mjs
+      - name: REA source audit of original game integrations
+        run: node scripts/rea-streetverse-evidence.mjs --json | tee rea-evidence.json
+      - name: Type-check frontend / bridge wiring
+        run: npm run typecheck
+

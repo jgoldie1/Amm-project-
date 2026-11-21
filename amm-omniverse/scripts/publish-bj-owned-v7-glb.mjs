@@ -1,6 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import crypto from 'node:crypto'
+import {createBJOriginalRiggedGLB} from './build-bj-original-rigged-glb.mjs'
 
 const root=process.cwd()
 const source=path.join(root,'public/generated-assets/native/kit/streetverse-hero-player.glb')
@@ -18,7 +19,8 @@ if(bytes.subarray(0,4).toString('ascii')!=='glTF')throw new Error('BJ V7 publish
 if(bytes.readUInt32LE(4)!==2)throw new Error('BJ V7 publish failed: expected GLB version 2')
 
 fs.mkdirSync(outDir,{recursive:true})
-fs.writeFileSync(v12,bytes)
+const riggedBytes=createBJOriginalRiggedGLB()
+fs.writeFileSync(v12,riggedBytes)
 fs.writeFileSync(v7,bytes)
 fs.writeFileSync(v6,bytes)
 
@@ -49,9 +51,16 @@ const manifestV12={
   productionFile:'SV_HERO_BJ_STUBBS_V12.glb',
   compatibilityFiles:['SV_HERO_BJ_STUBBS_V7.glb','SV_HERO_BJ_STUBBS_V6.glb'],
   assetVersion:'bj-realism-v12',
+  bytes:riggedBytes.length,
+  sha256:crypto.createHash('sha256').update(riggedBytes).digest('hex'),
+  source:'scripts/build-bj-original-rigged-glb.mjs',
+  generator:'tryamm-original-skeletal-fallback',
+  rigged:true,
+  jointCount:17,
+  clipNames:['BJ_Idle_Breathe','BJ_Walk_Cycle','BJ_Run_Cycle','BJ_Greeting_Wave'],
   visualPass:'west-side-bj-v12',
   lifeLayer:'StreetVerse BJ V12 runtime',
-  truth:'Owned TRYAMM procedural BJ V12 GLB generated from the current native hero foundry. It improves the production mesh/material pipeline but does not claim certified photo likeness.'
+  truth:'Original stylized BJ skeletal fallback: genuine skin and animation channels, not the recovered BJ V15 likeness, not a photo match or certified production character.'
 }
 fs.writeFileSync(manifestV12Path,JSON.stringify(manifestV12,null,2))
-console.log(JSON.stringify({published:true,v12:path.relative(root,v12),v7:path.relative(root,v7),v6:path.relative(root,v6),bytes:bytes.length,sha256},null,2))
+console.log(JSON.stringify({published:true,v12:path.relative(root,v12),v7:path.relative(root,v7),v6:path.relative(root,v6),bytes:bytes.length,riggedV12Bytes:riggedBytes.length,sha256},null,2))

@@ -1,0 +1,33 @@
+name: StreetVerse REA Evidence Audit
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'amm-omniverse/scripts/rea-streetverse-evidence.mjs'
+      - 'amm-omniverse/src/components/StreetVerse*.tsx'
+      - 'amm-omniverse/src/runtime/StreetVerse*.ts'
+      - 'amm-omniverse/src/data/StreetVerseLivingCityGenerator.ts'
+      - '.github/workflows/streetverse-rea-evidence.yml'
+permissions:
+  contents: read
+jobs:
+  inspect-owned-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Build read-only REA-style integration evidence
+        working-directory: amm-omniverse
+        run: node scripts/rea-streetverse-evidence.mjs --json | tee rea-evidence.json
+      - name: Publish inspectable evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-rea-source-evidence
+          path: amm-omniverse/rea-evidence.json
+          retention-days: 14
