@@ -1,0 +1,103 @@
+name: TRYAMM Push-Button RP + LIVE + Holo FON Regression
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'amm-omniverse/public/holofon-preview.html'
+      - 'amm-omniverse/tests/holofon-commerce-preview-contract.mjs'
+      - 'amm-omniverse/tests/streetverse-holofon-contract.mjs'
+      - '.github/workflows/tryamm-push-button-rp-live.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tryamm-rp-live-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rp-live-contracts:
+    name: RP game, Holo FON, LIVE and commerce smoke checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Validate Holo FON storefront preview and safety boundaries
+        run: node tests/holofon-commerce-preview-contract.mjs
+      - name: Verify game phone NPC calls
+        run: node tests/streetverse-holofon-contract.mjs
+      - name: Verify Chicago missions, stores, deliveries
+        run: |
+          node tests/streetverse-chicago-integrated-contract.mjs
+          node tests/streetverse-delivery-replay-contract.mjs
+      - name: Verify vehicles and mobile controls
+        run: |
+          node tests/streetverse-vehicle-control-contract.mjs
+          node tests/streetverse-iphone-player-journey-contract.mjs
+      - name: Verify Holo LIVE and PK architecture
+        run: node tests/holo-live-pk-integration-contract.mjs
+      - name: Verify payment authorization contract
+        run: node tests/server-authoritative-stripe-contract.mjs
+      - name: TypeScript safety check
+        run: npm run typecheck
+      - name: Build candidate without deploying
+        run: npm run build
+      - name: Record test limitations
+        if: always()
+        run: |
+          mkdir -p test-results
+          printf '%s\n'             "commit=${GITHUB_SHA}"             "run=https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"             "timestamp_utc=$(date -u +%FT%TZ)"             "These checks do not prove actual provider LIVE audio/video, 2-device stream, phone service, real bill payments, or physical-device gameplay."             > test-results/tryamm-push-button-manifest.txt
+      - name: Preserve run evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tryamm-rp-live-contract-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: amm-omniverse/test-results/
+          if-no-files-found: warn
+          retention-days: 14
+
+  mobile-browser:
+    name: Mobile gameplay visual capture
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - run: npm run assets:prebuild
+      - run: npx vite build
+      - run: npm install --no-save --no-package-lock @playwright/test@1.63.0
+      - run: npx playwright install --with-deps chromium
+      - name: Test iPhone layout, BJ, residents, navigation and driving
+        run: npx playwright test tests/e2e/streetverse-visual-evidence.spec.ts tests/e2e/streetverse-real-resident-glb.spec.ts tests/e2e/streetverse-bj-owned-glb.spec.ts --project=mobile-chromium --reporter=line
+      - name: Collect screenshots, videos and traces on all outcomes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tryamm-rp-mobile-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            amm-omniverse/test-results/
+            amm-omniverse/playwright-report/
+          if-no-files-found: warn
+          retention-days: 14
