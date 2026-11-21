@@ -1,0 +1,16 @@
+import fs from 'node:fs'
+import assert from 'node:assert/strict'
+const world=fs.readFileSync(new URL('../src/components/StreetVerseMobileWorld.tsx',import.meta.url),'utf8')
+const scene=fs.readFileSync(new URL('../src/runtime/StreetVerseHoloLabThreeScene.ts',import.meta.url),'utf8')
+const preview=fs.readFileSync(new URL('../src/components/StreetVerseHoloLab3DPreview.tsx',import.meta.url),'utf8')
+assert.match(world,/<StreetVerseHoloLab3DPreview\s*\/>/,'Three.js preview must be mounted')
+assert.match(scene,/new THREE\.TorusGeometry/,'Visible chamber ring missing')
+assert.match(scene,/switchEra:/,'Visible era switching missing')
+assert.match(scene,/dispose:/,'Three.js scene cleanup missing')
+assert.match(preview,/new THREE\.WebGLRenderer/,'WebGL rendering missing')
+assert.match(preview,/requestAnimationFrame/,'Animation loop missing')
+assert.match(preview,/tryamm:hololab-demo-scene-request/,'HoloLab travel event bridge missing')
+assert.match(preview,/Rigged BJ V15 is required for release/,'Preview must disclose production GLB requirement')
+assert.match(preview,/GLTFLoader/,'Preview must attempt real BJ rig loading')
+assert.match(preview,/GLB missing/,'Missing production rig must be disclosed')
+console.log('HoloLab 3D chamber contract PASS')

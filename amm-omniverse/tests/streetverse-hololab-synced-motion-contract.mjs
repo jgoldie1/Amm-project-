@@ -1,0 +1,17 @@
+import fs from 'node:fs'
+import assert from 'node:assert/strict'
+const hud=fs.readFileSync(new URL('../src/components/StreetVerseHoloLabDemoHUD.tsx',import.meta.url),'utf8')
+const preview=fs.readFileSync(new URL('../src/components/StreetVerseHoloLab3DPreview.tsx',import.meta.url),'utf8')
+const confirmation=hud.indexOf('journey.confirmSceneLoaded(destination)')
+const commit=hud.indexOf("phase:'commit'")
+assert.ok(confirmation>=0&&commit>confirmation,'3D scene commit must follow confirmed journey')
+assert.match(hud,/phase:'prepare'/,'HUD must prepare destination first')
+assert.match(hud,/phase:'cancel'/,'HUD must cancel prepared travel')
+assert.match(preview,/detail\.phase==='prepare'/,'Renderer must distinguish preparation')
+assert.match(preview,/detail\.phase==='commit'&&preparedEra===detail\.era/,'Renderer must only commit prepared era')
+assert.match(preview,/detail\?\.phase==='cancel'/,'Renderer must support cancellation')
+assert.match(hud,/tryamm:hololab-motion/,'HUD must publish motion stages')
+assert.match(preview,/addEventListener\('tryamm:hololab-motion'/,'3D scene must consume motion stages')
+assert.match(preview,/advanceHoloLabCharacter/,'3D character must use bounded movement')
+assert.doesNotMatch(preview,/now%9000/,'No independent looping walk')
+console.log('HoloLab two-phase 3D motion contract PASS')

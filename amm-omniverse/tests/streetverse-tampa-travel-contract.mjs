@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+const read=p=>fs.readFileSync(new URL('../'+p,import.meta.url),'utf8')
+const travel=read('src/components/StreetVerseTampaTravelDock.tsx')
+const world=read('src/components/StreetVerseNearWest3D.tsx')
+const salon=read('src/components/StreetVerseLaTeasiaBeautyHouse.tsx')
+for(const id of ['riverwalk','beauty-house','residential','entertainment','home-001'])assert.match(travel,new RegExp("'?"+id+"'?:\\{name:"))
+assert.match(travel,/minHeight:52/)
+assert.match(travel,/TRAVEL TO DISTRICT/)
+assert.match(world,/setPlayerSpawn\(\{x:target.x,z:target.z\}\)/)
+assert.match(world,/setTampaTravelKey\(k=>k\+1\)/)
+assert.match(world,/key=\{'tampa-travel-'\+tampaTravelKey\}/)
+assert.match(world,/<StreetVerseTampaTravelDock onTravel=\{travelTampa\}\/>/)
+assert.match(salon,/position=\{\[-705,0,786\]\}/)
+assert.match(salon,/streetverse-lateasia-service-complete/)
+console.log('Tampa travel and salon path static contract PASS')

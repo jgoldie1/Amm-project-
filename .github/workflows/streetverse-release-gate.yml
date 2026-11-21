@@ -108,6 +108,73 @@ jobs:
         run: node tests/streetverse-food-economy-contract.mjs
       - name: Verify BJ rescue mission
         run: node tests/streetverse-bj-rescue-contract.mjs
+      - name: Verify hospital dialogue and treatment mission
+        run: node tests/streetverse-hospital-mission-contract.mjs
+      - name: Verify Mycelium timeline fork isolation
+        run: node tests/streetverse-mycelium-timeline-contract.mjs
+      - name: Verify CrossVerse gateway consent and world registry
+        run: node tests/streetverse-crossverse-gateway-contract.mjs
+      - name: Verify time-machine UI transition and return
+        run: node tests/streetverse-time-machine-contract.mjs
+      - name: Verify SpaceVerse flight and life-support foundation
+        run: node tests/streetverse-spaceverse-flight-contract.mjs
+      - name: Verify Chicago timeline scanner integration
+        run: node tests/streetverse-chicago-time-scanner-contract.mjs
+      - name: Verify CrossVerse scene confirmation and snapshot recovery
+        run: node tests/streetverse-crossverse-chicago-journey-contract.mjs
+      - name: Verify HoloLab browser demonstration
+        run: node tests/streetverse-hololab-demo-contract.mjs
+      - name: Verify HoloLab BJ chamber motion
+        run: node tests/streetverse-hololab-motion-contract.mjs
+      - name: Verify HoloLab Three.js chamber and era switching
+        run: node tests/streetverse-hololab-three-scene-contract.mjs
+      - name: Verify HoloLab synchronized motion and confirmed travel
+        run: node tests/streetverse-hololab-synced-motion-contract.mjs
+      - name: Verify HoloLab rendered scene acknowledgement and BJ GLB integration
+        run: node tests/streetverse-hololab-rig-ack-contract.mjs
+      - name: Verify HoloLab Nov 15 asset inventory and collision integration
+        run: node tests/streetverse-hololab-nov15-asset-gate.mjs
+      - name: Run Chicago motion behavioral test and record receipt
+        run: node tests/streetverse-chicago-motion-behavior.test.mjs
+      - name: Upload Chicago motion test recording
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: chicago-motion-acceptance-record
+          path: amm-omniverse/test-results/chicago-motion-acceptance.json
+          if-no-files-found: warn
+      - name: Verify HoloLab arrival safety and asset recovery registry
+        run: node tests/streetverse-hololab-recovery-safety-contract.mjs
+      - name: Verify real BJ rig readiness and walking evidence contract
+        run: node tests/streetverse-bj-rig-readiness-contract.mjs
+      - name: Test StreetVerse career reputation and creator economy
+        run: node tests/streetverse-career-economy.test.mjs
+      - name: Test StreetVerse creator academy marketplace and payout safeguards
+        run: node tests/streetverse-creator-program.test.mjs
+      - name: Test Creator Studio and legal agreement source safeguards
+        run: node tests/streetverse-creator-studio-contract.mjs
+      - name: Test advisory creator governance and TRYAMM authorization
+        run: node tests/streetverse-creator-governance.test.mjs
+      - name: Test StreetVerse creator governance and owner control
+        run: node tests/streetverse-community-governance.test.mjs
+      - name: Verify TRYAMM free-play hub and internal chain safeguards
+        run: node tests/streetverse-free-play-hub-contract.mjs
+      - name: Verify portable creator assets and cross-engine save safety
+        run: node tests/streetverse-portable-creator-asset.test.mjs
+      - name: Verify authenticated creator marketplace and 3D preview safeguards
+        run: node tests/streetverse-creator-production-boundaries.test.mjs
+      - name: Test Chicago BJ to Creator Marketplace full offline journey
+        run: node tests/streetverse-free-play-journey.test.mjs
+      - name: Require verified BJ V15 binary for release
+        run: node tests/streetverse-bj-v15-binary-release-gate.mjs
+      - name: Verify Chicago motion vehicle NPC mission and checkpoint recorder
+        run: node tests/streetverse-chicago-motion-acceptance-contract.mjs
+      - name: Verify BJ V15 no-placeholder asset loader
+        run: node tests/streetverse-bj-v15-no-placeholder-contract.mjs
+      - name: Verify Chicago timeline scanner and NPC memory isolation
+        run: node tests/streetverse-chicago-timeline-scanner-contract.mjs
+      - name: Verify CrossVerse world permissions
+        run: node tests/streetverse-crossverse-platform-contract.mjs
       - name: Verify BJ injury reactions
         run: node tests/streetverse-bj-injury-reaction-contract.mjs
       - name: Verify BJ injury and After Dark consent contracts

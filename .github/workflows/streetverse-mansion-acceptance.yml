@@ -1,0 +1,37 @@
+name: StreetVerse Mansion Acceptance
+on:
+  push:
+    branches:
+      - fix/streetverse-mission-quickstart-dock
+    paths:
+      - 'amm-omniverse/src/components/StreetVerse*'
+      - 'amm-omniverse/tests/streetverse-*'
+      - 'amm-omniverse/package.json'
+      - '.github/workflows/streetverse-mansion-acceptance.yml'
+  workflow_dispatch:
+jobs:
+  mansion-code-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+      - name: TypeScript validation
+        run: npm run typecheck
+      - name: Mansion mission wiring contracts
+        run: |
+          node tests/streetverse-greenville-fraternity-rooms-contract.mjs
+          node tests/streetverse-greenville-fraternity-management-contract.mjs
+          node tests/streetverse-estate-missions-contract.mjs
+          node tests/streetverse-jacobie-greenville-master-suite-contract.mjs
+      - name: Report limits
+        run: echo 'Static code gate only; Chromebook 3D, NPCs, mission persistence, and public deployment require separate acceptance.'

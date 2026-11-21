@@ -1,0 +1,46 @@
+{
+  "date": "2026-11-15",
+  "assets": [
+    {
+      "name": "BJ_STUBBS_V15_RECOVERED.glb",
+      "sha256": "122e77b243bb9feac9c6e835a500207d034ef8ee710f52751a89ee917e685258",
+      "bytes": 6214772,
+      "skins": 1,
+      "joints": 17,
+      "clips": 8,
+      "walkClip": "BJ_Walk_Cycle_48f",
+      "status": "verified locally; binary not yet installed in repo"
+    },
+    {
+      "name": "LaTeasia_RIGGED_DIAGNOSTIC.glb",
+      "sha256": "96faef46205295d16cdf6c8d21a0e216438141f053cf0601800d62d3020998af",
+      "bytes": 871880,
+      "skins": 1,
+      "joints": 9,
+      "clips": 7,
+      "status": "diagnostic only; not production-certified"
+    }
+  ],
+  "requiredAcceptance": [
+    "GLB uploaded and URL configured",
+    "BJ mesh and walk animation visible",
+    "doorway collider integrated and tested",
+    "Chicago production scene assets installed",
+    "vehicle enter/exit and missions regression",
+    "save/reload and no duplicate rewards",
+    "Chromebook browser acceptance",
+    "CI build and release gate success"
+  ],
+  "releasePolicy": "No commercial gameplay release until required acceptance checks pass.",
+  "recovery": {
+    "googleDriveFileId": "1pnn4N-PZFyGU-jMnYZQiWgfOF29l8Hca",
+    "googleDriveUrl": "https://drive.google.com/file/d/1pnn4N-PZFyGU-jMnYZQiWgfOF29l8Hca/view?usp=drivesdk",
+    "fileName": "StreetVerse_Real_GLBS_Repo_Install.zip",
+    "uploaded": "2026-11-15",
+    "contains": [
+      "amm-omniverse/public/assets/characters/BJ_STUBBS_V15_RECOVERED.glb",
+      "amm-omniverse/public/assets/characters/LaTeasia_RIGGED_DIAGNOSTIC.glb"
+    ],
+    "status": "Google Drive backup uploaded; GitHub binary installation not yet verified"
+  }
+}
