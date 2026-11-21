@@ -5,6 +5,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useGameStore } from '../game/state/useGameStore'
+import VocalAutoTunePreview from './VocalAutoTunePreview'
 
 // ── TYPES ─────────────────────────────────────────────────────────────────────
 interface Track {
@@ -372,6 +373,7 @@ GENERATED SCRIPT · AMM OMNIVERSE
         {/* ── VOCAL BOOTH ─────────────────────────── */}
         {mode==='vocal'&&(
           <div style={{ padding:14 }}>
+            <VocalAutoTunePreview/>
             <div style={{ background:'rgba(255,102,204,.06)',border:'1px solid #ff66cc33',borderRadius:12,padding:14,marginBottom:14 }}>
               <div style={{ color:'#ff66cc',fontWeight:700,fontSize:13,marginBottom:8 }}>🎤 VOCAL BOOTH</div>
               <div style={{ color:'#888',fontSize:11,lineHeight:1.7,marginBottom:12 }}>

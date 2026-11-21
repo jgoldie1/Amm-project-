@@ -43,6 +43,9 @@ module.exports = function registerMusicApi({ app, auth, clean, id, getStore, sav
     if (!rightsConfirmed) return res.status(400).json({ error: 'Confirm that you own or control the required rights' });
     const title = clean(req.body.title, 120); const artistName = clean(req.body.artistName, 100) || req.user.displayName;
     if (!title) return res.status(400).json({ error: 'Song title is required' });
+    // Fail closed: creator attestation alone is not sufficient for a public or DSP release.
+    // All newly submitted tracks stay private until a verified rights review and artist approval.
+    if (req.body.publishNow !== false) return res.status(409).json({ error: 'Public release requires completed rights review, clearance evidence and artist distribution approval. Save as draft and use the Artist Clearance Desk.', code: 'RELEASE_RIGHTS_REVIEW_REQUIRED', clearanceDesk: '/holoverse-artist-desk.html' });
     const track = {
       id: id('trk'), creatorId: req.user.id, artistName, title, album: clean(req.body.album, 120),
       genre: clean(req.body.genre, 60) || 'Independent', explicit: Boolean(req.body.explicit),

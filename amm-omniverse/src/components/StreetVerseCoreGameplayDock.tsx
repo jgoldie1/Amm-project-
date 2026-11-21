@@ -9,6 +9,7 @@ export default function StreetVerseCoreGameplayDock(){
   const [mission,setMission]=useState<ActiveMission|null>(null)
   const [inVehicle,setInVehicle]=useState(false)
   const [message,setMessage]=useState('READY')
+  const [toolsOpen,setToolsOpen]=useState(false)
 
   useEffect(()=>{
     const onContext=(e:Event)=>setCtx((e as CustomEvent<Context>).detail||{})
@@ -36,6 +37,7 @@ export default function StreetVerseCoreGameplayDock(){
   },[])
 
   const missionAction=()=>{
+    dispatchEvent(new CustomEvent('tryamm:streetverse-first-journey-start',{detail:{source:'streetverse-core-dock',missionId:mission?.id||'',preserveCinematicSelector:true}}))
     dispatchEvent(new CustomEvent('tryamm:streetverse-cinematic-mission-open',{detail:{missionId:mission?.id,source:'streetverse-core-dock'}}))
     setMessage('SCRIPTED MISSION SELECTOR OPENED')
   }
@@ -83,9 +85,14 @@ export default function StreetVerseCoreGameplayDock(){
         <button onClick={social} style={{...btn,color:'#ff9ecf'}}>❤️<br/>SOCIAL</button>
         <button onClick={people} style={{...btn,color:'#9fc8ff'}}>🔎<br/>PEOPLE</button>
         <button onClick={tickets} style={{...btn,color:'#b7ffa2'}}>🎟️<br/>TICKETS</button>
-        <button onClick={faith} style={{...btn,color:'#e5c56a'}}>📖<br/>FAITH</button>
         <button onClick={exit} disabled={!inVehicle} style={{...btn,color:inVehicle?'#ffcf6b':'#687785',opacity:inVehicle?1:.55}}>🚪<br/>EXIT</button>
+        <button aria-label="Show additional StreetVerse tools" aria-expanded={toolsOpen} onClick={()=>setToolsOpen(v=>!v)} style={{...btn,color:'#e6c8ff'}}>{toolsOpen?'✕':'☰'}<br/>TOOLS</button>
       </div>
+      {toolsOpen&&<div aria-label="Additional StreetVerse recording and faith tools" style={{display:'grid',gridTemplateColumns:'repeat(3,minmax(0,1fr))',gap:6,marginTop:6}}>
+        <button aria-label="Play Warehouse Delivery Mission" onClick={()=>{window.location.href='/warehouse-missions.html'}} style={{...btn,color:'#b0f5cc'}}>📦<br/>WAREHOUSE</button>
+        <button aria-label="Open Aniyah vocal recording and AutoTune studio" onClick={()=>{window.location.href='/aniyah-studio'}} style={{...btn,color:'#ffb6e7'}}>🎤<br/>STUDIO</button>
+        <button onClick={faith} style={{...btn,color:'#e5c56a'}}>📖<br/>FAITH</button>
+      </div>}
       <div aria-live="polite" style={{marginTop:5,textAlign:'center',fontSize:8,fontWeight:900,color:'#8ea6b7'}}>{status}</div>
     </div>
   </aside></>

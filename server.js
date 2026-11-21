@@ -47,6 +47,7 @@ registerOmniNewsOracleRoutes({app,manager:omniNewsOracleManager,auth,admin});
 registerQuantumCrawlerRoutes({app,manager:omniNewsOracleManager,auth,admin});
 require('./music-api')({app,auth,clean,id,getStore:()=>store,saveStore,io});
 require('./lib/omniverse-radio-routes')({app,auth,clean,id,getStore:()=>store,saveStore,io});
+require('./lib/holoverse-artist-desk-routes')({app,auth,id,getStore:()=>store,saveStore});
 require('./lib/daily-business-boost-routes')({app,auth,clean,id,getStore:()=>store,saveStore,io});
 require('./lib/financial-marketplace-routes')({app,getStore:()=>store});
 io.use((socket,next)=>{const user=userFromToken(socket.handshake.auth?.token||'');if(!user)return next(new Error('unauthorized'));socket.user=user;next()});

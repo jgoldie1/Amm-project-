@@ -1,0 +1,144 @@
+name: TRYAMM One-Button Whole-App Audit
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/whole-app-journey-audit.mjs'
+      - '.github/workflows/tryamm-one-button.yml'
+      - 'lib/**'
+      - 'config/business-factory/**'
+      - 'amm-omniverse/**'
+
+permissions:
+  contents: read
+
+jobs:
+  end-to-end-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - name: Install root dependencies
+        run: npm install --no-audit --no-fund
+      - name: Install Omniverse dependencies
+        run: npm --prefix amm-omniverse install --no-audit --no-fund
+      - name: Platform syntax, tests and contracts
+        id: platform
+        continue-on-error: true
+        run: npm run syntax && npm test
+      - name: Omniverse lint, security, typecheck, smoke and build
+        id: omniverse
+        continue-on-error: true
+        run: |
+          npm --prefix amm-omniverse run lint
+          npm --prefix amm-omniverse run security
+          npm --prefix amm-omniverse run typecheck
+          npm --prefix amm-omniverse run smoke
+          npm --prefix amm-omniverse run build
+      - name: HoloVerse music rights and royalty pilot regression
+        id: holoverse
+        continue-on-error: true
+        run: node --test amm-omniverse/tests/holoverse-pilot-accounting.test.mjs amm-omniverse/tests/sample-clearance-submission.test.mjs
+      - name: 3PL quote and fulfillment safety regression
+        id: warehouse
+        continue-on-error: true
+        run: node --test amm-omniverse/tests/three-pl-quote-pilot.test.mjs
+      - name: Warehouse-to-StreetVerse mission regression
+        id: warehouse_mission
+        continue-on-error: true
+        run: node --test test/warehouse-delivery-mission.test.mjs test/warehouse-mission-wiring.test.mjs && node test/streetverse-mycelium-timeline-contract.mjs && node --test test/streetverse-mycelium-scenes.test.mjs test/streetverse-mycelium-dialogue.test.mjs test/streetverse-human-npc-voice.test.mjs test/aniyah-mycelium-studio-handoff.test.mjs test/warehouse-vocal-studio-handoff.test.mjs
+      - name: Aniyah vocal pitch guide regression
+        id: vocal_pitch
+        continue-on-error: true
+        run: node --test test/vocal-pitch-guide.test.mjs
+      - name: Aniyah MPC and chord sound-bank regression
+        id: sound_bank
+        continue-on-error: true
+        run: node --test test/aniyah-sound-bank-cards.test.mjs
+      - name: Direct-to-fan vinyl CD planning regression
+        id: physical_music
+        continue-on-error: true
+        run: node --test test/direct-fan-physical-music.test.mjs
+      - name: Independent music distribution fee and chart regressions
+        id: independent_music
+        continue-on-error: true
+        run: node --test test/independent-music-distribution-charts.test.mjs
+      - name: Music video discovery rights and publishing gate regression
+        id: music_video
+        continue-on-error: true
+        run: node --test test/music-video-discovery-guard.test.mjs
+      - name: StreetVerse two-world 3D entry regression
+        id: world_entry
+        continue-on-error: true
+        run: node --test test/streetverse-two-world-demo-entry.test.mjs
+      - name: Rights-only music video discovery and watchlist regression
+        id: creator_discovery
+        continue-on-error: true
+        run: node --test test/music-video-creator-discovery.test.mjs
+      - name: Independent licensed audio streaming regression
+        id: licensed_audio
+        continue-on-error: true
+        run: node --test test/independent-audio-streaming.test.mjs
+      - name: Music media intake and three city Tampa demo regression
+        id: media_city
+        continue-on-error: true
+        run: node --test test/music-media-intake-and-tampa-three-city.test.mjs
+      - name: LaTeasia Chicago crossover character regression
+        id: lateasia_chicago
+        continue-on-error: true
+        run: node --test test/lateasia-chicago-crossover.test.mjs
+      - name: Whole-app readiness inventory
+        id: readiness
+        continue-on-error: true
+        run: node scripts/whole-app-journey-audit.mjs --strict
+      - name: Publish evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tryamm-whole-app-evidence
+          path: release-evidence/whole-app-readiness.*
+          if-no-files-found: warn
+      - name: Release safety gate
+        if: always()
+        env:
+          PLATFORM: ${{ steps.platform.outcome }}
+          OMNIVERSE: ${{ steps.omniverse.outcome }}
+          READINESS: ${{ steps.readiness.outcome }}
+          HOLOVERSE: ${{ steps.holoverse.outcome }}
+          WAREHOUSE: ${{ steps.warehouse.outcome }}
+          WAREHOUSE_MISSION: ${{ steps.warehouse_mission.outcome }}
+          VOCAL_PITCH: ${{ steps.vocal_pitch.outcome }}
+          SOUND_BANK: ${{ steps.sound_bank.outcome }}
+          PHYSICAL_MUSIC: ${{ steps.physical_music.outcome }}
+          INDEPENDENT_MUSIC: ${{ steps.independent_music.outcome }}
+          MUSIC_VIDEO: ${{ steps.music_video.outcome }}
+          WORLD_ENTRY: ${{ steps.world_entry.outcome }}
+          CREATOR_DISCOVERY: ${{ steps.creator_discovery.outcome }}
+          LICENSED_AUDIO: ${{ steps.licensed_audio.outcome }}
+          MEDIA_CITY: ${{ steps.media_city.outcome }}
+          LATEASIA_CHICAGO: ${{ steps.lateasia_chicago.outcome }}
+        run: |
+          echo "Root: $PLATFORM; Omniverse: $OMNIVERSE; Readiness: $READINESS"
+          test "$PLATFORM" = "success"
+          test "$OMNIVERSE" = "success"
+          test "$READINESS" = "success"
+          test "$HOLOVERSE" = "success"
+          test "$WAREHOUSE" = "success"
+          test "$WAREHOUSE_MISSION" = "success"
+          test "$VOCAL_PITCH" = "success"
+          test "$SOUND_BANK" = "success"
+          test "$PHYSICAL_MUSIC" = "success"
+          test "$INDEPENDENT_MUSIC" = "success"
+          test "$MUSIC_VIDEO" = "success"
+          test "$WORLD_ENTRY" = "success"
+          test "$CREATOR_DISCOVERY" = "success"
+          test "$LICENSED_AUDIO" = "success"
+          test "$MEDIA_CITY" = "success"
+          test "$LATEASIA_CHICAGO" = "success"
+          echo "Code and readiness gates passed without unresolved critical blockers."

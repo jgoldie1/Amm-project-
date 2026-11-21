@@ -1,6 +1,7 @@
 import {Canvas,useFrame,useThree} from '@react-three/fiber'
 import StreetVerseTaylorFillmoreGate from './StreetVerseTaylorFillmoreGate'
 import {StreetVerseNearWestHeroGLB,StreetVerseNearWestDetailedNpcLayer} from './StreetVerseNearWestCinematicCast'
+import StreetVerseLaTeasiaChicago,{LATEASIA_CHICAGO} from './StreetVerseLaTeasiaChicago'
 import StreetVerseQuantumConeAerialCamera,{type StreetVerseAerialLensMode} from './StreetVerseQuantumConeAerialCamera'
 import {compileNearWestRoadMeshes,CHICAGO_NEAR_WEST_ROAD_NODES} from '../data/streetVerseNearWestRoadNetwork'
 import {TAYLOR_STREET_CORRIDOR} from '../data/streetVerseCartesianNeighborhood'
@@ -538,9 +539,9 @@ function PopulationMeshes({reaction,detailedIds}:{reaction:{id:string;reaction:'
   </group>
  })}
  </group>}
-export default function StreetVerseNearWest3D(){
+export default function StreetVerseNearWest3D({initialDestination='chicago'}:{initialDestination?:'chicago'|'greenville'}={}){
  const [collegeBookOpen,setCollegeBookOpen]=useState(false)
- const [greenvilleOpen,setGreenvilleOpen]=useState(false)
+ const [greenvilleOpen,setGreenvilleOpen]=useState(initialDestination==='greenville')
  const [remoteCampusId,setRemoteCampusId]=useState<CampusNetworkId|null>(null)
  const [dealerOpen,setDealerOpen]=useState(false)
  const [garageOpen,setGarageOpen]=useState(false)
@@ -575,6 +576,8 @@ export default function StreetVerseNearWest3D(){
  const startGateFlyIn=()=>{setAerialFlightKey(k=>k+1);setAerialMode('fly-in');stopMove()}
  const [driving,setDriving]=useState<string|null>(null)
  const [playerSpawn,setPlayerSpawn]=useState({x:-650,z:700})
+ const [laTeasiaOpen,setLaTeasiaOpen]=useState(false)
+ const [laTeasiaModelLoaded,setLaTeasiaModelLoaded]=useState(false)
  const [vehicleAmmo,setVehicleAmmo]=useState(12)
  const [vehicleAimSide,setVehicleAimSide]=useState<'left'|'right'>('left')
  const [hitFx,setHitFx]=useState<{id:number;position:[number,number,number]}|null>(null)
@@ -707,6 +710,17 @@ export default function StreetVerseNearWest3D(){
   </div>
   <div style={{position:'absolute',left:12,bottom:96,zIndex:24,display:'grid',gap:6,width:'min(218px,58vw)'}}>
    <button aria-label="Open UIC CollegeBook gateway" onClick={()=>setCollegeBookOpen(v=>!v)} style={{minHeight:44,padding:'8px 10px',borderRadius:12,fontWeight:900}}>🎓 UIC • COLLEGEBOOK</button>
+   <button aria-label="Meet LaTeasia Monroe in Chicago" onClick={()=>{
+    if(driving){window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:'Exit your vehicle to meet LaTeasia.'}}));return}
+    setPlayerSpawn({x:LATEASIA_CHICAGO.position.x+3,z:LATEASIA_CHICAGO.position.z+4})
+    setLaTeasiaOpen(true);stopMove();setAerialMode('ground')
+   }} style={{minHeight:48,padding:'9px 11px',borderRadius:12,fontWeight:900,background:'#64334e',color:'#fff'}}>💄 MEET LATEASIA • CHICAGO</button>
+   {laTeasiaOpen&&<div role="dialog" aria-label="LaTeasia Monroe Chicago creator conversation" style={{padding:12,background:'#170e25f2',color:'#fff',border:'2px solid #ed9dcc',borderRadius:12,fontSize:12}}>
+    <strong>LaTeasia Monroe · Chicago Creator District</strong>
+    <p>{LATEASIA_CHICAGO.intro}</p>
+    <p style={{fontSize:11,color:'#ffe1ad'}}>{laTeasiaModelLoaded?'Published LaTeasia GLB preview loaded; animation/game certification still pending.':'Temporary labeled character visible until her recovered rig is installed.'}</p>
+    <button aria-label="Close LaTeasia conversation" onClick={()=>setLaTeasiaOpen(false)} style={{minHeight:44,borderRadius:10}}>CLOSE</button>
+   </div>}
    <button aria-label="Travel from UIC to Greenville CampusVerse" onClick={travelToGreenville} style={{minHeight:44,padding:'8px 10px',borderRadius:12,fontWeight:900}}>GREENVILLE • JACOBIE →</button>
    {collegeBookOpen&&<CampusVerseCollegeBookBridge onClose={()=>setCollegeBookOpen(false)}/>}
   </div>
@@ -714,7 +728,7 @@ export default function StreetVerseNearWest3D(){
    <color attach="background" args={['#88a8bf']}/>
    <ambientLight intensity={1.3}/><directionalLight castShadow position={[80,180,60]} intensity={2}/>
    <mesh receiveShadow position={[0,-.12,700]}><boxGeometry args={[2600,.2,1800]}/><meshStandardMaterial color="#58724c"/></mesh>
-   <RoadMeshes/><StreetVerseTaylorFillmoreGate/><NearWestNativeGlbLayer/><ChicagoWestSideVisualAssets/><ChicagoCorridorDetailAssets/><EmergencyServiceAssets/><EmergencyRouteTraversal/><MovingCivilianTraffic/><MovingPedestrians/><MissionMarker mission={activeMission}/><TaylorLots/><UICCampusMesh/><JeffersonLegacyCampusMesh/><CircleParkWestSideMarker/><PopulationMeshes reaction={npcReaction} detailedIds={detailedResidents}/><StreetVerseNearWestDetailedNpcLayer playerPosition={playerLocation} reaction={npcReaction} onResidentLoaded={onResidentLoaded}/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn} cameraLocked={aerialMode!=='ground'}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z};playerLocation.current={x,z}}} onHeading={yaw=>{drivenHeading.current=yaw}} cameraLocked={aerialMode!=='ground'}/>}<StreetVerseQuantumConeAerialCamera mode={aerialMode} flightKey={aerialFlightKey} onArrive={()=>setAerialMode('gate')}/>
+   <RoadMeshes/><StreetVerseTaylorFillmoreGate/><NearWestNativeGlbLayer/><ChicagoWestSideVisualAssets/><ChicagoCorridorDetailAssets/><EmergencyServiceAssets/><EmergencyRouteTraversal/><MovingCivilianTraffic/><MovingPedestrians/><MissionMarker mission={activeMission}/><TaylorLots/><UICCampusMesh/><JeffersonLegacyCampusMesh/><CircleParkWestSideMarker/><PopulationMeshes reaction={npcReaction} detailedIds={detailedResidents}/><StreetVerseNearWestDetailedNpcLayer playerPosition={playerLocation} reaction={npcReaction} onResidentLoaded={onResidentLoaded}/><StreetVerseLaTeasiaChicago onStatus={setLaTeasiaModelLoaded}/>{hitFx&&<StreetVerseHitFx key={hitFx.id} position={hitFx.position} level="cinematic" bornAt={0}/>}<FutureVehicleMeshes exclude={driving||undefined}/><NearWestPlayer move={move} onPosition={senseNearby} hidden={!!driving} startPosition={playerSpawn} cameraLocked={aerialMode!=='ground'}/>{driving&&<DrivenVehicle vehicleId={driving} move={move} onPosition={(x,z)=>{drivenPosition.current={x,z};playerLocation.current={x,z}}} onHeading={yaw=>{drivenHeading.current=yaw}} cameraLocked={aerialMode!=='ground'}/>}<StreetVerseQuantumConeAerialCamera mode={aerialMode} flightKey={aerialFlightKey} onArrive={()=>setAerialMode('gate')}/>
   </Canvas>
  </div>
 }

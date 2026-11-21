@@ -33,6 +33,10 @@ test('NPC handoff requires exit from vehicle and correct destination',()=>{
  m=advanceHoloMission(m,{type:'enter-van',vehicleId:'holo-delivery-van'}).mission
  assert.equal(advanceHoloMission(m,{type:'handoff',nearStore:true,npcId:'npc-creator-vendor',onFoot:false}).ok,false)
  assert.equal(advanceHoloMission(m,{type:'handoff',nearStore:false,npcId:'npc-creator-vendor',onFoot:true}).ok,false)
+ assert.equal(advanceHoloMission(m,{type:'handoff',nearStore:true,npcId:'npc-creator-vendor',onFoot:true}).ok,false,'Must arrive before handoff')
+ assert.equal(advanceHoloMission(m,{type:'arrive',nearStore:false}).ok,false,'Cannot arrive away from storefront')
+ m=advanceHoloMission(m,{type:'arrive',nearStore:true}).mission
+ assert.equal(m.arrived,true)
  const result=advanceHoloMission(m,{type:'handoff',nearStore:true,npcId:'npc-creator-vendor',onFoot:true})
  assert.equal(result.mission.stage,'complete');assert.equal(result.reward,35)
  assert.equal(advanceHoloMission(result.mission,{type:'handoff',nearStore:true,npcId:'npc-creator-vendor',onFoot:true}).reward,0)

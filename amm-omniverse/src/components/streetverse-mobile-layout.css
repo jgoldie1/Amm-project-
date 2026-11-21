@@ -305,12 +305,9 @@ body:has([data-streetverse-world-root][data-control-side="right"]) #sv-store-ope
  * Important: NEVER hide stop-recording or stop-microphone controls once active.
  */
 @media (max-width: 540px) and (orientation: portrait) {
-  body:has([data-streetverse-world-root][data-hud-focus="true"]) #sv-store-open,
-  body:has([data-streetverse-world-root][data-hud-focus="true"]) #sv-retail-open,
   body:has([data-streetverse-world-root][data-hud-focus="true"]) [data-streetverse-create-earn],
   body:has([data-streetverse-world-root][data-hud-focus="true"]) [aria-label="Open Universal Mission Director"],
   body:has([data-streetverse-world-root][data-hud-focus="true"]) [aria-label="Open repair actions"],
-  body:has([data-streetverse-world-root][data-hud-focus="true"]) [data-streetverse-travel],
   body:has([data-streetverse-world-root][data-hud-focus="true"]) [aria-label="Start StreetVerse Reel recording"],
   body:has([data-streetverse-world-root][data-hud-focus="true"]) [aria-label="Start live BJ microphone"] {
     display: none !important;
@@ -383,4 +380,23 @@ body:has([data-streetverse-world-root][data-control-side="right"]) #sv-store-ope
   }
 
   /* Do not remove the exit, menu, HUD-unlock, accessibility or safety dialogs. */
+}
+
+/* V15.1: keep actual navigation and shop launchers usable with one-hand focus.
+   They occupy compact non-overlapping positions instead of disappearing. */
+@media (max-width:540px) and (orientation:portrait) {
+  body:has([data-streetverse-world-root][data-hud-focus="true"]) [data-streetverse-travel] {
+    display:block !important;
+    top: calc(env(safe-area-inset-top) + 144px) !important;
+    right:max(6px,env(safe-area-inset-right)) !important;
+    width:90px !important;
+    min-height:40px !important;
+    font-size:9px !important;
+  }
+  body:has([data-streetverse-world-root][data-hud-focus="true"]) #sv-store-open,
+  body:has([data-streetverse-world-root][data-hud-focus="true"]) #sv-retail-open {
+    display:block !important;
+    width:86px !important;
+    min-height:38px !important;
+  }
 }
