@@ -56,11 +56,25 @@ jobs:
       - name: Capture mobile StreetVerse visual evidence
         run: npx playwright test tests/e2e/streetverse-visual-evidence.spec.ts tests/e2e/streetverse-real-resident-glb.spec.ts tests/e2e/streetverse-bj-owned-glb.spec.ts --project=mobile-chromium --reporter=line
 
+      - name: Record evidence provenance
+        if: always()
+        run: |
+          mkdir -p test-results
+          {
+            echo "repository=${GITHUB_REPOSITORY}"
+            echo "commit=${GITHUB_SHA}"
+            echo "run_id=${GITHUB_RUN_ID}"
+            echo "run_attempt=${GITHUB_RUN_ATTEMPT}"
+            echo "run_url=https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo "timestamp_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "note=Screenshots and traces are test evidence, not proof of physical device operation."
+          } > test-results/evidence-manifest.txt
+
       - name: Upload visual evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: streetverse-mobile-visual-evidence-${{ github.sha }}
+          name: streetverse-mobile-visual-evidence-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             amm-omniverse/test-results/
             amm-omniverse/playwright-report/
