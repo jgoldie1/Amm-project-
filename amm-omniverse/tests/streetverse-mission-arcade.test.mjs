@@ -6,9 +6,9 @@ const arcade=read('../src/components/StreetVerseMissionArcade.tsx')
 const main=read('../src/main.tsx')
 const home=read('../src/components/TryAMMHome.tsx')
 test('all nine mission modes and twenty-seven unique mission identifiers are registered',()=>{
- for(const id of ["'after-dark'","'mystery'","'districts'","'shadow'","'fire'","'undercover'","'er'","'dispatch'","'homicide'"])assert.ok(arcade.includes(id))
- const ids=[...arcade.matchAll(/\{id:'(ad\d|ms\d|dt\d|sd\d|fr\d|uc\d|er\d|dp\d|hm\d)',title:/g)].map(x=>x[1])
- assert.equal(ids.length,27);assert.equal(new Set(ids).size,12)
+ for(const id of ["'after-dark'","'mystery'","'districts'","'shadow'","'fire'","'undercover'","'er'","'dispatch'","'homicide'","'sports'","'grocery'","'trucking'","'housing'","'health'","'parkour'","'rescue'","'action'"])assert.ok(arcade.includes(id))
+ const ids=[...arcade.matchAll(/\{id:'(ad\d|ms\d|dt\d|sd\d|fr\d|uc\d|er\d|dp\d|hm\d|sp\d|gr\d|tr\d|ho\d|hc\d|pk\d|rs\d|ac\d)',title:/g)].map(x=>x[1])
+ assert.equal(ids.length,51);assert.equal(new Set(ids).size,12)
 })
 test('accessible route and home navigation entry',()=>{
  assert.match(main,/isStreetVerseMissionArcade/)
