@@ -16,5 +16,8 @@ export const TRYAMM_WEBSITE_MASTER_REGISTRY: WebsiteInventoryEntry[] = [
  {id:'raymond-jarreau',name:'Raymond Jarreau / OmniCare Business',sourcePath:'sites/raymond-jarreau/index.html',status:'source-recovered'},
  {id:'jacobie-vision-site',name:'Jacobie Vision Standalone Site',sourcePath:'sites/jacobie-vision/index.html',status:'source-recovered'},
  {id:'business-owner-dashboard',name:'TRYAMM Business Owner Dashboard',sourcePath:'sites/business-owner-dashboard/index.html',status:'source-recovered'},
+ {id:'isaiah-ai-tv',name:'Isaiah AI TV / Who Wants to Be a Star',sourcePath:'amm-omniverse/src/components/OTTIsaiahTV.tsx',status:'verification-needed'},
+ {id:'aniyah-financial-literacy',name:'Aniyah Cross-Border Financial Literacy',sourcePath:'amm-omniverse/src/components/AniyahCrossBorderLiteracy.tsx',status:'verification-needed'},
+ {id:'aniyah-pay-center',name:'Aniyah Cross-Border Payment Center',sourcePath:'amm-omniverse/src/components/AniyahPayCenter.tsx',status:'verification-needed'},
  {id:'nekira-hr-logistics',name:'Nekira Frances HR Logistics',sourcePath:'business-templates/nekira-frances-hr-logistics/launch-registry.json',status:'verification-needed'},
 ]
