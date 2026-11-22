@@ -6,11 +6,17 @@ const invoke=async(req)=>{const res={headers:{},setHeader(key,value){this.header
 test('rejects GET and invalid/empty actions',async()=>{
  const get=await invoke({method:'GET',body:{}})
  assert.equal(get.code,405)
- const invalid=await invoke({method:'POST',body:{action:'custom-magic',passportId:'id',region:'Chicago, IL'}})
+ const invalid=await invoke({method:'POST',body:{action:'custom-magic',passportId:'00000000-0000-4000-8000-000000000001',region:'Chicago, IL'}})
  assert.equal(invalid.code,400)
 })
+test('rejects malformed passport identifiers and unsafe region filters',async()=>{
+ const bad=await invoke({method:'POST',headers:{},body:{action:'dispatch-ride',passportId:'id.or.(status.eq.approved)',region:'Chicago, IL'}})
+ assert.equal(bad.code,400)
+ const badRegion=await invoke({method:'POST',headers:{},body:{action:'dispatch-ride',passportId:'00000000-0000-4000-8000-000000000001',region:'Chicago, IL);drop table x;--'}})
+ assert.equal(badRegion.code,400)
+})
 test('requires bearer JWT, not client-provided approval flags',async()=>{
- const result=await invoke({method:'POST',body:{action:'dispatch-drone',passportId:'id',region:'Chicago, IL',approved:true,providerVerified:true},headers:{}})
+ const result=await invoke({method:'POST',body:{action:'dispatch-drone',passportId:'00000000-0000-4000-8000-000000000001',region:'Chicago, IL',approved:true,providerVerified:true},headers:{}})
  assert.equal(result.code,401)
  assert.equal(result.headers['Cache-Control'],'no-store')
 })
@@ -22,7 +28,7 @@ test('rejects unverified tokens and does not call privileged registry',async()=>
  let calls=0
  globalThis.fetch=async()=>{calls++;return {ok:false,status:401}}
  try{
-  const res=await invoke({method:'POST',headers:{authorization:'Bearer header.payload.signature'},body:{action:'charge-payment',passportId:'p1',region:'Chicago, IL',simulation:false,approved:true}})
+  const res=await invoke({method:'POST',headers:{authorization:'Bearer header.payload.signature'},body:{action:'charge-payment',passportId:'00000000-0000-4000-8000-000000000001',region:'Chicago, IL',simulation:false,approved:true}})
   assert.equal(res.code,401)
   assert.equal(calls,1)
  }finally{
