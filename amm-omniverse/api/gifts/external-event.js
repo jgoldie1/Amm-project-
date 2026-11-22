@@ -1,10 +1,6 @@
 import {json} from '../_lib/supabase-admin.js'
 
 const SUPPORTED=new Set(['twitch','tiktok','kick','bigo','youtube','facebook'])
-const seen=new Map()
-const TTL=10*60*1000
-
-function prune(){const now=Date.now();for(const [id,ts] of seen)if(now-ts>TTL)seen.delete(id)}
 function clean(v,n=180){return String(v||'').trim().slice(0,n)}
 
 export default async function handler(req,res){
@@ -15,20 +11,4 @@ export default async function handler(req,res){
  // A client-supplied header is not proof of Twitch, TikTok, BIGO or other provider authenticity.
  // Fail closed until per-provider cryptographic signature verification and durable idempotency exist.
  return json(res,503,{error:'external_gift_webhook_disabled_pending_signature_verification'})
- const eventId=clean(req.body?.eventId,180)
- const channelId=clean(req.body?.channelId,180)
- if(!eventId||!channelId)return json(res,400,{error:'event_and_channel_required'})
- prune()
- const key=platform+':'+eventId
- if(seen.has(key))return json(res,200,{ok:true,deduplicated:true,eventId})
- seen.set(key,Date.now())
- return json(res,202,{ok:true,event:{
-  schema:'tryamm.external-live-value.v1',platform,eventId,channelId,
-  senderId:clean(req.body?.senderId),senderName:clean(req.body?.senderName),
-  nativeGiftId:clean(req.body?.nativeGiftId),nativeGiftName:clean(req.body?.nativeGiftName),
-  nativeAmount:Number.isFinite(Number(req.body?.nativeAmount))?Number(req.body.nativeAmount):null,
-  nativeCurrency:clean(req.body?.nativeCurrency,24)||null,
-  verified:true,displayOnly:true,moneyMoved:false,withdrawable:false,
-  settlementAuthority:platform,receivedAt:new Date().toISOString()
- }})
 }
