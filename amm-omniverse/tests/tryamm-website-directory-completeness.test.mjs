@@ -27,3 +27,10 @@ test('Master inventory references recovered standalone sites without calling the
  const directory = read('components/FamilyBusinessDirectory.tsx')
  assert.ok(directory.includes('TRYAMM_WEBSITE_MASTER_REGISTRY'))
 })
+
+test('Isaiah AI TV and Aniyah literacy and payment projects are included without live payment claims', () => {
+ const source=read('data/tryammWebsiteMasterRegistry.ts')
+ for(const id of ['isaiah-ai-tv','aniyah-financial-literacy','aniyah-pay-center'])
+  assert.ok(source.includes(id),id)
+ assert.ok(source.includes('verification-needed'))
+})
