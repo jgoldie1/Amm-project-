@@ -13,7 +13,7 @@ export const CREATOR_CHANNELS=Object.freeze([
  {id:'tv',title:'Isaiah AI TV',path:'/isaiah-ai-tv',purpose:'Human-reviewed network programming pitch'},
  {id:'live',title:'Omni LIVE',path:'/live-test',purpose:'Private broadcast acceptance only'},
  {id:'business',title:'TRYAMM Business OS',path:'/business-os',purpose:'Company site, lead and digital storefront workflow'},
- {id:'template',title:'111 company-type website catalog',path:'/discover',purpose:'Preserve and verify the full selectable template inventory; catalog route must be checked before launch'}
+ {id:'template',title:'111 company-type website catalog',path:'/business-os',purpose:'Open Business OS while the preserved 111-option selector is audited; catalog selection and publishing are not yet verified'}
 ])
 const text=(x,max=160)=>String(x??'').trim().slice(0,max)
 export function createCreatorPacket(input={},now=new Date()){
