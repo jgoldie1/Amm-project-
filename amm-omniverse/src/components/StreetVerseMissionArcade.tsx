@@ -1,6 +1,7 @@
 import {useEffect,useState,type CSSProperties} from 'react'
 import {makeLocalMissionReceipt,TRYAMM_MISSION_EVENT} from '../foundation/streetverseIntegrationRegistry.js'
 import StreetVerseContextActions from './StreetVerseContextActions'
+import {storeLastMissionStory} from '../foundation/tryammCreatorWorldBridge.js'
 type Mode='after-dark'|'mystery'|'districts'|'shadow'|'fire'|'undercover'|'er'|'dispatch'|'homicide'|'sports'|'grocery'|'trucking'|'housing'|'health'|'parkour'|'rescue'|'action'
 type Progress={xp:number,credits:number,completed:string[],turn:number,properties:string[],clues:string[],heat:number}
 const KEY='tryamm:streetverse-mission-arcade:v1'
@@ -125,6 +126,7 @@ export default function StreetVerseMissionArcade(){
   setNotice(feedback)
   if(!success||p.completed.includes(id))return
   const receipt=makeLocalMissionReceipt(mode,id)
+  try{storeLastMissionStory(localStorage,receipt)}catch{/* local storage is optional */}
   setP(previous=>previous.completed.includes(id)?previous:({...previous,xp:previous.xp+75,credits:previous.credits+50,completed:[...previous.completed,id],heat:Math.max(0,previous.heat-5),clues:mode==='mystery'||mode==='shadow'?[...previous.clues,id]:previous.clues}))
   window.dispatchEvent(new CustomEvent(TRYAMM_MISSION_EVENT,{detail:receipt}))
  }
