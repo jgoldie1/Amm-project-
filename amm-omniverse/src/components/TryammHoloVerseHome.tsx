@@ -28,7 +28,7 @@ const modes:Record<Mode,{tagline:string;items:Array<[string,string,string]>}>={
  EARN:{tagline:'Businesses, creators and services earn from one economy.',items:[
   ['MARKETPLACE','Digital • physical • services','/marketplace'],
   ['BUSINESS OS','Storefront • AI agents • analytics','/business-os'],
-  ['111 WEBSITE COMPANY TYPES','Open the preserved template discovery path; verify each entry before delivery','/discover'],
+  ['111 WEBSITE COMPANY TYPES','Business OS gateway; full 111-type selector pending verification','/business-os'],
   ['CREATOR BUSINESS SPOTLIGHT','Business website → immersive mission → reel → TV story draft','/creator-world'],
   ['OMNI WORKSTATION','Owner control and operations','/workstation'],
   ['OMNI CASH','Payments and settlement surfaces','/omni-cash'],
