@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
-import {CREATOR_HANDOFF_KEY,CREATOR_CHANNELS,createCreatorPacket,saveCreatorPacket,readCreatorPacket,validCreatorPacket,creatorReleaseGates,storeReelCaptureMetadata,readReelCaptureMetadata} from '../src/foundation/tryammCreatorWorldBridge.js'
+import {CREATOR_HANDOFF_KEY,CREATOR_CHANNELS,createCreatorPacket,saveCreatorPacket,readCreatorPacket,validCreatorPacket,creatorReleaseGates,storeReelCaptureMetadata,readReelCaptureMetadata,storeLastMissionStory,readLastMissionStory} from '../src/foundation/tryammCreatorWorldBridge.js'
 const read=p=>fs.readFileSync(new URL(p,import.meta.url),'utf8')
 test('website/template discovery, reel, world, OmniBox, Isaiah AI TV and business routes are preserved',()=>{
  const ids=CREATOR_CHANNELS.map(x=>x.id)
@@ -58,4 +58,17 @@ test('captured HoloReel clip metadata transfers without copying a private video 
  const bridge=read('../src/components/TryammCreatorWorldBridge.tsx')
  assert.match(overlay,/storeReelCaptureMetadata/)
  assert.match(bridge,/REFRESH LAST HOLOREEL/)
+})
+
+test('completed arcade mission becomes a local creator story without authorizing game rewards',()=>{
+ const entries=new Map()
+ const store={getItem:k=>entries.get(k)||null,setItem:(k,v)=>entries.set(k,v)}
+ const receipt={schema:'tryamm.mission.local.v1',mode:'grocery',missionId:'gr1',completedAt:'2026-11-22T00:00:00.000Z',authoritative:false}
+ storeLastMissionStory(store,receipt)
+ assert.equal(readLastMissionStory(store).missionId,'gr1')
+ assert.throws(()=>storeLastMissionStory(store,{...receipt,authoritative:true}))
+ const arcade=read('../src/components/StreetVerseMissionArcade.tsx')
+ const bridge=read('../src/components/TryammCreatorWorldBridge.tsx')
+ assert.match(arcade,/storeLastMissionStory\(localStorage,receipt\)/)
+ assert.match(bridge,/IMPORT LAST COMPLETED MISSION/)
 })
