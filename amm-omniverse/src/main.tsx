@@ -62,6 +62,7 @@ const HoloLabGateway=lazy(()=>import('./components/HoloLabGateway'))
 const SECSConstructCenter=lazy(()=>import('./components/SECSConstructCenter'))
 const Chicago77HolographicAtlas=lazy(()=>import('./components/Chicago77HolographicAtlas'))
 const SoulAscensionChicagoCasting=lazy(()=>import('./components/SoulAscensionChicagoCasting'))
+const StreetVerseMissionArcade=lazy(()=>import('./components/StreetVerseMissionArcade'))
 const PublicReelPage=lazy(()=>import('./components/PublicReelPage'))
 const LiveOnePushTest=lazy(()=>import('./components/LiveOnePushTest'))
 const StreetVerseDeviceLiveCertificationHUD=lazy(()=>import('./components/StreetVerseDeviceLiveCertificationHUD'))
@@ -110,6 +111,7 @@ try {
   const isSECSConstruct=['/secs-construct','/secs-construct/','/construct','/construct/'].includes(currentPath)
   const isChicago77Atlas=['/chicago77','/chicago77/','/chicago-77','/chicago-77/'].includes(currentPath)
   const isSoulAscensionCasting=['/soul-ascension-chicago','/soul-ascension-chicago/','/soul-ascension-casting'].includes(currentPath)
+  const isStreetVerseMissionArcade=['/streetverse-missions','/streetverse-missions/','/after-dark-007'].includes(currentPath)
   const isLaunchLock=['/launch-lock','/launch-lock/','/october-launch','/october-launch/'].includes(currentPath)
   const isGlobalTradeWorld=['/global-trade','/global-trade/','/my-world','/my-world/','/we-are-the-world','/we-are-the-world/'].includes(currentPath)
   const isTwinWorld=currentPath.startsWith('/streetverse/twin-world')
@@ -203,6 +205,7 @@ try {
   else if(isSECSConstruct)routeContent=<Suspense fallback={routeFallback}><SECSConstructCenter onClose={()=>{window.location.href='/holo-lab'}} /></Suspense>
   else if(isChicago77Atlas)routeContent=<Suspense fallback={routeFallback}><Chicago77HolographicAtlas /></Suspense>
   else if(isSoulAscensionCasting)routeContent=<Suspense fallback={routeFallback}><SoulAscensionChicagoCasting /></Suspense>
+  else if(isStreetVerseMissionArcade)routeContent=<Suspense fallback={routeFallback}><StreetVerseMissionArcade /></Suspense>
   else if(isLaunchLock)routeContent=<Suspense fallback={routeFallback}><OctoberLaunchLockCenter /></Suspense>
   else if(isGlobalTradeWorld)routeContent=<Suspense fallback={routeFallback}><GlobalTradeWorldHub /></Suspense>
   else if(isBusinessOS)routeContent=<Suspense fallback={routeFallback}><StubbsAIHolographicBusinessOS /></Suspense>
