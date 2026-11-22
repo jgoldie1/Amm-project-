@@ -12,12 +12,16 @@ export default function ChicagoHoloJourneyStatus(){
   window.dispatchEvent(new CustomEvent('tryamm:assistant-unavailable',{detail:{agent:key,reason:'integration_not_ready'}}))
  }
  return <section aria-label="Chicago journey and AI tools" style={{padding:16,border:'1px solid #446c80',borderRadius:16,background:'#0b2132',color:'#fff',marginTop:14}}>
-  <h3 style={{fontSize:20,margin:'0 0 8px'}}>Chicago → Farm → Holo Gallery → Purchase → Delivery</h3>
+  <h3 style={{fontSize:20,margin:'0 0 8px'}}>Chicago → Farm → Holo Gallery → Purchase → HoloServices Delivery</h3>
   <p role="status" style={{color:'#ffe4a7'}}>Evidence status: {progress.passed} of {progress.total} steps independently verified by this pilot. This is not an estimate of overall app completion.</p>
   <ol style={{lineHeight:1.8,paddingLeft:24}}>{JOURNEY_STEPS.map(step=><li key={step}>{STEP_LABELS[step]} — pending trusted evidence</li>)}</ol>
   <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
    <a href="/chicago77" style={linkStyle}>Chicago Geo Atlas</a>
    <a href="/holo-gallery" style={linkStyle}>Holo Gallery</a>
+   <a href="/holo-ride" style={linkStyle}>Holo Ride</a>
+   <a href="/holo-delivery" style={linkStyle}>Holo Delivery</a>
+   <a href="/holo-logistics" style={linkStyle}>Holo Logistics</a>
+   <a href="/holo-drone" style={linkStyle}>Holo Drone (Simulation)</a>
    <button type="button" style={buttonStyle} onClick={()=>openAgent('__showMiddleverseWorkstation')}>Middleverse AI — Coordinate</button>
    <button type="button" style={buttonStyle} onClick={()=>openAgent('__showBennie')}>Stubbs AI — Assist</button>
   </div>
