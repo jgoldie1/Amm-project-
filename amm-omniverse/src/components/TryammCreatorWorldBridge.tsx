@@ -1,5 +1,5 @@
 import {useEffect,useState} from 'react'
-import {CREATOR_CHANNELS,CREATOR_HANDOFF_EVENT,createCreatorPacket,saveCreatorPacket,readCreatorPacket,creatorReleaseGates,type CreatorPacket} from '../foundation/tryammCreatorWorldBridge.js'
+import {CREATOR_CHANNELS,CREATOR_HANDOFF_EVENT,createCreatorPacket,saveCreatorPacket,readCreatorPacket,creatorReleaseGates,readReelCaptureMetadata,type ReelCaptureMetadata,type CreatorPacket} from '../foundation/tryammCreatorWorldBridge.js'
 const button:React.CSSProperties={minHeight:60,border:'2px solid #77e5ff',borderRadius:13,padding:'12px 16px',fontSize:16,fontWeight:850,color:'white',background:'#174660',cursor:'pointer',textDecoration:'none',display:'flex',alignItems:'center',justifyContent:'center',textAlign:'center'}
 export default function TryammCreatorWorldBridge(){
  const [kind,setKind]=useState('business-spotlight')
@@ -9,14 +9,15 @@ export default function TryammCreatorWorldBridge(){
  const [templateId,setTemplateId]=useState('')
  const [missionId,setMissionId]=useState('ad1')
  const [packet,setPacket]=useState<CreatorPacket|null>(null)
+ const [lastReel,setLastReel]=useState<ReelCaptureMetadata|null>(null)
  const [message,setMessage]=useState('Choose a company type from your preserved website catalog, or begin with a StreetVerse mission. This creates an editable metadata packet, not a video or published website.')
- useEffect(()=>{try{setPacket(readCreatorPacket(localStorage))}catch{}},[])
+ useEffect(()=>{try{setPacket(readCreatorPacket(localStorage));setLastReel(readReelCaptureMetadata(localStorage))}catch{}},[])
  const save=()=>{
-  const next=createCreatorPacket({kind,title,description,businessName,templateId,missionId})
+  const next=createCreatorPacket({kind,title,description,businessName,templateId,missionId,fileName:lastReel?.fileName,mimeType:lastReel?.mimeType,durationMs:lastReel?.durationMs})
   try{saveCreatorPacket(localStorage,next);setPacket(next);window.dispatchEvent(new CustomEvent(CREATOR_HANDOFF_EVENT,{detail:next}));setMessage('Creator packet saved on this device. OmniBox can read this handoff. No content has been uploaded or published.')}catch{setMessage('Local storage unavailable. Download the JSON packet instead.')}
  }
  const exportPacket=()=>{
-  const data=packet||createCreatorPacket({kind,title,description,businessName,templateId,missionId})
+  const data=packet||createCreatorPacket({kind,title,description,businessName,templateId,missionId,fileName:lastReel?.fileName,mimeType:lastReel?.mimeType,durationMs:lastReel?.durationMs})
   const url=URL.createObjectURL(new Blob([JSON.stringify({...data,releaseGates:creatorReleaseGates(data)},null,2)],{type:'application/json'}))
   const a=document.createElement('a');a.href=url;a.download='TRYAMM_Living_World_Creator_Packet.json';document.body.appendChild(a);a.click();a.remove();window.setTimeout(()=>URL.revokeObjectURL(url),1500)
  }
@@ -32,6 +33,11 @@ export default function TryammCreatorWorldBridge(){
     <label>Selected company-type template ID (optional)<input style={input} value={templateId} maxLength={100} onChange={e=>setTemplateId(e.target.value)} placeholder="Use your original 111-template catalog ID"/></label>
     <label>StreetVerse mission ID<input style={input} value={missionId} maxLength={80} onChange={e=>setMissionId(e.target.value)}/></label>
     <label>Project description<textarea style={{...input,minHeight:115}} value={description} maxLength={700} onChange={e=>setDescription(e.target.value)}/></label>
+    <div style={{padding:12,border:'1px solid #4b8b8b',borderRadius:12}}>
+      <strong>Recent HoloReel recording</strong><p>{lastReel?lastReel.fileName+' • '+Math.round(lastReel.durationMs/1000)+'s • '+lastReel.mimeType:'No capture metadata on this device yet.'}</p>
+      <p style={{fontSize:13,color:'#beddd9'}}>Only clip metadata is copied into the story packet. The actual media file must be downloaded, uploaded and approved separately.</p>
+      <button type="button" style={button} onClick={()=>{setLastReel(readReelCaptureMetadata(localStorage));setMessage('HoloReel capture metadata checked. Record a reel in StreetVerse if none is found.')}}>REFRESH LAST HOLOREEL</button>
+    </div>
     <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(210px,1fr))',gap:10}}>
      <button type="button" style={{...button,background:'#155c48'}} onClick={save}>SAVE CREATOR HANDOFF</button>
      <button type="button" style={button} onClick={exportPacket}>DOWNLOAD JSON PACKET</button>
