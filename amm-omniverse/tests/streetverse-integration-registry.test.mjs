@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
-import {BRIDGES,TRYAMM_MISSION_EVENT,makeLocalMissionReceipt,validateMissionReceipt,buildMissionIntegrationReport} from '../src/foundation/streetverseIntegrationRegistry.js'
+import {BRIDGES,TRYAMM_MISSION_EVENT,makeLocalMissionReceipt,validateMissionReceipt,buildMissionIntegrationReport,readLocalArcadeSummary,LOCAL_ARCADE_KEY} from '../src/foundation/streetverseIntegrationRegistry.js'
 const read=p=>fs.readFileSync(new URL(p,import.meta.url),'utf8')
 test('all ten TRYAMM product bridges are unique and have grounded launch routes and acceptance gaps',()=>{
  assert.equal(BRIDGES.length,10)
@@ -41,4 +41,17 @@ test('real UI route, home launcher, audit export and receipt emissions are wired
  assert.match(ui,/URL\.createObjectURL/)
  assert.match(arcade,/new CustomEvent\(TRYAMM_MISSION_EVENT/)
  assert.match(arcade,/makeLocalMissionReceipt\(mode,id\)/)
+})
+
+test('integration audit reads local arcade progress across routes but never elevates it to ledger authority',()=>{
+ const mock={getItem:k=>k===LOCAL_ARCADE_KEY?JSON.stringify({completed:['ad1','ad1','fr2','evil3'],xp:9999,credits:500}):null}
+ const summary=readLocalArcadeSummary(mock)
+ assert.equal(summary.available,true)
+ assert.equal(summary.completedMissions,2)
+ assert.equal(summary.fictionalXp,150)
+ assert.equal(summary.fictionalCredits,500)
+ assert.equal(readLocalArcadeSummary({getItem:()=>'{broken'}).available,false)
+ const report=buildMissionIntegrationReport({arcadeSummary:summary})
+ assert.equal(report.prototypeCapabilities.localArcadeSummary.completedMissions,2)
+ assert.equal(report.authoritativeLedgerConnected,false)
 })
