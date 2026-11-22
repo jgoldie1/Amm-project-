@@ -33,12 +33,26 @@ export const BRIDGES=Object.freeze([
  {id:'ledger',name:'Unified Value Ledger',path:'/streetverse-missions',scope:'Local arcade XP and credits only',acceptance:'Server authoritative, idempotent ledger bridge unimplemented'},
  {id:'business',name:'TRYAMM Business Engine',path:'/business-os',scope:'Business OS route',acceptance:'Purchases, storefront checkout and provider services need production acceptance'}
 ])
-export function buildMissionIntegrationReport({now=new Date(),hasLocalStorage=false,hasDownload=false}={}){
+export const LOCAL_ARCADE_KEY='tryamm:streetverse-mission-arcade:v1'
+/** Read-only summary across routes on the same device; never use for authorization. */
+export function readLocalArcadeSummary(storage){
+ const empty={available:false,completedMissions:0,fictionalXp:0,fictionalCredits:0}
+ try{
+  const raw=storage?.getItem(LOCAL_ARCADE_KEY);if(!raw)return empty
+  const x=JSON.parse(raw)
+  if(!x||!Array.isArray(x.completed))return empty
+  const completed=new Set(x.completed.filter(id=>typeof id==='string'&&/^(ad|ms|dt|sd|fr|uc|er|dp|hm)[1-3]$/.test(id)))
+  return {available:true,completedMissions:completed.size,
+   fictionalXp:Math.min(completed.size*75,Math.max(0,Number(x.xp)||0)),
+   fictionalCredits:Math.min(1850,Math.max(0,Number(x.credits)||0))}
+ }catch{return empty}
+}
+export function buildMissionIntegrationReport({now=new Date(),hasLocalStorage=false,hasDownload=false,arcadeSummary=null}={}){
  return {
  schema:'tryamm.streetverse.integration-readiness.v1',at:now.toISOString(),
  status:'development-not-production-ready',
  authoritativeLedgerConnected:false,liveIntegrationVerified:false,deviceAcceptanceVerified:false,
- prototypeCapabilities:{missionModes:9,scriptedStages:27,localPersistenceAvailable:Boolean(hasLocalStorage),reportDownloadAvailable:Boolean(hasDownload)},
+ prototypeCapabilities:{missionModes:9,scriptedStages:27,localPersistenceAvailable:Boolean(hasLocalStorage),reportDownloadAvailable:Boolean(hasDownload),localArcadeSummary:arcadeSummary},
  systems:BRIDGES.map(x=>({...x,liveVerified:false})),
  warnings:['This is a client-side implementation inventory, not a live provider check.','A URL listed here is a route intent, not proof of successful deployment.','No money, player account, 3D character, LIVE stream, or server ledger was verified.']
  }
