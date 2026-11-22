@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import ElectricDroneFleetCenter from './ElectricDroneFleetCenter'
 import HoloServicePassportCenter from './HoloServicePassportCenter'
+import {buildHoloReadinessReport} from '../foundation/holoOnePushReadinessReport'
 import {HOLO_SERVICE_GATES,HOLO_SERVICE_LABELS,assessHoloService,type HoloService} from '../foundation/holoServiceLaunchGates'
 import { createAdCampaign, createHoloBuilderProject, createHoloDelivery, createLogisticsJob, holoSearch, listHoloversePortals, prepareTranslation, reportHoloSafetyEvent, requestHoloRide, type HoloSearchDocument, type HoloversePortal } from '../services/holoServices'
 import { isSupabaseConfigured } from '../services/supabaseClient'
@@ -11,10 +12,22 @@ const tabs:Record<Tab,string>={search:'🔎 Holo Search',ride:'🚘 Holo Ride',d
 
 export default function HoloServicesHub({onClose}:Props){
  const [tab,setTab]=useState<Tab>(()=>window.location.pathname==='/holo-drone'?'drone':window.location.pathname==='/holo-ride'?'ride':window.location.pathname==='/holo-delivery'?'delivery':window.location.pathname==='/holo-logistics'?'logistics':window.location.pathname==='/holo-advertise'?'advertise':window.location.pathname==='/holo-readiness'?'readiness':window.location.pathname==='/holo-passport'?'passport':'search'),[message,setMessage]=useState(''),[busy,setBusy]=useState(false),[q,setQ]=useState(''),[results,setResults]=useState<HoloSearchDocument[]>([]),[portals,setPortals]=useState<HoloversePortal[]>([])
+ const [readinessReport,setReadinessReport]=useState<ReturnType<typeof buildHoloReadinessReport>|null>(null)
  const [a,setA]=useState('AI Café Chicago'),[b,setB]=useState('Creator District'),[text,setText]=useState('Welcome to TryAMM'),[locale,setLocale]=useState('es'),[campaign,setCampaign]=useState('Living Worlds Launch'),[builderTitle,setBuilderTitle]=useState('My Holo Experience')
  useEffect(()=>{if(isSupabaseConfigured())listHoloversePortals().then(setPortals).catch(()=>{})},[])
  const btn:React.CSSProperties={background:'#0e2340',border:'1px solid #52e5ff66',color:'#a9f2ff',borderRadius:8,padding:'12px 13px',cursor:'pointer',fontFamily:'monospace'},box:React.CSSProperties={background:'#06101f',border:'1px solid #213b56',borderRadius:12,padding:12},input:React.CSSProperties={width:'100%',background:'#020812',color:'#fff',border:'1px solid #33566f',borderRadius:8,padding:10,fontFamily:'monospace'}
- async function run(fn:()=>Promise<unknown>,success:string){setBusy(true);setMessage('');try{await fn();setMessage(success)}catch(e){setMessage(e instanceof Error?e.message:String(e))}finally{setBusy(false)}}
+ const auditHoloServices=()=>{
+  const report=buildHoloReadinessReport((service)=>assessHoloService(service as HoloService,[]))
+  setReadinessReport(report)
+ }
+ const exportReadiness=()=>{
+  if(!readinessReport)return
+  const file=new Blob([JSON.stringify(readinessReport,null,2)],{type:'application/json'})
+  const url=URL.createObjectURL(file)
+  const link=document.createElement('a');link.href=url;link.download='TRYAMM_HoloServices_Readiness_Audit.json'
+  document.body.appendChild(link);link.click();link.remove();URL.revokeObjectURL(url)
+ }
+  async function run(fn:()=>Promise<unknown>,success:string){setBusy(true);setMessage('');try{await fn();setMessage(success)}catch(e){setMessage(e instanceof Error?e.message:String(e))}finally{setBusy(false)}}
  return <div style={{position:'fixed',inset:0,zIndex:10090,background:'rgba(1,5,14,.99)',color:'#eefaff',fontFamily:'monospace',overflowY:'auto'}}><div style={{maxWidth:1120,margin:'0 auto',padding:16}}><div style={{display:'flex',gap:12,alignItems:'center'}}><button style={btn} onClick={onClose}>← Back</button><div><h2 style={{margin:0,color:'#52e5ff'}}>HOLO SERVICES CONTROL CENTER</h2><div style={{fontSize:10,color:'#66849a'}}>Search • Mobility • Delivery • Logistics • Advertising • Translation • Safety • Building • Holoverse • Payments • Support • Readiness</div></div></div>{message&&<div style={{...box,marginTop:10,borderColor:'#52e5ff55'}}>{message}</div>}<div style={{display:'flex',gap:6,flexWrap:'wrap',margin:'12px 0'}}>{(Object.keys(tabs) as Tab[]).map(t=><button key={t} style={{...btn,background:t===tab?'#154a5a':'#0e2340'}} onClick={()=>setTab(t)}>{tabs[t]}</button>)}</div>
 
  {tab==='search'&&<section style={box}><h3>Holo Search</h3><p style={{fontSize:11,color:'#89a5b9'}}>Universal discovery across TryAMM worlds, services, businesses, creators, books, games, learning and eventually geospatial results.</p><input style={input} value={q} onChange={e=>setQ(e.target.value)} placeholder="Search TryAMM..."/><button style={{...btn,marginTop:8}} disabled={busy} onClick={async()=>{setBusy(true);try{setResults(await holoSearch(q))}catch(e){setMessage(e instanceof Error?e.message:String(e))}finally{setBusy(false)}}}>Search</button><div style={{display:'grid',gap:7,marginTop:10}}>{results.map(r=><article style={box} key={r.id}><b>{r.title}</b><div style={{fontSize:10,color:'#52e5ff'}}>{r.source_type} {r.world_slug?`• ${r.world_slug}`:''}</div><p style={{fontSize:11,color:'#aaa'}}>{r.description}</p></article>)}</div></section>}
@@ -39,6 +52,12 @@ export default function HoloServicesHub({onClose}:Props){
 
  {tab==='readiness'&&<section aria-label="HoloServices launch readiness" style={box}>
    <h3>HoloServices — Verified Production Gates</h3>
+   <div style={{display:'flex',gap:10,flexWrap:'wrap',marginBottom:14}}>
+    <button type="button" style={{...btn,minHeight:56,fontSize:15}} onClick={auditHoloServices}>RUN ONE-PUSH READINESS AUDIT</button>
+    <button type="button" disabled={!readinessReport} style={{...btn,minHeight:56,fontSize:15}} onClick={exportReadiness}>DOWNLOAD JSON REPORT</button>
+   </div>
+   <p role="status" style={{color:'#ffe2a6'}}>{readinessReport?'Audit complete: '+readinessReport.services.length+' service categories assessed. No live provider validations performed.':'No readiness audit has been run in this session.'}</p>
+
    <p role="status" style={{color:'#ffdea5',lineHeight:1.7}}>All services remain unverified for public production. These results show required evidence, not whether a button exists. No provider approvals, live aircraft, paid advertisements, real rides, deliveries or refunds are implied.</p>
    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(250px,1fr))',gap:10}}>
     {(Object.keys(HOLO_SERVICE_GATES) as HoloService[]).map(key=>{
