@@ -1,7 +1,9 @@
 import {useState} from 'react'
+import {getAccessToken} from '../services/supabaseClient'
 import {TRYAMM_CONSTITUTION_RULES,evaluateGuardianCovenant,type ComplianceEvidence} from '../foundation/holoServiceGuardianCovenant'
 import {evaluatePassport,type HoloServicePassport,type PassportService} from '../foundation/holoServicePassport'
 const roles=['company','driver','courier','farm','advertiser','merchant','service-provider'] as const
+const actions:Record<PassportService,string>={advertising:'advertisement',rideshare:'dispatch-ride',delivery:'dispatch-delivery',freight:'dispatch-freight',drone:'dispatch-drone','farm-discovery':'publish-farm',commerce:'charge-payment',gallery:'publish-provider'}
 const services=['advertising','rideshare','delivery','freight','drone','farm-discovery','commerce','gallery'] as const
 const empty=():HoloServicePassport=>({
  id:'',displayName:'',roles:[],serviceScopes:[],operationalRegions:[],
@@ -14,23 +16,40 @@ const btn:React.CSSProperties={minHeight:54,padding:'12px 14px',borderRadius:12,
 export default function HoloServicePassportCenter(){
  const [draft,setDraft]=useState<HoloServicePassport>(empty)
  const [region,setRegion]=useState('Chicago, IL')
+ const [passportId,setPassportId]=useState('')
+ const [preflightBusy,setPreflightBusy]=useState(false)
+ const [preflightStatus,setPreflightStatus]=useState('No server verification performed.')
  const [service,setService]=useState<PassportService>('delivery')
  const result=evaluatePassport(draft,service,region)
  const compliance:ComplianceEvidence={humanApproved:false,humanApproverId:null,policyVersion:'TRYAMM Guardian Covenant',policyReviewReference:null,riskReviewed:false,consentCurrent:false,privacyReviewReference:null,incidentEscalationAvailable:false,authorizationReference:null,auditRecordReference:null,providerResponseVerified:false,valueLedgerReference:null,simulation:true}
  const governed=evaluateGuardianCovenant('publish-provider',compliance)
+ const verifyServer=async()=>{
+  setPreflightBusy(true);setPreflightStatus('Checking authenticated HoloService authorization…')
+  try{
+   const token=await getAccessToken()
+   if(!token){setPreflightStatus('BLOCKED — sign in to check provider authorization.');return}
+   const response=await fetch('/api/holo/authorization-preflight',{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+token},body:JSON.stringify({action:actions[service],passportId,region})})
+   const body=await response.json()
+   setPreflightStatus(response.ok?'BLOCKED — '+(body.next||'Additional provider authorization required.'):'BLOCKED — '+(body.error||'Server authorization unavailable.'))
+  }catch{setPreflightStatus('BLOCKED — server authorization could not be verified.')}
+  finally{setPreflightBusy(false)}
+ }
  return <section aria-label="HoloService Passport review" style={{background:'#0d2738',border:'1px solid #4a7186',borderRadius:16,padding:16,color:'#fff',marginTop:12}}>
   <h3 style={{marginTop:0}}>HoloService Passport</h3>
   <p style={{color:'#ffdba5',lineHeight:1.65}}>Private planning form only. This form does not issue a license, verify identity, enroll a driver, publish a farm, initiate payment or authorize dispatch. Do not enter license scans or private documents here.</p>
   <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(210px,1fr))',gap:12}}>
+   <label>Server-issued passport ID<input style={field} value={passportId} onChange={e=>setPassportId(e.target.value)} placeholder="Approved registry record ID"/></label>
    <label>Business or operator display name<input style={field} value={draft.displayName} onChange={e=>setDraft(p=>({...p,displayName:e.target.value}))}/></label>
    <label>Operating region<input style={field} value={region} onChange={e=>setRegion(e.target.value)}/></label>
    <label>Service category<select style={field} value={service} onChange={e=>setService(e.target.value as PassportService)}>{services.map(v=><option key={v} value={v}>{v}</option>)}</select></label>
    <label>Provider role<select style={field} value={draft.roles[0]||''} onChange={e=>setDraft(p=>({...p,roles:e.target.value?[e.target.value as typeof roles[number]]:[]}))}><option value="">Choose role</option>{roles.map(v=><option key={v} value={v}>{v}</option>)}</select></label>
   </div>
   <div style={{display:'flex',flexWrap:'wrap',gap:10,marginTop:12}}>
-   <button type="button" style={btn} onClick={()=>setDraft(empty())}>Clear planning form</button>
+   <button type="button" style={btn} onClick={()=>{setDraft(empty());setPassportId('');setPreflightStatus('No server verification performed.')}}>Clear planning form</button>
+   <button type="button" style={btn} disabled={!passportId.trim()||preflightBusy} onClick={verifyServer}>Check server authorization</button>
    <a href="/holo-readiness" style={{...btn,textDecoration:'none',display:'inline-flex',alignItems:'center'}}>View launch requirements</a>
   </div>
+  <p role="status" style={{color:'#ffdba5'}}>{preflightStatus}</p>
   <p role="status" style={{color:'#ffdba5'}}>Production authorization: BLOCKED. {result.missing.length} passport and {governed.missing.length} constitutional compliance checks are not satisfied.</p>
   <details><summary style={{minHeight:48,cursor:'pointer'}}>Guardian Covenant and AI Law Compliance</summary><ul>{Object.values(TRYAMM_CONSTITUTION_RULES).map(rule=><li key={rule}>{rule}</li>)}</ul><p>These internal rules do not replace applicable transportation, aviation, food, privacy, consumer protection or payment laws. Signed approval evidence and staffed incident escalation must be verified by the backend before production use.</p><button type="button" style={btn} onClick={()=>{const fn=(window as any).__showCompliance;if(typeof fn==='function')fn()}}>Open TRYAMM Compliance Center</button></details>
   <details><summary style={{minHeight:48,cursor:'pointer'}}>Required provider evidence</summary>
