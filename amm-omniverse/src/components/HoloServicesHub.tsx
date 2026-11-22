@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react'
 import ElectricDroneFleetCenter from './ElectricDroneFleetCenter'
+import HoloServicePassportCenter from './HoloServicePassportCenter'
 import {HOLO_SERVICE_GATES,HOLO_SERVICE_LABELS,assessHoloService,type HoloService} from '../foundation/holoServiceLaunchGates'
 import { createAdCampaign, createHoloBuilderProject, createHoloDelivery, createLogisticsJob, holoSearch, listHoloversePortals, prepareTranslation, reportHoloSafetyEvent, requestHoloRide, type HoloSearchDocument, type HoloversePortal } from '../services/holoServices'
 import { isSupabaseConfigured } from '../services/supabaseClient'
 
 interface Props{onClose:()=>void}
-type Tab='search'|'ride'|'delivery'|'logistics'|'drone'|'advertise'|'lingo'|'guardian'|'builder'|'holoverse'|'readiness'
-const tabs:Record<Tab,string>={search:'🔎 Holo Search',ride:'🚘 Holo Ride',delivery:'📦 Holo Delivery',logistics:'🚛 Holo Logistics',drone:'🚁 Holo Drone',advertise:'📣 Holo Advertise',lingo:'🌐 Holo Lingo',guardian:'🛡 Holo Guardian',builder:'🧰 Holo Builder',holoverse:'🌀 Holoverse',readiness:'🛡 Launch Readiness'}
+type Tab='search'|'ride'|'delivery'|'logistics'|'drone'|'advertise'|'lingo'|'guardian'|'builder'|'holoverse'|'readiness'|'passport'
+const tabs:Record<Tab,string>={search:'🔎 Holo Search',ride:'🚘 Holo Ride',delivery:'📦 Holo Delivery',logistics:'🚛 Holo Logistics',drone:'🚁 Holo Drone',advertise:'📣 Holo Advertise',lingo:'🌐 Holo Lingo',guardian:'🛡 Holo Guardian',builder:'🧰 Holo Builder',holoverse:'🌀 Holoverse',readiness:'🛡 Launch Readiness',passport:'🪪 HoloService Passport'}
 
 export default function HoloServicesHub({onClose}:Props){
- const [tab,setTab]=useState<Tab>(()=>window.location.pathname==='/holo-drone'?'drone':window.location.pathname==='/holo-ride'?'ride':window.location.pathname==='/holo-delivery'?'delivery':window.location.pathname==='/holo-logistics'?'logistics':window.location.pathname==='/holo-advertise'?'advertise':window.location.pathname==='/holo-readiness'?'readiness':'search'),[message,setMessage]=useState(''),[busy,setBusy]=useState(false),[q,setQ]=useState(''),[results,setResults]=useState<HoloSearchDocument[]>([]),[portals,setPortals]=useState<HoloversePortal[]>([])
+ const [tab,setTab]=useState<Tab>(()=>window.location.pathname==='/holo-drone'?'drone':window.location.pathname==='/holo-ride'?'ride':window.location.pathname==='/holo-delivery'?'delivery':window.location.pathname==='/holo-logistics'?'logistics':window.location.pathname==='/holo-advertise'?'advertise':window.location.pathname==='/holo-readiness'?'readiness':window.location.pathname==='/holo-passport'?'passport':'search'),[message,setMessage]=useState(''),[busy,setBusy]=useState(false),[q,setQ]=useState(''),[results,setResults]=useState<HoloSearchDocument[]>([]),[portals,setPortals]=useState<HoloversePortal[]>([])
  const [a,setA]=useState('AI Café Chicago'),[b,setB]=useState('Creator District'),[text,setText]=useState('Welcome to TryAMM'),[locale,setLocale]=useState('es'),[campaign,setCampaign]=useState('Living Worlds Launch'),[builderTitle,setBuilderTitle]=useState('My Holo Experience')
  useEffect(()=>{if(isSupabaseConfigured())listHoloversePortals().then(setPortals).catch(()=>{})},[])
  const btn:React.CSSProperties={background:'#0e2340',border:'1px solid #52e5ff66',color:'#a9f2ff',borderRadius:8,padding:'12px 13px',cursor:'pointer',fontFamily:'monospace'},box:React.CSSProperties={background:'#06101f',border:'1px solid #213b56',borderRadius:12,padding:12},input:React.CSSProperties={width:'100%',background:'#020812',color:'#fff',border:'1px solid #33566f',borderRadius:8,padding:10,fontFamily:'monospace'}
@@ -33,6 +34,8 @@ export default function HoloServicesHub({onClose}:Props){
  {tab==='guardian'&&<section style={box}><h3>Holo Guardian + Holo Access</h3><p style={{fontSize:11,color:'#89a5b9'}}>Guardian is the shared safety/reporting layer. Holo Access remains the platform-wide accessibility profile already connected to the app, with this hub serving as its discovery/control surface.</p><button style={btn} disabled={busy} onClick={()=>run(()=>reportHoloSafetyEvent('user-report','medium',{note:'Test report from Holo Services Hub'}),'Safety event recorded for review.')}>Create Test Safety Report</button><div style={{fontSize:10,color:'#7591a5',marginTop:9}}>Production moderation still needs staffed escalation, youth safety policy enforcement, incident SLAs and jurisdiction-specific procedures.</div></section>}
 
  {tab==='builder'&&<section style={box}><h3>Holo Builder</h3><p style={{fontSize:11,color:'#89a5b9'}}>Creator foundation for worlds, apps, storefronts, ads, experiences, workflows and agents.</p><input style={input} value={builderTitle} onChange={e=>setBuilderTitle(e.target.value)}/><div style={{display:'flex',gap:6,flexWrap:'wrap',marginTop:8}}>{(['world','app','storefront','ad','experience','workflow','agent'] as const).map(t=><button style={btn} disabled={busy} key={t} onClick={()=>run(()=>createHoloBuilderProject(builderTitle,t),`${t} builder project created.`)}>{t}</button>)}</div></section>}
+
+ {tab==='passport'&&<HoloServicePassportCenter/>}
 
  {tab==='readiness'&&<section aria-label="HoloServices launch readiness" style={box}>
    <h3>HoloServices — Verified Production Gates</h3>
