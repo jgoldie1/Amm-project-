@@ -7,7 +7,7 @@ test('redesign keeps one-hand accessible direct routes above the 3D world hero',
  const shortcuts=home.indexOf('Quick access to worlds and businesses')
  const hero=home.indexOf('tryamm-world-hero')
  assert.ok(shortcuts>=0&&shortcuts<hero)
- for(const route of ['/streetverse','/yahavah-grocery','/farm-to-family','/stores','/beauty-supply'])assert.ok(home.includes(route),route)
+ for(const route of ['/streetverse','/yahavah-grocery','/farm-to-family','/stores','/beauty-supply','/chicago77','/holo-gallery'])assert.ok(home.includes(route),route)
  assert.match(home,/minHeight:58/)
  assert.match(home,/aria-label="Direct business and game shortcuts"/)
  assert.match(home,/No full-screen menu required/)
