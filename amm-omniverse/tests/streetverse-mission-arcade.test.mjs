@@ -5,10 +5,10 @@ const read=p=>fs.readFileSync(new URL(p,import.meta.url),'utf8')
 const arcade=read('../src/components/StreetVerseMissionArcade.tsx')
 const main=read('../src/main.tsx')
 const home=read('../src/components/TryAMMHome.tsx')
-test('all four independent mission modes and twelve unique mission identifiers are registered',()=>{
- for(const id of ["'after-dark'","'mystery'","'districts'","'shadow'"])assert.ok(arcade.includes(id))
- const ids=[...arcade.matchAll(/\{id:'(ad\d|ms\d|dt\d|sd\d)',title:/g)].map(x=>x[1])
- assert.equal(ids.length,12);assert.equal(new Set(ids).size,12)
+test('all nine mission modes and twenty-seven unique mission identifiers are registered',()=>{
+ for(const id of ["'after-dark'","'mystery'","'districts'","'shadow'","'fire'","'undercover'","'er'","'dispatch'","'homicide'"])assert.ok(arcade.includes(id))
+ const ids=[...arcade.matchAll(/\{id:'(ad\d|ms\d|dt\d|sd\d|fr\d|uc\d|er\d|dp\d|hm\d)',title:/g)].map(x=>x[1])
+ assert.equal(ids.length,27);assert.equal(new Set(ids).size,12)
 })
 test('accessible route and home navigation entry',()=>{
  assert.match(main,/isStreetVerseMissionArcade/)
@@ -30,4 +30,11 @@ test('original intellectual property and no monetary gambling or automatic real-
  assert.match(arcade,/no artist or third-party brand affiliation/)
  assert.doesNotMatch(arcade,/fetch\(/)
  assert.doesNotMatch(arcade,/Math\.random\(\).*payment/)
+})
+
+test('emergency and investigation content has safety and affiliation boundaries',()=>{
+ assert.match(arcade,/not real emergency instructions/)
+ assert.match(arcade,/UIC, Chicago Fire/)
+ assert.match(arcade,/qualified triage staff/)
+ assert.match(arcade,/exculpatory evidence/)
 })
