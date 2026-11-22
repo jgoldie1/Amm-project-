@@ -55,7 +55,8 @@ export default function TryAMMHome(){
        ['🚛','HOLO LOGISTICS','/holo-logistics'],
        ['🚁','HOLO DRONE','/holo-drone'],
        ['📣','HOLO ADVERTISE','/holo-advertise'],
-       ['🛡️','SERVICE READINESS','/holo-readiness']
+       ['🛡️','SERVICE READINESS','/holo-readiness'],
+       ['🎤','SOUL ASCENSION CASTING','/soul-ascension-chicago']
      ] as const).map(([icon,label,path])=><a key={path} href={path} style={{display:'flex',alignItems:'center',gap:9,minHeight:58,padding:'10px 12px',border:'1px solid #406a80',borderRadius:14,background:'#112c40',color:'#e8f8ff',fontSize:13,fontWeight:900,textDecoration:'none'}}><span aria-hidden="true" style={{fontSize:23}}>{icon}</span><span>{label}</span></a>)}
    </nav>
    <div aria-label="AI coordination shortcuts" style={{display:'flex',gap:10,flexWrap:'wrap',marginTop:10}}>
