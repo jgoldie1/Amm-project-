@@ -68,28 +68,28 @@ const btn:CSSProperties={border:'2px solid #6ad8fd',borderRadius:14,minHeight:62
 export default function StreetVerseMissionArcade(){
  const [mode,setMode]=useState<Mode>('after-dark')
  const [p,setP]=useState<Progress>(safeProgress)
- const [notice,setNotice]=useState('Choose a mission. Progress is saved on this device only.')
+ const [notice,setNotice]=useState('Choose a category and make a decision to complete each story stage. Three missions per category; earn 75 XP and 50 fictional credits per first completion. Progress is saved on this device only.')
  useEffect(()=>{try{localStorage.setItem(KEY,JSON.stringify(p))}catch{setNotice('Local storage is unavailable; progress will not persist after closing this tab.')}},[p])
  const active=missions[mode].find(x=>!p.completed.includes(x.id))
  const finish=(id:string,success:boolean,feedback:string)=>{
   setNotice(feedback)
   if(!success||p.completed.includes(id))return
-  setP(previous=>({...previous,xp:previous.xp+75,credits:previous.credits+50,completed:[...previous.completed,id],heat:Math.max(0,previous.heat-5),clues:mode==='mystery'||mode==='shadow'?[...previous.clues,id]:previous.clues}))
+  setP(previous=>previous.completed.includes(id)?previous:({...previous,xp:previous.xp+75,credits:previous.credits+50,completed:[...previous.completed,id],heat:Math.max(0,previous.heat-5),clues:mode==='mystery'||mode==='shadow'?[...previous.clues,id]:previous.clues}))
  }
  const build=(id:string,cost:number)=>{
   if(p.properties.includes(id)){setNotice('Already owned on this device.');return}
   if(p.credits<cost){setNotice('Earn more fictional credits by completing missions. No real money is used.');return}
-  setP(previous=>({...previous,credits:previous.credits-cost,properties:[...previous.properties,id]}))
+  setP(previous=>previous.properties.includes(id)||previous.credits<cost?previous:({...previous,credits:previous.credits-cost,properties:[...previous.properties,id]}))
   setNotice('Business built! This is a local prototype, not a real-world ownership claim or blockchain transaction.')
  }
- const roll=()=>{const dice=Math.floor(Math.random()*6)+1;setP(previous=>({...previous,turn:previous.turn+dice,credits:previous.credits+10}));setNotice('You moved '+dice+' spaces and earned 10 fictional credits. No purchases, gambling or real payouts.')}
+ const roll=()=>{const dice=Math.floor(Math.random()*6)+1;setP(previous=>({...previous,turn:previous.turn+dice}));setNotice('You moved '+dice+' spaces. Complete missions to earn fictional credits; dice rolls do not mint credits.')}
  return <main style={{minHeight:'100vh',background:'linear-gradient(#0c1531,#030816)',color:'#f2f8ff',fontFamily:'system-ui',padding:'16px 12px 70px'}}>
   <div style={{maxWidth:930,margin:'auto'}}>
    <header style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:12,flexWrap:'wrap'}}>
     <strong style={{color:'#ffe0a0'}}>TRYAMM • STREETVERSE</strong><a href="/" style={{...btn,textDecoration:'none'}}>HOME</a>
    </header>
    <h1 style={{fontSize:'clamp(28px,6vw,48px)',marginBottom:3}}>MISSION ARCADE</h1>
-   <p>Nine original Chicago story modes • large one-hand controls • no real-money gameplay</p>
+   <p>Nine original Chicago story modes • 27 decisions • large one-hand controls • no real-money gameplay</p><p style={{fontSize:16,lineHeight:1.6}}>Rules: Complete each three-part story in order. A correct decision earns 75 XP and 50 fictional credits once. Incorrect choices give feedback and allow retries. Credits may build fictional storefronts; dice rolls only move your board token. Your progress is local to this device. No pay-to-win, cash-out or wagering.</p>
    <section aria-label="Game progress" style={{display:'flex',gap:10,flexWrap:'wrap',marginBottom:16}}>
     {['XP: '+p.xp,'Fictional credits: '+p.credits,'Missions: '+p.completed.length+'/'+Object.values(missions).reduce((sum,x)=>sum+x.length,0),'Businesses: '+p.properties.length].map(x=><span key={x} style={{border:'1px solid #547fa6',borderRadius:12,padding:10,fontWeight:750}}>{x}</span>)}
    </section>
@@ -105,7 +105,7 @@ export default function StreetVerseMissionArcade(){
    </section>
    {mode==='districts'&&<section style={{marginTop:20}}><h2>District Property Board</h2>
     <button type="button" style={btn} onClick={roll}>ROLL ONE DIE — MOVE</button>
-    <p>Position: {p.turn%12} of 12. Every roll earns 10 fictional credits. This is a non-monetized neighborhood simulator.</p>
+    <p>Position: {p.turn%12} of 12. Dice rolls do not earn credits; complete missions for rewards. This is a non-monetized neighborhood simulator.</p>
     <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(210px,1fr))',gap:12}}>
      {lots.map(l=><div key={l.id} style={{padding:15,borderRadius:14,background:'#142944',border:'1px solid #547d99'}}>
        <h3>{l.name}</h3><p>Cost: {l.cost} fictional credits</p>
