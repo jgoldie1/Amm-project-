@@ -8,7 +8,7 @@ create table if not exists public.holo_service_passport_authorizations (
  status text not null default 'draft' check(status in ('draft','review','approved','suspended','revoked')),
  approved_region text not null,
  approved_service text not null check(approved_service in
-  ('rideshare','delivery','freight','drone','advertising','payments','farm-discovery','provider')),
+  ('rideshare','delivery','freight','drone','advertising','commerce','farm-discovery','gallery')),
  authorization_expires_at timestamptz,
  approved_at timestamptz,
  approved_by uuid,
