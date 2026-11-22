@@ -29,7 +29,7 @@ async function authenticatedUser(token){
 export default async function handler(req,res){
  if(req.method!=='POST')return json(res,405,{error:'method_not_allowed'})
  const action=text(req.body?.action,40),passportId=text(req.body?.passportId,80),region=text(req.body?.region,80)
- if(!SUPPORTED.has(action)||!passportId||!region)return json(res,400,{error:'invalid_preflight_request'})
+ if(!SUPPORTED.has(action)||!/^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i.test(passportId)||!region||!(/^[\\p{L}0-9 .,'()-]+$/u.test(region)))return json(res,400,{error:'invalid_preflight_request'})
  const token=bearer(req)
  if(!token)return json(res,401,{error:'authentication_required'})
  let userId
