@@ -17,7 +17,7 @@ export default function HoloServicesHub({onClose}:Props){
  useEffect(()=>{if(isSupabaseConfigured())listHoloversePortals().then(setPortals).catch(()=>{})},[])
  const btn:React.CSSProperties={background:'#0e2340',border:'1px solid #52e5ff66',color:'#a9f2ff',borderRadius:8,padding:'12px 13px',cursor:'pointer',fontFamily:'monospace'},box:React.CSSProperties={background:'#06101f',border:'1px solid #213b56',borderRadius:12,padding:12},input:React.CSSProperties={width:'100%',background:'#020812',color:'#fff',border:'1px solid #33566f',borderRadius:8,padding:10,fontFamily:'monospace'}
  const auditHoloServices=()=>{
-  const report=buildHoloReadinessReport((service)=>assessHoloService(service as HoloService,[]))
+  const report=buildHoloReadinessReport((service:string)=>assessHoloService(service as HoloService,[]))
   setReadinessReport(report)
  }
  const exportReadiness=()=>{
