@@ -9,5 +9,6 @@ test('optional scenery cannot hang the original-character startup',()=>{
  assert.match(native,/Promise\.race\(\[/,'native assets have bounded load')
  assert.match(native,/expired=true;reject\(Error\('Native scenery timed out'\)\)/,'failed scenery releases wait')
  assert.match(game,/if\(nativeLayer\)\{\s*const activateBJHero/,'cast startup not gated on procedural BJ')
- assert.match(game,/if\(recoveredParam\)void activateRecoveredPlayable\(recoveredParam\)/,'recover requested hero')
+ assert.match(game,/if\(eagerRecoveredId\)void loadRecoveredPlayable\(eagerRecoveredId\)/,'requested hero starts independently from native scenery')
+ assert.match(game,/if\(recoveredParam&&!eagerRecoveredId\)void activateRecoveredPlayable\(recoveredParam\)/,'deferred loader avoids a duplicate request')
 })

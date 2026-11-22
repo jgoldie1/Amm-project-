@@ -226,6 +226,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
  const [cameraUiMode,setCameraUiMode]=useState<'first-person'|'third-person'>('third-person')
  const [vehicleCameraUiMode,setVehicleCameraUiMode]=useState('chase')
  const joystickLastMoveAt=useRef(0)
+ const joystickCapture=useRef<{target:HTMLDivElement;pointerId:number}|null>(null)
  const movementPulseTimer=useRef<number|null>(null)
  useEffect(()=>{
   const haptics=createBJHapticRuntime({vibrate:pattern=>typeof navigator.vibrate==='function'?navigator.vibrate(pattern):false})
@@ -313,6 +314,8 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   const nativeHumanoidRig=(visual:THREE.Object3D|null):NativeHumanoidRig|null=>visual?{head:visual.getObjectByName('rig-head')||null,spine:visual.getObjectByName('rig-spine')||null,leftArm:visual.getObjectByName('rig-left-arm')||null,rightArm:visual.getObjectByName('rig-right-arm')||null,leftLeg:visual.getObjectByName('rig-left-leg')||null,rightLeg:visual.getObjectByName('rig-right-leg')||null,leftEyelid:visual.getObjectByName('eyelid-left')||null,rightEyelid:visual.getObjectByName('eyelid-right')||null,leftIris:visual.getObjectByName('iris-left')||null,rightIris:visual.getObjectByName('iris-right')||null,leftPupil:visual.getObjectByName('pupil-left')||null,rightPupil:visual.getObjectByName('pupil-right')||null,leftBrow:visual.getObjectByName('brow-left')||null,rightBrow:visual.getObjectByName('brow-right')||null,jaw:visual.getObjectByName('jaw')||null}:null
   const animateNativeHumanoid=(rig:NativeHumanoidRig|null|undefined,moving:boolean,run:boolean,now:number,phase:number,facialDetail:boolean,talking=false,focusYaw=0,liveTalkLevel=0,affectBreathing=.15,affectPosture='neutral')=>{if(!rig)return;const t=now*.001,rate=run?10:6.8,amp=moving?(run?.88:.58):.035,swing=Math.sin(t*rate+phase)*amp;if(rig.leftArm)rig.leftArm.rotation.x=swing;if(rig.rightArm)rig.rightArm.rotation.x=-swing;if(rig.leftLeg)rig.leftLeg.rotation.x=-swing*.76;if(rig.rightLeg)rig.rightLeg.rotation.x=swing*.76;if(rig.head){const idleYaw=moving?Math.sin(t*rate*.45+phase)*.045:Math.sin(t*.72+phase)*.10;rig.head.rotation.y=THREE.MathUtils.lerp(rig.head.rotation.y,talking?focusYaw:idleYaw,talking?.18:.10);rig.head.rotation.x=THREE.MathUtils.lerp(rig.head.rotation.x,talking?Math.sin(t*.85)*.018:0,.12)}const breathRate=1.15+THREE.MathUtils.clamp(affectBreathing,0,1)*1.35,breath=Math.sin(t*breathRate+phase)*.5+.5,breathDepth=.004+THREE.MathUtils.clamp(affectBreathing,0,1)*.010,postureLean=affectPosture==='withdrawn'?.045:affectPosture==='guarded'?.028:affectPosture==='open'?-.018:affectPosture==='energized'?-.010:0;if(rig.spine){rig.spine.rotation.z=moving?Math.sin(t*rate+phase)*.022:Math.sin(t*.55+phase)*.012;rig.spine.rotation.x=(moving?.025:Math.sin(t*.9+phase)*.008)+postureLean;rig.spine.scale.set(1+breath*breathDepth*.5,1+breath*breathDepth,1+breath*breathDepth*.4)}if(!facialDetail)return;const blinkClock=(t+phase*.41)%4.6,blink=blinkClock>4.36?Math.sin(((blinkClock-4.36)/.24)*Math.PI):0;for(const eyelid of [rig.leftEyelid,rig.rightEyelid])if(eyelid){eyelid.scale.y=.16+blink*.52;eyelid.position.y=.108-blink*.018}const glance=(talking?focusYaw*.22:0)+Math.sin(t*.73+phase)*.018;for(const eye of [rig.leftIris,rig.rightIris,rig.leftPupil,rig.rightPupil])if(eye)eye.rotation.y=glance;const expression=Math.sin(t*.31+phase),talkBrow=talking?.018:0;if(rig.leftBrow)rig.leftBrow.rotation.z=.05+expression*.025-talkBrow;if(rig.rightBrow)rig.rightBrow.rotation.z=-.05-expression*.025+talkBrow;if(rig.jaw){const synthetic=talking?Math.max(0,(Math.sin(t*12.4)+Math.sin(t*7.1+1.2)+.35)/2.35)*.09:Math.max(0,Math.sin(t*.47+phase))*.012;const mic=THREE.MathUtils.clamp(liveTalkLevel,0,1)*.115;rig.jaw.rotation.x=Math.max(synthetic,mic)}}
   const applySeatedDriverPose=(rig:NativeHumanoidRig|null|undefined)=>{if(!rig)return;if(rig.spine)rig.spine.rotation.x=.08;if(rig.leftLeg){rig.leftLeg.rotation.x=-1.18;rig.leftLeg.rotation.z=.06}if(rig.rightLeg){rig.rightLeg.rotation.x=-1.18;rig.rightLeg.rotation.z=-.06}if(rig.leftArm){rig.leftArm.rotation.x=-.72;rig.leftArm.rotation.z=-.30}if(rig.rightArm){rig.rightArm.rotation.x=-.72;rig.rightArm.rotation.z=.30}}
+  let playableLoadEpoch=0
+  let selectBJ:(()=>void)|undefined
   let bjHeroLoadEpoch=0,onBJPreviewRequest:((event:Event)=>void)|null=null,onBJProgressCleanup:(()=>void)|null=null,onRecoveredRetryCleanup:(()=>void)|null=null,residentCleanup:(()=>void)|null=null,residentFallbackTimer=0,deferredNpcTimers:number[]=[]
   let cc0FreeLayer:TryammCc0FreeAssetLayer|null=null,nativeLayer:THREE.Group|null=null,nativeHero:THREE.Object3D|null=null,nativeTrain:THREE.Object3D|null=null,nativeStarterCar:THREE.Object3D|null=null,nativeRepairCar:THREE.Object3D|null=null,nativeResidents:THREE.Object3D[]=[],nativeTrafficCars:THREE.Object3D[]=[],nativeBuildings:THREE.Object3D[]=[],primitiveBuildingVisuals:THREE.Object3D[][]=[],nativeHeroRig:NativeHumanoidRig|null=null,nativeResidentRigs:Array<NativeHumanoidRig|null>=[],nativeDriverDoorPivot:THREE.Object3D|null=null,nativePassengerDoorPivot:THREE.Object3D|null=null,nativeHoodPivot:THREE.Object3D|null=null,nativeCancelled=false,nativeWindLocs:THREE.Object3D[]=[],heroConversationUntil=0,heroConversationFocusYaw=0,heroLiveTalkLevel=0,heroAffectBreathing=.15,heroAffectPosture='neutral',heroBodyMovementScale=1,heroSprintAllowed=true,bjHeadRuntime:ReturnType<typeof installStreetVerseCharacterHeadRuntime>|null=null,bjPhotoMatch:ReturnType<typeof installBJPhotoMatchedHead>|null=null,bjPhotoMatchReady=false,bjMeshyHero:StreetVerseMeshyBJHeroHandle|null=null,publishedHeroBody:StreetVersePublishedBodyHandle|null=null,familyHeroHandle:StreetVerseMeshyLoadedCharacter|null=null,recoveredPlayableHandle:RecoveredPlayableHandle|null=null,meshyResidentHandles:Array<StreetVerseMeshyLoadedCharacter|null>=Array(12).fill(null),nativeHeroFallback:THREE.Object3D|null=null,onPlayerAssetSelect:((event:Event)=>void)|null=null
   const mobileNativePlacements:NativePlacement[]=[
@@ -365,6 +368,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   const eagerRecoveredId:RecoveredPlayableId|null=initialHeroParam.startsWith('jacobie')?'jacobie-stubbs':initialHeroParam.startsWith('lateasia')?'lateasia-monroe':null
   if(eagerRecoveredId)void loadRecoveredPlayable(eagerRecoveredId).then(handle=>{
     if(nativeCancelled){handle?.dispose();return}
+    if(playableLoadEpoch!==0){handle?.dispose();return}
     if(!handle){
       setMessage((eagerRecoveredId==='jacobie-stubbs'?'JACOBIE':'LATEASIA')+' • original 3D file unavailable; retry or import the original GLB')
       window.dispatchEvent(new CustomEvent('tryamm:streetverse-recovered-playable-missing',{detail:{id:eagerRecoveredId,characterId:eagerRecoveredId,reason:'priority-model-load-failed',mounted:false}}))
@@ -382,7 +386,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     window.dispatchEvent(new CustomEvent('tryamm:streetverse-recovered-playable-mounted',{detail:mountedDetail}))
     setMessage(handle.name.toUpperCase()+' • '+(handle.object.userData.textureVerified?'TEXTURED ORIGINAL':'DIAGNOSTIC APPEARANCE')+' • '+handle.clips.length+' animations')
   }).catch(error=>{
-    if(!nativeCancelled)window.dispatchEvent(new CustomEvent('tryamm:streetverse-recovered-playable-error',{detail:{characterId:eagerRecoveredId,reason:'priority-model-error: '+String(error).slice(0,180)}}))
+    if(!nativeCancelled&&playableLoadEpoch===0)window.dispatchEvent(new CustomEvent('tryamm:streetverse-recovered-playable-error',{detail:{characterId:eagerRecoveredId,reason:'priority-model-error: '+String(error).slice(0,180)}}))
   })
   // Greenville has its own optimized procedural campus. Do not download Chicago
   // traffic, residents, buildings or vehicle GLBs before rendering Jacobie.
@@ -440,6 +444,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     // The old starter hero can be absent without blocking original GLB playback.
     if(nativeLayer){
       const activateBJHero=()=>{
+        ++playableLoadEpoch
         const request=++bjHeroLoadEpoch
         const requireV15=new URLSearchParams(window.location.search).get('bj')==='v15'
         setBJLoadStatus('loading')
@@ -488,7 +493,8 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
           bjMeshyHero=handle
           bjPhotoMatch?.dispose();bjPhotoMatch=null;bjPhotoMatchReady=false
           bjHeadRuntime?.dispose();bjHeadRuntime=null
-          nativeHeroFallback!.visible=false
+          recoveredPlayableHandle?.dispose();recoveredPlayableHandle=null
+          if(nativeHeroFallback)nativeHeroFallback.visible=false
           nativeLayer.add(handle.object)
           nativeHero=handle.object
           nativeHero.position.copy(avatar.position)
@@ -524,6 +530,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
           }
         }).catch(error=>{window.clearTimeout(guard);if(!nativeCancelled&&request===bjHeroLoadEpoch){console.warn('[BJ V15] loader error',error);setBJLoadStatus('error');setMessage('BJ V15 FAILED • tap RETRY BJ')}})
       }
+      selectBJ=activateBJHero
       onBJPreviewRequest=()=>{
         const url=new URL(window.location.href)
         url.searchParams.set('bj','v15')
@@ -539,19 +546,20 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
       }
       window.addEventListener('tryamm:bj-model-progress',onBJLoadProgress)
       window.addEventListener('tryamm:streetverse-bj-v15-preview',onBJPreviewRequest)
-      if(!requestedRecoveredParam&&nativeHeroFallback)activateBJHero()
+      if(!requestedRecoveredParam&&(nativeHeroFallback||requestedCharacterParam==='bj'))activateBJHero()
       // Keep cleanup callable in the unmount scope; no extra global listener.
       onBJProgressCleanup=()=>window.removeEventListener('tryamm:bj-model-progress',onBJLoadProgress)
     }
-    let playableLoadEpoch=0
     const activatePublishedBody=async(assetId:string,label:string)=>{
       if(assetId!=='sv-james-body-base-v1')return
+      ++bjHeroLoadEpoch
       const epoch=++playableLoadEpoch
       const handle=await loadStreetVersePublishedBodyBase('sv-james-body-base-v1','global')
       if(handle&&epoch!==playableLoadEpoch){handle.dispose();return}
       if(!handle){setMessage('JAMES YOUTH BODY BASE • waiting for the real published Meshy rig');return}
       if(nativeCancelled||!nativeLayer){handle.dispose();return}
       publishedHeroBody?.dispose()
+      recoveredPlayableHandle?.dispose();recoveredPlayableHandle=null
       publishedHeroBody=handle
       bjMeshyHero?.dispose();bjMeshyHero=null
       bjPhotoMatch?.dispose();bjPhotoMatch=null;bjPhotoMatchReady=false
@@ -566,11 +574,13 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
       setMessage('JAMES YOUTH BODY BASE LIVE • rigged Meshy body loaded • final face and exact height still need approved reference tuning')
     }
     const activateFamilyStandIn=async(assetId:string,label:string,characterId?:string)=>{
+      ++bjHeroLoadEpoch
       const epoch=++playableLoadEpoch
       const handle=await loadStreetVerseMeshyCharacter(assetId)
       if(handle&&epoch!==playableLoadEpoch){handle.dispose();return}
       if(!handle){setMessage((label||'FAMILY CHARACTER').toUpperCase()+' • waiting for published Meshy stand-in rig');return}
       if(nativeCancelled||!nativeLayer){handle.dispose();return}
+      recoveredPlayableHandle?.dispose();recoveredPlayableHandle=null
       familyHeroHandle?.dispose();familyHeroHandle=handle
       publishedHeroBody?.dispose();publishedHeroBody=null
       bjMeshyHero?.dispose();bjMeshyHero=null
@@ -586,6 +596,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
       setMessage((label||'FAMILY CHARACTER').toUpperCase()+' • generic rig live • likeness reference still separate')
     }
     const activateRecoveredPlayable=async(id:RecoveredPlayableId)=>{
+      ++bjHeroLoadEpoch
       const epoch=++playableLoadEpoch
       setMessage((id==='jacobie-stubbs'?'JACOBIE':'LATEASIA')+' • loading original 3D character')
       const handle=await loadRecoveredPlayable(id)
@@ -628,7 +639,9 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
       const d=(event as CustomEvent<{assetId?:string;label?:string;characterId?:string}>).detail||{}
       const assetId=String(d.assetId||'')
       if(assetId==='sv-james-body-base-v1'){void activatePublishedBody(assetId,String(d.label||'JAMES'));return}
-      if(requestedRecoveredParam){void activateRecoveredPlayable(requestedRecoveredParam);return}
+      if(d.characterId==='jacobie'||d.characterId==='jacobie-stubbs'){void activateRecoveredPlayable('jacobie-stubbs');return}
+      if(d.characterId==='lateasia'||d.characterId==='lateasia-monroe'){void activateRecoveredPlayable('lateasia-monroe');return}
+      if(assetId==='sv-bj-stubbs-v6'){selectBJ?.();return}
       if(assetId&&assetId!=='sv-bj-stubbs-v6')void activateFamilyStandIn(assetId,String(d.label||'FAMILY CHARACTER'),String(d.characterId||''))
     }
     addEventListener('tryamm:streetverse-player-asset-select',onPlayerAssetSelect)
@@ -1615,7 +1628,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   queueMicrotask(()=>{window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-breakdown',{detail:{vehicleId:'first-repair-car',label:'Repair Mission Car',reason:'starter repair mission',severity:'minor'}}));window.dispatchEvent(new CustomEvent('tryamm:streetverse-repair-kit-acquired',{detail:{vehicleId:'first-repair-car',repairKitId:'starter-repair-kit'}}))})
   const resize=()=>{const w=mount.clientWidth||innerWidth,h=mount.clientHeight||innerHeight;renderer.setSize(w,h,false);camera.aspect=w/Math.max(1,h);camera.fov=camera.aspect<1?THREE.MathUtils.clamp(THREE.MathUtils.radToDeg(2*Math.atan(Math.tan(THREE.MathUtils.degToRad(58)/2)/camera.aspect)),62,72):62;camera.updateProjectionMatrix()};resize();addEventListener('resize',resize)
   const key=(e:KeyboardEvent,v:boolean)=>{const k=e.key.toLowerCase();if(k==='w'||k==='arrowup')input.current.up=v;if(k==='s'||k==='arrowdown')input.current.down=v;if(k==='a'||k==='arrowleft')input.current.left=v;if(k==='d'||k==='arrowright')input.current.right=v;if(v&&k==='e'&&!e.repeat){e.preventDefault();activateCurrentInteraction()}if(v&&k===' '&&!e.repeat){e.preventDefault();window.dispatchEvent(new CustomEvent('tryamm:streetverse-parkour-action',{detail:{action:'jump',source:'keyboard'}}))}};const kd=(e:KeyboardEvent)=>key(e,true),ku=(e:KeyboardEvent)=>key(e,false);addEventListener('keydown',kd);addEventListener('keyup',ku)
-  const resetAllMovement=()=>{analogInput.current={x:0,y:0};directTouchInput.current={up:false,down:false,left:false,right:false};input.current={up:false,down:false,left:false,right:false};if(joystickKnobRef.current)joystickKnobRef.current.style.transform='translate3d(0,0,0)'}
+  const resetAllMovement=()=>{joystickCapture.current=null;joystickLastMoveAt.current=0;analogInput.current={x:0,y:0};directTouchInput.current={up:false,down:false,left:false,right:false};input.current={up:false,down:false,left:false,right:false};if(joystickKnobRef.current)joystickKnobRef.current.style.transform='translate3d(0,0,0)'}
   const onWindowBlur=()=>resetAllMovement()
   const onVisibilityChange=()=>{if(document.hidden)resetAllMovement()}
   addEventListener('blur',onWindowBlur);document.addEventListener('visibilitychange',onVisibilityChange)
@@ -1623,7 +1636,11 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   const onMobileMovement=(e:Event)=>{const d=(e as CustomEvent<any>).detail||{};directTouchInput.current={up:Boolean(d.up),down:Boolean(d.down),left:Boolean(d.left),right:Boolean(d.right)};input.current={...directTouchInput.current};reportInput('mobile-movement')}
   const onWorldInput=(e:Event)=>{const d=(e as CustomEvent<any>).detail||{},move=d.move||{},x=THREE.MathUtils.clamp(Number(move.x||0),-1,1),y=THREE.MathUtils.clamp(Number(move.y||0),-1,1);analogInput.current={x,y};input.current.up=y<-.08;input.current.down=y>.08;input.current.left=x<-.08;input.current.right=x>.08;if(d.interact)activateCurrentInteraction();reportInput('world-input')}
   const reportInput=(source:string)=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-input-health',{detail:{source,connected:true,at:new Date().toISOString()}}))
-  const joystickWatchdog=window.setInterval(()=>{if(joystickLastMoveAt.current>0&&performance.now()-joystickLastMoveAt.current>900){joystickLastMoveAt.current=0;analogInput.current={x:0,y:0};directTouchInput.current={up:false,down:false,left:false,right:false};input.current={up:false,down:false,left:false,right:false};if(joystickKnobRef.current)joystickKnobRef.current.style.transform='translate3d(0,0,0)'}},250)
+  const joystickWatchdog=window.setInterval(()=>{
+    const capture=joystickCapture.current
+    if(capture?.target.hasPointerCapture(capture.pointerId))return
+    if(joystickLastMoveAt.current>0&&performance.now()-joystickLastMoveAt.current>900)resetAllMovement()
+  },250)
   addEventListener('tryamm:streetverse-vehicle-input',onTouch);addEventListener('tryamm:streetverse-mobile-movement',onMobileMovement);addEventListener('tryamm:streetverse-world-input',onWorldInput)
   let parkour=initialParkourState()
   const onParkour=(event:Event)=>{const action=(event as CustomEvent<{action?:ParkourAction}>).detail?.action||'jump';if(!['jump','hop','vault'].includes(action))return;const result=startParkour(parkour,action,{inVehicle:Boolean(activeCar),underwater:underwaterPool.isActive(),lowObstacleVerified:false,clearLandingVerified:false});parkour=result.state;window.dispatchEvent(new CustomEvent('tryamm:streetverse-parkour-feedback',{detail:{message:result.message,ok:result.ok,action}}))}
@@ -1787,7 +1804,8 @@ if(now-lastWorldClockAt>5000){
  const activateContextPrompt=()=>{const prompt=interactionRef.current;if(!prompt)return;if(prompt.id==='vehicle-enter'){window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-interact',{detail:{entered:true}}));return}if(prompt.id==='vehicle-exit'){window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-interact',{detail:{entered:false}}));return}if(prompt.id==='first-journey-guide'){const detail={id:'first-journey-guide',label:'First Journey Guide',kind:'talk',action:'TALK',topic:'First Ride completion',source:'iphone-first-journey'};window.dispatchEvent(new CustomEvent('tryamm:streetverse-npc-dialogue',{detail}));window.dispatchEvent(new CustomEvent('tryamm:streetverse-context-interaction',{detail}));window.dispatchEvent(new CustomEvent('tryamm:streetverse-first-journey-ready-to-complete',{detail:{missionId:'iphone-first-journey',source:'streetverse-mobile-world'}}));return}if(prompt.id==='vehicle-repair'){window.dispatchEvent(new CustomEvent('tryamm:streetverse-interaction-context',{detail:{kind:'vehicle',vehicleId:'first-repair-car',label:'Repair Mission Car',broken:true,drivable:false,repairKit:true,missionId:'vehicle-repair:first-repair-car'}}));return}window.dispatchEvent(new CustomEvent('tryamm:streetverse-context-action',{detail:{id:prompt.id}}))}
  const publishPlayerMove=(x:number,y:number,source:string)=>{window.dispatchEvent(new CustomEvent('tryamm:streetverse-world-input',{detail:{move:{x:THREE.MathUtils.clamp(x,-1,1),y:THREE.MathUtils.clamp(y,-1,1)},source}}))}
  const joystick=(e:React.PointerEvent<HTMLDivElement>)=>{e.preventDefault();joystickLastMoveAt.current=performance.now();const r=e.currentTarget.getBoundingClientRect(),x=THREE.MathUtils.clamp((e.clientX-(r.left+r.width/2))/(r.width*.38),-1,1),y=THREE.MathUtils.clamp((e.clientY-(r.top+r.height/2))/(r.height*.38),-1,1);analogInput.current={x,y};input.current={up:y<-.05,down:y>.05,left:x<-.05,right:x>.05};publishPlayerMove(x,y,'analog-joystick');if(joystickKnobRef.current)joystickKnobRef.current.style.transform=`translate3d(${Math.round(x*25)}px,${Math.round(y*25)}px,0)`}
- const stopJoystick=()=>{analogInput.current={x:0,y:0};directTouchInput.current={up:false,down:false,left:false,right:false};input.current={up:false,down:false,left:false,right:false};publishPlayerMove(0,0,'analog-joystick-stop');if(joystickKnobRef.current)joystickKnobRef.current.style.transform='translate3d(0,0,0)'}
+ const stopJoystick=()=>{joystickCapture.current=null;joystickLastMoveAt.current=0;analogInput.current={x:0,y:0};directTouchInput.current={up:false,down:false,left:false,right:false};input.current={up:false,down:false,left:false,right:false};publishPlayerMove(0,0,'analog-joystick-stop');if(joystickKnobRef.current)joystickKnobRef.current.style.transform='translate3d(0,0,0)'}
+ const endJoystick=(event:React.PointerEvent<HTMLDivElement>)=>{if(joystickCapture.current?.pointerId===event.pointerId)stopJoystick()}
  const pressMove=(x:number,y:number)=>{if(movementPulseTimer.current!==null){window.clearTimeout(movementPulseTimer.current);movementPulseTimer.current=null}publishPlayerMove(x,y,'greenville-direction-pad')}
  const releaseMove=()=>{publishPlayerMove(0,0,'greenville-direction-pad-stop')}
  const pulseMove=(x:number,y:number)=>{if(movementPulseTimer.current!==null)window.clearTimeout(movementPulseTimer.current);publishPlayerMove(x,y,'greenville-direction-pad-tap');movementPulseTimer.current=window.setTimeout(()=>{publishPlayerMove(0,0,'greenville-direction-pad-tap-stop');movementPulseTimer.current=null},360)}
@@ -1812,5 +1830,5 @@ if(now-lastWorldClockAt>5000){
 <button aria-label="Stop walking" onClick={()=>{if(movementPulseTimer.current!==null){window.clearTimeout(movementPulseTimer.current);movementPulseTimer.current=null}releaseMove()}} style={{borderRadius:16,border:'2px solid #ffe58b',background:'rgba(80,55,12,.94)',color:'#fff',fontSize:10,fontWeight:950,touchAction:'manipulation'}}>STOP</button>
 <button aria-label="Walk right" onPointerDown={e=>{e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);pressMove(1,0)}} onPointerUp={releaseMove} onPointerCancel={releaseMove} onClick={()=>pulseMove(1,0)} style={{borderRadius:16,border:'2px solid #7be9ff',background:'rgba(3,18,29,.94)',color:'#fff',fontSize:25,fontWeight:950,touchAction:'none'}}>▶</button>
 <span/><button aria-label="Walk backward" onPointerDown={e=>{e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);pressMove(0,1)}} onPointerUp={releaseMove} onPointerCancel={releaseMove} onClick={()=>pulseMove(0,1)} style={{gridColumn:2,borderRadius:16,border:'2px solid #7be9ff',background:'rgba(3,18,29,.94)',color:'#fff',fontSize:25,fontWeight:950,touchAction:'none'}}>▼</button><span/>
-</div>}<div aria-label="StreetVerse analog joystick" onPointerDown={e=>{e.currentTarget.setPointerCapture(e.pointerId);joystick(e)}} onPointerMove={e=>{if(e.currentTarget.hasPointerCapture(e.pointerId))joystick(e)}} onPointerUp={stopJoystick} onPointerCancel={stopJoystick} onLostPointerCapture={stopJoystick} style={{position:'fixed',...(controlSide==='left'?{left:'max(18px, env(safe-area-inset-left))'}:{right:'max(18px, env(safe-area-inset-right))'}),bottom:'max(22px, env(safe-area-inset-bottom))',zIndex:50000,width:106,height:106,borderRadius:'50%',border:'2px solid #7be9ff',background:'rgba(2,12,22,.68)',boxShadow:'0 0 22px #00d9ff55',pointerEvents:'auto',touchAction:'none',display:'grid',placeItems:'center'}}><div ref={joystickKnobRef} style={{width:46,height:46,borderRadius:'50%',background:'rgba(123,233,255,.72)',border:'2px solid #dffaff',pointerEvents:'none',transition:'transform 45ms linear',willChange:'transform'}}/></div><div style={{position:'fixed',left:'max(8px, env(safe-area-inset-left))',top:'max(8px, env(safe-area-inset-top))',zIndex:17020,display:'flex',gap:5,alignItems:'center',pointerEvents:'none',font:'850 9px system-ui',maxWidth:'58vw'}}><div style={{padding:'5px 7px',borderRadius:999,background:'rgba(3,12,20,.70)',border:'1px solid #5be7ff55',color:'#fff',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',maxWidth:112}}>{status.replace('MOBILE CITY • ','').replace('CHICAGO ALIVE V6','CHICAGO')}</div>{bjRenderedVersion==='V15'&&<button aria-label="BJ V15 loaded — toggle face close-up" onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-showcase',{detail:{source:'streetverse-bj-v15-chip',toggle:true}}))} style={{padding:'5px 7px',borderRadius:999,background:'rgba(6,42,29,.88)',border:'1px solid #70f0b3',color:'#b5ffdd',font:'900 9px system-ui',whiteSpace:'nowrap',minHeight:32}}>{bjFaceViewPinned?'BJ FACE • BACK':'BJ V15 ✓ FACE'}</button>}<div data-streetverse-weather="true" aria-live="polite" style={{padding:'5px 7px',borderRadius:999,background:'rgba(3,12,20,.70)',border:'1px solid #5be7ff55',color:'#9ee8ff',whiteSpace:'nowrap',maxWidth:92,overflow:'hidden',textOverflow:'ellipsis'}}>{weatherStatus.includes('UNAVAILABLE')?'☁ WEATHER':weatherStatus.replace('WEATHER • ','')}</div><button aria-label="Exit StreetVerse" onClick={onClose} style={{pointerEvents:'auto',minWidth:44,minHeight:44,borderRadius:999,border:'1px solid #ffffff33',background:'rgba(18,25,35,.78)',color:'#fff',fontWeight:900}}>×</button></div><div aria-live="polite" style={{position:'fixed',left:8,right:8,top:'max(58px, calc(env(safe-area-inset-top) + 50px))',zIndex:17010,textAlign:'center',pointerEvents:'none',color:'#dffaff',font:'700 10px system-ui',textShadow:'0 1px 4px #000'}}>{(message.includes('No drivable')||message.includes('REPAIR'))?message:''}</div></div>
+</div>}<div aria-label="StreetVerse analog joystick" onPointerDown={e=>{if(joystickCapture.current)return;e.currentTarget.setPointerCapture(e.pointerId);joystickCapture.current={target:e.currentTarget,pointerId:e.pointerId};joystick(e)}} onPointerMove={e=>{if(e.currentTarget.hasPointerCapture(e.pointerId))joystick(e)}} onPointerUp={endJoystick} onPointerCancel={endJoystick} onLostPointerCapture={endJoystick} style={{position:'fixed',...(controlSide==='left'?{left:'max(18px, env(safe-area-inset-left))'}:{right:'max(18px, env(safe-area-inset-right))'}),bottom:'max(22px, env(safe-area-inset-bottom))',zIndex:50000,width:106,height:106,borderRadius:'50%',border:'2px solid #7be9ff',background:'rgba(2,12,22,.68)',boxShadow:'0 0 22px #00d9ff55',pointerEvents:'auto',touchAction:'none',display:'grid',placeItems:'center'}}><div ref={joystickKnobRef} style={{width:46,height:46,borderRadius:'50%',background:'rgba(123,233,255,.72)',border:'2px solid #dffaff',pointerEvents:'none',transition:'transform 45ms linear',willChange:'transform'}}/></div><div style={{position:'fixed',left:'max(8px, env(safe-area-inset-left))',top:'max(8px, env(safe-area-inset-top))',zIndex:17020,display:'flex',gap:5,alignItems:'center',pointerEvents:'none',font:'850 9px system-ui',maxWidth:'58vw'}}><div style={{padding:'5px 7px',borderRadius:999,background:'rgba(3,12,20,.70)',border:'1px solid #5be7ff55',color:'#fff',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',maxWidth:112}}>{status.replace('MOBILE CITY • ','').replace('CHICAGO ALIVE V6','CHICAGO')}</div>{bjRenderedVersion==='V15'&&<button aria-label="BJ V15 loaded — toggle face close-up" onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-showcase',{detail:{source:'streetverse-bj-v15-chip',toggle:true}}))} style={{padding:'5px 7px',borderRadius:999,background:'rgba(6,42,29,.88)',border:'1px solid #70f0b3',color:'#b5ffdd',font:'900 9px system-ui',whiteSpace:'nowrap',minHeight:32}}>{bjFaceViewPinned?'BJ FACE • BACK':'BJ V15 ✓ FACE'}</button>}<div data-streetverse-weather="true" aria-live="polite" style={{padding:'5px 7px',borderRadius:999,background:'rgba(3,12,20,.70)',border:'1px solid #5be7ff55',color:'#9ee8ff',whiteSpace:'nowrap',maxWidth:92,overflow:'hidden',textOverflow:'ellipsis'}}>{weatherStatus.includes('UNAVAILABLE')?'☁ WEATHER':weatherStatus.replace('WEATHER • ','')}</div><button aria-label="Exit StreetVerse" onClick={onClose} style={{pointerEvents:'auto',minWidth:44,minHeight:44,borderRadius:999,border:'1px solid #ffffff33',background:'rgba(18,25,35,.78)',color:'#fff',fontWeight:900}}>×</button></div><div aria-live="polite" style={{position:'fixed',left:8,right:8,top:'max(58px, calc(env(safe-area-inset-top) + 50px))',zIndex:17010,textAlign:'center',pointerEvents:'none',color:'#dffaff',font:'700 10px system-ui',textShadow:'0 1px 4px #000'}}>{(message.includes('No drivable')||message.includes('REPAIR'))?message:''}</div></div>
 }

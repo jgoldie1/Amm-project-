@@ -16,7 +16,7 @@ function targetUrl(character:Character){
 export default function StreetVerseCharacterSwitchHUD(){
  const params=new URLSearchParams(window.location.search)
  const initial:Character=params.get('character')?.startsWith('jacobie')?'jacobie':params.get('character')?.startsWith('lateasia')?'lateasia':'bj'
- const [open,setOpen]=useState(initial!=='bj')
+ const [open,setOpen]=useState(false)
  const [active]=useState<Character>(initial)
  const [evidence,setEvidence]=useState<Record<string,Evidence>>({})
  const [moved,setMoved]=useState(false)
@@ -31,13 +31,13 @@ export default function StreetVerseCharacterSwitchHUD(){
      setEvidence(v=>({...v,[d.id]:{id:d.id,name:d.name||d.id,loaded:d.mounted===true&&d.active3DMesh===true,clips:Array.isArray(d.clips)?d.clips.length:Number(d.clipCount||0),source:d.source,textureVerified:d.textureVerified===true,diagnosticAppearance:d.diagnosticAppearance===true}}))
    }
    const onMounted=(event:Event)=>{const d=(event as CustomEvent<{characterId?:string}>).detail||{};if(d.characterId===activeId){setLastLoadStatus('mounted');setLoadIssue('')}}
-   const onMissing=(event:Event)=>{const d=(event as CustomEvent<{characterId?:string;reason?:string}>).detail||{};if(d.characterId===activeId){setLastLoadStatus('missing');setLoadIssue(d.reason||'Original model not available')}}
+   const onMissing=(event:Event)=>{const d=(event as CustomEvent<{characterId?:string;reason?:string}>).detail||{};if(d.characterId===activeId){setLastLoadStatus('missing');setLoadIssue(d.reason||'Original model not available');setOpen(true)}}
    const onBJ=(event:Event)=>{
      const d=(event as CustomEvent<any>).detail||{}
      setEvidence(v=>({...v,['bj-stubbs']:{id:'bj-stubbs',name:'BJ Stubbs',loaded:true,clips:Number(d.animationCount||0),source:d.localImported?'device-local-owner':'preview'}}))
    }
    const onMove=()=>setMoved(true)
-   const onProblem=(event:Event)=>{const d=(event as CustomEvent<{characterId?:string;reason?:string}>).detail||{};if(d.characterId===activeId){setLastLoadStatus('missing');setLoadIssue(d.reason||'GLB failed to load')}}
+   const onProblem=(event:Event)=>{const d=(event as CustomEvent<{characterId?:string;reason?:string}>).detail||{};if(d.characterId===activeId){setLastLoadStatus('missing');setLoadIssue(d.reason||'GLB failed to load');setOpen(true)}}
    addEventListener('tryamm:streetverse-recovered-playable-mounted',onRecovered)
    addEventListener('tryamm:streetverse-bj-visible-version',onBJ)
    addEventListener('tryamm:streetverse-recovered-playable-mounted',onMounted)
@@ -64,8 +64,8 @@ export default function StreetVerseCharacterSwitchHUD(){
    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='StreetVerse_Character_Acceptance_'+activeId+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)
  }
  return <aside style={{position:'fixed',left:'max(10px,env(safe-area-inset-left))',top:'max(8px,env(safe-area-inset-top))',zIndex:2147483646,fontFamily:'system-ui,sans-serif'}}>
-   <button type="button" onClick={()=>setOpen(v=>!v)} style={{minHeight:48,padding:'8px 12px',borderRadius:14,border:'2px solid #c59cff',background:'#16102aee',color:'#fff',fontWeight:950}}>Switch character · {LABELS[active]}</button>
-   {open&&<div style={{maxHeight:'65vh',overflowY:'auto',marginTop:7,width:260,maxWidth:'calc(100vw - 20px)',display:'grid',gap:7,padding:10,borderRadius:14,border:'1px solid #694a98',background:'rgba(7,7,18,.96)',color:'#fff'}}>
+   <button type="button" aria-expanded={open} onClick={()=>setOpen(v=>!v)} style={{minHeight:48,padding:'8px 12px',borderRadius:14,border:'2px solid #c59cff',background:'#16102aee',color:'#fff',fontWeight:950}}>Switch character · {LABELS[active]}</button>
+   {open&&<div style={{maxHeight:'min(65vh, calc(100dvh - 210px))',overflowY:'auto',marginTop:7,width:260,maxWidth:'calc(100vw - 20px)',display:'grid',gap:7,padding:10,borderRadius:14,border:'1px solid #694a98',background:'rgba(7,7,18,.96)',color:'#fff'}}>
      <strong>PLAYABLE CHARACTER</strong>
      {(['bj','jacobie','lateasia'] as Character[]).map(id=><a key={id} href={targetUrl(id)} style={{minHeight:44,display:'grid',placeItems:'center',borderRadius:10,border:id===active?'1px solid #fff':'1px solid #37415c',background:id===active?'#4d2f79':'#111827',color:'#fff',fontWeight:900,textDecoration:'none'}}>PLAY AS {LABELS[id]}</a>)}
      {active!=='bj'&&<><div role="status" style={{fontSize:12,fontWeight:900,color:lastLoadStatus==='mounted'?'#9af8c3':'#ffcf8d'}}>Original 3D model: {lastLoadStatus.toUpperCase()}{loadIssue?' • '+loadIssue:''}</div><button type="button" onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-character-retry',{detail:{characterId:activeId,source:'character-switch-ui'}}))} style={{minHeight:50,borderRadius:10,border:'1px solid #d4a8ff',background:'#3f2765',color:'#fff',fontWeight:900}}>RELOAD ORIGINAL {LABELS[active]} GLB</button></>}

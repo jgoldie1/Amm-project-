@@ -12,7 +12,7 @@ test('explicit graphics 3d route avoids underpowered device automatic safe boot'
  assert.match(geo,/params\.get\('graphics'\)==='3d'\)return false/)
  assert.match(geo,/params\.get\('graphics'\)==='character'&&/,'character routes must bypass early safe boot')
  assert.match(geo,/jacobie-stubbs','lateasia','lateasia-monroe/,'all named GLB routes covered')
- assert.match(playable,/if\(safe&&!forceFull3D\)return/)
+ assert.match(playable,/if\(safe&&!forceFull3D&&!character3D\)return/)
 })
 test('joystick and real BJ controls are mounted in playable world',()=>{
  assert.match(mobile,/aria-label="StreetVerse analog joystick"/)
