@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import ChicagoHoloJourneyStatus from './ChicagoHoloJourneyStatus'
 
 type Farm = { id:string; name:string; city:string; state:string; products:string[]; description:string; website?:string; approved:boolean; consent?:string }
 const EXAMPLES:Farm[] = [
@@ -39,6 +40,7 @@ export default function FarmToFamilyPilot(){
    <label style={{fontSize:15}}>Language / Idioma <select aria-label="Language / Idioma" value={lang} onChange={e=>setLang(e.target.value as 'en'|'es')} style={{...styles.field,width:155,marginLeft:8}}><option value="en">English</option><option value="es">Español</option></select></label>
   </div>
   <p role="status" style={{color:'#ffdca0',lineHeight:1.6}}>{t.intro} {t.notLive}</p>
+  <ChicagoHoloJourneyStatus/>
   <nav aria-label="Farm pilot navigation" style={{display:'flex',flexWrap:'wrap',gap:8,marginBottom:14}}>
    <button type="button" style={styles.button} aria-pressed={mode==='directory'} onClick={()=>setMode('directory')}>{t.directory}</button>
    <button type="button" style={styles.button} aria-pressed={mode==='passport'} onClick={()=>setMode('passport')}>{t.passport}</button>
