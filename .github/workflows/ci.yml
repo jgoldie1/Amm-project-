@@ -101,6 +101,9 @@ jobs:
       - name: StreetVerse permanent regression gate
         run: node --test tests/streetverse-permanent-typecheck-guard.test.mjs
 
+      - name: Domain reseller payment and DNS safety gate
+        run: npm run domain-provisioning:check
+
       - name: Omniverse typecheck
         run: npm run typecheck
 

@@ -12,10 +12,16 @@ export default async function handler(req,res){
  const siteId=String(req.body?.siteId||'').trim()
  const registrant=req.body?.registrant||{}
  if(!domain||!siteId)return res.status(400).json({error:'domain and siteId required'})
+ if(domain.length>253||!domain.includes('.')||domain.split('.').some(part=>part.length<1||part.length>63||!/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(part)))return res.status(400).json({error:'valid registrable domain required'})
  const required=['name','email','phone','address1','city','region','postalCode','country']
  const missing=required.filter(k=>!String(registrant?.[k]||'').trim())
  if(missing.length)return res.status(400).json({ok:false,state:'REGISTRANT_INFO_REQUIRED',missing})
- const readiness={provider:provider()||null,configured:configured(),live:live(),paymentVerified:Boolean(req.body?.paymentVerified),hostingTarget:String(req.body?.hostingTarget||process.env.TRYAMM_APP_URL||'https://tryamm.online')}
+ // Security boundary: browser-supplied "paymentVerified" is NOT proof of funds.
+ // A future registered payment adapter must reconcile a verified Stripe webhook,
+ // the persisted order, the authenticated buyer and the exact quoted domain.
+ const readiness={provider:provider()||null,configured:configured(),live:live(),
+  paymentVerified:false,paymentAuthority:'server_side_order_reconciliation_required',
+  hostingTarget:String(process.env.TRYAMM_APP_URL||'https://tryamm.online')}
  await audit(user.id,'domain_provision_attempt','info',{domain,siteId,readiness})
  if(!readiness.live)return res.status(423).json({ok:false,state:'DOMAIN_PROVIDER_GATED',readiness,message:'Domain order prepared. Connect a supported registrar API and enable verified production provisioning before TRYAMM can purchase the domain automatically.'})
  if(!readiness.paymentVerified)return res.status(423).json({ok:false,state:'PAYMENT_VERIFICATION_REQUIRED',readiness,message:'Domain registration cannot proceed until the domain payment is verified server-side.'})
