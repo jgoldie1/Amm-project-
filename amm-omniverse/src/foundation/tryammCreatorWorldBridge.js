@@ -4,6 +4,7 @@
 export const CREATOR_HANDOFF_KEY='tryamm:living-world:creator-packet:v1'
 export const CREATOR_HANDOFF_EVENT='tryamm:living-world:creator-handoff'
 export const CREATOR_PACKET_SCHEMA='tryamm.creator.packet.v1'
+export const REEL_CAPTURE_METADATA_KEY='tryamm:living-world:last-reel:v1'
 export const CREATOR_CHANNELS=Object.freeze([
  {id:'living',title:'StreetVerse Living World',path:'/streetverse?core=1&bj=v15',purpose:'Play and stage original city scenes'},
  {id:'reel',title:'HoloReel capture',path:'/streetverse?core=1&reel=1',purpose:'Record supported 9:16 gameplay clip'},
@@ -34,4 +35,15 @@ export function createCreatorPacket(input={},now=new Date()){
 export function validCreatorPacket(p){return Boolean(p&&p.schema===CREATOR_PACKET_SCHEMA&&p.source==='tryamm-living-world'&&p.status==='local-draft'&&p.publishAuthorized===false&&p.immersiveReady===false&&p.reel?.mediaAttached===false&&typeof p.title==='string'&&typeof p.createdAt==='string')}
 export function saveCreatorPacket(storage,packet){if(!validCreatorPacket(packet))throw new TypeError('Creator packet must remain a non-public metadata draft');storage.setItem(CREATOR_HANDOFF_KEY,JSON.stringify(packet));return packet}
 export function readCreatorPacket(storage){try{const p=JSON.parse(storage?.getItem(CREATOR_HANDOFF_KEY)||'null');return validCreatorPacket(p)?p:null}catch{return null}}
+export function storeReelCaptureMetadata(storage,input,at=new Date()){
+ if(!input||typeof input.fileName!=='string'||typeof input.mimeType!=='string')throw new TypeError('Missing captured reel identity')
+ const metadata={schema:'tryamm.reel.capture.metadata.v1',fileName:text(input.fileName,150),mimeType:text(input.mimeType,80),durationMs:Math.max(0,Math.min(180000,Number(input.durationMs)||0)),capturedAt:at.toISOString(),mediaAttached:false,publishAuthorized:false}
+ storage.setItem(REEL_CAPTURE_METADATA_KEY,JSON.stringify(metadata))
+ return metadata
+}
+export function readReelCaptureMetadata(storage){
+ try{const x=JSON.parse(storage?.getItem(REEL_CAPTURE_METADATA_KEY)||'null')
+  return x?.schema==='tryamm.reel.capture.metadata.v1'&&typeof x.fileName==='string'&&x.mediaAttached===false&&x.publishAuthorized===false?x:null
+ }catch{return null}
+}
 export function creatorReleaseGates(p){return {canPublish:false,canEnterVR:false,canSell:false,needs:['video file upload/verification','participant and location permissions','music and identity rights clearances','human editorial review','provider and device AR/VR acceptance','backend media processing and publishing authorization'],packetValid:validCreatorPacket(p)}}
