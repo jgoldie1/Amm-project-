@@ -1,7 +1,7 @@
-import {useMemo,useRef,useState} from 'react'
+import {useMemo,useState} from 'react'
 import {getAccessToken} from '../services/supabaseClient'
-import {Howl} from 'howler'
 import {HOLOGRAPHIC_GIFT_KIT,lottieForGift} from '../game/gifts/HolographicGiftKit'
+import {playHoloGiftSound,setHoloGiftSoundEnabled} from '../game/gifts/HoloGiftAudio'
 
 const API=(import.meta as any).env?.VITE_API_URL??''
 
@@ -57,10 +57,6 @@ const GIFTS:Gift[]=[
   G('world-takeover','World Takeover','🌐','Entire room transforms into creator-selected world skin',25000,'vr','world','WORLD DROPS','WORLD'),
 ]
 
-const SILENT_WAV='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA='
-const cueNames=[...new Set(GIFTS.map(g=>g.musicCue))]
-const CUES:Record<string,string>=Object.fromEntries(cueNames.map(name=>[name,SILENT_WAV]))
-
 type Props={recipientId?:string;previewOnly?:boolean}
 
 export default function HoloGiftEngine({recipientId='demo-host',previewOnly=false}:Props){
@@ -68,15 +64,14 @@ export default function HoloGiftEngine({recipientId='demo-host',previewOnly=fals
   const [amount,setAmount]=useState(gift.suggested)
   const [burst,setBurst]=useState(0)
   const [mode,setMode]=useState<'screen'|'ar'|'vr'>('screen')
-  const [musicEnabled,setMusicEnabled]=useState(true)
   const [tier,setTier]=useState<Gift['tier']|'ALL'>('ALL')
-  const [message,setMessage]=useState('Visual gifts are immediate. Cash tips require provider verification before they become payable.')
+  const [musicEnabled,setMusicEnabled]=useState(true)
+  const [message,setMessage]=useState('Gift prices are proposed previews only. This screen does not charge money or credit a creator.')
   const [busy,setBusy]=useState(false)
   const rings=useMemo(()=>Array.from({length:gift.id==='america250'?12:gift.tier==='WORLD'?10:8}),[gift.id,gift.tier])
-  const soundRef=useRef<Howl|null>(null)
   const visible=tier==='ALL'?GIFTS:GIFTS.filter(item=>item.tier===tier)
 
-  function playCue(){if(!musicEnabled)return;try{soundRef.current?.stop();soundRef.current=new Howl({src:[CUES[gift.musicCue]||SILENT_WAV],volume:.35});soundRef.current.play()}catch{}}
+  function playCue(){if(musicEnabled)playHoloGiftSound(gift.id)}
   async function enterXR(target:'ar'|'vr'){
     setMode(target)
     window.dispatchEvent(new CustomEvent('tryamm:holo-xr-gift-mode',{detail:{mode:target,giftId:gift.id}}))
@@ -97,12 +92,12 @@ export default function HoloGiftEngine({recipientId='demo-host',previewOnly=fals
     setBusy(true)
     try{
       if(previewOnly){const kit=lottieForGift(gift.id,gift.tier);setBurst(v=>v+1);playCue();window.dispatchEvent(new CustomEvent('tryamm:holo-gift',{detail:{giftType:gift.id,label:gift.label,spatialMode:mode,musicCue:gift.musicCue,effect:gift.effect,collection:gift.collection,tier:gift.tier,lottieKey:kit.lottieKey,ownedAnimation:kit.owned,previewOnly:true,moneyMoved:false,withdrawable:false}}));setMessage(`${gift.label} preview fired in ${mode.toUpperCase()} mode • no money moved.`);return}
-      const token=await getAccessToken();if(!token)throw new Error('Sign in before sending a gift or tip.')
+      const token=await getAccessToken();if(!token)throw new Error('Sign in to create a logged gift preview.')
       const response=await fetch(`${API}/api/gifts/intent`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({giftType:gift.id,recipientId,amountMinor:amount,spatialMode:mode,musicCue:gift.musicCue})})
       const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data?.error||`Gift request failed (${response.status})`)
       const kit=lottieForGift(gift.id,gift.tier)
       setBurst(v=>v+1);playCue();window.dispatchEvent(new CustomEvent('tryamm:holo-gift',{detail:{...data.intent,label:gift.label,spatialMode:mode,musicCue:gift.musicCue,effect:gift.effect,collection:gift.collection,tier:gift.tier,lottieKey:kit.lottieKey,ownedAnimation:kit.owned}}))
-      setMessage(amount>0?`${gift.label} fired in ${mode.toUpperCase()} mode. Tip remains pending provider verification; no withdrawable cash was created.`:`${gift.label} visual/music effect fired in ${mode.toUpperCase()} mode.`)
+      setMessage(`${gift.label} visual preview created in ${mode.toUpperCase()} mode. Proposed price ${(gift.suggested/100).toFixed(2)} USD; no charge, tip or creator payout occurred.`)
     }catch(error){setMessage(error instanceof Error?error.message:'Gift failed.')}finally{setBusy(false)}
   }
 
@@ -114,15 +109,16 @@ export default function HoloGiftEngine({recipientId='demo-host',previewOnly=fals
     <style>{`@keyframes tryammGiftRing{from{transform:scale(.15) rotate(0);opacity:1}to{transform:scale(1.9) rotate(38deg);opacity:0}}@keyframes tryammGiftFade{0%,80%{opacity:1}100%{opacity:0}}`}</style>
     <div style={{fontSize:10,letterSpacing:2.5,color:'#4fe3ff',fontWeight:950}}>TRYAMM HOLO GIFT UNIVERSE • AR / VR / MUSIC</div>
     <div style={{marginTop:6,fontSize:8,color:'#84dca9',fontWeight:900}}>OWNED LOTTIE KIT • {HOLOGRAPHIC_GIFT_KIT.specificMappings} DIRECT MAPS • FALLBACK GUARANTEED • NO REMOTE ANIMATION DEPENDENCY</div>
-    <div style={{display:'flex',gap:7,flexWrap:'wrap',marginTop:10}}>{(['screen','ar','vr'] as const).map(id=><button key={id} onClick={()=>id==='screen'?setMode('screen'):enterXR(id)} style={{padding:'8px 11px',borderRadius:11,border:`1px solid ${mode===id?'#4fe3ff':'#2d4050'}`,background:mode===id?'#0c2b39':'#081019',color:'#fff',fontWeight:900,cursor:'pointer'}}>{id.toUpperCase()}</button>)}<button onClick={()=>setMusicEnabled(v=>!v)} style={{padding:'8px 11px',borderRadius:11,border:'1px solid #e8b94466',background:'#151007',color:'#fff',fontWeight:900,cursor:'pointer'}}>♫ MUSIC {musicEnabled?'ON':'OFF'}</button></div>
+    <div style={{display:'flex',gap:7,flexWrap:'wrap',marginTop:10}}>{(['screen','ar','vr'] as const).map(id=><button key={id} onClick={()=>id==='screen'?setMode('screen'):enterXR(id)} style={{padding:'8px 11px',borderRadius:11,border:`1px solid ${mode===id?'#4fe3ff':'#2d4050'}`,background:mode===id?'#0c2b39':'#081019',color:'#fff',fontWeight:900,cursor:'pointer'}}>{id.toUpperCase()}</button>)}<button type="button" onClick={()=>{setMusicEnabled(v=>{setHoloGiftSoundEnabled(!v);return !v})}} aria-label="Toggle CC0 holographic gift sound effects" style={{padding:'8px 11px',borderRadius:11,border:'1px solid #e8b94466',background:'#151007',color:'#fff',fontWeight:900,cursor:'pointer'}}>♫ SFX {musicEnabled?'ON':'OFF'}</button></div>
     <div style={{display:'flex',gap:6,flexWrap:'wrap',marginTop:9}}>{(['ALL','MICRO','REACTION','MUSIC','PRESTIGE','SET-APART','PK','WORLD'] as const).map(id=><button key={id} onClick={()=>setTier(id)} style={{padding:'6px 9px',borderRadius:999,border:`1px solid ${tier===id?'#4fe3ff':'#253645'}`,background:tier===id?'#0b2937':'#071019',color:'#dce8ef',fontSize:9,fontWeight:900,cursor:'pointer'}}>{id}</button>)}</div>
-    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(124px,1fr))',gap:7,marginTop:10,maxHeight:460,overflowY:'auto'}}>{visible.map(item=><button key={item.id} onClick={()=>{setGift(item);setAmount(item.suggested)}} style={{padding:9,borderRadius:12,border:`1px solid ${gift.id===item.id?'#4fe3ff':'#26394b'}`,background:gift.id===item.id?'#0c2837':'#080d14',color:'#fff',cursor:'pointer'}}><div style={{fontSize:25}}>{item.icon}</div><div style={{fontSize:10,fontWeight:900}}>{item.label}</div><div style={{fontSize:8,color:'#899aa8',marginTop:3}}>{item.effect}</div><div style={{fontSize:7,color:item.collection==='AMERICA 250'?'#fff':'#e8b944',marginTop:4,letterSpacing:.5}}>{item.collection}</div><div style={{fontSize:8,color:'#4fe3ff',marginTop:3}}>{item.spatial.toUpperCase()} • {item.tier}</div></button>)}</div>
-    {!previewOnly&&<><label style={{display:'block',marginTop:10,fontSize:9,color:'#9aabb8'}}>OPTIONAL TIP (USD cents)</label><input type="number" min={0} max={100000} value={amount} onChange={e=>setAmount(Math.max(0,Math.floor(Number(e.target.value||0))))} style={{width:'100%',boxSizing:'border-box',marginTop:4,padding:10,borderRadius:10,border:'1px solid #294052',background:'#03070d',color:'#fff'}}/></>}
+    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(124px,1fr))',gap:7,marginTop:10,maxHeight:460,overflowY:'auto'}}>{visible.map(item=><button key={item.id} onClick={()=>{setGift(item);setAmount(item.suggested)}} style={{padding:9,borderRadius:12,border:`1px solid ${gift.id===item.id?'#4fe3ff':'#26394b'}`,background:gift.id===item.id?'#0c2837':'#080d14',color:'#fff',cursor:'pointer'}}><div style={{fontSize:25}}>{item.icon}</div><div style={{fontSize:10,fontWeight:900}}>{item.label}</div><div style={{fontSize:8,color:'#899aa8',marginTop:3}}>{item.effect}</div><div style={{fontSize:7,color:item.collection==='AMERICA 250'?'#fff':'#e8b944',marginTop:4,letterSpacing:.5}}>{item.collection}</div><div style={{fontSize:8,color:'#4fe3ff',marginTop:3}}>{item.spatial.toUpperCase()} • {item.tier} • ${(item.suggested/100).toFixed(2)} USD proposed</div></button>)}</div>
+    <div style={{fontSize:11,color:'#e8b944',marginTop:10,fontWeight:800}}>PROPOSED PRICE: ${(gift.suggested/100).toFixed(2)} USD • PREVIEW ONLY • NO PAYMENT</div>
     {!previewOnly&&<div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:7,marginTop:10}}>
       <button onClick={()=>sendCreditSupport('live-holo-spark')} disabled={busy} style={{padding:10,borderRadius:11,border:'1px solid #4fe3ff66',background:'#0a2533',color:'#fff',fontWeight:900}}>✦ SPARK • 10 CR</button>
       <button onClick={()=>sendCreditSupport('live-holo-support-badge')} disabled={busy} style={{padding:10,borderRadius:11,border:'1px solid #e8b94466',background:'#211907',color:'#fff',fontWeight:900}}>🏅 HOLO SUPPORT • 25 CR</button>
     </div>}
-    <button onClick={send} disabled={busy} style={{width:'100%',marginTop:10,padding:12,borderRadius:12,border:'1px solid #4fe3ff88',background:'linear-gradient(135deg,#0c3343,#2a1f35)',color:'#fff',fontWeight:950,cursor:'pointer'}}>{busy?'SENDING…':`${previewOnly?'PREVIEW':'SEND'} ${gift.icon} ${gift.label} • ${mode.toUpperCase()}${!previewOnly&&amount?` + ${(amount/100).toFixed(2)} TIP`:''}`}</button>
+    <button onClick={send} disabled={busy} style={{width:'100%',marginTop:10,padding:12,borderRadius:12,border:'1px solid #4fe3ff88',background:'linear-gradient(135deg,#0c3343,#2a1f35)',color:'#fff',fontWeight:950,cursor:'pointer'}}>{busy?'SENDING…':`PREVIEW ${gift.icon} ${gift.label} • ${mode.toUpperCase()}`}</button>
     <div style={{fontSize:10,lineHeight:1.5,color:'#a7b6c2',marginTop:9}}>{message}</div>
+    <small style={{color:'#9caabb'}}>CC0 sound effects stream from a public source; internet and device playback permissions required. Authentic whale, lion, shofar and licensed songs are pending.</small>
   </section>
 }

@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict'
+import {readFileSync} from 'node:fs'
+const html=readFileSync(new URL('../public/greenville-university.html',import.meta.url),'utf8')
+const script=readFileSync(new URL('../public/greenville-campus-progress.js',import.meta.url),'utf8')
+const hud=readFileSync(new URL('../src/components/StreetVerseGreenvilleBirthdayHUD.tsx',import.meta.url),'utf8')
+assert.match(html,/src="\/greenville-campus-progress\.js" defer/,'website includes mission progress')
+assert.match(html,/data-greenville-progress/,'website renders progress panel')
+assert.match(html,/data-progress-resume/,'website has return-to-world button')
+assert.match(html,/data-progress-refresh/,'website has refresh control')
+assert.match(html,/<progress max="8" value="0"/,'website has native progress indicator')
+assert.match(script,/const key='tryamm\.greenville\.birthday\.stage\.v2'/,'script reads canonical mission key')
+assert.match(hud,/localStorage\.setItem\('tryamm\.greenville\.birthday\.stage\.v2'/,'mission HUD saves same key')
+assert.match(script,/Math\.min\(labels\.length,Math\.max\(0,Math\.floor\(n\)\)\)/,'stored progress is bounded')
+assert.match(script,/window\.addEventListener\('pageshow',render\)/,'progress rehydrates upon returning from game')
+assert.match(script,/data-progress-count/,'progress count displayed')
+assert.match(script,/\/streetverse\?core=1&character=jacobie&world=greenville&graphics=3d/,'progress resumes correct game route')
+assert.doesNotMatch(script,/innerHTML\s*=/,'progress uses safe DOM methods')
+console.log('Greenville website mission progress contract PASS')

@@ -2,7 +2,7 @@
 // Network-first app shell with stale-asset self recovery.
 // Active StreetVerse and TRYAMM release cache; rotate with index.html.
 
-const RELEASE = '20261013-bj-v17-clean-release'
+const RELEASE = '20261120-original-cast-priority-loader-v1'
 const CACHE_NAME = 'tryamm-shell-' + RELEASE
 const STATIC_ASSETS = ['/manifest.json?v=20260904-american-lion-v2','/tryamm-lion-crown-america.svg?v=20260904-american-lion-v2']
 

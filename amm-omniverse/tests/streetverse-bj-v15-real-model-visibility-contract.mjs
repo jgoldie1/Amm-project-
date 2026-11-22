@@ -19,7 +19,7 @@ required(loader.includes('parseAsync(bytes,basePath)'),'V15 must decode fetched 
 required(loader.includes('BJ GLB decode timed out'),'decoder must fail rather than spin forever')
 required(mobile.includes("bjLoadStatus==='downloading'?'BJ NATIVE ACTIVE · V15 DOWNLOAD'"),'show the download stage')
 required(mobile.includes("bjLoadStatus==='decoding'?'BJ NATIVE ACTIVE · V15 DECODING'"),'show the GPU/GLB preparation stage')
-required(mobile.includes('},16000)'),'iPhone hero attempt must not hang forever')
+required(mobile.includes('},52000)'),'iPhone hero attempt must allow bounded network and decode time, then fail visibly rather than hang forever')
 required(mobile.includes("setMessage('BJ V15 TIMED OUT • tap RETRY BJ')"),'time-out must expose user retry')
 
 required(loader.includes('daa5234c-5fbf-4b52-9c45-e82e36156153.glb'),'stable externally hosted asset')

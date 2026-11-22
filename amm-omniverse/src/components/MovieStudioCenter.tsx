@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import {playOmniMediaCue} from '../runtime/OmniMediaFxBank'
 
 const formats=['REEL','EPISODE','30 MIN','60 MIN','90 MIN','120 MIN'] as const
 const bibleSections=['Story','Characters','Visual','Audio','Continuity','Rights','Ratings & Safety','Accessibility','Commerce & Placement'] as const
@@ -27,6 +28,13 @@ export default function MovieStudioCenter({onClose}:{onClose:()=>void}){
         <section style={{padding:16,border:'1px solid #26384d',borderRadius:18,background:'#090e17'}}><div style={{color:'#ff8fd8',fontWeight:900,fontSize:11}}>HOLOGRAPHIC COMMERCE</div><div style={{display:'grid',gap:8,marginTop:12}}>{['Physical prop','Background placement','Virtual 3D product','StreetVerse interactive object','Holographic overlay','Dynamic placement zone'].map(x=><div key={x} style={{padding:10,borderRadius:10,background:'#101522',border:'1px solid #2b3343',fontSize:11}}>{x}</div>)}</div><p style={{fontSize:11,color:'#8e9db0',lineHeight:1.5}}>Only authorized placements render. Purchases, refunds, settlement, campaign budgets and payable balances remain server-authoritative.</p></section>
       </div>
 
+      <section style={{marginTop:14,padding:16,border:'1px solid #26384d',borderRadius:18,background:'#090e17'}}><b style={{color:'#4fe3ff'}}>MOVIE AUDIO & VISUAL CUE PREVIEWS</b><p style={{fontSize:12,color:'#9fb0c5'}}>Choose a cue to preview its sound. These previews are not yet mixed into a movie export.</p><div style={{display:'flex',gap:8,flexWrap:'wrap'}}>{([['Scene transition','movie.scene'],['Title card','movie.title'],['Action','movie.action'],['Suspense','movie.suspense'],['Drama','movie.drama'],['End credits','movie.credits']] as const).map(([label,id])=><button key={id} onClick={()=>playOmniMediaCue(id)} style={{minHeight:48,padding:'8px 12px',background:'#0d2434',color:'#fff',borderRadius:10,border:'1px solid #40718c',fontWeight:800}}>{label}</button>)}</div></section>
+      <section style={{marginTop:14,padding:16,border:'1px solid #284435',borderRadius:18,background:'#081712'}}>
+        <b style={{color:'#a0f2be'}}>MOVIE, REEL & LIVE MUSIC CUE BANK</b>
+        <p style={{fontSize:12,color:'#bad8c3'}}>Preview royalty-free original synthesized cues: intro, beat, transition, microphone and finale. These are short effects, not complete songs. Playback in this editor is NOT automatically included in video exports.</p>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>{([['Intro','music.intro'],['Beat drop','music.beat'],['DJ transition','music.transition'],['Mic check','music.performance'],['Finale','music.final']] as const).map(([label,id])=><button key={id} onClick={()=>playOmniMediaCue(id)} style={{minHeight:48,padding:'8px 12px',background:'#102b20',color:'#fff',borderRadius:10,border:'1px solid #396c50',fontWeight:800}}>{label}</button>)}</div>
+        <p style={{fontSize:11,color:'#d5c28a'}}>Full songs, creator recordings and licensed library music must pass the existing music-rights release gate before publishing, synchronization, LIVE broadcasting or monetization. No third-party song is licensed by this preview.</p>
+      </section>
       <section style={{marginTop:14,padding:16,border:'1px solid #3a3150',borderRadius:18,background:'#100d18'}}><div style={{fontSize:11,fontWeight:900,color:'#caa8ff'}}>DIRECTOR WORKFLOW</div><div style={{marginTop:10,fontSize:12,lineHeight:1.8,color:'#c1b8cf'}}>Idea → Script → Production Bible → Storyboard → Scene → Shot → Movie Memory retrieval → AI generation candidates → continuity / rights check → director approval → locked shot → edit → audio / accessibility → clean master → authorized holographic commerce → distribution.</div></section>
     </main>
   </div>

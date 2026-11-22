@@ -1,0 +1,41 @@
+name: TRYAMM Mobile Showcase and Real Asset Evidence
+on:
+  pull_request:
+    paths:
+      - 'amm-omniverse/src/components/SoulAscensionMobileStage.tsx'
+      - 'amm-omniverse/src/components/RaymondJarreauLaunchPreview.tsx'
+      - 'amm-omniverse/src/components/AllAmericanShowcaseHub.tsx'
+      - 'amm-omniverse/src/App.tsx'
+      - 'test/soul-ascension-raymond-mobile-contract.test.js'
+      - 'scripts/streetverse-asset-evidence.mjs'
+      - '.github/workflows/tryamm-mobile-showcase-audit.yml'
+  workflow_dispatch:
+jobs:
+  verify-mobile-showcase:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Validate mobile stage and Raymond routing
+        run: node test/soul-ascension-raymond-mobile-contract.test.js
+      - name: Validate telehealth release locks
+        run: |
+          node test/omnicare360-telehealth-gates.test.js
+          node test/omnicare360-integration-contracts.test.js
+      - name: Audit StreetVerse GLB, mesh, skin and animation evidence
+        run: node scripts/streetverse-asset-evidence.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: streetverse-asset-evidence
+          path: asset-evidence/streetverse-asset-audit.json
+          retention-days: 14
+      - name: Verify Vite frontend typecheck and build
+        working-directory: amm-omniverse
+        run: |
+          npm ci
+          npm run build

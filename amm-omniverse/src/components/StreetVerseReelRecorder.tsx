@@ -1,4 +1,8 @@
 import {useEffect,useMemo,useRef,useState} from 'react'
+import {playOmniMediaCue} from '../runtime/OmniMediaFxBank'
+import {getAccessToken} from '../services/supabaseClient'
+import {saveReelDraft,loadReelDraft,clearReelDraft} from '../lib/reels/reelDraftStore'
+import {beginChunkRecording,appendRecordingChunk,recoverPartialReel,clearPartialReel} from '../lib/reels/reelChunkRecovery'
 
 export type StreetVerseReelContext={
  source?:string
@@ -16,23 +20,29 @@ export default function StreetVerseReelRecorder({open,onClose,context={}}:{open:
  const streamRef=useRef<MediaStream|null>(null)
  const recorderRef=useRef<MediaRecorder|null>(null)
  const chunksRef=useRef<Blob[]>([])
+ const sequenceRef=useRef(0)
+ const chunkQueueRef=useRef<Promise<void>>(Promise.resolve())
+ const chunksFailedRef=useRef(false)
  const [recording,setRecording]=useState(false)
  const [url,setUrl]=useState('')
  const [error,setError]=useState('')
  const [publishing,setPublishing]=useState(false)
  const [published,setPublished]=useState(false)
+ const [publicationStatus,setPublicationStatus]=useState('')
+ const [draftStatus,setDraftStatus]=useState('')
  const missionLabel=String(context.missionLabel||'').trim()
  const caption=missionLabel?`${missionLabel} • Created in StreetVerse • #TRYAMM #StreetVerse`:'Created in StreetVerse • #TRYAMM #StreetVerse'
  const missionContext=useMemo(()=>({handoffSource:context.source||'',missionId:context.missionId||'',missionLabel,missionSource:context.missionSource||'',missionRunId:context.missionRunId||'',programId:context.programId||'',rewardStatus:context.verified?'verified':context.rewardStatus||'pending',verified:context.verified===true}),[context.source,context.missionId,context.missionLabel,context.missionSource,context.missionRunId,context.programId,context.rewardStatus,context.verified,missionLabel])
 
  const stopStream=()=>{streamRef.current?.getTracks().forEach(t=>t.stop());streamRef.current=null}
  useEffect(()=>()=>{stopStream();if(url)URL.revokeObjectURL(url)},[url])
+ useEffect(()=>{if(!open)return;let active=true;void (async()=>{try{const partial=await recoverPartialReel();const draft=await loadReelDraft().catch(()=>null);if(!active)return;if(partial){setDraftStatus(`Recovered ${partial.count} saved video segments (${(partial.bytes/1048576).toFixed(1)} MB). This is an interrupted recording; preview, then SAVE / SHARE before clearing it.`);setUrl(current=>current||URL.createObjectURL(partial.blob))}else if(draft){setDraftStatus('Recovered a completed offline reel. Save or share it before recording another.');setUrl(current=>current||URL.createObjectURL(draft.blob))}}catch{if(active)setDraftStatus('Offline recovery could not be checked on this device.')}})();return()=>{active=false}},[open])
  useEffect(()=>{if(open)window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-opened',{detail:{source:'streetverse-reel-recorder',...missionContext}}))},[open,missionContext])
  useEffect(()=>{
   const video=videoRef.current
   if(!video||!url)return
   let announced=false
-  const previewReady=()=>{if(announced)return;announced=true;window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-preview-ready',{detail:{source:'streetverse-reel-recorder',localPreview:true}}))}
+  const previewReady=()=>{if(announced)return;announced=true;window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-preview-ready',{detail:{source:'streetverse-reel-recorder',localPreview:true}}));playOmniMediaCue('reel.preview',{audible:false})}
   video.srcObject=null
   video.src=url
   video.controls=true
@@ -44,7 +54,7 @@ export default function StreetVerseReelRecorder({open,onClose,context={}}:{open:
  if(!open)return null
 
  const startCamera=async()=>{
-  setError('');if(url){URL.revokeObjectURL(url);setUrl('')}
+  setError('');
   try{
    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:true})
    streamRef.current=stream
@@ -52,14 +62,33 @@ export default function StreetVerseReelRecorder({open,onClose,context={}}:{open:
    if(typeof MediaRecorder==='undefined'){setError('Browser recorder is not available here. Tap IPHONE CAPTURE below instead.');return}
    const mime=['video/mp4','video/webm;codecs=vp9,opus','video/webm'].find(x=>MediaRecorder.isTypeSupported?.(x))
    const recorder=new MediaRecorder(stream,mime?{mimeType:mime}:undefined)
-   recorderRef.current=recorder;chunksRef.current=[]
-   recorder.ondataavailable=e=>{if(e.data.size)chunksRef.current.push(e.data)}
-   recorder.onstop=()=>{const blob=new Blob(chunksRef.current,{type:recorder.mimeType||'video/webm'});const next=URL.createObjectURL(blob);setUrl(next);setRecording(false);stopStream();window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-recorded',{detail:{source:'media-recorder',size:blob.size,type:blob.type}}))}
-   recorder.start(500);setRecording(true)
+   await beginChunkRecording(recorder.mimeType||mime||'video/webm')
+   if(url){URL.revokeObjectURL(url);setUrl('')}
+   setDraftStatus('Recording in progress: saving segments to offline storage every second.')
+   recorderRef.current=recorder;chunksRef.current=[];sequenceRef.current=0;chunksFailedRef.current=false;chunkQueueRef.current=Promise.resolve()
+   recorder.ondataavailable=e=>{
+    if(!e.data.size)return
+    chunksRef.current.push(e.data)
+    const segment=e.data,sequence=sequenceRef.current++
+    chunkQueueRef.current=chunkQueueRef.current.then(()=>appendRecordingChunk(sequence,segment)).catch(()=>{chunksFailedRef.current=true;setDraftStatus('Offline recording segment could not be saved. Storage may be full: STOP and SAVE / SHARE your recording.')})
+   }
+   recorder.onstop=()=>{
+    const blob=new Blob(chunksRef.current,{type:recorder.mimeType||'video/webm'})
+    if(blob.size){const next=URL.createObjectURL(blob);setUrl(next)}
+    setRecording(false);stopStream()
+    void chunkQueueRef.current.then(async()=>{
+     if(!blob.size)return
+     await saveReelDraft(blob)
+     if(!chunksFailedRef.current){await clearPartialReel();setDraftStatus('Completed recording saved offline. You can SAVE / SHARE it now.')}
+     else setDraftStatus('Completed recording saved, but some segments failed to back up during capture.')
+    }).catch(()=>setDraftStatus('Offline recovery may be incomplete: use SAVE / SHARE now.'))
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-recorded',{detail:{source:'media-recorder',size:blob.size,type:blob.type}}))
+   }
+   recorder.start(1000);setRecording(true);playOmniMediaCue('reel.record',{audible:false})
    window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-recording-started',{detail:{source:'media-recorder',mimeType:recorder.mimeType||mime||'browser-default'}}))
-  }catch(e){setError(e instanceof Error?e.message:'Camera access failed')}
+  }catch(e){stopStream();setError(e instanceof Error?e.message:'Camera access failed')}
  }
- const stopRecording=()=>{const recorder=recorderRef.current;if(recorder&&recorder.state!=='inactive')recorder.stop()}
+ const stopRecording=()=>{const recorder=recorderRef.current;if(recorder&&recorder.state!=='inactive'){recorder.stop();playOmniMediaCue('reel.stop',{audible:false})}}
  const returnToWorld=()=>{if(recording)stopRecording();stopStream();onClose()}
  const share=async()=>{
   if(!url)return
@@ -68,27 +97,46 @@ export default function StreetVerseReelRecorder({open,onClose,context={}}:{open:
    const file=new File([blob],`streetverse-reel-${Date.now()}.${blob.type.includes('mp4')?'mp4':'webm'}`,{type:blob.type})
    if(navigator.share&&navigator.canShare?.({files:[file]})){
     await navigator.share({files:[file],title:missionLabel||'StreetVerse Reel',text:caption})
-    window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-save-share-complete',{detail:{source:'streetverse-reel-recorder',action:'share',type:blob.type,size:blob.size,...missionContext}}))
+    window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-save-share-complete',{detail:{source:'streetverse-reel-recorder',action:'share',type:blob.type,size:blob.size,...missionContext}}));playOmniMediaCue('reel.save',{audible:false})
     return
    }
    const a=document.createElement('a');a.href=url;a.download=file.name;a.rel='noopener';document.body.appendChild(a);a.click();a.remove()
-   window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-save-share-complete',{detail:{source:'streetverse-reel-recorder',action:'download',type:blob.type,size:blob.size,...missionContext}}))
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-save-share-complete',{detail:{source:'streetverse-reel-recorder',action:'download',type:blob.type,size:blob.size,...missionContext}}));playOmniMediaCue('reel.save',{audible:false})
   }catch{setError('Save/share failed. Try IPHONE CAPTURE, then use the iPhone share sheet from the preview.')}
+ }
+ const verifyPlayback=async(playbackUrl:string)=>{
+  await new Promise<void>((resolve,reject)=>{
+   const video=document.createElement('video')
+   video.preload='metadata';video.muted=true;video.playsInline=true
+   let finished=false
+   const done=(error?:Error)=>{if(finished)return;finished=true;clearTimeout(timer);video.removeAttribute('src');video.load();error?reject(error):resolve()}
+   const timer=window.setTimeout(()=>done(new Error('Uploaded video could not be verified before timeout. Keep your local copy.')),12000)
+   video.onloadedmetadata=()=>Number.isFinite(video.duration)&&video.duration>0?done():done(new Error('Uploaded media has invalid duration.'))
+   video.onerror=()=>done(new Error('Uploaded media could not be decoded for playback on this device.'))
+   video.src=playbackUrl;video.load()
+  })
  }
  const publish=async()=>{
   if(!url||publishing)return
-  setPublishing(true);setPublished(false);setError('')
+  setPublishing(true);setPublished(false);setError('');setPublicationStatus('')
   try{
+   const token=await getAccessToken();if(!token)throw new Error('Sign in to upload or publish your reel.')
+   const authHeaders={'content-type':'application/json',Authorization:`Bearer ${token}`}
    const blob=await fetch(url).then(r=>r.blob())
    const ext=blob.type.includes('mp4')?'mp4':'webm',fileName=`streetverse-reel-${Date.now()}.${ext}`
-   const intent=await fetch('/api/media/upload-intent',{method:'POST',headers:{'content-type':'application/json'},credentials:'include',body:JSON.stringify({fileName,contentType:blob.type||'video/mp4',sizeBytes:blob.size,title:missionLabel||'StreetVerse Reel',caption,composition:{...missionContext,creatorSurface:'streetverse-reel-recorder'}})})
+   const intent=await fetch('/api/media/upload-intent',{method:'POST',headers:authHeaders,body:JSON.stringify({fileName,contentType:blob.type||'video/mp4',sizeBytes:blob.size,title:missionLabel||'StreetVerse Reel',caption,composition:{...missionContext,creatorSurface:'streetverse-reel-recorder',audioMixVerified:false,gameEffectsRecorded:false,fxBank:'tryamm.omni-media.v1'}})})
    const intentBody=await intent.json();if(!intent.ok)throw new Error(intentBody?.error||'Could not start Reel upload')
    const uploaded=await fetch(intentBody.upload.url,{method:'PUT',headers:{'content-type':blob.type||'video/mp4'},body:blob});if(!uploaded.ok)throw new Error('Reel storage upload failed')
-   const complete=await fetch('/api/media/upload-complete',{method:'POST',headers:{'content-type':'application/json'},credentials:'include',body:JSON.stringify({mediaId:intentBody.media.id})})
+   const complete=await fetch('/api/media/upload-complete',{method:'POST',headers:authHeaders,body:JSON.stringify({mediaId:intentBody.media.id})})
    const completeBody=await complete.json();if(!complete.ok)throw new Error(completeBody?.error||'Reel upload verification failed')
-   const pub=await fetch('/api/media/publish',{method:'POST',headers:{'content-type':'application/json'},credentials:'include',body:JSON.stringify({mediaId:intentBody.media.id,destinations:['reel','creator-profile','omnibox']})})
+   if(completeBody.processing!=='ready')throw new Error('Upload saved, but video processing is not finished. Your local recording is still available to save or share.')
+   if(!completeBody.playbackUrl)throw new Error('Upload verified without a playback URL. Keep the local copy until playback can be checked.')
+   await verifyPlayback(String(completeBody.playbackUrl))
+   const pub=await fetch('/api/media/publish',{method:'POST',headers:authHeaders,body:JSON.stringify({mediaId:intentBody.media.id,destinations:['reel','creator-profile','omnibox']})})
    const pubBody=await pub.json();if(!pub.ok)throw new Error(pubBody?.error||'Reel publishing failed')
-   setPublished(true);window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-published',{detail:{mediaId:intentBody.media.id,destinations:['reel','creator-profile','omnibox'],caption,...missionContext}}))
+   const jobStatus=String(pubBody?.job?.status||'unknown')
+   setPublicationStatus(`Publication ${jobStatus.toUpperCase()} • moderation and playback delivery not yet verified`)
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-publication-queued',{detail:{mediaId:intentBody.media.id,jobId:pubBody?.job?.id||null,status:jobStatus,destinations:['reel','creator-profile','omnibox'],caption,...missionContext}}))
   }catch(e){setError(e instanceof Error?e.message:'Reel publishing failed')}
   finally{setPublishing(false)}
  }
@@ -96,7 +144,7 @@ export default function StreetVerseReelRecorder({open,onClose,context={}}:{open:
   if(!file)return
   setError('')
   if(url)URL.revokeObjectURL(url)
-  stopStream();setRecording(false);setUrl(URL.createObjectURL(file))
+  stopStream();setRecording(false);setUrl(URL.createObjectURL(file));void saveReelDraft(file).then(()=>setDraftStatus('iPhone capture backed up for offline recovery.')).catch(()=>setDraftStatus('Offline backup unavailable: use SAVE / SHARE now.'))
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-reel-recorded',{detail:{source:'iphone-capture',size:file.size,type:file.type||'video/*'}}))
  }
  return <div style={{position:'fixed',inset:0,zIndex:46000,background:'#02050af4',color:'#fff',fontFamily:'system-ui',padding:16,overflow:'auto'}}>
@@ -105,12 +153,15 @@ export default function StreetVerseReelRecorder({open,onClose,context={}}:{open:
    <video ref={videoRef} playsInline muted style={{width:'100%',aspectRatio:'9/16',maxHeight:'70vh',marginTop:12,background:'#000',borderRadius:16,objectFit:'cover'}}/>
    <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:12}}>
     {!recording?<button onClick={startCamera} style={btn}>● START RECORDING</button>:<button onClick={stopRecording} style={{...btn,borderColor:'#ff6378',background:'#2a0b12'}}>■ STOP RECORDING</button>}
-    {url&&<button onClick={publish} disabled={publishing} style={{...btn,borderColor:'#8effb7',background:'#082a18'}}>{publishing?'PUBLISHING…':published?'✓ PUBLISHED':'PUBLISH TO TRYAMM'}</button>}
+    {url&&<button onClick={publish} disabled={publishing} style={{...btn,borderColor:'#8effb7',background:'#082a18'}}>{publishing?'PUBLISHING…':published?'✓ VERIFIED':'QUEUE FOR PUBLISHING'}</button>}
     {url&&<button onClick={share} style={{...btn,borderColor:'#65e8ff',background:'#08202a'}}>SAVE / SHARE</button>}
     <label style={btn}>IPHONE CAPTURE<input type='file' accept='video/*' capture='environment' style={{display:'none'}} onChange={e=>onIPhoneCapture(e.target.files?.[0])}/></label>
     <button onClick={returnToWorld} style={{...btn,borderColor:'#ffd65a',background:'#241b06'}}>← RETURN TO STREETVERSE</button>
    </div>
    {error&&<p role='alert' style={{color:'#ffd27a'}}>{error}</p>}
+   {publicationStatus&&<p role='status' style={{color:'#8effb7'}}>{publicationStatus}</p>}
+   {draftStatus&&<p role='status' style={{color:'#8effb7'}}>{draftStatus}</p>}
+   {url&&!recording&&<button onClick={()=>{void Promise.all([clearReelDraft(),clearPartialReel()]).then(()=>setDraftStatus('Offline backup cleared. Save the clip before closing this window.')).catch(()=>setDraftStatus('Could not clear offline recovery.'))}} style={btn}>CLEAR OFFLINE BACKUP</button>}
    <p style={{fontSize:12,color:'#b9c7d3'}}>On Safari/iPhone, tap IPHONE CAPTURE if browser recording is unavailable. After capture, the clip now opens in the preview above. Tap PUBLISH TO TRYAMM to upload and queue the Reel to the Reel feed, creator profile and OmniBox. SAVE / SHARE still uses the iPhone share sheet.</p>
   </div>
  </div>

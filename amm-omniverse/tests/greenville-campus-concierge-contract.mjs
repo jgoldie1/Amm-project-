@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict'
+import {readFileSync} from 'node:fs'
+const html=readFileSync(new URL('../public/greenville-university.html',import.meta.url),'utf8')
+const js=readFileSync(new URL('../public/greenville-campus-guide.js',import.meta.url),'utf8')
+assert.match(html,/src="\/greenville-campus-guide\.js"/,'concierge script included')
+assert.match(html,/data-greenville-guide/,'guide mount')
+assert.match(html,/data-guide-answer/,'accessible answer region')
+assert.match(html,/data-guide-topic="housing"/,'housing shortcut')
+assert.match(html,/data-guide-topic="access"/,'accessibility shortcut')
+assert.match(html,/Student and creator services/,'student directory')
+assert.match(html,/No\. This Greenville University is a fictional CampusVerse/,'accurate non-accredited disclaimer')
+assert.match(html,/href="\/streetverse\?core=1&amp;character=jacobie&amp;world=greenville&amp;graphics=3d"/,'real campus route')
+assert.match(js,/textContent=txt/,'user-facing content uses textContent')
+assert.doesNotMatch(js,/innerHTML\s*=/,'no HTML injection from questions')
+assert.doesNotMatch(js,/(?:fetch|XMLHttpRequest)\s*\(/,'local-only guide makes no network calls')
+assert.match(js,/not a live AI chat/,'guided assistant not misrepresented as generative AI')
+console.log('Greenville campus guide / website integration source contract PASS')

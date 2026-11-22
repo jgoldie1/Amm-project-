@@ -6,9 +6,18 @@ import InstallPrompt from './components/InstallPrompt'
 import { BennieButton } from './components/BennieChatbot'
 import { SwipeNavigator, SwipeTutorial } from './components/SwipeNavigator'
 import LivingWorldsBridge from './components/LivingWorldsBridge'
+import StreetVerseMobileErrorBoundary from './components/StreetVerseMobileErrorBoundary'
 import './styles.css'
 
 const CityView = lazy(() => import('./components/CityView'))
+const AICommonsOnePush = lazy(() => import('./components/AICommonsOnePush'))
+const StreetVerseCommonsNpcFactory = lazy(() => import('./components/StreetVerseCommonsNpcFactory'))
+const OmniCare360CareAccess = lazy(() => import('./components/OmniCare360CareAccess'))
+const TRYAMMComplianceCenter = lazy(() => import('./components/TRYAMMComplianceCenter'))
+const AllAmericanShowcaseHub = lazy(() => import('./components/AllAmericanShowcaseHub'))
+const SoulAscensionMobileStage = lazy(() => import('./components/SoulAscensionMobileStage'))
+const RaymondJarreauLaunchPreview = lazy(() => import('./components/RaymondJarreauLaunchPreview'))
+const AllAmericanFinancialAcademyHub = lazy(() => import('./components/AllAmericanFinancialAcademyHub'))
 const SportsRealm = lazy(() => import('./components/RealmScreens').then(m => ({ default: m.SportsRealm })))
 const MarketplaceRealm = lazy(() => import('./components/RealmScreens').then(m => ({ default: m.MarketplaceRealm })))
 const MusicRealm = lazy(() => import('./components/RealmScreens').then(m => ({ default: m.MusicRealm })))
@@ -20,6 +29,7 @@ const BennieChat = lazy(() => import('./components/BennieChat'))
 const OmniverseCommandCenter = lazy(() => import('./components/OmniverseCommandCenter'))
 const AdvancedWorldSystems = lazy(() => import('./components/AdvancedWorldSystems'))
 const KingdomsPressOperations = lazy(() => import('./components/KingdomsPressOperations'))
+const FaithVerseBibleHub = lazy(() => import('./components/FaithVerseBibleHub'))
 const ImmersiveWorldViewport = lazy(() => import('./components/ImmersiveWorldViewport'))
 const AICafeRestaurant = lazy(() => import('./components/AICafeRestaurant'))
 const SchoolNetworkPortal = lazy(() => import('./components/SchoolNetworkPortal'))
@@ -66,6 +76,13 @@ const HoloGPTAssistant = lazy(() => import('./components/HoloGPTAssistant'))
 export default function App() {
   const screen = useGameStore(s => s.screen)
   const setScreen = useGameStore(s => s.setScreen)
+  const [showAICommons, setShowAICommons] = useState(false)
+  const [showOmniCare360, setShowOmniCare360] = useState(false)
+  const [showCompliance, setShowCompliance] = useState(false)
+  const [showAllAmericanShowcase, setShowAllAmericanShowcase] = useState(false)
+  const [showSoulAscensionStage, setShowSoulAscensionStage] = useState(false)
+  const [showRaymondLaunch, setShowRaymondLaunch] = useState(false)
+  const [showFinancialAcademy, setShowFinancialAcademy] = useState(false)
   const [showPricing, setShowPricing] = useState(false)
   const [showHoloverse, setShowHoloverse] = useState(false)
   const [showBennie, setShowBennie] = useState(false)
@@ -73,6 +90,7 @@ export default function App() {
   const [showOmniverse, setShowOmniverse] = useState(false)
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [showPress, setShowPress] = useState(false)
+  const [showFaithBible, setShowFaithBible] = useState(() => ['/metaverse-bible','/ethiopian-bible','/faithverse','/faithverse-study'].includes(window.location.pathname.replace(/\/+$/, '')))
   const [showImmersive, setShowImmersive] = useState(false)
   const [showCafe, setShowCafe] = useState(false)
   const [showSchoolNetwork, setShowSchoolNetwork] = useState(false)
@@ -113,6 +131,8 @@ export default function App() {
   const [showStaysAgencyFamily, setShowStaysAgencyFamily] = useState(false)
   const [staysAgencyFamilyInitialTab, setStaysAgencyFamilyInitialTab] = useState<'stays'|'passport'>('stays')
   const [showNexus, setShowNexus] = useState(false)
+  const [showQuickTools, setShowQuickTools] = useState(false)
+  const [clearStreetVerseView, setClearStreetVerseView] = useState(false)
   const [showSparrowMap, setShowSparrowMap] = useState(false)
   const [showBJViewer, setShowBJViewer] = useState(() => ['/bj-v7-preview','/bj-v8-preview','/bj-v9-preview','/bj-v10-preview','/bj-preview'].includes(window.location.pathname.replace(/\/+$/, '')))
   const [showSwipeTip, setShowSwipeTip] = useState(() => !localStorage.getItem('amm_swiped'))
@@ -121,7 +141,8 @@ export default function App() {
   const navigateTryAMM = (path:string) => {
     const route = (path || '/').replace(/\/+$/, '') || '/'
     if (route === '/') { setScreen('intro'); return }
-    if (route === '/streetverse' || route === '/metaverse-bible' || route === '/ethiopian-bible' || route === '/faithverse' || route === '/starverse' || route === '/kingdom' || route === '/kingdom-of-yahisrael' || route === '/kingdom-workbook' || route === '/yahisrael' || route === '/judah' || route === '/where-heaven-meets-earth' || route === '/my-world' || route === '/we-are-the-world') { window.location.href = route; return }
+    if (route === '/metaverse-bible' || route === '/ethiopian-bible' || route === '/faithverse' || route === '/faithverse-study') { setShowFaithBible(true); return }
+    if (route === '/streetverse' || route === '/starverse' || route === '/kingdom' || route === '/kingdom-of-yahisrael' || route === '/kingdom-workbook' || route === '/yahisrael' || route === '/judah' || route === '/where-heaven-meets-earth' || route === '/my-world' || route === '/we-are-the-world') { window.location.href = route; return }
     if (route === '/bj-v7-preview' || route === '/bj-v8-preview' || route === '/bj-v9-preview' || route === '/bj-v10-preview' || route === '/bj-preview') { setShowBJViewer(true); return }
     if (route === '/mobility360' || route === '/mobility360.html') { window.location.href='/mobility360.html'; return }
     if (route === '/mobility360-learn' || route === '/mobility360-learn.html') { window.location.href='/mobility360-learn.html'; return }
@@ -147,7 +168,7 @@ export default function App() {
     if (route === '/cyberverse') { setShowSecurity(true); return }
     if (route === '/creatorverse') { setShowPoyo(true); return }
     if (route === '/businessverse') { window.location.href = '/business'; return }
-    if (route === '/educationverse') { setShowSchoolNetwork(true); return }
+    if (route === '/educationverse' || route === '/all-american-university') { setShowSchoolNetwork(true); return }
     if (route === '/legacyverse') { setShowFamilyLegacy(true); return }
     if (route === '/connect') { setShowConnect(true); return }
     if (route === '/tv' || route === '/tryamm-tv') { setShowTryammTv(true); return }
@@ -176,7 +197,7 @@ export default function App() {
     const routeAliases = new Set([
       '/marketplace','/music','/musicverse','/aniyah-studio','/64-track-studio','/sports','/sportverse','/faith','/blockchain','/city',
       '/propertyverse','/earnings','/creator-money','/business-income','/merchant-money','/all-american-store','/omnichannel','/holo-gallery','/holo-fridge','/holo-cold-vault','/holo-lab','/holo-labs','/logistics-freight','/freight','/business-revenue','/saas','/holoverse','/spaceverse','/cyberverse','/creatorverse','/businessverse',
-      '/educationverse','/gameverse','/middleverse','/metaverse','/multiverse','/time-machine',
+      '/educationverse','/all-american-university','/gameverse','/middleverse','/metaverse','/multiverse','/time-machine',
       '/legacyverse','/connect','/tv','/tryamm-tv','/isaiah-ai-tv','/bj-v7-preview','/bj-v8-preview','/bj-v9-preview','/bj-v10-preview','/bj-preview'
     ])
     if (routeAliases.has(route)) navigateTryAMM(route)
@@ -214,6 +235,7 @@ export default function App() {
   ;(window as any).__showStaysAgencyFamily = () => { setStaysAgencyFamilyInitialTab('stays'); setShowStaysAgencyFamily(true) }
   ;(window as any).__showSetApartPassport = () => { setStaysAgencyFamilyInitialTab('passport'); setShowStaysAgencyFamily(true) }
   ;(window as any).__showKingdomsPress = () => setShowPress(true)
+  ;(window as any).__showFaithVerseBible = () => setShowFaithBible(true)
   ;(window as any).__showImmersiveWorlds = () => setShowImmersive(true)
   ;(window as any).__showAICafe = () => setShowCafe(true)
   ;(window as any).__showSchoolNetwork = () => setShowSchoolNetwork(true)
@@ -229,6 +251,13 @@ export default function App() {
   ;(window as any).__showQuantumBeat = () => setShowQuantumBeat(true)
   ;(window as any).__showIsaiahTV = () => setShowOTT(true)
   ;(window as any).__showStarStudio = () => setShowStarStudio(true)
+  ;(window as any).__showAllAmericanShowcase = () => setShowAllAmericanShowcase(true)
+  ;(window as any).__showSoulAscensionStage = () => setShowSoulAscensionStage(true)
+  ;(window as any).__showRaymondLaunch = () => setShowRaymondLaunch(true)
+  ;(window as any).__showFinancialAcademy = () => setShowFinancialAcademy(true)
+  ;(window as any).__showAICommons = () => setShowAICommons(true)
+  ;(window as any).__showOmniCare360 = () => setShowOmniCare360(true)
+  ;(window as any).__showCompliance = () => setShowCompliance(true)
   ;(window as any).__showAniyah64TrackStudio = () => setShowAniyahStudio(true)
   ;(window as any).__showHoloPlayCard = () => setShowHoloPlayCard(true)
   ;(window as any).__showCrossVerseEconomy = () => setShowCrossVerseEconomy(true)
@@ -318,9 +347,19 @@ export default function App() {
     <SwipeNavigator>
       <Suspense fallback={null}>
       <div style={{ width: '100%', minHeight: '100dvh', height: isGameplay ? '100dvh' : 'auto', overflowX: 'hidden', overflowY: isGameplay ? 'hidden' : 'auto', WebkitOverflowScrolling: 'touch', background: '#020212' }}>
+        {/* Always accessible above the game and its floating HUDs. Never covers the joystick. */}
+        <div aria-label="TRYAMM quick access" style={{position:'fixed',left:'max(8px, env(safe-area-inset-left))',top:'max(8px, env(safe-area-inset-top))',zIndex:2147483640,display:'flex',flexDirection:'column',alignItems:'flex-start',gap:6,maxWidth:'calc(100vw - 16px)'}}>
+          <button type="button" aria-expanded={showQuickTools} aria-controls="tryamm-quick-tools" onClick={()=>setShowQuickTools(v=>!v)} style={{minHeight:52,minWidth:124,border:'2px solid #77f4ff',borderRadius:14,background:'#062031',color:'#fff',fontSize:16,fontWeight:900,padding:'10px 14px',touchAction:'manipulation'}}>{showQuickTools?'× CLOSE TOOLS':'☰ LIVE / TOOLS'}</button>
+          {showQuickTools&&<div id="tryamm-quick-tools" style={{display:'flex',flexWrap:'wrap',gap:7,maxWidth:'min(94vw,460px)',padding:8,background:'#081520f2',border:'1px solid #77f4ff',borderRadius:14}}>
+            <button type="button" onClick={()=>{setShowQuickTools(false);setShowLive(true)}} style={{minHeight:54,padding:'10px 13px',borderRadius:12,background:'#bd2445',border:'2px solid #ffa6b8',color:'#fff',fontSize:15,fontWeight:900}}>● OPEN LIVE</button>
+            <button type="button" onClick={()=>window.location.assign('/live-test.html')} style={{minHeight:54,padding:'10px 13px',borderRadius:12,background:'#134a69',border:'2px solid #8feaff',color:'#fff',fontSize:15,fontWeight:900}}>✓ RUN TEST</button>
+            <button type="button" aria-pressed={clearStreetVerseView} onClick={()=>{setClearStreetVerseView(v=>!v);setShowQuickTools(false)}} style={{minHeight:54,padding:'10px 13px',borderRadius:12,background:'#26364c',border:'2px solid #bbdbff',color:'#fff',fontSize:15,fontWeight:900}}>{clearStreetVerseView?'SHOW HUD':'CLEAR GAME VIEW'}</button>
+          </div>}
+        </div>
+        {clearStreetVerseView&&<style>{`[data-streetverse-life-missions], [data-bj-anatomy-controls] { display:none!important; }`}</style>}
         <LivingWorldsBridge />
         {screen === 'intro' && <TryAMMHome />}
-        {screen === 'city' && <CityView />}
+        {screen === 'city' && <StreetVerseMobileErrorBoundary name="StreetVerse City"><CityView /></StreetVerseMobileErrorBoundary>}
         {screen === 'sports' && <SportsRealm />}
         {screen === 'marketplace' && <MarketplaceRealm />}
         {screen === 'music' && <MusicRealm />}
@@ -329,6 +368,8 @@ export default function App() {
         <NotifToast /><BennieButton /><InstallPrompt />
 
         {shellAvailable && <>
+          <button type="button" aria-label="Open TRYAMM Compliance and AI Law" onClick={() => setShowCompliance(true)} style={{position:'fixed',right:12,top:80,zIndex:9000,background:'#2d2936',color:'#fff',border:'2px solid #ddc581',borderRadius:16,padding:'14px 16px',fontSize:13,fontWeight:900,cursor:'pointer',minHeight:56}}>COMPLIANCE · AI LAW</button>
+          <button type="button" aria-label="Open AI Commons one-push check" onClick={() => setShowAICommons(true)} style={{position:'fixed',left:12,top:80,zIndex:9000,background:'#15364e',color:'#fff',border:'2px solid #70d8ff',borderRadius:16,padding:'14px 16px',fontSize:14,fontWeight:900,cursor:'pointer',minHeight:56}}>AI COMMONS · ONE PUSH</button>
           <button type="button" aria-label="Open TryAMM LIVE Center" onClick={() => setShowLive(true)} style={{position:'fixed',left:12,bottom:72,zIndex:9000,background:'linear-gradient(135deg,#ff334e,#8f1744)',color:'#fff',border:'1px solid #ff8fa4aa',borderRadius:999,padding:'10px 14px',fontFamily:'monospace',fontSize:11,fontWeight:900,cursor:'pointer',boxShadow:'0 8px 28px #0008'}}>● LIVE</button>
           <button type="button" aria-label="Open Command Nexus" onClick={() => setShowNexus(v=>!v)} style={{position:'fixed',right:12,bottom:72,zIndex:9000,background:'linear-gradient(135deg,#0d2934,#181326)',color:'#e8b944',border:'1px solid #4fe3ff88',borderRadius:999,padding:'10px 14px',fontFamily:'monospace',fontSize:11,fontWeight:900,cursor:'pointer',boxShadow:'0 8px 28px #0008'}}>✦ COMMAND NEXUS</button>
         </>}
@@ -341,6 +382,22 @@ export default function App() {
           <div style={{marginTop:10,fontSize:9,color:'#718096',lineHeight:1.5}}>Advanced systems stay available here without covering the main experience. Readiness labels distinguish live, protected and beta features.</div>
         </div>}
 
+        {showAICommons && <AICommonsOnePush onClose={() => setShowAICommons(false)} onOpenAgent={() => { setShowAICommons(false); setShowHoloGPT(true) }} onStartMission={() => { setShowAICommons(false); setScreen('city') }} onOpenCare={() => {setShowAICommons(false); setShowOmniCare360(true)}} />}
+        {showOmniCare360 && <OmniCare360CareAccess onClose={() => setShowOmniCare360(false)} />}
+        {showCompliance && <TRYAMMComplianceCenter onClose={() => setShowCompliance(false)} />}
+        {showFinancialAcademy && <AllAmericanFinancialAcademyHub onClose={() => setShowFinancialAcademy(false)} onOpenUniversity={() => {setShowFinancialAcademy(false);setShowSchoolNetwork(true)}} />}
+        {showSoulAscensionStage && <SoulAscensionMobileStage onClose={() => setShowSoulAscensionStage(false)} onOpenStudio={() => {setShowSoulAscensionStage(false);setShowStarStudio(true)}} onOpenLive={() => {setShowSoulAscensionStage(false);setShowLive(true)}} />}
+        {showRaymondLaunch && <RaymondJarreauLaunchPreview onClose={() => setShowRaymondLaunch(false)} onOpenShowcase={() => {setShowRaymondLaunch(false);setShowAllAmericanShowcase(true)}} />}
+        {showAllAmericanShowcase && <AllAmericanShowcaseHub onClose={() => setShowAllAmericanShowcase(false)} onOpen={target => {
+          if(target==='stage'){setShowAllAmericanShowcase(false);setShowSoulAscensionStage(true);return}
+          if(target==='raymond'){setShowAllAmericanShowcase(false);setShowRaymondLaunch(true);return}
+          setShowAllAmericanShowcase(false)
+          if(target==='studio') setShowStarStudio(true)
+          if(target==='network') setShowOTT(true)
+          if(target==='live') setShowLive(true)
+          if(target==='music') setScreen('music')
+          if(target==='academy') setShowSchoolNetwork(true)
+        }} />}
         {showPricing && <div style={{position:'fixed',inset:0,zIndex:9999,background:'#020212'}}><PricingScreen onClose={() => setShowPricing(false)} /></div>}
         {showHoloverse && <div style={{position:'fixed',inset:0,zIndex:2147483500,background:'#020212'}}><HoloverseHub onClose={() => setShowHoloverse(false)} /></div>}
         {showBennie && <div style={{position:'fixed',inset:0,zIndex:9997,background:'#020212'}}><BennieChat onClose={() => setShowBennie(false)} /></div>}
@@ -370,6 +427,8 @@ export default function App() {
         {showCafe && <AICafeRestaurant onClose={() => setShowCafe(false)} />}
         {showSchoolNetwork && <SchoolNetworkPortal onClose={() => setShowSchoolNetwork(false)} />}
         {showAdvanced && <AdvancedWorldSystems onClose={() => setShowAdvanced(false)} />}
+        <StreetVerseCommonsNpcFactory />
+        {showFaithBible && <FaithVerseBibleHub onClose={() => {setShowFaithBible(false);if(['/metaverse-bible','/ethiopian-bible','/faithverse','/faithverse-study'].includes(window.location.pathname)){window.history.replaceState({},'', '/')}}} onOpenFaith={() => {setShowFaithBible(false);setScreen('faith')}} onOpenPress={() => {setShowFaithBible(false);setShowPress(true)}} />}
         {showPress && <KingdomsPressOperations onClose={() => setShowPress(false)} />}
         {showImmersive && <ImmersiveWorldViewport onClose={() => setShowImmersive(false)} />}
         {showFamilyLegacy && <FamilyLegacyHub onClose={() => setShowFamilyLegacy(false)} />}

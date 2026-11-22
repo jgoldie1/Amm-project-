@@ -1,0 +1,37 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>StreetVerse original character asset check</title><style>body{margin:0;background:#091625;color:#f5f7fb;font:18px system-ui;padding:clamp(14px,4vw,32px)}main{max-width:760px;margin:auto}h1{font-size:clamp(25px,5vw,38px)}.panel{background:#12283d;border:1px solid #526b80;border-radius:20px;padding:18px;margin:15px 0}.panel p{overflow-wrap:anywhere;line-height:1.5}button,a.action{box-sizing:border-box;min-height:58px;display:block;width:100%;border-radius:13px;background:#6f45ad;color:#fff;font:800 18px system-ui;padding:15px;text-align:center;border:2px solid #d9c2fa;margin:12px 0;text-decoration:none;cursor:pointer}.pass{color:#9cf3b6}.fail{color:#ffb89a}.pending{color:#f2e49a}small{line-height:1.5;color:#c6d2e0}</style></head><body><main><h1>StreetVerse 3D character file check</h1><p>Verifies the real model bytes on this exact website. Does not claim visual likeness or certify graphics hardware.</p><button id="run">ONE PUSH — CHECK BOTH CHARACTER FILES</button><div id="results" aria-live="polite" role="status"></div><button id="export" disabled>DOWNLOAD TEST REPORT</button><a class="action" href="/streetverse?core=1&character=jacobie&world=greenville&graphics=character">OPEN JACOBIE GAME</a><a class="action" href="/streetverse?core=1&character=lateasia&graphics=character">OPEN LATEASIA GAME</a><small>Original models: Jacobie is the textured, 12-motion Library restore. The hosted LaTeasia model is a 7-motion untextured diagnostic, not an approved final likeness.</small></main><script>
+const files=[
+ {id:'jacobie-stubbs',name:'Jacobie Stubbs',file:'Jacobie_Stubbs_12_Motions_Restore.glb',size:7860680,expectedAnimations:12,expectedImages:3},
+ {id:'lateasia-monroe',name:'LaTeasia Monroe',file:'LaTeasia_Monroe_7_Motions_Diagnostic.glb',size:871880,expectedAnimations:7,expectedImages:0},
+];
+let report=null;const results=document.getElementById('results'),run=document.getElementById('run'),download=document.getElementById('export');
+const panel=(name,status,message)=>{const section=document.createElement('section');section.className='panel';const h=document.createElement('h2');h.textContent=name;const p=document.createElement('p');p.className=status==='PASS'?'pass':status==='WAIT'?'pending':'fail';p.textContent=status+' — '+message;section.append(h,p);results.append(section)};
+const check=async item=>{
+ const url='/tryamm-assets/meshy/characters/'+item.file,controller=new AbortController(),timer=setTimeout(()=>controller.abort(),18000);
+ try{
+  const response=await fetch(url,{cache:'no-store',signal:controller.signal});
+  if(!response.ok)throw Error('HTTP '+response.status+' on '+url);
+  const ct=response.headers.get('content-type')||'';
+  if(ct.includes('text/html'))throw Error('The server returned HTML instead of the GLB file');
+  const bytes=await response.arrayBuffer(),view=new DataView(bytes);
+  if(bytes.byteLength<20||view.getUint32(0,true)!==0x46546c67||view.getUint32(4,true)!==2)throw Error('Downloaded bytes are not a valid GLB v2');
+  if(view.getUint32(8,true)!==bytes.byteLength)throw Error('GLB header length mismatch');
+  if(view.getUint32(16,true)!==0x4e4f534a)throw Error('GLB JSON chunk missing');
+  const jsonSize=view.getUint32(12,true);
+  if(jsonSize>bytes.byteLength-20)throw Error('GLB JSON chunk truncated');
+  const asset=JSON.parse(new TextDecoder().decode(new Uint8Array(bytes,20,jsonSize)));
+  const animations=(asset.animations||[]).length,skins=(asset.skins||[]).length,images=(asset.images||[]).length,meshes=(asset.meshes||[]).length;
+  if(bytes.byteLength!==item.size||animations!==item.expectedAnimations||images!==item.expectedImages||skins<1||meshes<1)throw Error('Unexpected original: '+bytes.byteLength+' bytes, '+animations+' animations, '+images+' images, '+skins+' skins');
+  return {id:item.id,status:'PASS',http:response.status,bytes:bytes.byteLength,animations,skins,images,meshes,contentType:ct,url};
+ }catch(error){return{id:item.id,status:'FAIL',reason:String(error),url}}
+ finally{clearTimeout(timer)}
+};
+async function test(){
+ run.disabled=true;download.disabled=true;results.replaceChildren();report={timestamp:new Date().toISOString(),site:location.origin,device:navigator.userAgent,models:[]};
+ for(const file of files){panel(file.name,'WAIT','Checking actual deployed model bytes…');const r=await check(file);report.models.push(r);results.lastElementChild.remove();panel(file.name,r.status,r.status==='PASS'?'Original GLB downloaded and verified: '+r.bytes+' bytes, '+r.animations+' animation clips, '+r.images+' images':r.reason)}
+ const all=report.models.every(x=>x.status==='PASS');panel('Result',all?'PASS':'FAIL',all?'Both GLB files exist on this deployment. Remaining problem is game scene/rendering or device.':'At least one hosted GLB was not retrieved correctly. Fix publication or import original files.');
+ run.disabled=false;download.disabled=false;
+}
+run.addEventListener('click',test);
+download.addEventListener('click',()=>{if(!report)return;const url=URL.createObjectURL(new Blob([JSON.stringify(report,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='StreetVerse_Original_Character_Asset_Diagnostic.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),5000)});
+test();
+</script></body></html>

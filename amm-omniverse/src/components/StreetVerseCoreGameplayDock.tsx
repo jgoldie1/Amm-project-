@@ -9,6 +9,8 @@ export default function StreetVerseCoreGameplayDock(){
   const [mission,setMission]=useState<ActiveMission|null>(null)
   const [inVehicle,setInVehicle]=useState(false)
   const [message,setMessage]=useState('READY')
+  const [expanded,setExpanded]=useState(false)
+  useEffect(()=>{const close=()=>setExpanded(false);window.addEventListener('tryamm:streetverse-play-focus',close);return()=>window.removeEventListener('tryamm:streetverse-play-focus',close)},[])
 
   useEffect(()=>{
     const onContext=(e:Event)=>setCtx((e as CustomEvent<Context>).detail||{})
@@ -36,8 +38,10 @@ export default function StreetVerseCoreGameplayDock(){
   },[])
 
   const missionAction=()=>{
+    // Existing first-journey flow expects this quick-start event; preserve the cinematic selector too.
+    dispatchEvent(new CustomEvent('tryamm:streetverse-first-journey-start',{detail:{source:'streetverse-core-dock',requestedMissionId:mission?.id||null}}))
     dispatchEvent(new CustomEvent('tryamm:streetverse-cinematic-mission-open',{detail:{missionId:mission?.id,source:'streetverse-core-dock'}}))
-    setMessage('SCRIPTED MISSION SELECTOR OPENED')
+    setMessage('MISSION START REQUESTED')
   }
 
   const repair=()=>{
@@ -54,6 +58,7 @@ export default function StreetVerseCoreGameplayDock(){
   const ride=()=>{dispatchEvent(new Event('tryamm:holo-mobility-open'));setMessage('RIDE SHARE OPEN')}
   const reel=()=>{dispatchEvent(new CustomEvent('tryamm:open-reel-creator',{detail:{source:'streetverse-core-dock',missionId:mission?.id||'',missionLabel:mission?.label||''}}));setMessage('REEL OPEN')}
   const liveCast=()=>{
+    setExpanded(false)
     dispatchEvent(new CustomEvent('tryamm:streetverse-live-cast-open',{detail:{source:'streetverse-core-dock',missionId:mission?.id||'',mode:'gamecast'}}))
     dispatchEvent(new CustomEvent('tryamm:live-center-open',{detail:{source:'streetverse-core-dock',format:'gamecast'}}))
     dispatchEvent(new CustomEvent('tryamm:volcano-holocast-open',{detail:{source:'streetverse-core-dock',keepGameplayActive:true}}))
@@ -74,7 +79,12 @@ export default function StreetVerseCoreGameplayDock(){
   const status=mission?'ACTIVE • '+mission.label:message
   return <><StreetVerseInGamePanels/><aside aria-label="StreetVerse core gameplay controls" style={{position:'fixed',left:8,right:8,bottom:'max(8px, env(safe-area-inset-bottom))',zIndex:47000,pointerEvents:'none',fontFamily:'system-ui,sans-serif'}}>
     <div style={{pointerEvents:'auto',margin:'0 auto',maxWidth:620,border:'1px solid #4fe3ff66',borderRadius:18,padding:7,background:'#030b12e8',boxShadow:'0 12px 36px #000b'}}>
-      <div style={{display:'grid',gridTemplateColumns:'repeat(5,minmax(0,1fr))',gap:5}}>
+      <div style={{display:'flex',gap:8,alignItems:'center',justifyContent:'space-between'}}>
+        <button aria-label={expanded?'Collapse gameplay controls and return to game':'Expand gameplay controls'} aria-expanded={expanded} onClick={()=>{setExpanded(v=>!v);window.dispatchEvent(new Event('tryamm:streetverse-actions-close'))}} style={{...btn,minHeight:56,minWidth:118,fontSize:13,background:expanded?'#613022':'#15513d'}}>{expanded?'✕ CLOSE':'☰ CONTROLS'}</button>
+        {!expanded&&<button aria-label="Open LIVE casting controls" onClick={liveCast} style={{...btn,minHeight:56,minWidth:100,fontSize:13}}>📡 LIVE</button>}
+        <span aria-live="polite" style={{fontSize:10,color:'#b6d9e9',textAlign:'right',flex:1}}>{expanded?'Select an action':status}</span>
+      </div>
+      {expanded&&<div style={{display:'grid',gridTemplateColumns:'repeat(5,minmax(0,1fr))',gap:5,marginTop:7}}>
         <button onClick={missionAction} style={{...btn,color:'#ffe47f'}}>📍<br/>MISSION</button>
         <button onClick={repair} style={{...btn,color:'#ffb36b'}}>🔧<br/>REPAIR</button>
         <button onClick={ride} style={{...btn,color:'#8effb7'}}>🚕<br/>RIDE</button>
@@ -85,8 +95,8 @@ export default function StreetVerseCoreGameplayDock(){
         <button onClick={tickets} style={{...btn,color:'#b7ffa2'}}>🎟️<br/>TICKETS</button>
         <button onClick={faith} style={{...btn,color:'#e5c56a'}}>📖<br/>FAITH</button>
         <button onClick={exit} disabled={!inVehicle} style={{...btn,color:inVehicle?'#ffcf6b':'#687785',opacity:inVehicle?1:.55}}>🚪<br/>EXIT</button>
-      </div>
-      <div aria-live="polite" style={{marginTop:5,textAlign:'center',fontSize:8,fontWeight:900,color:'#8ea6b7'}}>{status}</div>
+      </div>}
+      {expanded&&<div aria-live="polite" style={{marginTop:5,textAlign:'center',fontSize:10,fontWeight:900,color:'#8ea6b7'}}>{status}</div>}
     </div>
   </aside></>
 }

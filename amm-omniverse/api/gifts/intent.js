@@ -1,3 +1,4 @@
+import { HOLO_GIFT_PRICE_CENTS } from '../_lib/holo-gift-prices.js'
 import {json} from '../_lib/supabase-admin.js'
 import {requireUser} from '../_lib/security.js'
 
@@ -32,7 +33,11 @@ export default async function handler(req,res){
   const musicCue=SAFE_CUES.has(requestedCue)?requestedCue:'spark'
   if(!GIFT_TYPES.has(giftType))return json(res,400,{error:'unsupported_gift_type'})
   if(!recipientId)return json(res,400,{error:'recipient_required'})
-  if(amountMinor>100000)return json(res,400,{error:'tip_amount_above_client_intent_limit'})
+  if(!Number.isFinite(Number(req.body?.amountMinor||0))||amountMinor>100000)return json(res,400,{error:'invalid_gift_amount'})
+  const listedPrice=HOLO_GIFT_PRICE_CENTS[giftType]
+  // This endpoint is an intention/visual-effect service, NOT a checkout.
+  // Reject arbitrary user-supplied prices and refuse monetization for unpriced gift packs.
+  if(amountMinor>0 && (listedPrice===undefined || amountMinor!==listedPrice))return json(res,409,{error:'gift_price_not_authorized',listedPriceMinor:listedPrice??null})
   if(FACE_GIFTS.has(giftType)&&(!faceConsent||!faceAssetUrl))return json(res,400,{error:'face_gift_requires_authorized_face_and_consent'})
   const intentId=`gift_${Date.now()}_${Math.random().toString(36).slice(2,10)}`
   return json(res,201,{
@@ -43,6 +48,9 @@ export default async function handler(req,res){
       recipientId,
       giftType,
       amountMinor,
+      catalogPriceMinor:listedPrice??null,
+      priceStatus:'proposed_not_payable',
+      paymentEnabled:false,
       currency:'USD',
       spatialMode,
       musicCue,
@@ -51,7 +59,7 @@ export default async function handler(req,res){
       visualEffectReady:true,
       moneyMoved:false,
       withdrawable:false,
-      settlementStatus:amountMinor>0?'provider_verification_required':'visual_only',
+      settlementStatus:amountMinor>0?'proposed_only_no_checkout':'visual_only',
       createdAt:new Date().toISOString()
     }
   })

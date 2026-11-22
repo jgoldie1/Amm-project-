@@ -14,6 +14,20 @@ export default function StreetVerseLivingStoresHUD(){
  useEffect(()=>{const onOpen=(e:Event)=>{const id=(e as CustomEvent<{storeId?:string}>).detail?.storeId;if(!id||!ledger.world.stores.some(s=>s.id===id))return;setOpen(true);setMessage('Browsing '+ledger.world.stores.find(s=>s.id===id)?.name+' — game credits only.')};window.addEventListener('tryamm:streetverse-open-shopping',onOpen);return()=>window.removeEventListener('tryamm:streetverse-open-shopping',onOpen)},[ledger.world.stores])
  useEffect(()=>{try{localStorage.setItem(SHOPPING_SAVE_KEY,serializeShoppingLedger(ledger))}catch{}},[ledger])
  useEffect(()=>{
+  const onAcceptancePurchase=()=>{
+   const store=ledger.world.stores[0]
+   if(!store){window.dispatchEvent(new CustomEvent('tryamm:streetverse-acceptance-step-failed',{detail:{step:'business',reason:'no-store'}}));return}
+   const result=buyGameProduct(ledger,store.id,store.sku,1)
+   setMessage(result.message)
+   if(!result.ok){window.dispatchEvent(new CustomEvent('tryamm:streetverse-acceptance-step-failed',{detail:{step:'business',reason:result.message}}));return}
+   setOpen(true)
+   setLedger(result.ledger)
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-store-demo-purchase',{detail:{kind:'purchase',storeId:store.id,sku:store.sku,quantity:1,demo:true,fictional:true,source:'acceptance-one-push'}}))
+  }
+  window.addEventListener('tryamm:streetverse-acceptance-business-purchase',onAcceptancePurchase)
+  return()=>window.removeEventListener('tryamm:streetverse-acceptance-business-purchase',onAcceptancePurchase)
+ },[ledger])
+ useEffect(()=>{
   const onComplete=(event:Event)=>{
    const d=(event as CustomEvent<{missionId?:string;storeId?:string;sku?:string;quantity?:number;rewardCredits?:number;demo?:boolean}>).detail
    if(d?.demo!==true||!d.missionId||!d.storeId||!d.sku)return
@@ -37,6 +51,7 @@ export default function StreetVerseLivingStoresHUD(){
  return <aside data-streetverse-living-stores="demo" style={{position:'fixed',left:8,top:'calc(env(safe-area-inset-top) + 80px)',zIndex:43987,maxWidth:'min(370px,calc(100vw - 16px))',maxHeight:'70dvh',overflow:'auto',background:'rgba(5,22,39,.97)',color:'white',padding:10,borderRadius:12,font:'13px system-ui',boxShadow:'0 8px 30px #0008'}}>
   <button style={button} onClick={()=>setOpen(v=>!v)} aria-expanded={open}>🛍️ STREETVERSE SHOPPING MALL</button>
   {open&&<div style={{display:'grid',gap:12,marginTop:12}}>
+   <button style={button} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-open-npc-factory',{detail:{source:'living-stores'}}))}>CREATE / TALK TO AI COMMONS NPC</button>
    <header><strong style={{fontSize:17}}>SHOP THE LIVING CITY</strong><div>🪙 {ledger.world.credits} game credits • {ledger.receipts.length} purchases • {ledger.completedMissionIds.length} deliveries</div></header>
    {ledger.world.stores.map(store=><section key={store.id} style={{border:'1px solid #426e87',borderRadius:12,padding:10,background:'#0d2d42'}}>
     <div style={{fontSize:22}}>{store.kind==='creator-merch'?'👕':store.kind==='beauty'?'💄':'🍲'}</div>
@@ -44,13 +59,13 @@ export default function StreetVerseLivingStoresHUD(){
     <div>{store.sku} • 🪙 {store.priceCredits} each</div>
     <div>Available: {store.stock} • In-game location ({store.x}, {store.z})</div>
     <label>Quantity <input aria-label={'Quantity for '+store.name} type="number" min={1} max={25} value={quantities[store.id]??1} onChange={e=>setQuantities(q=>({...q,[store.id]:Number(e.target.value)}))} style={{width:70,minHeight:44,margin:5}}/></label>
-    <div style={{display:'flex',gap:6,flexWrap:'wrap'}}><button style={button} onClick={()=>act({kind:'npc-visit',storeId:store.id})}>TALK TO VENDOR</button><button style={button} onClick={()=>act({kind:'purchase',storeId:store.id,sku:store.sku,quantity:quantities[store.id]??1})}>BUY WITH GAME CREDITS</button></div>
+    <div style={{display:'flex',gap:6,flexWrap:'wrap'}}><button style={button} aria-label="TALK TO NPC VENDOR" onClick={()=>act({kind:'npc-visit',storeId:store.id})}>TALK TO VENDOR</button><button style={button} aria-label="BUY DEMO ITEM using fictional game credits" onClick={()=>act({kind:'purchase',storeId:store.id,sku:store.sku,quantity:quantities[store.id]??1})}>BUY WITH GAME CREDITS</button></div>
    </section>)}
    <section aria-label="Living city director" style={{border:'1px solid #426e87',padding:8,borderRadius:9}}><strong>🌆 LIVING CITY • Day {city.day+1} • {String(city.hour).padStart(2,'0')}:00</strong><div>{city.actors.length} simulated NPCs • {city.deliveryDemand.length} delivery requests</div><div>NPC actions: {commerce.length} • Restock alerts: {commerce.filter(e=>e.kind==='restock-request').length}</div><button style={button} onClick={()=>{setCityTick(nextCityTick);setLedger(l=>({...l,world:advanceLivingWorld(l.world)}))}}>ADVANCE CITY TIME + NPC ACTIVITY</button><div aria-live="polite">{commerce.slice(0,3).map(e=><div key={e.id}>{e.kind} — {e.storeId}</div>)}</div></section>
    <strong>YOUR GAME RECEIPTS</strong>
    {ledger.receipts.slice(-5).reverse().map(r=><div key={r.id}>{r.id} • {r.quantity} × {r.sku} • 🪙 {r.credits}</div>)}
    <div role="status" aria-live="polite">{message}</div>
-   <small>All purchases, credits, inventory, vendor actions and delivery rewards here are fictional. No real goods, charges or shipments are created.</small>
+   <small>No real stores, seller approvals, payments or deliveries are connected. All purchases, credits, inventory, vendor actions and delivery rewards here are fictional. No real goods, charges or shipments are created.</small>
   </div>}
  </aside>
 }

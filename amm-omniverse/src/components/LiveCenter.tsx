@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import type { Room } from 'livekit-client'
 import { connectLiveRoom, getLiveStatus, type LiveRole } from '../services/live'
+import { getAccessToken } from '../services/supabaseClient'
 import LiveGenerationIntelligence from './LiveGenerationIntelligence'
 import HoloGiftEngine from './HoloGiftEngine'
 import HoloCreditChannelShop from './HoloCreditChannelShop'
@@ -42,7 +43,7 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
   const [title, setTitle] = useState(pkMode?'Holographic PK Battle':'TryAMM LIVE')
   const [role, setRole] = useState<LiveRole>(youthViewerOnly?'viewer':initialRole)
   const [displayName, setDisplayName] = useState(youthViewerOnly?'Youth Viewer':'Creator')
-  const [roomName, setRoomName] = useState(pkMode?'tryamm-pk':'tryamm-live')
+  const [roomName, setRoomName] = useState(()=>`${pkMode?'tryamm-pk':'tryamm-live'}-${Math.random().toString(36).slice(2,10)}`)
   const [connected, setConnected] = useState(false)
   const [participants, setParticipants] = useState(0)
   const [error, setError] = useState('')
@@ -70,7 +71,7 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
     const selected = FORMATS.find(x => x.id === next)
     if (selected) {
       setTitle(selected.label)
-      setRoomName(slug(selected.label))
+      // Preserve the creator's room ID when switching formats; do not join another creator's fixed room.
     }
   }
 
@@ -115,6 +116,13 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
     try {
       if(youthViewerOnly&&role!=='viewer')throw new Error('Youth Viewer Mode keeps camera, microphone and hosting disabled in this release.')
       await preflightHostMedia()
+      if(role==='host'){
+        const auth=await getAccessToken()
+        if(!auth)throw new Error('Sign in before creating a LIVE room.')
+        const response=await fetch('/api/live/panel',{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${auth}`},body:JSON.stringify({action:'create_room',room:roomName,title})})
+        const result=await response.json().catch(()=>({}))
+        if(!response.ok)throw new Error(result.error||'Could not create an authorized LIVE room')
+      }
       stageRef.current?.replaceChildren()
       const { room, session } = await connectLiveRoom({
         roomName,

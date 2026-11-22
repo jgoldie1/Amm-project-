@@ -16,6 +16,7 @@ import HoloDeliveryLauncher from './components/HoloDeliveryLauncher'
 import HoloMarketplaceLauncher from './components/HoloMarketplaceLauncher'
 import StreetVerseFaithChronoPortal from './components/StreetVerseFaithChronoPortal'
 import StreetVerseSafeWorld from './components/StreetVerseSafeWorld'
+import StreetVerseMobileErrorBoundary from './components/StreetVerseMobileErrorBoundary'
 import StreetVerseWeatherSync from './components/StreetVerseWeatherSync'
 import InstallPrompt from './components/InstallPrompt'
 import HoloExperienceLauncher from './components/HoloExperienceLauncher'
@@ -28,8 +29,11 @@ import './accessibility/accessibility.css'
 
 // Entering StreetVerse must not download the entire homepage application first.
 const App=lazy(()=>import('./App'))
+const TryammHoloVerseHome=lazy(()=>import('./components/TryammHoloVerseHome'))
 const StreetVerseGeoSpawnBridge=lazy(()=>import('./components/StreetVerseGeoSpawnBridge'))
+const StreetVerseMobileWorldCore=lazy(()=>import('./components/StreetVerseMobileWorld'))
 // Release compatibility marker required by the StreetVerse living-world smoke contract: const StreetVerseLivingWorld=lazy(()=>import('./components/StreetVerseLivingWorld'))
+const BJRecoveryStandalone=lazy(()=>import('./components/BJRecoveryStandalone'))
 const StreetVerseTwinWorld=lazy(()=>import('./components/StreetVerseTwinWorld'))
 const MeetTheStubbsWorldDistrict=lazy(()=>import('./components/MeetTheStubbsWorldDistrict'))
 const OmniWorkstation=lazy(()=>import('./components/OmniWorkstation'))
@@ -40,13 +44,11 @@ const ServantsOfChristMinistry=lazy(()=>import('./components/ServantsOfChristMin
 const OmniCareCashSuite=lazy(()=>import('./components/OmniCareCashSuite'))
 const GlobalTradeWorldHub=lazy(()=>import('./components/GlobalTradeWorldHub'))
 const LiveCenter=lazy(()=>import('./components/LiveCenter'))
-const LiveOnePushTest=lazy(()=>import('./components/LiveOnePushTest'))
 const GuardianCommandCenter=lazy(()=>import('./components/GuardianCommandCenter'))
 const AccountPrivacyCenter=lazy(()=>import('./components/AccountPrivacyCenter'))
 const HoloDramaHub=lazy(()=>import('./components/HoloDramaHub'))
 const OmniBoxStoryStudio=lazy(()=>import('./components/OmniBoxStoryStudio'))
 const StreetVerseCinematicMissions=lazy(()=>import('./components/StreetVerseCinematicMissions'))
-const StreetVerseDeviceLiveCertificationHUD=lazy(()=>import('./components/StreetVerseDeviceLiveCertificationHUD'))
 const HoloDeliveryRideEntertainmentHub=lazy(()=>import('./components/HoloDeliveryRideEntertainmentHub'))
 const SpectraStudioCommandCenter=lazy(()=>import('./components/SpectraStudioCommandCenter'))
 const EthiopianBibleMetaverse=lazy(()=>import('./components/EthiopianBibleMetaverse'))
@@ -57,11 +59,15 @@ const KingdomYahisraelCenter=lazy(()=>import('./components/KingdomYahisraelCente
 const KingdomWorkbookCenter=lazy(()=>import('./components/KingdomWorkbookCenter'))
 const TimeMachineWorldFoundryCenter=lazy(()=>import('./components/TimeMachineWorldFoundryCenter'))
 const HoloLabGateway=lazy(()=>import('./components/HoloLabGateway'))
+const SECSConstructCenter=lazy(()=>import('./components/SECSConstructCenter'))
 const Chicago77HolographicAtlas=lazy(()=>import('./components/Chicago77HolographicAtlas'))
 const PublicReelPage=lazy(()=>import('./components/PublicReelPage'))
+const LiveOnePushTest=lazy(()=>import('./components/LiveOnePushTest'))
+const StreetVerseDeviceLiveCertificationHUD=lazy(()=>import('./components/StreetVerseDeviceLiveCertificationHUD'))
 const MeshyFactoryControlPanel=lazy(()=>import('./components/MeshyFactoryControlPanel'))
 const OctoberLaunchLockCenter=lazy(()=>import('./components/OctoberLaunchLockCenter'))
 const StubbsAIHolographicBusinessOS=lazy(()=>import('./components/StubbsAIHolographicBusinessOS'))
+const Aniyah64TrackStudio=lazy(()=>import('./components/Aniyah64TrackStudio'))
 
 let routeContent: React.ReactNode = <Suspense fallback={<div role="status">Opening TRYAMM…</div>}><App /></Suspense>
 let preserveDeterministicSafeRoute = false
@@ -69,14 +75,19 @@ let preserveDeterministicSafeRoute = false
 try {
   
   const currentPath=window.location.pathname
+  const isRootHome=currentPath==='/'
+  const isLegacyHome=currentPath==='/legacy'||currentPath==='/legacy/'
   const standaloneMatch=currentPath.match(/^\/standalone\/([^/]+)\/?$/)
   const standaloneSite=standaloneMatch ? getStandaloneSite(standaloneMatch[1]) : undefined
   const reelMatch=currentPath.match(/^\/reels\/([^/]+)\/?$/)
+  const isReelsHome=currentPath==='/reels'||currentPath==='/reels/'
+  const isLiveTest=currentPath==='/live-test'||currentPath==='/live-test/'
+  const isBJRecovery=currentPath==='/bj-recovery'||currentPath==='/bj-recovery/'
   const isAccessibility=currentPath==='/accessibility'||currentPath==='/accessibility/'
   const isAssetFactory=['/asset-factory','/asset-factory/','/meshy-factory','/meshy-factory/'].includes(currentPath)
   const isWorkstation=currentPath==='/workstation'||currentPath==='/workstation/'
+  const isAniyahStudio=['/aniyah-studio','/aniyah-studio/','/64-track-studio','/64-track-studio/'].includes(currentPath)
   const isLive=currentPath==='/live'||currentPath==='/live/'
-  const isLiveTest=currentPath==='/live-test'||currentPath==='/live-test/'
   const isGuardian=currentPath==='/guardian'||currentPath==='/guardian/'
   const isAccountDeletion=currentPath==='/account-deletion'||currentPath==='/account-deletion/'
   const isHoloDrama=currentPath==='/holo-drama'||currentPath==='/holo-drama/'
@@ -95,6 +106,7 @@ try {
   const isKingdomDistrict=currentPath==='/kingdom'||currentPath==='/kingdom/'
   const isTimeMachineFoundry=['/time-machine-foundry','/time-machine-foundry/','/chrono-foundry','/chrono-foundry/','/world-foundry','/world-foundry/'].includes(currentPath)
   const isHoloLabStandalone=currentPath==='/holo-lab'||currentPath==='/holo-lab/'
+  const isSECSConstruct=['/secs-construct','/secs-construct/','/construct','/construct/'].includes(currentPath)
   const isChicago77Atlas=['/chicago77','/chicago77/','/chicago-77','/chicago-77/'].includes(currentPath)
   const isLaunchLock=['/launch-lock','/launch-lock/','/october-launch','/october-launch/'].includes(currentPath)
   const isGlobalTradeWorld=['/global-trade','/global-trade/','/my-world','/my-world/','/we-are-the-world','/we-are-the-world/'].includes(currentPath)
@@ -133,8 +145,14 @@ try {
   
   const routeFallback=<div role="status" aria-live="polite" style={{position:'fixed',inset:0,zIndex:15980,display:'grid',placeItems:'center',background:'#050505',color:'#fff',fontFamily:'system-ui,sans-serif',fontWeight:900}}>LOADING…</div>
   
-  const streetVerseRoute=isStreetVerseSafe?<><StreetVerseWeatherSync/><StreetVerseSafeWorld communityAreaNumber={safeCommunityArea} onClose={()=>{window.location.href='/'}} /></>:<>
-    <Suspense fallback={routeFallback}><StreetVerseGeoSpawnBridge onClose={()=>{window.location.href='/'}} /></Suspense>
+  const streetVerseLowMemoryDevice=typeof navigator!=='undefined'&&/(CrOS|Android|iPhone|iPad|iPod)/i.test(navigator.userAgent)
+  // Chromebook and phone browsers can run out of memory while booting the full
+  // StreetVerse shell before the playable world appears. Default those devices
+  // to the direct 3D core route. Add ?full=1 only when intentionally testing the
+  // heavier shell; ?core=1 remains an explicit core-mode override everywhere.
+  const isStreetVerseCore=isStreetVerse&&(streetVerseParams.get('core')==='1'||(streetVerseParams.get('full')!=='1'&&streetVerseLowMemoryDevice))
+  const streetVerseRoute=isStreetVerseCore?<StreetVerseMobileErrorBoundary name="StreetVerse Direct 3D Core"><Suspense fallback={<div role="status" aria-live="polite" style={{position:'fixed',inset:0,background:'#07101d',color:'white',display:'grid',placeItems:'center',font:'900 18px system-ui'}}>STARTING PLAYABLE 3D WORLD • CORE MODE…</div>}><StreetVerseMobileWorldCore onClose={()=>{window.location.href='/'}}/></Suspense></StreetVerseMobileErrorBoundary>:isStreetVerseSafe?<><StreetVerseWeatherSync/><StreetVerseSafeWorld communityAreaNumber={safeCommunityArea} onClose={()=>{window.location.href='/'}} /></>:<>
+    <StreetVerseMobileErrorBoundary name="StreetVerse Canonical 3D"><Suspense fallback={routeFallback}><StreetVerseGeoSpawnBridge onClose={()=>{window.location.href='/'}} /></Suspense></StreetVerseMobileErrorBoundary>
   </>
   
   // Release compatibility marker required by the Omniverse shell smoke contract: <OmniverseCoreLoopHUD />
@@ -151,11 +169,16 @@ try {
     <OmniCashLauncher />
   </>
   
-  if(reelMatch)routeContent=<Suspense fallback={routeFallback}><PublicReelPage slug={decodeURIComponent(reelMatch[1])} /></Suspense>
+  if(isRootHome)routeContent=<Suspense fallback={routeFallback}><TryammHoloVerseHome /></Suspense>
+  else if(isLegacyHome)routeContent=mainShell
+  else   if(isBJRecovery)routeContent=<Suspense fallback={routeFallback}><BJRecoveryStandalone /></Suspense>
+  else if(isReelsHome){window.history.replaceState({},'', '/streetverse?core=1&reel=1');routeContent=<StreetVerseMobileErrorBoundary name="StreetVerse HoloReel"><Suspense fallback={routeFallback}><StreetVerseMobileWorldCore onClose={()=>{window.location.href='/'}}/></Suspense></StreetVerseMobileErrorBoundary>}
+  else if(isLiveTest)routeContent=<Suspense fallback={routeFallback}><LiveOnePushTest /></Suspense>
+  else if(reelMatch)routeContent=<Suspense fallback={routeFallback}><PublicReelPage slug={decodeURIComponent(reelMatch[1])} /></Suspense>
   else if(isAssetFactory)routeContent=<Suspense fallback={routeFallback}><MeshyFactoryControlPanel /></Suspense>
   else if(isAccessibility)routeContent=<AccessibilityStatement />
   else if(isWorkstation)routeContent=<Suspense fallback={routeFallback}><OmniWorkstation /></Suspense>
-  else if(isLiveTest)routeContent=<Suspense fallback={routeFallback}><LiveOnePushTest /></Suspense>
+  else if(isAniyahStudio)routeContent=<Suspense fallback={routeFallback}><Aniyah64TrackStudio onClose={()=>{window.location.href='/'}} /></Suspense>
   else if(isLive)routeContent=<Suspense fallback={routeFallback}><LiveCenter onClose={()=>{window.location.href='/'}} /></Suspense>
   else if(isGuardian)routeContent=<Suspense fallback={routeFallback}><GuardianCommandCenter /></Suspense>
   else if(isAccountDeletion)routeContent=<Suspense fallback={routeFallback}><AccountPrivacyCenter onClose={()=>{window.location.href='/'}} /></Suspense>
@@ -175,6 +198,7 @@ try {
   else if(isKingdomDistrict)routeContent=<Suspense fallback={routeFallback}><KingdomDistrictRoute /></Suspense>
   else if(isTimeMachineFoundry)routeContent=<Suspense fallback={routeFallback}><TimeMachineWorldFoundryCenter /></Suspense>
   else if(isHoloLabStandalone)routeContent=<Suspense fallback={routeFallback}><HoloLabGateway onClose={()=>{window.location.href='/'}} /></Suspense>
+  else if(isSECSConstruct)routeContent=<Suspense fallback={routeFallback}><SECSConstructCenter onClose={()=>{window.location.href='/holo-lab'}} /></Suspense>
   else if(isChicago77Atlas)routeContent=<Suspense fallback={routeFallback}><Chicago77HolographicAtlas /></Suspense>
   else if(isLaunchLock)routeContent=<Suspense fallback={routeFallback}><OctoberLaunchLockCenter /></Suspense>
   else if(isGlobalTradeWorld)routeContent=<Suspense fallback={routeFallback}><GlobalTradeWorldHub /></Suspense>
@@ -184,7 +208,7 @@ try {
   else if(businessSlug)routeContent=<FamilyBusinessPublicSite slug={businessSlug} onClose={()=>{window.location.href='/business'}} />
   else if(isTwinWorld)routeContent=<Suspense fallback={routeFallback}><StreetVerseTwinWorld onClose={()=>{window.location.href='/'}} /></Suspense>
   else if(isMeetStubbs)routeContent=<Suspense fallback={routeFallback}><MeetTheStubbsWorldDistrict onClose={()=>{window.location.href='/streetverse'}} /></Suspense>
-  else if(isStreetVerse)routeContent=<>{streetVerseRoute}<Suspense fallback={null}><StreetVerseCinematicMissions/></Suspense><Suspense fallback={null}><StreetVerseDeviceLiveCertificationHUD/></Suspense></>
+  else if(isStreetVerse)routeContent=isStreetVerseCore?<>{streetVerseRoute}<Suspense fallback={null}><StreetVerseDeviceLiveCertificationHUD/></Suspense></>:<>{streetVerseRoute}<Suspense fallback={null}><StreetVerseCinematicMissions/></Suspense><Suspense fallback={null}><StreetVerseDeviceLiveCertificationHUD/></Suspense></>
   else routeContent=mainShell
   
   

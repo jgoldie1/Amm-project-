@@ -10,7 +10,13 @@ const reader=fs.readFileSync(new URL('../src/components/FaithScriptureReader.tsx
 
 const must=(ok,msg)=>{if(!ok)throw new Error('STREETVERSE IPHONE PLAYER JOURNEY CONTRACT FAIL: '+msg)}
 
-must(playable.includes("if(mobile)return")&&playable.includes('<StreetVerseMobileWorld onClose={onClose}/>'),'real mobile route must mount the compact authoritative mobile world')
+must(
+ (playable.includes("if(mobile)return")&&playable.includes('<StreetVerseMobileWorld onClose={onClose}/>'))||
+ (main.includes("const StreetVerseMobileWorldCore=lazy(()=>import('./components/StreetVerseMobileWorld'))")&&
+  main.includes("const isStreetVerseCore=isStreetVerse&&(streetVerseParams.get('core')==='1'||(streetVerseParams.get('full')!=='1'&&streetVerseLowMemoryDevice))")&&
+  main.includes('<StreetVerseMobileWorldCore onClose={()=>{window.location.href=\'/\'}}/>')),
+ 'real mobile route must mount the compact authoritative mobile world'
+)
 must(geo.includes("mobile?<><StreetVerseReelEventBridge/><StreetVerseActionCarousel/><StreetVerseCreatorEarnDock/></>"),'full mobile route must keep the compact bridge-control stack')
 const mobileOverlayStart=overlays.indexOf('if(mobile)return <>')
 const desktopOverlayStart=overlays.indexOf('\n  return <>',mobileOverlayStart)

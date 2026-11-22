@@ -67,6 +67,10 @@
       "handle": "filesystem"
     },
     {
+      "src": "/tryamm-assets/meshy/characters/.*\\.glb",
+      "status": 404
+    },
+    {
       "src": "/assets/.*",
       "status": 404
     },

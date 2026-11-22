@@ -22,11 +22,17 @@ export default function LionOfJudahHolo({
 
   useEffect(() => {
     if (!animated) return
-    const tick = () => {
-      const t = (Date.now() - startRef.current) / 1000
-      setPulse(t)
-      setScan((t * 80) % 630)
-      rafRef.current = requestAnimationFrame(tick)
+    let lastFrame=0
+    // SVG contains many nodes; cap React renders around 20 FPS on low-power devices.
+    // Browser requestAnimationFrame still manages visibility and display refresh.
+    const tick = (now:number) => {
+      if(now-lastFrame>=50){
+        lastFrame=now
+        const t=(Date.now()-startRef.current)/1000
+        setPulse(t)
+        setScan((t*80)%630)
+      }
+      rafRef.current=requestAnimationFrame(tick)
     }
     rafRef.current = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(rafRef.current)

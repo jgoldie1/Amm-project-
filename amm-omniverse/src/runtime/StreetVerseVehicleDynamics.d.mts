@@ -1,0 +1,10 @@
+export type VehicleKind='car'|'motorcycle'
+export type VehicleGear='P'|'R'|'N'|'D'
+export type VehicleSurface='dry'|'wet'|'gravel'
+export type VehicleState={kind:VehicleKind;x:number;z:number;heading:number;speed:number;steering:number;lean:number;gear:VehicleGear;parkingBrake:boolean;surface:VehicleSurface;distance:number}
+export type VehicleInput={throttle?:number;brake?:number;steer?:number;gear?:VehicleGear;parkingBrake?:boolean;surface?:VehicleSurface}
+export const PRESETS:Readonly<Record<VehicleKind,Readonly<{mass:number;wheelbase:number;maxForward:number;maxReverse:number;maxAcceleration:number;brakeDeceleration:number;engineDrag:number;rollingDrag:number;steeringAngle:number;steeringRate:number;grip:number;yawResponse:number;leanLimit:number}>>>
+export function createVehicleState(kind?:VehicleKind):VehicleState
+export function stepVehicle(state:VehicleState,input?:VehicleInput,dt?:number):VehicleState
+export function simulateVehicle(state:VehicleState,input:VehicleInput,delta:number,substep?:number):VehicleState
+export function safeVehicleTelemetry(state:VehicleState):{kind:VehicleKind;speedKmh:number;gear:VehicleGear;leanRadians:number;headingRadians:number;distanceMeters:number;surface:VehicleSurface;parkingBrake:boolean;realWorldVehicleControl:false;networkSynced:false;rapierCollisionIntegrated:false}

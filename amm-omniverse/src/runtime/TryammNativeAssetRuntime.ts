@@ -47,6 +47,7 @@ function applyPlacement(object:THREE.Object3D,placement:NativePlacement){
 export async function loadTryammNativeCircleParkLayer(options?:{
   placements?:NativePlacement[]
   load?:LoadFn
+  timeoutMs?:number
 }):Promise<NativeAssetLayerResult>{
   const placements=options?.placements??CIRCLE_PARK_NATIVE_PREVIEW_PLACEMENTS
   const loader=new GLTFLoader()
@@ -70,15 +71,23 @@ export async function loadTryammNativeCircleParkLayer(options?:{
   const usedUrls=new Set<string>()
 
   const uniqueKeys=[...new Set(placements.map(item=>item.asset))]
+  // A missing or stalled optional scenery GLB must not indefinitely block the playable
+  // character loader, which runs after this layer resolves. Bound each asset request.
+  const timeoutMs=THREE.MathUtils.clamp(options?.timeoutMs??12000,1500,30000)
   await Promise.all(uniqueKeys.map(async key=>{
     const asset=TRYAMM_NATIVE_RUNTIME_ASSETS[key]
+    let timer:ReturnType<typeof setTimeout>|undefined
+    let expired=false
     try{
-      const object=await load(asset.url)
+      const object=await Promise.race([
+        load(asset.url).then(group=>{if(expired){disposeNativeAssetLayer(group);throw Error('Late scenery asset discarded')}return group}),
+        new Promise<never>((_,reject)=>{timer=setTimeout(()=>{expired=true;reject(Error('Native scenery timed out'))},timeoutMs)}),
+      ])
       byKey.set(key,object)
       usedUrls.add(asset.url)
     }catch(error){
       failed.push({asset:key,url:asset.url,reason:String((error as Error)?.message||error)})
-    }
+    }finally{if(timer!==undefined)clearTimeout(timer)}
   }))
 
   let loaded=0

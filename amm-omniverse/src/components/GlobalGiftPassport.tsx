@@ -46,10 +46,10 @@ export default function GlobalGiftPassport({recipientId='live-host'}:{recipientI
     setBusy(true)
     try{
       const token=await getAccessToken();if(!token)throw new Error('Sign in before sending a gift.')
-      const r=await fetch(`${API}/api/gifts/intent`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({giftType:selected.id,recipientId,amountMinor:selected.credits,spatialMode:mode,musicCue:selected.musicCue})})
+      const r=await fetch(`${API}/api/gifts/intent`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({giftType:selected.id,recipientId,amountMinor:0,spatialMode:mode,musicCue:selected.musicCue})})
       const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data?.error||`Gift request failed (${r.status})`)
       window.dispatchEvent(new CustomEvent('tryamm:holo-gift',{detail:{...data.intent,effect:selected.effect,region:selected.region,collection:'GLOBAL PASSPORT'}}))
-      setMessage(`${selected.label} fired in ${mode.toUpperCase()} mode. Visual celebration is immediate; any real-value settlement remains verification-gated.`)
+      setMessage(`${selected.label} visual-only preview in ${mode.toUpperCase()} mode. No payment, settlement, or creator earnings.`)
     }catch(e){setMessage(e instanceof Error?e.message:'Gift failed.')}finally{setBusy(false)}
   }
   const regions:(Region|'ALL')[]=['GLOBAL','AFRICA','CARIBBEAN','LATIN','EUROPE','EAST-ASIA','SOUTH-ASIA','MENA','INDIGENOUS','PACIFIC','NORTH-AMERICA','ALL']
@@ -57,9 +57,9 @@ export default function GlobalGiftPassport({recipientId='live-host'}:{recipientI
     <div style={{fontSize:10,letterSpacing:2.5,color:'#4fe3ff',fontWeight:950}}>GLOBAL GIFT PASSPORT • ALL NATIONS</div>
     <div style={{fontSize:10,color:'#9fb0bd',marginTop:5}}>Universal gifts for everyone + opt-in regional/country celebration packs.</div>
     <div style={{display:'flex',gap:6,flexWrap:'wrap',marginTop:10}}>{regions.map(r=><button key={r} onClick={()=>setRegion(r)} style={{padding:'6px 9px',borderRadius:999,border:`1px solid ${region===r?'#4fe3ff':'#2c3947'}`,background:region===r?'#0b2a37':'#071018',color:'#fff',fontSize:9,fontWeight:900,cursor:'pointer'}}>{r}</button>)}</div>
-    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(130px,1fr))',gap:7,marginTop:10,maxHeight:340,overflowY:'auto'}}>{visible.map(g=><button key={g.id} onClick={()=>setSelected(g)} style={{padding:10,borderRadius:12,border:`1px solid ${selected.id===g.id?'#4fe3ff':'#26394b'}`,background:selected.id===g.id?'#0c2837':'#080d14',color:'#fff',cursor:'pointer',textAlign:'left'}}><div style={{fontSize:25}}>{g.icon}</div><div style={{fontSize:10,fontWeight:900}}>{g.label}</div><div style={{fontSize:8,color:'#8fa2af',marginTop:3}}>{g.effect}</div><div style={{fontSize:8,color:'#e8b944',marginTop:4}}>{g.region} • {g.credits} credits</div></button>)}</div>
+    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(130px,1fr))',gap:7,marginTop:10,maxHeight:340,overflowY:'auto'}}>{visible.map(g=><button key={g.id} onClick={()=>setSelected(g)} style={{padding:10,borderRadius:12,border:`1px solid ${selected.id===g.id?'#4fe3ff':'#26394b'}`,background:selected.id===g.id?'#0c2837':'#080d14',color:'#fff',cursor:'pointer',textAlign:'left'}}><div style={{fontSize:25}}>{g.icon}</div><div style={{fontSize:10,fontWeight:900}}>{g.label}</div><div style={{fontSize:8,color:'#8fa2af',marginTop:3}}>{g.effect}</div><div style={{fontSize:8,color:'#e8b944',marginTop:4}}>{g.region} • {g.credits} proposed points (not purchasable)</div></button>)}</div>
     <div style={{display:'flex',gap:7,flexWrap:'wrap',marginTop:10}}>{(['screen','ar','vr'] as const).map(m=><button key={m} onClick={()=>setMode(m)} style={{padding:'8px 11px',borderRadius:10,border:`1px solid ${mode===m?'#4fe3ff':'#2d4050'}`,background:mode===m?'#0c2b39':'#081019',color:'#fff',fontWeight:900,cursor:'pointer'}}>{m.toUpperCase()}</button>)}</div>
-    <button disabled={busy} onClick={send} style={{width:'100%',marginTop:10,padding:12,borderRadius:12,border:'1px solid #4fe3ff88',background:'linear-gradient(135deg,#0c3343,#27203a)',color:'#fff',fontWeight:950,cursor:'pointer'}}>{busy?'SENDING…':`SEND ${selected.icon} ${selected.label} • ${selected.credits} CREDITS`}</button>
+    <button disabled={busy} onClick={send} style={{width:'100%',marginTop:10,padding:12,borderRadius:12,border:'1px solid #4fe3ff88',background:'linear-gradient(135deg,#0c3343,#27203a)',color:'#fff',fontWeight:950,cursor:'pointer'}}>{busy?'SENDING…':`PREVIEW ${selected.icon} ${selected.label} • NO CHARGE`}</button>
     <div style={{fontSize:10,lineHeight:1.5,color:'#a7b6c2',marginTop:9}}>{message}</div>
   </section>
 }

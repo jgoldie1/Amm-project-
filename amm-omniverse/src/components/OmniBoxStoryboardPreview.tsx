@@ -26,10 +26,11 @@ export default function OmniBoxStoryboardPreview({scenes,selected,onSelect}:{sce
     <g className="omni-board-actor" transform="translate(365 265)"><circle cx="0" cy="0" r="24" fill="#704a34"/><path d="M-30 30q30-12 60 0l18 83h-95Z" fill="#121b2d"/><path d="M-23 115v62m45-62v62" stroke="#151b29" strokeWidth="20" strokeLinecap="round"/></g>
     <g className="omni-board-actor-side" transform="translate(605 273)"><circle cx="0" cy="0" r="21" fill="#987052"/><path d="M-25 30q25-12 50 0l15 76h-78Z" fill="#77684c"/><path d="M-18 109v57m37-57v57" stroke="#1c2330" strokeWidth="17" strokeLinecap="round"/></g>
    </svg>
+   <div className="omni-board-guide" aria-hidden="true"><i/><i/><b/><b/></div>
    <div className="omni-board-top"><span>STREETVERSE CHICAGO STORIES</span><span>EPISODE 01 · ACT {selected+1} / {scenes.length}</span></div>
-   <div className="omni-board-lower"><span className="omni-board-shot">{scene.shots.slice(0,145)}</span><h3>{scene.title}</h3><p>{scene.dialogue}</p></div>
+   <div className="omni-board-lower"><span className="omni-board-shot">{scene.shots.slice(0,145)}</span><h3>{scene.title}</h3><p>{scene.dialogue}</p><div className="omni-board-camera-meta"><span>{scene.composition}</span><span>{scene.cameraAngle}</span><span>{scene.cameraMove}</span><span>{scene.aspectRatio} · {scene.fps}fps</span></div></div>
   </div>
   <div className="omni-board-controls"><button type="button" onClick={()=>onSelect((selected-1+scenes.length)%scenes.length)}>← Previous scene</button><button type="button" aria-pressed={playing} onClick={()=>setPlaying(v=>!v)}>{playing?'Pause storyboard':'▶ Play storyboard'}</button><button type="button" onClick={()=>onSelect((selected+1)%scenes.length)}>Next scene →</button></div>
-  <p className="omni-board-explainer" role="status">Scene {selected+1} of {scenes.length} · {scene.durationSeconds/60} minutes planned. This is an original animated concept preview of your screenplay. Actual actors, 3D rigging, voices, rendering, editing and distribution still require production.</p>
+  <p className="omni-board-explainer" role="status">Scene {selected+1} of {scenes.length} · {scene.durationSeconds/60} minutes planned. Frame review: {scene.frameReview} This is an original animated concept preview of your screenplay. Actual actors, 3D rigging, voices, rendering, editing and distribution still require production.</p>
  </section>
 }

@@ -1,7 +1,8 @@
 import * as THREE from 'three'
+import type {AnatomyProfile} from './StreetVerseThreeCastHealthRuntime'
 
-/** Fictional, non-medical anatomy visualization. Hidden during normal gameplay. */
-export type BJOrganName='heart'|'left-lung'|'right-lung'|'liver'|'stomach'|'left-kidney'|'right-kidney'
+/** Fictional, non-medical organ visualization shared by three playable casts. Hidden during normal gameplay. */
+export type BJOrganName=string
 export interface BJAnatomyHandle {
   root:THREE.Group
   setVisible:(visible:boolean)=>void
@@ -20,20 +21,41 @@ const ORGAN_LAYOUT:{name:BJOrganName;position:[number,number,number];size:[numbe
   {name:'left-kidney',position:[-.14,.99,-.055],size:[.065,.09,.05],color:0x9d5964},
   {name:'right-kidney',position:[.14,.99,-.055],size:[.065,.09,.05],color:0x9d5964},
 ]
-export function installStreetVerseBJAnatomy(hero:THREE.Object3D):BJAnatomyHandle{
-  const existing=hero.getObjectByName('bj-anatomy-overlay')
+// Non-clinical organ diagrams. Positions are stylized for interactive education,
+ // not anatomically validated measurements. Each species group has its own set.
+const OTHER_ORGANS:Record<string,string[]>={
+ mammal:['heart','left-lung','right-lung','stomach','liver','left-kidney','right-kidney'],
+ bird:['heart','left-lung','right-lung','air-sacs','crop','gizzard','liver'],
+ fish:['heart','left-gill','right-gill','stomach','liver','swim-bladder'],
+ insect:['brain','dorsal-vessel','tracheae','gut','malpighian-tubules'],
+ reptile:['heart','left-lung','right-lung','stomach','liver','kidneys'],
+ amphibian:['heart','lungs','skin-respiration','stomach','kidneys'],
+}
+function organLayoutForProfile(profile:AnatomyProfile){
+ if(profile==='adult-human'||profile==='teen-human'||profile==='child-human')return ORGAN_LAYOUT
+ const names=OTHER_ORGANS[profile]||[]
+ return names.map((name,i)=>({
+  name,
+  position:[(i%3-1)*.15,1.25-Math.floor(i/3)*.17,.02] as [number,number,number],
+  size:[.085,.115,.075] as [number,number,number],
+  color:name.includes('gill')?0xbf687f:name.includes('heart')?0x9c354c:0x95647b,
+ }))
+}
+export function installStreetVerseBJAnatomy(hero:THREE.Object3D,characterId:string='bj-stubbs',profile:AnatomyProfile='adult-human'):BJAnatomyHandle{
+  const overlayName=characterId+'-anatomy-overlay'
+  const existing=hero.getObjectByName(overlayName)
   if(existing){existing.traverse(object=>{if(object instanceof THREE.Mesh){object.geometry.dispose();if(Array.isArray(object.material))object.material.forEach(material=>material.dispose());else object.material.dispose()}});existing.parent?.remove(existing)}
   const root=new THREE.Group()
-  root.name='bj-anatomy-overlay'
+  root.name=overlayName
   root.visible=false
-  root.userData={fictional:true,medicalAccuracy:false,renderMode:'hidden-by-default'}
+  root.userData={fictional:true,medicalAccuracy:false,renderMode:'hidden-by-default',characterId,source:'gameplay-organs-not-photo-inferred',profile}
   const materials:THREE.MeshStandardMaterial[]=[]
   const organs:{mesh:THREE.Mesh;origin:THREE.Vector3;direction:THREE.Vector3}[]=[]
   let exploded=false,xray=false,injured=false
-  for(const organ of ORGAN_LAYOUT){
+  for(const organ of organLayoutForProfile(profile)){
     const material=new THREE.MeshStandardMaterial({color:organ.color,roughness:.75,transparent:true,opacity:.86,depthWrite:false})
     const mesh=new THREE.Mesh(new THREE.SphereGeometry(1,16,12),material)
-    mesh.name='bj-organ-'+organ.name
+    mesh.name=characterId+'-organ-'+organ.name
     mesh.position.set(...organ.position)
     mesh.scale.set(...organ.size)
     mesh.userData={organ:organ.name,fictional:true}
@@ -48,7 +70,7 @@ export function installStreetVerseBJAnatomy(hero:THREE.Object3D):BJAnatomyHandle
     setCondition:condition=>{injured=condition==='injured';root.userData.condition=condition;materials.forEach(m=>{m.opacity=injured?.7:.86;m.emissive.setHex(injured?0x330008:0x000000)})},
     setExploded:enabled=>{exploded=enabled;root.userData.exploded=enabled;root.visible=enabled||xray},
     setXRay:enabled=>{xray=enabled;root.userData.xray=enabled;root.visible=enabled||exploded;materials.forEach(m=>{m.depthTest=!enabled})},
-    tick:elapsedSeconds=>{for(const organ of organs){const target=organ.origin.clone().addScaledVector(organ.direction,exploded?1:0);organ.mesh.position.lerp(target,.16);if(organ.mesh.name==='bj-organ-heart')organ.mesh.scale.set(.095*(1+.035*Math.sin(elapsedSeconds*5)),.12*(1+.035*Math.sin(elapsedSeconds*5)),.07*(1+.035*Math.sin(elapsedSeconds*5)))}},
+    tick:elapsedSeconds=>{for(const organ of organs){const target=organ.origin.clone().addScaledVector(organ.direction,exploded?1:0);organ.mesh.position.lerp(target,.16);if(organ.mesh.name===characterId+'-organ-heart')organ.mesh.scale.set(.095*(1+.035*Math.sin(elapsedSeconds*5)),.12*(1+.035*Math.sin(elapsedSeconds*5)),.07*(1+.035*Math.sin(elapsedSeconds*5)))}},
     dispose:()=>{root.parent?.remove(root);root.traverse(o=>{if(o instanceof THREE.Mesh)o.geometry.dispose()});materials.forEach(m=>m.dispose())},
   }
 }

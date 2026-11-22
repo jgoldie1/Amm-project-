@@ -12,7 +12,9 @@ export default async function handler(req,res){
  const platform=clean(req.body?.platform,32).toLowerCase()
  if(!SUPPORTED.has(platform))return json(res,400,{error:'unsupported_platform'})
  // Platform-specific adapters must set this only after signature/token verification.
- if(req.headers['x-tryamm-platform-verified']!=='1')return json(res,401,{error:'platform_event_not_verified'})
+ // A client-supplied header is not proof of Twitch, TikTok, BIGO or other provider authenticity.
+ // Fail closed until per-provider cryptographic signature verification and durable idempotency exist.
+ return json(res,503,{error:'external_gift_webhook_disabled_pending_signature_verification'})
  const eventId=clean(req.body?.eventId,180)
  const channelId=clean(req.body?.channelId,180)
  if(!eventId||!channelId)return json(res,400,{error:'event_and_channel_required'})
