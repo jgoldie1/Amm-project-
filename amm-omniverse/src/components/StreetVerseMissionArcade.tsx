@@ -1,5 +1,6 @@
 import {useEffect,useState,type CSSProperties} from 'react'
 import {makeLocalMissionReceipt,TRYAMM_MISSION_EVENT} from '../foundation/streetverseIntegrationRegistry.js'
+import StreetVerseContextActions from './StreetVerseContextActions'
 type Mode='after-dark'|'mystery'|'districts'|'shadow'|'fire'|'undercover'|'er'|'dispatch'|'homicide'
 type Progress={xp:number,credits:number,completed:string[],turn:number,properties:string[],clues:string[],heat:number}
 const KEY='tryamm:streetverse-mission-arcade:v1'
@@ -106,6 +107,7 @@ export default function StreetVerseMissionArcade(){
      </>:<p style={{fontSize:20}}>All three missions in this mode are complete. Choose another mode to continue!</p>}
     <p role="status" aria-live="polite" style={{color:'#ffe6a2',fontSize:17,minHeight:48,lineHeight:1.5}}>{notice}</p>
    </section>
+   <div style={{marginTop:20}}><StreetVerseContextActions /></div>
    {mode==='districts'&&<section style={{marginTop:20}}><h2>District Property Board</h2>
     <button type="button" style={btn} onClick={roll}>ROLL ONE DIE — MOVE</button>
     <p>Position: {p.turn%12} of 12. Dice rolls do not earn credits; complete missions for rewards. This is a non-monetized neighborhood simulator.</p>
