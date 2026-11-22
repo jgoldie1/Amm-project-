@@ -620,6 +620,17 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
       const d=(event as CustomEvent<{character?:string;characterId?:string;id?:string}>).detail||{}
       const raw=String(d.character||d.characterId||d.id||'').toLowerCase()
       const id:RecoveredPlayableId|null=raw.startsWith('jacobie')?'jacobie-stubbs':raw.startsWith('lateasia')?'lateasia-monroe':requestedRecoveredParam
+      const handle=recoveredPlayableHandle
+      if(id && handle?.id===id && handle.object===nativeHero && handle.object.parent && !nativeCancelled){
+        const clips=handle.clips.map(clip=>clip.name)
+        window.dispatchEvent(new CustomEvent('tryamm:streetverse-recovered-playable-mounted',{
+          detail:{id,characterId:id,name:handle.name,displayName:handle.name,source:handle.source,
+            mounted:true,active3DMesh:true,clips,clipCount:clips.length,
+            textureVerified:handle.object.userData.textureVerified===true,
+            diagnosticAppearance:handle.object.userData.diagnosticAppearance===true}
+        }))
+        return
+      }
       if(id)void activateRecoveredPlayable(id)
     }
     window.addEventListener('tryamm:streetverse-character-retry',onRecoveredRetry)
