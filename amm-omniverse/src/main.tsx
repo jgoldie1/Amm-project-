@@ -118,7 +118,7 @@ try {
   const isGlobalTradeWorld=['/global-trade','/global-trade/','/my-world','/my-world/','/we-are-the-world','/we-are-the-world/'].includes(currentPath)
   const isTwinWorld=currentPath.startsWith('/streetverse/twin-world')
   const isMeetStubbs=currentPath.startsWith('/streetverse/meet-the-stubbs')
-  const isStreetVerse=currentPath.startsWith('/streetverse')&&!isMeetStubbs&&!isTwinWorld
+  const isStreetVerse=currentPath.startsWith('/streetverse')&&!isMeetStubbs&&!isTwinWorld&&!isStreetVerseMissionArcade&&!isStreetVerseIntegrationCenter
   const streetVerseParams=new URLSearchParams(window.location.search)
   // Certification/fallback routes must be decided from the initial URL before any
   // optional runtime can mutate history or replace the selected world.
