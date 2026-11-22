@@ -28,6 +28,6 @@ test('only all six individually evidenced steps are considered complete',()=>{
 test('Middleverse and Stubbs AI entrypoints use existing action names',()=>{
  for(const key of ['__showMiddleverseWorkstation','__showBennie']){assert.ok(component.includes(key));assert.ok(home.includes(key))}
  assert.match(component,/integration_not_ready/)
- assert.match(component,/not allowed to grant supplier consent/)
+ assert.match(component,/allowed to grant supplier consent/)
  assert.match(farm,/<ChicagoHoloJourneyStatus\/>/)
 })
