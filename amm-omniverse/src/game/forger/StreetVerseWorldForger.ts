@@ -309,11 +309,11 @@ export function createBuildingCadPlan(input:{
 }):BuildingCadPlan{
   const floors=Math.max(1,Math.min(120,Math.trunc(input.floors||1)))
   const floorHeight=Math.max(2.4,Math.min(8,Number(input.floorHeightM)||3.2))
-  const elevator=Boolean(input.elevator||floors>=4)
+  const elevator=Boolean(input.elevator||floors>=2)
   const verticalCores:CadVerticalCore[]=[]
   const stairCount=Math.max(1,Math.min(6,Math.trunc(input.stairCount||1)))
-  for(let i=0;i<stairCount;i++)verticalCores.push({id:`stairs-${i+1}`,kind:'stairs',fromLevel:0,toLevel:floors-1,accessible:false})
-  if(elevator)verticalCores.push({id:'elevator-1',kind:'elevator',fromLevel:0,toLevel:floors-1,accessible:true})
+  for(let i=0;i<stairCount&&floors>1;i++)verticalCores.push({id:`stairs-${i+1}`,kind:'stairs',fromLevel:0,toLevel:floors-1,accessible:false})
+  if(elevator&&floors>1)verticalCores.push({id:'elevator-1',kind:'elevator',fromLevel:0,toLevel:floors-1,accessible:true})
   return{
     schema:'tryamm.world-forger.cad.v1',
     id:input.id,label:input.label,
@@ -352,7 +352,7 @@ export function makeWorldForgeRecipe(input:{
   return{
     id:input.id,label:input.label,kind,districtId:input.districtId,sourceIds:[...new Set(input.sourceIds)],cadPlanId:input.cadPlanId,
     meshy:{
-      required:true,
+      required:input.target!=='none',
       target:input.target||(character?'rig':vehicle?'image-to-3d':'text-to-3d'),
       prompt:input.prompt,
       rigProfile:input.rigProfile||(character?'humanoid':vehicle?'vehicle':building?'mechanical':'none'),
