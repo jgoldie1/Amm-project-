@@ -47,7 +47,9 @@ export default function TryAMMHome(){
        ['🌱','YAHAVAH GROCERY','/yahavah-grocery'],
        ['🌾','FARM PASSPORT','/farm-to-family'],
        ['🛍️','ALL AMERICAN STORE','/stores'],
-       ['💇','BEAUTY SUPPLY','/beauty-supply']
+       ['💇','BEAUTY SUPPLY','/beauty-supply'],
+       ['🌐','CHICAGO GEO ATLAS','/chicago77'],
+       ['🖼️','HOLO GALLERY','/holo-gallery']
      ] as const).map(([icon,label,path])=><a key={path} href={path} style={{display:'flex',alignItems:'center',gap:9,minHeight:58,padding:'10px 12px',border:'1px solid #406a80',borderRadius:14,background:'#112c40',color:'#e8f8ff',fontSize:13,fontWeight:900,textDecoration:'none'}}><span aria-hidden="true" style={{fontSize:23}}>{icon}</span><span>{label}</span></a>)}
    </nav>
  </section>
