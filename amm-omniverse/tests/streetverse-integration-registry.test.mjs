@@ -25,7 +25,7 @@ test('readiness report does not pretend to verify LIVE, device, money or ledger'
  assert.equal(r.authoritativeLedgerConnected,false)
  assert.equal(r.liveIntegrationVerified,false)
  assert.equal(r.deviceAcceptanceVerified,false)
- assert.equal(r.prototypeCapabilities.scriptedStages,27)
+ assert.equal(r.prototypeCapabilities.scriptedStages,51)
  assert.equal(r.systems.length,10)
  assert.ok(r.systems.every(x=>!x.liveVerified))
 })
