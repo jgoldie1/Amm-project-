@@ -1,4 +1,5 @@
-import { useMemo } from 'react'
+import { useMemo,useState } from 'react'
+import {readCreatorPacket,creatorReleaseGates,type CreatorPacket} from '../foundation/tryammCreatorWorldBridge.js'
 import {REALITY_EPISODE_TEMPLATE,STREETVERSE_REALITY_FORMAT} from '../data/AllAmericanRealityFormats'
 import AllAmericanNetworkPrimeDeck from './AllAmericanNetworkPrimeDeck'
 
@@ -24,6 +25,9 @@ export default function AllAmericanNetworkHub(){
   const path=window.location.pathname
   const mode:Mode=path.startsWith('/free-tv')?'free-tv':path.startsWith('/isaiah-ai-tv')?'isaiah-ai-tv':path.startsWith('/starverse')?'starverse':path.startsWith('/reality-tv')?'reality-tv':'network'
   const current=useMemo(()=>info[mode],[mode])
+  const [creatorPitch,setCreatorPitch]=useState<CreatorPacket|null>(null)
+  const [pitchMessage,setPitchMessage]=useState('No media, broadcast or publishing rights have been approved.')
+  const importCreatorPitch=()=>{const packet=readCreatorPacket(localStorage);if(!packet){setPitchMessage('No saved TRYAMM creator packet found. Make one in the Creator Bridge.');return}setCreatorPitch(packet);setPitchMessage('Imported metadata-only producer pitch. Review story, rights and media evidence before human editorial approval. Nothing was published.')}
   const share=async()=>{const data={title:current.title,text:current.copy,url:window.location.href};if(navigator.share){try{await navigator.share(data);return}catch{}}try{await navigator.clipboard.writeText(window.location.href);window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:'Link copied'}}))}catch{}}
   return <main style={{minHeight:'100vh',background:'radial-gradient(circle at 20% 0,#3a173d 0,#0b0b18 38%,#020308 100%)',color:'#fff',fontFamily:'Inter,system-ui,sans-serif'}}>
     <div style={{maxWidth:1120,margin:'0 auto',padding:'24px 16px 70px'}}>
@@ -33,7 +37,18 @@ export default function AllAmericanNetworkHub(){
       {mode==='network'&&<AllAmericanNetworkPrimeDeck/>}
       <section style={{padding:mode==='network'?'28px 0 28px':'70px 0 28px'}}><div style={{fontSize:11,letterSpacing:3,color:'#ff77e8',fontWeight:950}}>{current.eyebrow}</div><h1 style={{fontSize:'clamp(42px,8vw,88px)',lineHeight:.95,margin:'10px 0 18px'}}>{current.title}</h1><p style={{maxWidth:800,color:'#c0b8ce',fontSize:18,lineHeight:1.65}}>{current.copy}</p><div style={{display:'flex',gap:10,flexWrap:'wrap'}}><button onClick={share} style={button}>SHARE</button><a href="/network/studio" style={{...button,textDecoration:'none',borderColor:'#4fe3ff'}}>OPEN STUDIO CONTROL ROOM</a><a href="/network/broadcast-os" style={{...button,textDecoration:'none',borderColor:'#7d8cff'}}>OPEN NETWORK CONTROL CENTER</a><a href="/workstation" style={{...button,textDecoration:'none'}}>CREATE / PUBLISH</a><a href="/accessibility" style={{...button,textDecoration:'none'}}>ACCESSIBILITY</a></div></section>
       <section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:12}}>{current.features.map(x=><article key={x} style={card}><strong>{x}</strong></article>)}</section>{mode==='free-tv'&&<section style={{...card,marginTop:20,borderColor:'#6b5c2c'}}><div style={{fontSize:10,color:'#ffd36e',fontWeight:950,letterSpacing:1.8}}>FREE TV REVENUE MODEL</div><h2>Free for viewers • commercials fund the network</h2><p style={{color:'#c0b8ce',lineHeight:1.6}}>Commercial inventory supports 15/30/60-second spots, program sponsorships, creator promos, local business spots and public-service messages. Ads must be disclosed, age-appropriate and rights-cleared; billable delivery requires server verification.</p><div style={{display:'flex',gap:8,flexWrap:'wrap'}}><a href="/network/studio" style={{...button,textDecoration:'none',borderColor:'#ffd36e'}}>PRODUCE / SCHEDULE ADS</a><button onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:holo-ads-request'))} style={button}>ADVERTISE ON TRYAMM</button></div></section>}
-      {mode==='reality-tv'&&<section style={{...card,marginTop:20}}>
+      {mode==='isaiah-ai-tv'&&<section aria-label="Isaiah TV original creator pitch" style={{...card,marginTop:18,borderColor:'#4c75a1'}}>
+        <h2 style={{marginTop:0}}>StreetVerse → HoloReel → Isaiah AI TV</h2>
+        <p>Review an original business or mission story from the TRYAMM Living World Creator Bridge. This is not a live TV broadcast or actual published video.</p>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button style={{...button,minHeight:54}} onClick={importCreatorPitch}>IMPORT CREATOR STORY PITCH</button><a href="/creator-world" style={{...button,textDecoration:'none',minHeight:54,display:'inline-flex',alignItems:'center'}}>OPEN CREATOR BRIDGE</a></div>
+        <p role="status" aria-live="polite">{pitchMessage}</p>
+        {creatorPitch&&<div style={{padding:12,border:'1px solid #6a79a5',borderRadius:12}}>
+          <strong>{creatorPitch.title}</strong><p>{creatorPitch.description}</p>
+          <p>Format: {creatorPitch.kind} • Business: {creatorPitch.businessName||'not selected'} • Website template ID: {creatorPitch.templateId||'not selected'}</p>
+          <p>Producer review: REQUIRED • Video: NOT ATTACHED • Publishing: {creatorReleaseGates(creatorPitch).canPublish?'approved':'NOT AUTHORIZED'}</p>
+        </div>}
+      </section>}
+            {mode==='reality-tv'&&<section style={{...card,marginTop:20}}>
         <h2 style={{marginTop:0}}>Episode blueprint • {STREETVERSE_REALITY_FORMAT.episodeMinutes} min • {STREETVERSE_REALITY_FORMAT.seasonEpisodes} episodes</h2>
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:9}}>{REALITY_EPISODE_TEMPLATE.map(segment=><article key={segment.order} style={{padding:12,borderRadius:14,background:'#15101d',border:'1px solid #4b3855'}}><b>{segment.order}. {segment.label} • {segment.minutes} MIN</b><p style={{color:'#c0b8ce',fontSize:12,lineHeight:1.45,marginBottom:0}}>{segment.purpose}</p></article>)}</div>
         <p style={{color:'#c0b8ce',lineHeight:1.6}}>Cast target: {STREETVERSE_REALITY_FORMAT.castSize.min}–{STREETVERSE_REALITY_FORMAT.castSize.max}. Production remains rights-, consent-, moderation- and payment-verification gated before any LIVE or monetized release.</p>
