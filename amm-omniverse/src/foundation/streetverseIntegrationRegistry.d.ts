@@ -1,6 +1,6 @@
 export const TRYAMM_MISSION_EVENT: 'tryamm:mission-local-completed'
 export const RECEIPT_SCHEMA: 'tryamm.mission.local.v1'
-export type MissionMode='after-dark'|'mystery'|'districts'|'shadow'|'fire'|'undercover'|'er'|'dispatch'|'homicide'
+export type MissionMode='after-dark'|'mystery'|'districts'|'shadow'|'fire'|'undercover'|'er'|'dispatch'|'homicide'|'sports'|'grocery'|'trucking'|'housing'|'health'|'parkour'|'rescue'|'action'
 export interface LocalMissionReceipt {
  readonly schema:'tryamm.mission.local.v1'
  readonly source:'mission-arcade-local'
