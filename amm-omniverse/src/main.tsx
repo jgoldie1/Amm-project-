@@ -62,6 +62,8 @@ const HoloLabGateway=lazy(()=>import('./components/HoloLabGateway'))
 const SECSConstructCenter=lazy(()=>import('./components/SECSConstructCenter'))
 const Chicago77HolographicAtlas=lazy(()=>import('./components/Chicago77HolographicAtlas'))
 const PublicReelPage=lazy(()=>import('./components/PublicReelPage'))
+const LiveOnePushTest=lazy(()=>import('./components/LiveOnePushTest'))
+const StreetVerseDeviceLiveCertificationHUD=lazy(()=>import('./components/StreetVerseDeviceLiveCertificationHUD'))
 const MeshyFactoryControlPanel=lazy(()=>import('./components/MeshyFactoryControlPanel'))
 const OctoberLaunchLockCenter=lazy(()=>import('./components/OctoberLaunchLockCenter'))
 const StubbsAIHolographicBusinessOS=lazy(()=>import('./components/StubbsAIHolographicBusinessOS'))
@@ -79,6 +81,7 @@ try {
   const standaloneSite=standaloneMatch ? getStandaloneSite(standaloneMatch[1]) : undefined
   const reelMatch=currentPath.match(/^\/reels\/([^/]+)\/?$/)
   const isReelsHome=currentPath==='/reels'||currentPath==='/reels/'
+  const isLiveTest=currentPath==='/live-test'||currentPath==='/live-test/'
   const isBJRecovery=currentPath==='/bj-recovery'||currentPath==='/bj-recovery/'
   const isAccessibility=currentPath==='/accessibility'||currentPath==='/accessibility/'
   const isAssetFactory=['/asset-factory','/asset-factory/','/meshy-factory','/meshy-factory/'].includes(currentPath)
@@ -170,6 +173,7 @@ try {
   else if(isLegacyHome)routeContent=mainShell
   else   if(isBJRecovery)routeContent=<Suspense fallback={routeFallback}><BJRecoveryStandalone /></Suspense>
   else if(isReelsHome){window.history.replaceState({},'', '/streetverse?core=1&reel=1');routeContent=<StreetVerseMobileErrorBoundary name="StreetVerse HoloReel"><Suspense fallback={routeFallback}><StreetVerseMobileWorldCore onClose={()=>{window.location.href='/'}}/></Suspense></StreetVerseMobileErrorBoundary>}
+  else if(isLiveTest)routeContent=<Suspense fallback={routeFallback}><LiveOnePushTest /></Suspense>
   else if(reelMatch)routeContent=<Suspense fallback={routeFallback}><PublicReelPage slug={decodeURIComponent(reelMatch[1])} /></Suspense>
   else if(isAssetFactory)routeContent=<Suspense fallback={routeFallback}><MeshyFactoryControlPanel /></Suspense>
   else if(isAccessibility)routeContent=<AccessibilityStatement />
@@ -204,7 +208,7 @@ try {
   else if(businessSlug)routeContent=<FamilyBusinessPublicSite slug={businessSlug} onClose={()=>{window.location.href='/business'}} />
   else if(isTwinWorld)routeContent=<Suspense fallback={routeFallback}><StreetVerseTwinWorld onClose={()=>{window.location.href='/'}} /></Suspense>
   else if(isMeetStubbs)routeContent=<Suspense fallback={routeFallback}><MeetTheStubbsWorldDistrict onClose={()=>{window.location.href='/streetverse'}} /></Suspense>
-  else if(isStreetVerse)routeContent=isStreetVerseCore?streetVerseRoute:<>{streetVerseRoute}<Suspense fallback={null}><StreetVerseCinematicMissions/></Suspense></>
+  else if(isStreetVerse)routeContent=isStreetVerseCore?<>{streetVerseRoute}<Suspense fallback={null}><StreetVerseDeviceLiveCertificationHUD/></Suspense></>:<>{streetVerseRoute}<Suspense fallback={null}><StreetVerseCinematicMissions/></Suspense><Suspense fallback={null}><StreetVerseDeviceLiveCertificationHUD/></Suspense></>
   else routeContent=mainShell
   
   
@@ -219,7 +223,7 @@ try {
   if(gameRoute){
     routeContent=fallbackParams.get('safe')==='1'||fallbackParams.get('mode')==='safe'
       ? <><StreetVerseWeatherSync/><StreetVerseSafeWorld onClose={()=>{window.location.href='/'}} /></>
-      : <><Suspense fallback={<div role="status">Opening StreetVerse 3D…</div>}><StreetVerseGeoSpawnBridge onClose={()=>{window.location.href='/'}} /></Suspense><Suspense fallback={null}><StreetVerseCinematicMissions/></Suspense></>
+      : <><Suspense fallback={<div role="status">Opening StreetVerse 3D…</div>}><StreetVerseGeoSpawnBridge onClose={()=>{window.location.href='/'}} /></Suspense><Suspense fallback={null}><StreetVerseCinematicMissions/></Suspense><Suspense fallback={null}><StreetVerseDeviceLiveCertificationHUD/></Suspense></>
   }else{
     routeContent=<Suspense fallback={<div role="status">Opening TRYAMM…</div>}><App /></Suspense>
   }
