@@ -47,3 +47,21 @@ test('native world CAD and asset budgets agree',()=>{
   assert.deepEqual(forge.validateForgeRecipe(recipe,[source],cad),[])
  }
 })
+
+test('independent jobs survive another lane failing',async()=>{
+ const result=await executeBuildUnits([unit('bad'),unit('good'),unit('dependent',['bad']),unit('next',['good'])],async u=>{
+  if(u.id==='bad')throw new Error('adapter failure')
+  return {verified:true,artifact:u.id}
+ },{concurrency:2})
+ assert.deepEqual(result.map(r=>r.state),['failed','verified','blocked','verified'])
+})
+test('empty artifact and cyclic graphs never certify',async()=>{
+ const r=await executeBuildUnits([unit('a')],async()=>({verified:true,artifact:'   '}))
+ assert.equal(r[0].state,'failed')
+ await assert.rejects(executeBuildUnits([unit('a',['b']),unit('b',['a'])],async()=>({verified:true,artifact:'x'})))
+})
+test('empty queue is safe and invalid concurrency falls back',async()=>{
+ assert.deepEqual(await executeBuildUnits([],async()=>{assert.fail('unexpected execution')}),[])
+ const r=await executeBuildUnits([unit('a')],async()=>({verified:true,artifact:'a'}),{concurrency:NaN})
+ assert.equal(r[0].state,'verified')
+})
