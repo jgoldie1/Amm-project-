@@ -5,13 +5,13 @@
  */
 export const TRYAMM_MISSION_EVENT = 'tryamm:mission-local-completed'
 export const RECEIPT_SCHEMA = 'tryamm.mission.local.v1'
-const MODE_IDS = Object.freeze(['after-dark','mystery','districts','shadow','fire','undercover','er','dispatch','homicide'])
-const MISSION_PREFIXES = Object.freeze(['ad','ms','dt','sd','fr','uc','er','dp','hm'])
+const MODE_IDS = Object.freeze(['after-dark','mystery','districts','shadow','fire','undercover','er','dispatch','homicide','sports','grocery','trucking','housing','health','parkour','rescue','action'])
+const MISSION_PREFIXES = Object.freeze(['ad','ms','dt','sd','fr','uc','er','dp','hm','sp','gr','tr','ho','hc','pk','rs','ac'])
 export function validateMissionReceipt(input) {
  if (!input || typeof input !== 'object' || Array.isArray(input)) return false
  if (input.schema !== RECEIPT_SCHEMA || input.source !== 'mission-arcade-local') return false
  if (!MODE_IDS.includes(input.mode) || typeof input.missionId !== 'string') return false
- if (!/^(ad|ms|dt|sd|fr|uc|er|dp|hm)[1-3]$/.test(input.missionId)) return false
+ if (!/^(ad|ms|dt|sd|fr|uc|er|dp|hm|sp|gr|tr|ho|hc|pk|rs|ac)[1-3]$/.test(input.missionId)) return false
  if (!input.missionId.startsWith(MISSION_PREFIXES[MODE_IDS.indexOf(input.mode)])) return false
  if (input.xp !== 75 || input.credits !== 50 || input.authoritative !== false) return false
  return typeof input.completedAt === 'string' && !Number.isNaN(Date.parse(input.completedAt))
@@ -23,7 +23,7 @@ export function makeLocalMissionReceipt(mode, missionId, at=new Date()) {
 }
 export const BRIDGES=Object.freeze([
  {id:'streetverse',name:'StreetVerse / Living World',path:'/streetverse?core=1',scope:'3D route exists',acceptance:'Device movement, overlays, characters and save/reload require visual acceptance'},
- {id:'missions',name:'Mission Arcade',path:'/streetverse-missions',scope:'Browser story prototype',acceptance:'27 scripted stages and local-only progression; not integrated with 3D world'},
+ {id:'missions',name:'Mission Arcade',path:'/streetverse-missions',scope:'Browser story prototype',acceptance:'51 scripted stages and local-only progression; not integrated with 3D world'},
  {id:'districts',name:'District Tycoon',path:'/streetverse-missions',scope:'Local fictional business board',acceptance:'No server economy, multiplayer or payments'},
  {id:'soul',name:'Soul Ascension',path:'/soul-ascension-chicago',scope:'Casting inquiry page',acceptance:'No verified public signup, artist releases or broadcast clearance'},
  {id:'campus',name:'CampusVerse',path:'/streetverse?core=1&world=greenville',scope:'Requested school world route',acceptance:'Campus visuals, rigs, student experience and navigation require device verification'},
@@ -41,10 +41,10 @@ export function readLocalArcadeSummary(storage){
   const raw=storage?.getItem(LOCAL_ARCADE_KEY);if(!raw)return empty
   const x=JSON.parse(raw)
   if(!x||!Array.isArray(x.completed))return empty
-  const completed=new Set(x.completed.filter(id=>typeof id==='string'&&/^(ad|ms|dt|sd|fr|uc|er|dp|hm)[1-3]$/.test(id)))
+  const completed=new Set(x.completed.filter(id=>typeof id==='string'&&/^(ad|ms|dt|sd|fr|uc|er|dp|hm|sp|gr|tr|ho|hc|pk|rs|ac)[1-3]$/.test(id)))
   return {available:true,completedMissions:completed.size,
    fictionalXp:Math.min(completed.size*75,Math.max(0,Number(x.xp)||0)),
-   fictionalCredits:Math.min(1850,Math.max(0,Number(x.credits)||0))}
+   fictionalCredits:Math.min(3050,Math.max(0,Number(x.credits)||0))}
  }catch{return empty}
 }
 export function buildMissionIntegrationReport({now=new Date(),hasLocalStorage=false,hasDownload=false,arcadeSummary=null}={}){
@@ -52,7 +52,7 @@ export function buildMissionIntegrationReport({now=new Date(),hasLocalStorage=fa
  schema:'tryamm.streetverse.integration-readiness.v1',at:now.toISOString(),
  status:'development-not-production-ready',
  authoritativeLedgerConnected:false,liveIntegrationVerified:false,deviceAcceptanceVerified:false,
- prototypeCapabilities:{missionModes:9,scriptedStages:27,localPersistenceAvailable:Boolean(hasLocalStorage),reportDownloadAvailable:Boolean(hasDownload),localArcadeSummary:arcadeSummary},
+ prototypeCapabilities:{missionModes:17,scriptedStages:51,localPersistenceAvailable:Boolean(hasLocalStorage),reportDownloadAvailable:Boolean(hasDownload),localArcadeSummary:arcadeSummary},
  systems:BRIDGES.map(x=>({...x,liveVerified:false})),
  warnings:['This is a client-side implementation inventory, not a live provider check.','A URL listed here is a route intent, not proof of successful deployment.','No money, player account, 3D character, LIVE stream, or server ledger was verified.']
  }
