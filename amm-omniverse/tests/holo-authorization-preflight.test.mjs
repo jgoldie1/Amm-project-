@@ -15,6 +15,21 @@ test('rejects malformed passport identifiers and unsafe region filters',async()=
  const badRegion=await invoke({method:'POST',headers:{},body:{action:'dispatch-ride',passportId:'00000000-0000-4000-8000-000000000001',region:'Chicago, IL);drop table x;--'}})
  assert.equal(badRegion.code,400)
 })
+test('Passport IDs must be structurally valid RFC UUIDs before authentication or privileged queries',async()=>{
+ const candidates=[
+  'not-a-uuid',
+  '00000000-0000-0000-8000-000000000001',
+  '00000000-0000-4000-0000-000000000001',
+  '00000000-0000-4000-8000-000000000001.or.status.eq.approved',
+  '00000000-0000-4000-8000-000000000001'.padEnd(81,'x'),
+  1234,
+  null
+ ]
+ for(const passportId of candidates){
+  const result=await invoke({method:'POST',headers:{},body:{action:'dispatch-ride',passportId,region:'Chicago, IL'}})
+  assert.equal(result.code,400,String(passportId))
+ }
+})
 test('requires bearer JWT, not client-provided approval flags',async()=>{
  const result=await invoke({method:'POST',body:{action:'dispatch-drone',passportId:'00000000-0000-4000-8000-000000000001',region:'Chicago, IL',approved:true,providerVerified:true},headers:{}})
  assert.equal(result.code,401)
