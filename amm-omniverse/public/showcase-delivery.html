@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>StreetVerse | Showcase delivery</title>
+<style>
+[hidden]{display:none!important}*{box-sizing:border-box}body{margin:0;background:#101c28;color:#fff;font:1.15rem/1.5 system-ui}main{max-width:42rem;margin:auto;padding:1rem}h1{font-size:2rem;margin:.4rem 0}button,a{display:block;width:100%;padding:.85rem;margin:.55rem 0;border:2px solid #b5ccdc;border-radius:.6rem;background:#233c50;color:#fff;text-align:left;font:inherit}button:first-of-type{background:#b7f6d0;color:#13271d;font-weight:bold}button:focus-visible,a:focus-visible{outline:4px solid gold}small{color:#c1d7dd}pre{white-space:pre-wrap;font:inherit}p{min-height:3rem}
+</style><main><small>StreetVerse · One-hand story chapter</small><h1>Showcase delivery</h1>
+<section aria-live="polite" aria-atomic="true"><strong id="stage"></strong><p id="scene"></p></section>
+<button id="act"></button><button id="rewind" hidden>Time Machine · Replay previous stop</button>
+<button id="report">Show my chapter report</button><pre id="summary" aria-live="polite"></pre>
+<a href="/streetverse?core=1&amp;bj=v15&amp;accept=1&amp;sequence=full&amp;fresh=1&amp;autorun=1&amp;master=1">Run the separate 3D cast test</a></main>
+<script>
+const stops = [
+ ['SV-051','Campus arrival','Jacobie meets you at the Greenville Student Union. The showcase starts tonight and the crew needs supplies.','Meet Jacobie'],
+ ['SV-052','Student ID','Jacobie has your crew pass. It opens the athletics desk where the supply list is waiting.','Collect crew pass'],
+ ['SV-056','Athletics practice','The team finishes practice. The coach hands you a list of items for the campus showcase.','Take the supply list'],
+ ['SV-067','Supply pickup','The shopkeeper has packed the order. Match it to the coach’s list and collect the crate.','Collect the showcase crate'],
+ ['SV-059','Student delivery','The student crew is waiting at the residence hall. Deliver the crate so they can set up.','Deliver the crate'],
+ ['SV-089','Community broadcast','The stage is ready. Isaiah AI TV has a place for the crew in the story’s evening lineup.','Cue the showcase']
+];
+const key='streetverse.showcase.chapter.v1';
+let index=0, saved=true;
+try{const n=Number(localStorage.getItem(key));if(Number.isInteger(n)&&n>=0&&n<=stops.length) index=n}catch{saved=false}
+const el=id=>document.getElementById(id);
+function render(){
+ const row=stops[index];
+ el('stage').textContent=row?'Mission '+(index+1)+' of '+stops.length+' · '+row[1]:'Chapter complete';
+ el('scene').textContent=row?row[2]:'The showcase is on the schedule. Your completed stops are listed below.';
+ el('act').textContent=row?row[3]:'Read my chapter report';
+ el('rewind').hidden=index===0;
+ el('summary').textContent='';
+ if(!row) showReport();
+}
+function showReport(){
+ const completed=stops.slice(0,index).map(row=>'✓ '+row[0]+' '+row[1]);
+ el('summary').textContent=[index+' of '+stops.length+' story missions completed.',...completed,index<stops.length?'Next stop · '+stops[index][1]:'Chapter finished.',saved?'Progress saved on this browser.':'Progress available for this visit only.'].join('\n');
+}
+function move(direction){index+=direction;try{localStorage.setItem(key,String(index))}catch{saved=false}render()}
+el('act').onclick=()=>index<stops.length?move(1):showReport();
+el('rewind').onclick=()=>{if(index>0)move(-1)};
+el('report').onclick=showReport;
+render();
+</script></html>
