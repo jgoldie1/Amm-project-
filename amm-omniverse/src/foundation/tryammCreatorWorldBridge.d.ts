@@ -2,6 +2,10 @@ export const CREATOR_HANDOFF_KEY:string
 export const CREATOR_HANDOFF_EVENT:string
 export const CREATOR_PACKET_SCHEMA:string
 export const REEL_CAPTURE_METADATA_KEY:string
+export const LAST_MISSION_STORY_KEY:string
+export interface LocalMissionStory{schema:string;missionId:string;mode:string;capturedAt:string;authoritative:false}
+export function storeLastMissionStory(storage:Pick<Storage,'setItem'>,receipt:{schema:string;missionId:string;mode:string;completedAt:string;authoritative:boolean}):LocalMissionStory
+export function readLastMissionStory(storage:Pick<Storage,'getItem'>|null|undefined):LocalMissionStory|null
 export interface ReelCaptureMetadata {schema:string;fileName:string;mimeType:string;durationMs:number;capturedAt:string;mediaAttached:false;publishAuthorized:false}
 export function storeReelCaptureMetadata(storage:Pick<Storage,'setItem'>,input:{fileName:string;mimeType:string;durationMs:number},at?:Date):ReelCaptureMetadata
 export function readReelCaptureMetadata(storage:Pick<Storage,'getItem'>|null|undefined):ReelCaptureMetadata|null
