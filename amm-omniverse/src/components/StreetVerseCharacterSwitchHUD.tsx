@@ -33,19 +33,23 @@ export default function StreetVerseCharacterSwitchHUD(){
    const onMounted=(event:Event)=>{const d=(event as CustomEvent<{characterId?:string}>).detail||{};if(d.characterId===activeId){setLastLoadStatus('mounted');setLoadIssue('')}}
    const onMissing=(event:Event)=>{const d=(event as CustomEvent<{characterId?:string;reason?:string}>).detail||{};if(d.characterId===activeId){setLastLoadStatus('missing');setLoadIssue(d.reason||'Original model not available');setOpen(true)}}
    const onBJ=(event:Event)=>{
-     const d=(event as CustomEvent<any>).detail||{}
-     setEvidence(v=>({...v,['bj-stubbs']:{id:'bj-stubbs',name:'BJ Stubbs',loaded:true,clips:Number(d.animationCount||0),source:d.localImported?'device-local-owner':'preview'}}))
+     const d=(event as CustomEvent).detail
+     if(!d?.actual3DModelMounted||d.version!=='V15')return
+     setEvidence(v=>({...v,['bj-stubbs']:{id:'bj-stubbs',name:'BJ Stubbs',loaded:true,clips:Number(d.skeletonAnimationCount||0),source:d.source}}))
    }
-   const onMove=()=>setMoved(true)
+   const onMove=(event:Event)=>{
+     const d=(event as CustomEvent).detail
+     if(d?.up||d?.down||d?.left||d?.right||Math.abs(d?.move?.x||0)>.05||Math.abs(d?.move?.y||0)>.05)setMoved(true)
+   }
    const onProblem=(event:Event)=>{const d=(event as CustomEvent<{characterId?:string;reason?:string}>).detail||{};if(d.characterId===activeId){setLastLoadStatus('missing');setLoadIssue(d.reason||'GLB failed to load');setOpen(true)}}
    addEventListener('tryamm:streetverse-recovered-playable-mounted',onRecovered)
-   addEventListener('tryamm:streetverse-bj-visible-version',onBJ)
+   addEventListener('tryamm:streetverse-bj-hero-mounted',onBJ)
    addEventListener('tryamm:streetverse-recovered-playable-mounted',onMounted)
    addEventListener('tryamm:streetverse-recovered-playable-missing',onMissing)
    addEventListener('tryamm:streetverse-recovered-playable-error',onProblem)
    addEventListener('tryamm:streetverse-mobile-movement',onMove)
    addEventListener('tryamm:streetverse-world-input',onMove)
-   return()=>{removeEventListener('tryamm:streetverse-recovered-playable-mounted',onRecovered);removeEventListener('tryamm:streetverse-bj-visible-version',onBJ);removeEventListener('tryamm:streetverse-recovered-playable-mounted',onMounted);removeEventListener('tryamm:streetverse-recovered-playable-missing',onMissing);removeEventListener('tryamm:streetverse-recovered-playable-error',onProblem);removeEventListener('tryamm:streetverse-mobile-movement',onMove);removeEventListener('tryamm:streetverse-world-input',onMove)}
+   return()=>{removeEventListener('tryamm:streetverse-recovered-playable-mounted',onRecovered);removeEventListener('tryamm:streetverse-bj-hero-mounted',onBJ);removeEventListener('tryamm:streetverse-recovered-playable-mounted',onMounted);removeEventListener('tryamm:streetverse-recovered-playable-missing',onMissing);removeEventListener('tryamm:streetverse-recovered-playable-error',onProblem);removeEventListener('tryamm:streetverse-mobile-movement',onMove);removeEventListener('tryamm:streetverse-world-input',onMove)}
  },[])
 
  const activeId=active==='bj'?'bj-stubbs':active==='jacobie'?'jacobie-stubbs':'lateasia-monroe'
