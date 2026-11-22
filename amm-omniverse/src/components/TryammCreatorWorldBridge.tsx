@@ -1,5 +1,5 @@
 import {useEffect,useState} from 'react'
-import {CREATOR_CHANNELS,CREATOR_HANDOFF_EVENT,createCreatorPacket,saveCreatorPacket,readCreatorPacket,creatorReleaseGates,readReelCaptureMetadata,type ReelCaptureMetadata,type CreatorPacket} from '../foundation/tryammCreatorWorldBridge.js'
+import {CREATOR_CHANNELS,CREATOR_HANDOFF_EVENT,createCreatorPacket,saveCreatorPacket,readCreatorPacket,creatorReleaseGates,readReelCaptureMetadata,readLastMissionStory,type ReelCaptureMetadata,type CreatorPacket} from '../foundation/tryammCreatorWorldBridge.js'
 const button:React.CSSProperties={minHeight:60,border:'2px solid #77e5ff',borderRadius:13,padding:'12px 16px',fontSize:16,fontWeight:850,color:'white',background:'#174660',cursor:'pointer',textDecoration:'none',display:'flex',alignItems:'center',justifyContent:'center',textAlign:'center'}
 export default function TryammCreatorWorldBridge(){
  const [kind,setKind]=useState('business-spotlight')
@@ -36,6 +36,7 @@ export default function TryammCreatorWorldBridge(){
     <div style={{padding:12,border:'1px solid #4b8b8b',borderRadius:12}}>
       <strong>Recent HoloReel recording</strong><p>{lastReel?lastReel.fileName+' • '+Math.round(lastReel.durationMs/1000)+'s • '+lastReel.mimeType:'No capture metadata on this device yet.'}</p>
       <p style={{fontSize:13,color:'#beddd9'}}>Only clip metadata is copied into the story packet. The actual media file must be downloaded, uploaded and approved separately.</p>
+      <button type="button" style={{...button,marginBottom:10}} onClick={()=>{const last=readLastMissionStory(localStorage);if(last){setMissionId(last.missionId);setMessage('Loaded the last completed local StreetVerse mission: '+last.missionId+'. Save the creator packet to carry this into OmniBox.')}else setMessage('No completed StreetVerse mission saved on this device yet.')}}>IMPORT LAST COMPLETED MISSION</button>
       <button type="button" style={button} onClick={()=>{setLastReel(readReelCaptureMetadata(localStorage));setMessage('HoloReel capture metadata checked. Record a reel in StreetVerse if none is found.')}}>REFRESH LAST HOLOREEL</button>
     </div>
     <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(210px,1fr))',gap:10}}>
