@@ -1,9 +1,10 @@
 import {useEffect,useState,type CSSProperties} from 'react'
+import {makeLocalMissionReceipt,TRYAMM_MISSION_EVENT} from '../foundation/streetverseIntegrationRegistry.js'
 type Mode='after-dark'|'mystery'|'districts'|'shadow'|'fire'|'undercover'|'er'|'dispatch'|'homicide'
 type Progress={xp:number,credits:number,completed:string[],turn:number,properties:string[],clues:string[],heat:number}
 const KEY='tryamm:streetverse-mission-arcade:v1'
 const modes:{id:Mode,title:string,subtitle:string}[]=[
- {id:'after-dark',title:'AFTER DARK 007',subtitle:'Undercover Chicago nightlife and nonviolent spy investigations'},
+ {id:'after-dark',title:'AFTER DARK: AGENT NIGHTFALL',subtitle:'Original Chicago nightlife and nonviolent secret-investigation stories'},
  {id:'mystery',title:'CHICAGO CASEFILES',subtitle:'Deduction, clues, suspects and a city mystery'},
  {id:'districts',title:'STREETVERSE DISTRICT TYCOON',subtitle:'Build neighborhood businesses with fictional credits'},
  {id:'shadow',title:'SHADOW DIVISION',subtitle:'Original MIB-style science-fiction investigations'},
@@ -74,7 +75,9 @@ export default function StreetVerseMissionArcade(){
  const finish=(id:string,success:boolean,feedback:string)=>{
   setNotice(feedback)
   if(!success||p.completed.includes(id))return
+  const receipt=makeLocalMissionReceipt(mode,id)
   setP(previous=>previous.completed.includes(id)?previous:({...previous,xp:previous.xp+75,credits:previous.credits+50,completed:[...previous.completed,id],heat:Math.max(0,previous.heat-5),clues:mode==='mystery'||mode==='shadow'?[...previous.clues,id]:previous.clues}))
+  window.dispatchEvent(new CustomEvent(TRYAMM_MISSION_EVENT,{detail:receipt}))
  }
  const build=(id:string,cost:number)=>{
   if(p.properties.includes(id)){setNotice('Already owned on this device.');return}
@@ -86,7 +89,7 @@ export default function StreetVerseMissionArcade(){
  return <main style={{minHeight:'100vh',background:'linear-gradient(#0c1531,#030816)',color:'#f2f8ff',fontFamily:'system-ui',padding:'16px 12px 70px'}}>
   <div style={{maxWidth:930,margin:'auto'}}>
    <header style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:12,flexWrap:'wrap'}}>
-    <strong style={{color:'#ffe0a0'}}>TRYAMM • STREETVERSE</strong><a href="/" style={{...btn,textDecoration:'none'}}>HOME</a>
+    <strong style={{color:'#ffe0a0'}}>TRYAMM • STREETVERSE</strong><div style={{display:'flex',gap:10,flexWrap:'wrap'}}><a href="/streetverse-integration" style={{...btn,textDecoration:'none'}}>INTEGRATION AUDIT</a><a href="/" style={{...btn,textDecoration:'none'}}>HOME</a></div>
    </header>
    <h1 style={{fontSize:'clamp(28px,6vw,48px)',marginBottom:3}}>MISSION ARCADE</h1>
    <p>Nine original Chicago story modes • 27 decisions • large one-hand controls • no real-money gameplay</p><p style={{fontSize:16,lineHeight:1.6}}>Rules: Complete each three-part story in order. A correct decision earns 75 XP and 50 fictional credits once. Incorrect choices give feedback and allow retries. Credits may build fictional storefronts; dice rolls only move your board token. Your progress is local to this device. No pay-to-win, cash-out or wagering.</p>
