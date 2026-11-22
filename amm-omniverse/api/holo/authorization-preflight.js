@@ -8,12 +8,13 @@ import {adminReady,adminRest,json} from '../_lib/supabase-admin.js'
 const ACTION_SERVICE=Object.freeze({
  'dispatch-ride':'rideshare','dispatch-delivery':'delivery',
  'dispatch-freight':'freight','dispatch-drone':'drone',
- 'advertisement':'advertising','charge-payment':'payments',
- 'issue-refund':'payments','publish-farm':'farm-discovery',
- 'publish-provider':'provider'
+ 'advertisement':'advertising','charge-payment':'commerce',
+ 'issue-refund':'commerce','publish-farm':'farm-discovery',
+ 'publish-provider':'gallery'
 })
 const SUPPORTED=new Set(Object.keys(ACTION_SERVICE))
-function text(v,n=160){return typeof v==='string'?v.trim().slice(0,n):''}
+function text(v,n=160){return typeof v==='string'&&v.length<=n?v.trim():''}
+const PASSPORT_UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 function bearer(req){const header=req.headers?.authorization||'';return typeof header==='string'&&/^Bearer [A-Za-z0-9._-]+$/.test(header)?header.slice(7):''}
 async function authenticatedUser(token){
  const base=process.env.VITE_SUPABASE_URL||process.env.SUPABASE_URL||process.env.NEXT_PUBLIC_SUPABASE_URL||''
@@ -29,7 +30,7 @@ async function authenticatedUser(token){
 export default async function handler(req,res){
  if(req.method!=='POST')return json(res,405,{error:'method_not_allowed'})
  const action=text(req.body?.action,40),passportId=text(req.body?.passportId,80),region=text(req.body?.region,80)
- if(!SUPPORTED.has(action)||!/^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i.test(passportId)||!region||!(/^[A-Za-z0-9 .,'()\-]+$/.test(region)))return json(res,400,{error:'invalid_preflight_request'})
+ if(!SUPPORTED.has(action)||!PASSPORT_UUID.test(passportId)||!region||!(/^[A-Za-z0-9 .,'()\-]+$/.test(region)))return json(res,400,{error:'invalid_preflight_request'})
  const token=bearer(req)
  if(!token)return json(res,401,{error:'authentication_required'})
  let userId
