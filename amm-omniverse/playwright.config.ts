@@ -11,6 +11,7 @@ export default defineConfig({
   reporter: process.env.CI ? [['github'], ['json', { outputFile: 'playwright-report/release-e2e.json' }]] : 'list',
   use: {
     baseURL,
+    launchOptions: { executablePath: process.env.TRYAMM_CHROMIUM_PATH || undefined },
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
