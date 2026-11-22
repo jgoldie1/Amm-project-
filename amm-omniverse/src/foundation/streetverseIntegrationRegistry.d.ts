@@ -15,6 +15,9 @@ export function validateMissionReceipt(input:unknown):input is LocalMissionRecei
 export function makeLocalMissionReceipt(mode:MissionMode,missionId:string,at?:Date):LocalMissionReceipt
 export interface BridgeEntry {readonly id:string;readonly name:string;readonly path:string;readonly scope:string;readonly acceptance:string}
 export const BRIDGES:readonly BridgeEntry[]
+export const LOCAL_ARCADE_KEY:string
+export interface LocalArcadeSummary {available:boolean;completedMissions:number;fictionalXp:number;fictionalCredits:number}
+export function readLocalArcadeSummary(storage:Pick<Storage,'getItem'>|null|undefined):LocalArcadeSummary
 export interface IntegrationReport {
  schema:string
  at:string
@@ -22,8 +25,8 @@ export interface IntegrationReport {
  authoritativeLedgerConnected:false
  liveIntegrationVerified:false
  deviceAcceptanceVerified:false
- prototypeCapabilities:{missionModes:number;scriptedStages:number;localPersistenceAvailable:boolean;reportDownloadAvailable:boolean}
+ prototypeCapabilities:{missionModes:number;scriptedStages:number;localPersistenceAvailable:boolean;reportDownloadAvailable:boolean;localArcadeSummary:LocalArcadeSummary|null}
  systems:(BridgeEntry&{liveVerified:boolean})[]
  warnings:string[]
 }
-export function buildMissionIntegrationReport(options?:{now?:Date;hasLocalStorage?:boolean;hasDownload?:boolean}):IntegrationReport
+export function buildMissionIntegrationReport(options?:{now?:Date;hasLocalStorage?:boolean;hasDownload?:boolean;arcadeSummary?:LocalArcadeSummary|null}):IntegrationReport
