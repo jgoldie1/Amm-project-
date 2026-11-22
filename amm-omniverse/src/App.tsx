@@ -158,7 +158,7 @@ export default function App() {
     if (route === '/business-income' || route === '/merchant-money') { setShowBusinessIncome(true); return }
     if (route === '/all-american-store' || route === '/omnichannel') { setShowOmnichannelCommerce(true); return }
     if (route === '/holo-gallery') { setShowHoloGallery(true); return }
-    if (route === '/holo-services' || route === '/holo-ride' || route === '/holo-delivery' || route === '/holo-logistics' || route === '/holo-drone') { setShowHoloServices(true); return }
+    if (route === '/holo-services' || route === '/holo-ride' || route === '/holo-delivery' || route === '/holo-logistics' || route === '/holo-drone' || route === '/holo-advertise' || route === '/holo-readiness') { setShowHoloServices(true); return }
     if (route === '/holo-fridge' || route === '/holo-cold-vault') { setShowHoloFridge(true); return }
     if (route === '/holo-lab' || route === '/holo-labs') { setShowHoloLab(true); return }
     if (route === '/time-machine-foundry' || route === '/chrono-foundry' || route === '/world-foundry') { window.location.href='/time-machine-foundry'; return }
