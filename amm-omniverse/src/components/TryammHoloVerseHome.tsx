@@ -14,6 +14,7 @@ const modes:Record<Mode,{tagline:string;items:Array<[string,string,string]>}>={
  ]},
  CREATE:{tagline:'Make music, movies, games, avatars and HoloReels.',items:[
   ['OMNIBOX','Movie • TV • story production','/omni-box'],
+  ['LIVING WORLD CREATOR BRIDGE','Website • missions • HoloReel • OmniBox • Isaiah AI TV','/creator-world'],
   ['HOLO MUSIC','Artists • releases • performances','/holo-music'],
   ['ANIYAH STUDIO','64-track recording and creator studio','/aniyah-studio'],
   ['HOLO LAB','3D • holograms • digital twins • AR/VR','/holo-lab'],
@@ -27,6 +28,8 @@ const modes:Record<Mode,{tagline:string;items:Array<[string,string,string]>}>={
  EARN:{tagline:'Businesses, creators and services earn from one economy.',items:[
   ['MARKETPLACE','Digital • physical • services','/marketplace'],
   ['BUSINESS OS','Storefront • AI agents • analytics','/business-os'],
+  ['111 WEBSITE COMPANY TYPES','Open the preserved template discovery path; verify each entry before delivery','/discover'],
+  ['CREATOR BUSINESS SPOTLIGHT','Business website → immersive mission → reel → TV story draft','/creator-world'],
   ['OMNI WORKSTATION','Owner control and operations','/workstation'],
   ['OMNI CASH','Payments and settlement surfaces','/omni-cash'],
  ]},
