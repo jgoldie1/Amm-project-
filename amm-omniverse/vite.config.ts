@@ -11,7 +11,8 @@ export default defineConfig({
     apply: 'build',
     buildStart() {
       const manifest = JSON.parse(readFileSync(new URL('./config/streetverse-original-three-cast-manifest.json', import.meta.url), 'utf8'))
-      for (const model of manifest.models) {
+      // BJ uses the independent V15 loader and its own published asset path.
+      for (const model of manifest.models.filter((entry: {id: string}) => entry.id === 'jacobie-stubbs' || entry.id === 'lateasia-monroe')) {
         const path = manifest.basePath + '/' + model.filename
         const bytes = readFileSync(new URL('./' + path, import.meta.url))
         if (bytes.length !== model.sizeBytes || createHash('sha256').update(bytes).digest('hex') !== model.sha256) {
