@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
-import {CREATOR_HANDOFF_KEY,CREATOR_CHANNELS,createCreatorPacket,saveCreatorPacket,readCreatorPacket,validCreatorPacket,creatorReleaseGates} from '../src/foundation/tryammCreatorWorldBridge.js'
+import {CREATOR_HANDOFF_KEY,CREATOR_CHANNELS,createCreatorPacket,saveCreatorPacket,readCreatorPacket,validCreatorPacket,creatorReleaseGates,storeReelCaptureMetadata,readReelCaptureMetadata} from '../src/foundation/tryammCreatorWorldBridge.js'
 const read=p=>fs.readFileSync(new URL(p,import.meta.url),'utf8')
 test('website/template discovery, reel, world, OmniBox, Isaiah AI TV and business routes are preserved',()=>{
  const ids=CREATOR_CHANNELS.map(x=>x.id)
@@ -42,4 +42,20 @@ test('UI integration offers actual draft import without claiming rendered video 
  assert.match(tv,/IMPORT CREATOR STORY PITCH/)
  assert.match(tv,/Nothing was published/)
  assert.match(bridge,/not represented as 111 published sites/)
+})
+
+test('captured HoloReel clip metadata transfers without copying a private video blob',()=>{
+ const entries=new Map()
+ const storage={getItem:k=>entries.get(k)||null,setItem:(k,v)=>entries.set(k,v)}
+ const meta=storeReelCaptureMetadata(storage,{fileName:'Chicago-Reel.webm',mimeType:'video/webm',durationMs:30000},new Date('2026-11-22T00:00:00Z'))
+ assert.equal(meta.mediaAttached,false)
+ assert.equal(meta.publishAuthorized,false)
+ assert.equal(readReelCaptureMetadata(storage).fileName,'Chicago-Reel.webm')
+ const packet=createCreatorPacket(meta)
+ assert.equal(packet.reel.fileName,'Chicago-Reel.webm')
+ assert.equal(packet.reel.mediaAttached,false)
+ const overlay=read('../src/components/StreetVerseReelCaptureOverlay.tsx')
+ const bridge=read('../src/components/TryammCreatorWorldBridge.tsx')
+ assert.match(overlay,/storeReelCaptureMetadata/)
+ assert.match(bridge,/REFRESH LAST HOLOREEL/)
 })
