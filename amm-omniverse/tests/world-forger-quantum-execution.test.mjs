@@ -65,3 +65,27 @@ test('empty queue is safe and invalid concurrency falls back',async()=>{
  const r=await executeBuildUnits([unit('a')],async()=>({verified:true,artifact:'a'}),{concurrency:NaN})
  assert.equal(r[0].state,'verified')
 })
+
+const scheduler=load('agents/quantumSpeedEngine.ts',{'./reuseRegistry':reuse})
+const stageNames=['registry','geospatial','environment','mobility','population','business','missions','media','economy','accessibility','certification']
+const {executeReusableWorld}=load('game/runtime/ReusableWorldExecution.ts',{
+ '../../agents/quantumSpeedEngine':scheduler,
+ '../../data/GlobalWorldCompiler':{compileGlobalWorld:cityId=>({cityId,modules:stageNames.map(stage=>({stage,outputs:[stage]}))})}
+})
+test('missing world adapters cannot certify a world',async()=>{
+ const r=await executeReusableWorld('test-world',{})
+ assert.equal(r.certified,false)
+ assert.equal(r.results.find(x=>x.id==='registry').state,'failed')
+ assert.equal(r.results.find(x=>x.id==='certification').state,'blocked')
+})
+test('world execution passes artifacts between stages and gates certification',async()=>{
+ const adapters=Object.fromEntries(stageNames.map(stage=>[stage,async ctx=>{
+  assert.equal(ctx.worldId,'test-world')
+  if(stage==='environment')assert.equal(ctx.dependencies.get('geospatial'),'proof:geospatial')
+  return {artifact:'proof:'+stage,verified:true}
+ }]))
+ const denied=await executeReusableWorld('test-world',adapters)
+ assert.equal(denied.certified,false)
+ const allowed=await executeReusableWorld('test-world',adapters,{allowHighRisk:true})
+ assert.equal(allowed.certified,true)
+})
