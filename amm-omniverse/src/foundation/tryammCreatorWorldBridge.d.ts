@@ -1,6 +1,10 @@
 export const CREATOR_HANDOFF_KEY:string
 export const CREATOR_HANDOFF_EVENT:string
 export const CREATOR_PACKET_SCHEMA:string
+export const REEL_CAPTURE_METADATA_KEY:string
+export interface ReelCaptureMetadata {schema:string;fileName:string;mimeType:string;durationMs:number;capturedAt:string;mediaAttached:false;publishAuthorized:false}
+export function storeReelCaptureMetadata(storage:Pick<Storage,'setItem'>,input:{fileName:string;mimeType:string;durationMs:number},at?:Date):ReelCaptureMetadata
+export function readReelCaptureMetadata(storage:Pick<Storage,'getItem'>|null|undefined):ReelCaptureMetadata|null
 export interface CreatorChannel {id:string;title:string;path:string;purpose:string}
 export const CREATOR_CHANNELS:readonly CreatorChannel[]
 export interface CreatorPacket {
