@@ -68,20 +68,25 @@ export async function executeBuildUnits(units:BuildUnit[],execute:BuildExecutor,
   }
  }
  while(pending.size||running.size){
-  for(const unit of pending.values()){
-   if(unit.dependencies.some(id=>results.has(id)&&results.get(id)!.state!=='verified')){
-    pending.delete(unit.id)
-    finish({id:unit.id,state:'blocked',durationMs:0,reason:'Dependency did not verify'})
+  let changed=true
+  while(changed){
+   changed=false
+   for(const unit of pending.values()){
+    if(unit.dependencies.some(id=>results.has(id)&&results.get(id)!.state!=='verified')){
+     pending.delete(unit.id)
+     finish({id:unit.id,state:'blocked',durationMs:0,reason:'Dependency did not verify'})
+     changed=true
+    }
    }
   }
   for(const unit of pending.values()){
    if(running.size>=concurrency)break
    if(!unit.dependencies.every(id=>results.get(id)?.state==='verified'))continue
    pending.delete(unit.id)
-   running.set(unit.id,run(unit).finally(()=>{running.delete(unit.id)}))
+   running.set(unit.id,Promise.resolve().then(()=>run(unit)).finally(()=>{running.delete(unit.id)}))
   }
   if(running.size)await Promise.race(running.values())
-  else if(pending.size&&!Array.from(pending.values()).some(u=>u.dependencies.some(id=>results.get(id)?.state==='blocked'||results.get(id)?.state==='failed')))throw new Error('Build graph could not advance')
+  else if(pending.size)throw new Error('Build graph could not advance')
  }
  return units.map(unit=>results.get(unit.id)!)
 }
