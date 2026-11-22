@@ -18,3 +18,12 @@ test('Kevon and security business profiles are retained', () => {
  for (const id of ['alton-kevon-stubbs', 'al-ai-security'])
    assert.ok(source.includes(id), id)
 })
+
+test('Master inventory references recovered standalone sites without calling them live', () => {
+ const source = read('data/tryammWebsiteMasterRegistry.ts')
+ for (const name of ['sculptify-ltd','alton-kevon-stubbs','alton-security','stubbs-mobility','raymond-jarreau','lateasia-beauty-house','jacobie-visions'])
+   assert.ok(source.includes(name), name)
+ assert.doesNotMatch(source, /status:\s*'live'/)
+ const directory = read('components/FamilyBusinessDirectory.tsx')
+ assert.ok(directory.includes('TRYAMM_WEBSITE_MASTER_REGISTRY.map'))
+})
