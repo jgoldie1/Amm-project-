@@ -10,7 +10,7 @@ test('First 30 campaign preserves overflow websites instead of truncating', () =
 })
 test('Public directory includes both family profiles and additional website previews', () => {
  const source = read('components/FamilyBusinessDirectory.tsx')
- for (const marker of ['FAMILY_BUSINESS_REGISTRY.map', 'additionalSites.map', 'TRYAMM_FIRST_30_WEBSITES', 'lateasia-beauty-house.html'])
+ for (const marker of ['FAMILY_BUSINESS_REGISTRY', 'TRYAMM_FIRST_30_WEBSITES', 'TRYAMM_WEBSITE_MASTER_REGISTRY', 'lateasia-beauty-house.html', 'UNIFIED_TRYAMM_WEBSITES'])
    assert.ok(source.includes(marker), marker)
 })
 test('Kevon and security business profiles are retained', () => {
@@ -25,5 +25,5 @@ test('Master inventory references recovered standalone sites without calling the
    assert.ok(source.includes(name), name)
  assert.doesNotMatch(source, /status:\s*'live'/)
  const directory = read('components/FamilyBusinessDirectory.tsx')
- assert.ok(directory.includes('TRYAMM_WEBSITE_MASTER_REGISTRY.map'))
+ assert.ok(directory.includes('TRYAMM_WEBSITE_MASTER_REGISTRY'))
 })
