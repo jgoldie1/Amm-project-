@@ -1,21 +1,56 @@
+import { useMemo, useState } from 'react'
 import { FAMILY_BUSINESS_REGISTRY } from '../data/familyBusinessRegistry'
 import { TRYAMM_FIRST_30_WEBSITES } from '../data/TRYAMMFirst30WebsiteLaunch'
 import { TRYAMM_WEBSITE_MASTER_REGISTRY } from '../data/tryammWebsiteMasterRegistry'
-const existingIds = new Set(FAMILY_BUSINESS_REGISTRY.map(profile => profile.id))
-const additionalSites = TRYAMM_FIRST_30_WEBSITES.filter(site => !existingIds.has(site.id))
-const knownPublicSites: Record<string, string> = { 'la-taeasia-beautyverse': '/lateasia-beauty-house.html' }
-const knownFamilySites: Record<string, string> = { 'al-ai-security': '/business/al-ai-security', 'alton-kevon-stubbs': '/business/alton-kevon-stubbs' }
+
+type SiteRow = { id: string; name: string; status: string; description: string; href?: string; source?: string }
+const previewRoutes: Record<string, string> = {
+ 'la-taeasia-beautyverse': '/lateasia-beauty-house.html',
+ 'lateasia-beauty-house': '/lateasia-beauty-house.html',
+ 'jacobie-visions': '/jacobie-visions.html',
+}
+const aliases: Record<string,string> = {
+ 'lateasia-beauty-house':'la-taeasia-beautyverse',
+ 'sculptify-ltd':'sculptifyltd',
+ 'stubbs-mobility':'stubbs-mobility360',
+ 'raymond-jarreau':'omnicare360',
+ 'alton-security':'al-ai-security',
+ 'jacobie-vision-site':'jacobie-visions',
+}
+function canonical(id:string){return aliases[id] ?? id}
+const siteMap = new Map<string,SiteRow>()
+for(const p of FAMILY_BUSINESS_REGISTRY){
+ siteMap.set(canonical(p.id),{id:canonical(p.id),name:p.owner,status:p.status==='live'?'live':p.status,description:p.ventures.join(' • '),href:'/business/'+encodeURIComponent(p.id)})
+}
+for(const p of TRYAMM_FIRST_30_WEBSITES){
+ const id=canonical(p.id),old=siteMap.get(id)
+ siteMap.set(id,{id,name:old?.name ?? p.name,status:old?.status ?? p.stage,description:old?.description ?? 'Business website / preview',href:old?.href ?? previewRoutes[p.id],source:old?.source})
+}
+for(const p of TRYAMM_WEBSITE_MASTER_REGISTRY){
+ const id=canonical(p.id),old=siteMap.get(id)
+ siteMap.set(id,{id,name:old?.name ?? p.name,status:old?.status ?? p.status,description:old?.description ?? 'Recovered website project',href:old?.href ?? p.publicPath ?? previewRoutes[p.id],source:p.sourcePath})
+}
+export const UNIFIED_TRYAMM_WEBSITES = [...siteMap.values()].sort((a,b)=>a.name.localeCompare(b.name))
 
 export default function FamilyBusinessDirectory(){
+ const [search,setSearch]=useState('')
+ const visible=useMemo(()=>UNIFIED_TRYAMM_WEBSITES.filter(p=>(p.name+' '+p.description+' '+p.id).toLowerCase().includes(search.toLowerCase().trim())),[search])
  return <main style={{position:'fixed',inset:0,zIndex:22000,overflow:'auto',background:'linear-gradient(145deg,#04070b,#0a1720 55%,#151008)',color:'#fff',fontFamily:'Inter,system-ui,sans-serif'}}>
-  <section style={{maxWidth:1120,margin:'0 auto',padding:'28px 20px 56px'}}>
-   <header style={{display:'flex',justifyContent:'space-between',gap:12,alignItems:'center',flexWrap:'wrap'}}><button onClick={()=>{window.location.href='/'}} style={btn}>← TRYAMM</button><div style={{fontSize:11,letterSpacing:2,color:'#e8b944',fontWeight:900}}>ALL AMERICAN MARKETPLACE BUSINESS NETWORK</div></header>
-   <div style={{padding:'60px 0 26px'}}><div style={{fontSize:11,color:'#4fe3ff',fontWeight:900,letterSpacing:2}}>PUBLIC BUSINESS DIRECTORY</div><h1 style={{fontSize:'clamp(38px,7vw,72px)',lineHeight:1,margin:'8px 0 14px'}}>Friends & Family Business Network</h1><p style={{maxWidth:760,color:'#9fb1be',lineHeight:1.7}}>Browse the registered business profiles and recovered website previews. Custom domains, booking providers, payment providers and inventory connections remain pre-launch until separately verified.</p></div>
-   <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:12}}>{FAMILY_BUSINESS_REGISTRY.map(p=><article key={p.id} style={card}><div style={{fontSize:10,color:'#e8b944',fontWeight:900}}>{p.region.toUpperCase()}</div><h2 style={{margin:'7px 0 6px',fontSize:23}}>{p.owner}</h2><div style={{color:'#c8d5dc',fontSize:13,minHeight:42}}>{p.ventures.join(' • ')}</div><div style={{marginTop:12,fontSize:10,color:'#8ba0ad'}}>{p.status==='live'?'LIVE':'PRE-LAUNCH'}</div><button onClick={()=>{window.location.href=knownFamilySites[p.id] ?? `/business/${p.id}`}} style={{...btn,marginTop:12,width:'100%'}}>OPEN BUSINESS SITE</button></article>)}</div>
-   <section aria-label="Additional TRYAMM business websites" style={{marginTop:30}}><h2>Additional TRYAMM Business Websites</h2><p style={{color:'#9fb1be'}}>Recovered and planned sites missing from the main directory. Preview status does not mean the business is live.</p><div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:12}}>{additionalSites.map(site=><article key={site.id} style={card}><h3 style={{margin:'7px 0 6px',fontSize:22}}>{site.name}</h3><div style={{color:'#c8d5dc',fontSize:13}}>Status: {site.stage}</div>{knownPublicSites[site.id] ? <a href={knownPublicSites[site.id]} style={{...btn,display:'inline-block',marginTop:12,textDecoration:'none'}}>OPEN WEBSITE PREVIEW</a> : <div style={{marginTop:12,color:'#e8b944',fontSize:13}}>Website recovery / publication verification pending</div>}</article>)}</div></section>
-   <section aria-label="Recovered website source inventory" style={{marginTop:30}}><h2>Recovered Website Projects</h2><p style={{color:'#9fb1be'}}>Source files and previews found in TRYAMM repositories. A source file is not proof that a website is deployed.</p><div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:12}}>{TRYAMM_WEBSITE_MASTER_REGISTRY.map(site=><article key={site.id} style={card}><h3 style={{margin:'7px 0 6px',fontSize:20}}>{site.name}</h3><div style={{color:'#c8d5dc',fontSize:13}}>Status: {site.status}</div><div style={{fontSize:11,color:'#8ba0ad',overflowWrap:'anywhere'}}>{site.sourcePath}</div>{site.publicPath && <a href={site.publicPath} style={{...btn,display:'inline-block',marginTop:12,textDecoration:'none'}}>OPEN PREVIEW</a>}</article>)}</div></section>
+  <section style={{maxWidth:1120,margin:'0 auto',padding:'20px 16px 56px'}}>
+   <header style={{display:'flex',justifyContent:'space-between',gap:12,alignItems:'center',flexWrap:'wrap'}}><a href="/" style={btn}>← TRYAMM</a><strong style={{fontSize:12,color:'#e8b944'}}>ALL AMERICAN MARKETPLACE BUSINESS NETWORK</strong></header>
+   <h1 style={{fontSize:'clamp(30px,6vw,56px)',margin:'30px 0 12px'}}>All TRYAMM Websites</h1>
+   <p style={{color:'#c8d5dc'}}>One searchable directory of registered businesses, previews and recovered source projects. A listing does not establish that a business is live.</p>
+   <label htmlFor="website-search" style={{display:'block',margin:'20px 0 8px',fontWeight:800}}>Find a website</label>
+   <input id="website-search" type="search" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search BeautyVerse, Sculptify, Kevon, security…" style={{width:'100%',minHeight:56,fontSize:18,padding:14,borderRadius:12,border:'2px solid #e8b944',background:'#0b1720',color:'#fff'}}/>
+   <p role="status" aria-live="polite" style={{color:'#c8d5dc'}}>{visible.length} of {UNIFIED_TRYAMM_WEBSITES.length} projects</p>
+   <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(245px,1fr))',gap:14}}>{visible.map(p=><article key={p.id} style={card}>
+    <h2 style={{fontSize:22,margin:'0 0 8px'}}>{p.name}</h2><p style={{fontSize:14,color:'#c8d5dc'}}>{p.description}</p>
+    <p style={{fontSize:13,color:'#e8b944'}}>Status: {p.status}</p>
+    {p.source && <p style={{fontSize:11,color:'#aab9c5',overflowWrap:'anywhere'}}>Source: {p.source}</p>}
+    {p.href ? <a href={p.href} style={btn}>OPEN WEBSITE / PROFILE</a> : <p style={{color:'#e8b944'}}>Website publication verification pending</p>}
+   </article>)}</div>
   </section>
  </main>
 }
-const card:React.CSSProperties={padding:16,borderRadius:16,border:'1px solid #263944',background:'#081017cc'}
-const btn:React.CSSProperties={padding:'10px 13px',borderRadius:10,border:'1px solid #39505e',background:'#0b1720',color:'#fff',fontWeight:850,cursor:'pointer'}
+const card:React.CSSProperties={padding:18,borderRadius:16,border:'1px solid #39505e',background:'#081017cc'}
+const btn:React.CSSProperties={display:'inline-block',minHeight:48,padding:'13px 16px',borderRadius:10,border:'1px solid #e8b944',background:'#0b1720',color:'#fff',fontWeight:850,textDecoration:'none'}
