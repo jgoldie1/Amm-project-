@@ -1,12 +1,12 @@
 import {useState} from 'react'
-import {BRIDGES,buildMissionIntegrationReport} from '../foundation/streetverseIntegrationRegistry.js'
+import {BRIDGES,buildMissionIntegrationReport,readLocalArcadeSummary} from '../foundation/streetverseIntegrationRegistry.js'
 const button={minHeight:58,borderRadius:13,padding:'12px 16px',border:'2px solid #74d5ff',background:'#164a68',color:'white',fontSize:17,fontWeight:850,cursor:'pointer',textDecoration:'none',display:'inline-flex',alignItems:'center',justifyContent:'center'} as const
 export default function StreetVerseIntegrationCenter(){
  const [report,setReport]=useState<ReturnType<typeof buildMissionIntegrationReport>|null>(null)
  const run=()=>{
   let hasLocalStorage=false
   try{const key='tryamm:integration:storage-check';localStorage.setItem(key,'1');hasLocalStorage=localStorage.getItem(key)==='1';localStorage.removeItem(key)}catch{/* storage unavailable */}
-  setReport(buildMissionIntegrationReport({hasLocalStorage,hasDownload:typeof Blob==='function'&&typeof URL.createObjectURL==='function'}))
+  setReport(buildMissionIntegrationReport({hasLocalStorage,hasDownload:typeof Blob==='function'&&typeof URL.createObjectURL==='function',arcadeSummary:readLocalArcadeSummary(hasLocalStorage?localStorage:null)}))
  }
  const download=()=>{
   if(!report)return
@@ -27,6 +27,7 @@ export default function StreetVerseIntegrationCenter(){
  <button type="button" style={{...button,opacity:report?1:.6}} disabled={!report} onClick={download}>DOWNLOAD JSON REPORT</button>
  </div>
  <p role="status" aria-live="polite" style={{color:'#ffd889'}}>{report?'Report prepared: browser capabilities inspected. No 3D, cloud, payment, or LIVE service was automatically verified.':'Press RUN INTEGRATION AUDIT to check local capabilities and generate a readiness report.'}</p>
+ {report?.prototypeCapabilities.localArcadeSummary?.available&&<p style={{padding:14,border:'1px solid #5591b9',borderRadius:12}}>Local arcade handoff: <strong>{report.prototypeCapabilities.localArcadeSummary.completedMissions} completed missions</strong>, {report.prototypeCapabilities.localArcadeSummary.fictionalXp} XP, {report.prototypeCapabilities.localArcadeSummary.fictionalCredits} fictional credits. These are local prototype values, not server ledger entries.</p>}
  <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(270px,1fr))',gap:12}}>
  {BRIDGES.map(x=><section key={x.id} style={{border:'1px solid #396582',background:'#132740',padding:16,borderRadius:14}}>
  <h2 style={{fontSize:20,margin:'0 0 8px'}}>{x.name}</h2>
