@@ -1,7 +1,7 @@
 import {useEffect,useState,type CSSProperties} from 'react'
 import {makeLocalMissionReceipt,TRYAMM_MISSION_EVENT} from '../foundation/streetverseIntegrationRegistry.js'
 import StreetVerseContextActions from './StreetVerseContextActions'
-type Mode='after-dark'|'mystery'|'districts'|'shadow'|'fire'|'undercover'|'er'|'dispatch'|'homicide'
+type Mode='after-dark'|'mystery'|'districts'|'shadow'|'fire'|'undercover'|'er'|'dispatch'|'homicide'|'sports'|'grocery'|'trucking'|'housing'|'health'|'parkour'|'rescue'|'action'
 type Progress={xp:number,credits:number,completed:string[],turn:number,properties:string[],clues:string[],heat:number}
 const KEY='tryamm:streetverse-mission-arcade:v1'
 const modes:{id:Mode,title:string,subtitle:string}[]=[
@@ -13,7 +13,15 @@ const modes:{id:Mode,title:string,subtitle:string}[]=[
  {id:'undercover',title:'CHICAGO UNDERCOVER',subtitle:'Ethical surveillance, witness safety and undercover casework'},
  {id:'er',title:'CHICAGO UNIVERSITY ER',subtitle:'Fictional university emergency medicine and patient care'},
  {id:'dispatch',title:'CHICAGO 911 DISPATCH',subtitle:'Emergency call-taking, escalation and team coordination'},
- {id:'homicide',title:'CHICAGO HOMICIDE CASEFILES',subtitle:'Evidence review, victim-centered interviews and cold cases'}
+ {id:'homicide',title:'CHICAGO HOMICIDE CASEFILES',subtitle:'Evidence review, victim-centered interviews and cold cases'},
+ {id:'sports',title:'STREETVERSE SPORTS CAREER',subtitle:'Training, teamwork and sports championships'},
+ {id:'grocery',title:'CHICAGO GROCERY & SUPPLY',subtitle:'Shopping, retail shifts, deliveries and community inventory'},
+ {id:'trucking',title:'HOLO FREIGHT & LOGISTICS',subtitle:'Cargo pickup, inspections and safe supply-chain deliveries'},
+ {id:'housing',title:'FAMILY HOME & NEIGHBORHOOD',subtitle:'Housing, furnishing, accessibility and community care'},
+ {id:'health',title:'ACCESSIBLE HEALTHCARE RP',subtitle:'Fictional care teamwork, consent and accessibility'},
+ {id:'parkour',title:'CHICAGO PARKOUR ACADEMY',subtitle:'Jumps, vaults, obstacle routes and safe landing decisions'},
+ {id:'rescue',title:'CITY EMERGENCY CAREERS',subtitle:'Incident coordination, rescue roles and dispatch teamwork'},
+ {id:'action',title:'STREETVERSE ACTION STUDIO',subtitle:'Non-graphic action scenes, stunts and simulated range safety'}
 ]
 const defaultProgress=():Progress=>({xp:0,credits:500,completed:[],turn:0,properties:[],clues:[],heat:0})
 function safeProgress():Progress{try{const p=JSON.parse(localStorage.getItem(KEY)||'null');if(!p||!Array.isArray(p.completed)||!Array.isArray(p.properties)||!Array.isArray(p.clues))return defaultProgress();return {xp:Math.max(0,Number(p.xp)||0),credits:Math.max(0,Number(p.credits)||0),completed:p.completed.filter((x:unknown)=>typeof x==='string').slice(-100),turn:Math.max(0,Number(p.turn)||0),properties:p.properties.filter((x:unknown)=>typeof x==='string'),clues:p.clues.filter((x:unknown)=>typeof x==='string'),heat:Math.max(0,Math.min(100,Number(p.heat)||0))}}catch{return defaultProgress()}}
@@ -63,6 +71,46 @@ const missions:Record<Mode,{id:string,title:string,brief:string,choices:{label:s
  {id:'hm1',title:'Casefile 041 — Scene Preservation',brief:'Detectives respond to a fictional suspicious death. Family members are present.',choices:[{label:'Secure the scene respectfully and request qualified investigators',feedback:'Evidence and family dignity are preserved. +75 XP',success:true},{label:'Broadcast graphic scene details',feedback:'Respect privacy, dignity and the investigation.',success:false}]},
  {id:'hm2',title:'The Timeline Discrepancy',brief:'A witness estimate conflicts with an authenticated transit timestamp.',choices:[{label:'Document both and seek corroborating evidence',feedback:'The timeline is reconstructed without assumptions. +75 XP',success:true},{label:'Coerce a matching statement',feedback:'Do not pressure witnesses to change accounts.',success:false}]},
  {id:'hm3',title:'Cold Case Resolution',brief:'A newly recovered record does not support the prime suspect theory.',choices:[{label:'Update the case file and pursue exculpatory evidence',feedback:'The investigation follows evidence fairly. +75 XP',success:true},{label:'Hide the record to preserve the theory',feedback:'Exculpatory evidence must not be concealed.',success:false}]}
+ ],
+ sports:[
+ {id:'sp1',title:'Tryout Day',brief:'A new player arrives at the community basketball court.',choices:[{label:'Offer accessible tryouts and practice drills',feedback:'The team gains a new teammate. +75 XP',success:true},{label:'Exclude new players without assessment',feedback:'Try a safe, inclusive and responsible approach.',success:false}]},
+ {id:'sp2',title:'Championship Assist',brief:'A teammate is open for a safe passing opportunity.',choices:[{label:'Pass and support team play',feedback:'The team finishes the play. +75 XP',success:true},{label:'Ignore everyone and force a dangerous move',feedback:'Try a safe, inclusive and responsible approach.',success:false}]},
+ {id:'sp3',title:'Sportsmanship Final',brief:'Your team loses a close final.',choices:[{label:'Thank officials and organize the next practice',feedback:'Sportsmanship reward unlocked. +75 XP',success:true},{label:'Harass the referees',feedback:'Try a safe, inclusive and responsible approach.',success:false}]}
+ ],
+ grocery:[
+ {id:'gr1',title:'Fresh Market Shopping',brief:'A shopper needs affordable ingredients for a family meal.',choices:[{label:'Compare prices and select needed groceries',feedback:'Smart shopping completed. +75 XP',success:true},{label:'Waste the food budget',feedback:'Try a safe, inclusive and responsible approach.',success:false}]},
+ {id:'gr2',title:'Inventory Shift',brief:'The store finds near-expiration produce.',choices:[{label:'Follow safety guidance and rotate inventory responsibly',feedback:'Food inventory secured. +75 XP',success:true},{label:'Hide expiration labels',feedback:'Try a safe, inclusive and responsible approach.',success:false}]},
+ {id:'gr3',title:'Delivery Route',brief:'A customer asks for an accessible doorstep delivery.',choices:[{label:'Verify address and delivery accessibility',feedback:'Delivery completed. +75 XP',success:true},{label:'Leave goods in an unsafe location',feedback:'Try a safe, inclusive and responsible approach.',success:false}]}
+ ],
+ trucking:[
+ {id:'tr1',title:'Warehouse Pickup',brief:'Your fictional freight load is ready for collection.',choices:[{label:'Confirm manifest and secure the load',feedback:'Freight verified. +75 XP',success:true},{label:'Leave without checking',feedback:'Try a safe, inclusive and responsible approach.',success:false}]},
+ {id:'tr2',title:'Pretrip Inspection',brief:'The cargo truck has a warning indicator.',choices:[{label:'Pause and request qualified inspection',feedback:'Vehicle released only after inspection. +75 XP',success:true},{label:'Ignore the warning',feedback:'Try a safe, inclusive and responsible approach.',success:false}]},
+ {id:'tr3',title:'Last-Mile Delivery',brief:'A receiver reports a changed dock entrance.',choices:[{label:'Verify the dock change with dispatch',feedback:'Freight delivered safely. +75 XP',success:true},{label:'Follow an unverified instruction',feedback:'Try a safe, inclusive and responsible approach.',success:false}]}
+ ],
+ housing:[
+ {id:'ho1',title:'Family Home Search',brief:'A family needs accessible, affordable housing.',choices:[{label:'Compare realistic access and affordability needs',feedback:'Suitable housing options identified. +75 XP',success:true},{label:'Ignore access needs',feedback:'Try a safe, inclusive and responsible approach.',success:false}]},
+ {id:'ho2',title:'Move-in Day',brief:'New residents need a clear entryway.',choices:[{label:'Organize a safe accessible move',feedback:'Family moves in. +75 XP',success:true},{label:'Block ramps with boxes',feedback:'Try a safe, inclusive and responsible approach.',success:false}]},
+ {id:'ho3',title:'Neighborhood Support',brief:'An older neighbor needs help arranging a repair.',choices:[{label:'Request permission and find an appropriate repair professional',feedback:'Community support completed. +75 XP',success:true},{label:'Enter their home without permission',feedback:'Try a safe, inclusive and responsible approach.',success:false}]}
+ ],
+ health:[
+ {id:'hc1',title:'Patient Check-in',brief:'A patient arrives with urgent symptoms.',choices:[{label:'Alert qualified clinical triage staff',feedback:'Patient receives prompt assessment. +75 XP',success:true},{label:'Attempt diagnosis without training',feedback:'Try a safe, inclusive and responsible approach.',success:false}]},
+ {id:'hc2',title:'Consent and Communication',brief:'A patient prefers an accessible communication method.',choices:[{label:'Ask preference and provide suitable communication support',feedback:'Patient-directed care supported. +75 XP',success:true},{label:'Assume consent',feedback:'Try a safe, inclusive and responsible approach.',success:false}]},
+ {id:'hc3',title:'Care Team Handoff',brief:'A fictional appointment concludes.',choices:[{label:'Share minimum needed information via approved channels',feedback:'Care handoff recorded. +75 XP',success:true},{label:'Read patient data aloud on stream',feedback:'Try a safe, inclusive and responsible approach.',success:false}]}
+ ],
+ parkour:[
+ {id:'pk1',title:'Obstacle Course',brief:'A parkour coach opens an indoor beginner course.',choices:[{label:'Choose an appropriate beginner obstacle',feedback:'Safe route selected. +75 XP',success:true},{label:'Jump from an unsafe height',feedback:'Try a safe, inclusive and responsible approach.',success:false}]},
+ {id:'pk2',title:'Low Vault',brief:'A low practice obstacle is in the path.',choices:[{label:'Use coached low-impact practice',feedback:'Vault stage completed. +75 XP',success:true},{label:'Attempt an uncontrolled stunt',feedback:'Try a safe, inclusive and responsible approach.',success:false}]},
+ {id:'pk3',title:'Finish the Course',brief:'The course finale includes an optional alternative path.',choices:[{label:'Choose an accessible safe finish path',feedback:'Course completed. +75 XP',success:true},{label:'Ignore the marked route',feedback:'Try a safe, inclusive and responsible approach.',success:false}]}
+ ],
+ rescue:[
+ {id:'rs1',title:'Emergency Radio Call',brief:'The fictional rescue team receives an alarm.',choices:[{label:'Confirm incident location with dispatch',feedback:'Location verified. +75 XP',success:true},{label:'Guess the address',feedback:'Try a safe, inclusive and responsible approach.',success:false}]},
+ {id:'rs2',title:'Responder Coordination',brief:'A rescue scene needs multiple specialties.',choices:[{label:'Request trained fire and clinical responders',feedback:'The response team is coordinated. +75 XP',success:true},{label:'Send unqualified volunteers into danger',feedback:'Try a safe, inclusive and responsible approach.',success:false}]},
+ {id:'rs3',title:'Family Reunification',brief:'The event is stabilized and families need updates.',choices:[{label:'Use authorized channels and respect privacy',feedback:'Families receive verified information. +75 XP',success:true},{label:'Share private details publicly',feedback:'Try a safe, inclusive and responsible approach.',success:false}]}
+ ],
+ action:[
+ {id:'ac1',title:'Film Stunt Rehearsal',brief:'An action-movie crew plans a safe simulated fight.',choices:[{label:'Rehearse choreography with qualified safety staff',feedback:'Stunt rehearsed. +75 XP',success:true},{label:'Improvise a dangerous fight',feedback:'Try a safe, inclusive and responsible approach.',success:false}]},
+ {id:'ac2',title:'Virtual Target Range',brief:'A fictional training target appears on screen.',choices:[{label:'Confirm safe simulated range mode',feedback:'Target game activated. +75 XP',success:true},{label:'Confuse it with a real-world weapon',feedback:'Try a safe, inclusive and responsible approach.',success:false}]},
+ {id:'ac3',title:'Final Scene',brief:'The movie director calls for a controlled finale.',choices:[{label:'Use camera effects and non-graphic choreography',feedback:'Action scene completed. +75 XP',success:true},{label:'Risk crew safety for realism',feedback:'Try a safe, inclusive and responsible approach.',success:false}]}
  ]
 }
 const lots=[{id:'circle',name:'Circle Park Studio',cost:150},{id:'taylor',name:'Taylor Street Market',cost:225},{id:'south',name:'South Side Music Hall',cost:350},{id:'west',name:'West Side Art Gallery',cost:275}]
@@ -93,7 +141,7 @@ export default function StreetVerseMissionArcade(){
     <strong style={{color:'#ffe0a0'}}>TRYAMM • STREETVERSE</strong><div style={{display:'flex',gap:10,flexWrap:'wrap'}}><a href="/streetverse-integration" style={{...btn,textDecoration:'none'}}>INTEGRATION AUDIT</a><a href="/" style={{...btn,textDecoration:'none'}}>HOME</a></div>
    </header>
    <h1 style={{fontSize:'clamp(28px,6vw,48px)',marginBottom:3}}>MISSION ARCADE</h1>
-   <p>Nine original Chicago story modes • 27 decisions • large one-hand controls • no real-money gameplay</p><p style={{fontSize:16,lineHeight:1.6}}>Rules: Complete each three-part story in order. A correct decision earns 75 XP and 50 fictional credits once. Incorrect choices give feedback and allow retries. Credits may build fictional storefronts; dice rolls only move your board token. Your progress is local to this device. No pay-to-win, cash-out or wagering.</p>
+   <p>Seventeen original Chicago story modes • 51 decisions • large one-hand controls • no real-money gameplay</p><p style={{fontSize:16,lineHeight:1.6}}>Rules: Complete each three-part story in order. A correct decision earns 75 XP and 50 fictional credits once. Incorrect choices give feedback and allow retries. Credits may build fictional storefronts; dice rolls only move your board token. Your progress is local to this device. No pay-to-win, cash-out or wagering.</p>
    <section aria-label="Game progress" style={{display:'flex',gap:10,flexWrap:'wrap',marginBottom:16}}>
     {['XP: '+p.xp,'Fictional credits: '+p.credits,'Missions: '+p.completed.length+'/'+Object.values(missions).reduce((sum,x)=>sum+x.length,0),'Businesses: '+p.properties.length].map(x=><span key={x} style={{border:'1px solid #547fa6',borderRadius:12,padding:10,fontWeight:750}}>{x}</span>)}
    </section>
