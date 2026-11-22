@@ -17,10 +17,10 @@ const ES={title:'De la granja a la familia',intro:'Explore perfiles de granjas. 
 function passportURL(id:string){const url=new URL('/yahavah-grocery',window.location.origin);url.searchParams.set('farm',id);return url.toString()}
 export default function FarmToFamilyPilot(){
  const [lang,setLang]=useState<'en'|'es'>('en')
- const [mode,setMode]=useState<'directory'|'passport'|'pilot'>('directory')
+ const [mode,setMode]=useState<'directory'|'passport'|'pilot'>(()=>new URLSearchParams(window.location.search).has('farm')?'passport':'directory')
  const [search,setSearch]=useState('')
  const [product,setProduct]=useState('')
- const [selected,setSelected]=useState(EXAMPLES[0].id)
+ const [selected,setSelected]=useState(()=>{const requested=new URLSearchParams(window.location.search).get('farm');return EXAMPLES.some(f=>f.id===requested)?requested!:EXAMPLES[0].id})
  const [farmName,setFarmName]=useState('')
  const [farmCity,setFarmCity]=useState('')
  const [farmProducts,setFarmProducts]=useState('')
