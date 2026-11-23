@@ -1,4 +1,6 @@
 import fs from 'node:fs'
+import assert from 'node:assert/strict'
+import ts from 'typescript'
 const dock=fs.readFileSync(new URL('../src/components/StreetVerseMobileProofDock.tsx',import.meta.url),'utf8')
 const overlays=fs.readFileSync(new URL('../src/components/StreetVerseFullWorldOverlays.tsx',import.meta.url),'utf8')
 const mobile=fs.readFileSync(new URL('../src/components/StreetVerseMobileWorld.tsx',import.meta.url),'utf8')
@@ -17,10 +19,26 @@ must(mobile.includes('firstJourneyBeacon'),'gold repair-car mission beacon missi
 must(mobile.includes('FOLLOW GOLD BEACON'),'mission waypoint instruction missing')
 must(mobile.includes('oneHandDriveAssist'),'one-hand drive assist missing')
 must(mobile.includes("vehicleControlPass:'stable-analog-v3'"),'stable analog vehicle control pass missing')
-must(mobile.includes('driveSpeed=THREE.MathUtils.lerp'),'smoothed vehicle acceleration/deceleration missing')
-must(mobile.includes('driveSteer=THREE.MathUtils.lerp'),'smoothed steering input missing')
-must(mobile.includes('speedRatio=THREE.MathUtils.clamp')&&mobile.includes('turnRate=THREE.MathUtils.lerp'),'speed-sensitive steering missing')
-must(mobile.includes('oneHandDriveAssist?10.5:15.5'),'slower one-hand drive speed missing')
+must(mobile.includes('stepVehicle(vehicleDynamics,{throttle,brake,steer:analogSteer},dt,surface,oneHandDriveAssist)'), 'mobile input must reach the assisted vehicle simulation')
+const physics = fs.readFileSync(new URL('../src/runtime/StreetVerseVehicleDynamics.ts', import.meta.url), 'utf8')
+const compiled = ts.transpileModule(physics, {compilerOptions: {module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022}})
+const {newVehicle, stepVehicle} = await import('data:text/javascript;base64,' + Buffer.from(compiled.outputText).toString('base64'))
+const controls = {throttle: 1, brake: 0, steer: 1}
+function drive(frames, assisted = false) {
+  let car = newVehicle('car')
+  for (let frame = 0; frame < frames; frame++) car = stepVehicle(car, controls, 1/60, 'dry', assisted)
+  return car
+}
+const first = drive(1)
+const cruising = drive(600)
+const assisted = drive(600, true)
+assert.ok(first.speed > 0 && first.speed < cruising.speed, 'speed builds over successive frames')
+assert.ok(first.steeringAngle > 0 && first.steeringAngle < cruising.steeringAngle, 'steering builds progressively')
+assert.ok(assisted.speed > 0 && assisted.speed < cruising.speed, 'one-hand mode lowers top speed')
+assert.ok(assisted.steeringAngle > 0 && assisted.steeringAngle < cruising.steeringAngle, 'one-hand mode softens steering')
+const turning = {...first, steeringAngle: cruising.steeringAngle, yaw: 0}
+const headingAt = speed => stepVehicle({...turning, speed}, controls, 1/60).yaw
+assert.ok(headingAt(3) > headingAt(1), 'turn response accounts for speed')
 must(mobile.includes('twoWayTrafficLanes:true'),'two-way traffic lane certification missing')
 must(mobile.includes('loadTryammNativeCircleParkLayer'),'native visible asset layer not loaded into main mobile city')
 must(faith.includes('<FaithScriptureReader />'),'FaithVerse reader not mounted')
