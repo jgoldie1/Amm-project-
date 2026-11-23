@@ -30,7 +30,7 @@ async function captionImage(shot,w,h) {
   rows.forEach((row,i)=>ctx.fillText(row,w/2,base-step*(rows.length-i-1)-step*.18))
   return new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(Error('Caption drawing failed.')),'image/png'))
 }
-export function installRenderDesk(shots,title,status) {
+export function installRenderDesk(shots,title,status,ordered) {
   const by=id=>document.getElementById(id)
   const mediaInputs=[],starts=[]
   document.querySelectorAll('#shots fieldset').forEach(group=>{
@@ -57,7 +57,7 @@ export function installRenderDesk(shots,title,status) {
       plan.push({...s,start:(media?0:pilotOffset)+offset,available:length-offset,filename:media?.name||'pilot.mp4',media,illustration:!media})
       pilotOffset+=original[i].seconds
     }
-    return plan
+    return ordered(plan)
   }
   by('otio').onclick=async()=>{try{
     const plan=await session(),mix=by('mix').files[0],data=timeline(title.value,plan,mix?.name,mix?await lengthOf(mix,'audio'):undefined)
@@ -84,6 +84,9 @@ export function installRenderDesk(shots,title,status) {
         if(data.out){
           const out=by(format);if(urls.has(format))URL.revokeObjectURL(urls.get(format))
           const url=URL.createObjectURL(new Blob([data.out],{type:'video/mp4'}));urls.set(format,url)
+          const preview=by('finished-preview')
+          preview.src=url
+          preview.hidden=false
           out.href=url;out.hidden=false;out.download=(title.value.trim().replace(/[^\w-]+/g,'-')||'episode')+'-'+format+'.mp4'
           status.textContent='Finished. Download your '+format+' MP4.';finish()
         }
@@ -92,4 +95,5 @@ export function installRenderDesk(shots,title,status) {
     }catch(e){if(current===job){finish();status.textContent=e.message}}
   }
 }
+
 
