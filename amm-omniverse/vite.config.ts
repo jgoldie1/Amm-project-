@@ -1,10 +1,27 @@
 import { defineConfig } from 'vite'
+import {readFileSync} from 'node:fs'
+import {createHash} from 'node:crypto'
 import react from '@vitejs/plugin-react'
 import {assertSafePublicEnv} from './scripts/public-env-guard.mjs'
 import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
-  plugins: [react(), {name:'safe-public-environment',configResolved(config){assertSafePublicEnv({...process.env,...config.env})}}],
+  plugins: [react(), {
+    name: 'streetverse-original-character-assets',
+    apply: 'build',
+    buildStart() {
+      const manifest = JSON.parse(readFileSync(new URL('./config/streetverse-original-three-cast-manifest.json', import.meta.url), 'utf8'))
+      // BJ uses the independent V15 loader and its own published asset path.
+      for (const model of manifest.models.filter((entry: {id: string}) => entry.id === 'jacobie-stubbs' || entry.id === 'lateasia-monroe')) {
+        const path = manifest.basePath + '/' + model.filename
+        const bytes = readFileSync(new URL('./' + path, import.meta.url))
+        if (bytes.length !== model.sizeBytes || createHash('sha256').update(bytes).digest('hex') !== model.sha256) {
+          this.error('Original character file failed verification: ' + model.filename)
+        }
+        this.emitFile({type: 'asset', fileName: path.slice('public/'.length), source: bytes})
+      }
+    },
+  }, {name:'safe-public-environment',configResolved(config){assertSafePublicEnv({...process.env,...config.env})}}],
   resolve: {
     alias: [
       {
