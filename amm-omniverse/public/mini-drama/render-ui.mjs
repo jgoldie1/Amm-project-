@@ -1,3 +1,4 @@
+import {installReveal} from './reveal.mjs'
 import {timeline} from './cut.mjs'
 import {original} from './story.mjs'
 
@@ -37,6 +38,9 @@ export function installRenderDesk(shots,title,status) {
     const media=add('Replacement footage (optional)','file');media.accept='video/*';mediaInputs.push(media)
     const start=add('Trim from start of this shot (seconds)','number');start.min=0;start.step='0.01';start.value='0';starts.push(start)
   })
+  const template=new URLSearchParams(location.search).get('template')
+  const reveal=(!template || template==='drama') && installReveal(
+    mediaInputs[3].closest('fieldset'),mediaInputs[3],starts[3],shots[3],lengthOf)
   let worker,rendering=false,job=0
   const urls=new Map()
   const finish=()=>{worker?.terminate();worker=null;rendering=false;by('render').disabled=false;by('cancel').disabled=true}
@@ -44,7 +48,9 @@ export function installRenderDesk(shots,title,status) {
     let pilotOffset=0
     const plan=[]
     for(const [i,s] of shots.entries()){
-      const media=mediaInputs[i].files[0],offset=Number(starts[i].value)
+      const take=i===3 && reveal && reveal()
+      if(take && s.seconds!==8)throw Error('The approved curtain reveal uses eight seconds.')
+      const media=take||mediaInputs[i].files[0],offset=Number(starts[i].value)
       const length=media?await lengthOf(media,'video'):original[i].seconds
       if(!Number.isFinite(offset)||offset<0||!Number.isInteger(s.seconds)||s.seconds<1||offset+s.seconds>length+.025)
         throw Error('Shot '+(i+1)+': adjust its duration or trim, or select longer footage.')
@@ -86,3 +92,4 @@ export function installRenderDesk(shots,title,status) {
     }catch(e){if(current===job){finish();status.textContent=e.message}}
   }
 }
+

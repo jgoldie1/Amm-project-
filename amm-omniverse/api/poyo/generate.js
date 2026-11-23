@@ -1,4 +1,4 @@
-import {json} from '../_lib/supabase-admin.js';
+import {adminRest,json} from '../_lib/supabase-admin.js';
 import {requireUser} from '../_lib/security.js';
 
 const POYO_SUBMIT='https://api.poyo.ai/api/generate/submit';
@@ -29,9 +29,20 @@ export default async function handler(req,res){
     if(!model||!input.prompt&&Object.keys(input).length===0)return json(res,400,{error:'model_and_input_required'});
     if(!consent)return json(res,400,{error:'consent_required',message:'Confirm that uploaded/referenced people, voices, brands and media are yours or authorized for this generation.'});
 
+    if(req.body?.pilotShot==='two-mics'){
+      if(user.id!==process.env.TRYAMM_CREATOR_PASS_OWNER_ID)return json(res,403,{error:'pilot_owner_required'});
+      input.duration=8;
+      try{
+        await adminRest('tryamm_reveal_reservations',{method:'POST',body:{shot:'two-mics',creator_id:user.id}});
+      }catch(error){
+        if(error.status===409)return json(res,409,{error:'The pilot reveal already has a reserved generation.'});
+        return json(res,503,{error:'Pilot generation allowance unavailable.'});
+      }
+    }
     const response=await fetch(POYO_SUBMIT,{method:'POST',headers:{Authorization:`Bearer ${key}`,'Content-Type':'application/json'},body:JSON.stringify({model,input})});
     const data=await response.json().catch(()=>({}));
     if(!response.ok||Number(data?.code||200)>=400)return json(res,response.status||502,{error:'poyo_submit_failed',providerStatus:response.status,provider:data});
     return json(res,202,{ok:true,schema:'tryamm.poyo-generation.v1',ownerId:user.id,provider:'poyo.ai',model,task:data?.data||data});
   }catch(error){return json(res,error.status||500,{error:error.message||'poyo_generation_failed'});}
 }
+
