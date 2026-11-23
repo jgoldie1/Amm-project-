@@ -35,7 +35,7 @@ export default function StreetVerseDeviceLiveCertificationHUD(){
   const url=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}))
   const a=document.createElement('a');a.href=url;a.download='StreetVerse_Device_Live_Certification_Report.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)
  }
- return <aside style={{position:'fixed',left:8,top:'calc(env(safe-area-inset-top, 0px) + 8px)',zIndex:2147483647,color:'#fff',fontFamily:'system-ui',pointerEvents:'none'}}>
+ return <aside style={{position:'fixed',right:'max(8px,env(safe-area-inset-right))',top:'calc(env(safe-area-inset-top, 0px) + 8px)',zIndex:2147483647,color:'#fff',fontFamily:'system-ui',pointerEvents:'none'}}>
   {!open&&<button style={{...btn,pointerEvents:'auto',minHeight:46,fontSize:15,padding:'8px 12px',boxShadow:'0 6px 18px #000c'}} onClick={()=>setOpen(true)} aria-expanded={false}>📱 LIVE TEST</button>}
   {open&&<section role="region" aria-label="StreetVerse device and LIVE readiness" style={{pointerEvents:'auto',width:'min(360px,calc(100vw - 16px))',maxHeight:'58dvh',overflowY:'auto',background:'#081725f7',padding:10,borderRadius:14,border:'2px solid #fff',display:'grid',gap:8,boxShadow:'0 10px 30px #000c'}}>
    <div style={{display:'grid',gridTemplateColumns:'1fr auto',gap:8,alignItems:'center'}}>

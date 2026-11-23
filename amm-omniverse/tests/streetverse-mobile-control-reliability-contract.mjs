@@ -8,7 +8,7 @@ assert.match(world,/data-streetverse-world-root="true"/,'Mobile world root must 
 assert.match(world,/aria-label="StreetVerse analog joystick"/,'Mobile analog joystick must remain visible')
 assert.match(world,/touchAction:'none'/,'Joystick must suppress browser touch scrolling')
 assert.match(world,/setPointerCapture/,'Joystick must capture the active pointer')
-assert.match(world,/onLostPointerCapture=\{stopJoystick\}/,'Joystick must reset if pointer capture is lost')
+assert.match(world,/onLostPointerCapture=\{endJoystick\}/,'Joystick must reset if pointer capture is lost')
 assert.match(world,/visibilitychange/,'Movement must reset when the app becomes hidden')
 assert.match(world,/onWindowBlur/,'Movement must reset when the browser loses focus')
 assert.match(world,/joystickKnobRef/,'Joystick thumb position must have visible feedback')
