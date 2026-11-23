@@ -1,9 +1,14 @@
+import {installRenderDesk} from './render-ui.mjs'
 import {productionFiles} from './editor.mjs'
-import {original} from './story.mjs'
+import {templates} from './templates.mjs'
 const fields = document.querySelector('#shots')
 const title = document.querySelector('#title')
 const status = document.querySelector('#status')
-const key = 'tryamm.reveal.shotdesk.v1'
+const requested=new URLSearchParams(location.search).get('template')
+const name=Object.prototype.hasOwnProperty.call(templates,requested)?requested:'drama'
+const original=templates[name].shots
+title.value=templates[name].title
+const key='tryamm.reveal.shotdesk.v1'+(name==='drama'?'':'.'+name)
 let shots=original.map(shot=>({...shot}))
 try {
   const saved=JSON.parse(localStorage.getItem(key))
@@ -31,3 +36,5 @@ for(const button of document.querySelectorAll('[data-format]'))button.onclick=()
     const url=URL.createObjectURL(new Blob([content],{type:'text/plain;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download=(title.value.trim().replace(/[^\w-]+/g,'-')||'episode')+'.'+format;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),5000)
   }catch(e){status.textContent=e.message}
 }
+
+installRenderDesk(shots,title,document.getElementById('render-status'))
