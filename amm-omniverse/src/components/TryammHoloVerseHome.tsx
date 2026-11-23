@@ -63,6 +63,8 @@ export default function TryammHoloVerseHome(){
     <p style={{margin:0,color:'#c6d4ff',fontWeight:800}}>Play • Create • Learn • Earn • Live • Global</p>
    </header>
 
+   <a href="/jacobie-visions.html" style={{...button,minHeight:52,display:'grid',placeItems:'center',textDecoration:'none'}}>Jacobie Vision</a>
+
    <nav aria-label="TRYAMM primary actions" style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(120px,1fr))',gap:8}}>
     {(Object.keys(modes) as Mode[]).map(key=><button key={key} type="button" aria-pressed={mode===key} onClick={()=>setMode(key)}
      style={{...button,background:mode===key?'linear-gradient(135deg,#263ca0,#7028a5)':'#0a1730',borderColor:mode===key?'#d4c1ff':'#465676'}}>{key}</button>)}
