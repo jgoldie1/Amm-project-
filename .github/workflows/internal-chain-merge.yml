@@ -1,0 +1,32 @@
+name: Record merged PR in TRYAMM internal blockchain
+on:
+  pull_request_target:
+    branches: [main]
+    types: [closed]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Merged pull request to record or verify again
+        required: true
+        type: string
+permissions:
+  contents: read
+  pull-requests: read
+jobs:
+  receipt:
+    if: github.repository == 'jgoldie1/Amm-project-' && ((github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || github.event.pull_request.merged == true)
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Anchor verified merge
+        env:
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node .github/scripts/anchor-merged-pr.mjs
