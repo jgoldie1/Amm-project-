@@ -93,7 +93,7 @@ export default function HoloDramaHub(){
       <div role='status' aria-live='polite' style={{margin:'16px 0',padding:'10px 13px',border:'1px solid #564066',borderRadius:12,background:'#120d18',color:'#e8dff0'}}>{status}</div>
 
       <section style={card}><h2>The Last Audition</h2><p>Greenville Stories · one-minute animated pilot</p>
-        <video controls playsInline preload="none" aria-label="The Last Audition, captioned pilot" src="/holo-drama-media/the-last-audition.mp4" style={{width:'min(100%,320px)',aspectRatio:'9/16'}}/>
+        <video controls playsInline preload="none" aria-label="The Last Audition, captioned pilot" src="/holo-drama-media/the-last-audition-second-cut.mp4" style={{width:'min(100%,320px)',aspectRatio:'9/16'}}/>
         <DramaCreatorPass scenes={omniOutline?.scenes}/></section>
       <nav aria-label='Holo Drama sections' style={{display:'flex',gap:7,overflowX:'auto',paddingBottom:10}}>{tabs.map(t=><button key={t} onClick={()=>setTab(t)} style={{...pill,background:tab===t?'#ff4fd8':'#17101d',color:tab===t?'#190019':'#fff'}}>{t.toUpperCase()}</button>)}</nav>
 
