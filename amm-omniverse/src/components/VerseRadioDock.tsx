@@ -18,7 +18,7 @@ export default function VerseRadioDock(){
  return <aside aria-label="Verse Radio" style={dock}>
   <div style={{display:'flex',alignItems:'center',gap:8}}>
    <button aria-label={state.playing?'Pause Verse Radio':'Play Verse Radio'} onClick={toggle} style={round}>{state.playing?'Ⅱ':'▶'}</button>
-   <div style={{minWidth:0,flex:1}}><div style={{fontSize:8,letterSpacing:1.5,color:'#6cecff',fontWeight:950}}>VERSE RADIO • {state.platform.toUpperCase()}</div><div style={{fontSize:11,fontWeight:950,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{state.track?.title||'Choose music in MusicVerse'}</div><div style={{fontSize:9,color:'#93a7b2',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{state.track?.artist||state.station.replaceAll('-',' ')}</div></div>
+   <div style={{minWidth:0,flex:1}}>{state.station==='streetverse-radio'&&<a style={{color:'#9ff1dc'}} href="/network-screening/index.html#feature">Watch the Free TV feature</a>}<div style={{fontSize:8,letterSpacing:1.5,color:'#6cecff',fontWeight:950}}>VERSE RADIO • {state.platform.toUpperCase()}</div><div style={{fontSize:11,fontWeight:950,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{state.track?.title||'Choose music in MusicVerse'}</div><div style={{fontSize:9,color:'#93a7b2',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{state.track?.artist||state.station.replaceAll('-',' ')}</div></div>
    <button aria-label="Collapse Verse Radio" onClick={()=>setExpanded(false)} style={round}>−</button>
   </div>
   {state.needsTap&&<div style={{marginTop:7,padding:7,borderRadius:9,background:'#2b1e08',border:'1px solid #f0b64d66',fontSize:9,color:'#ffd78f'}}>Tap ▶ to resume audio after entering this Verse.</div>}

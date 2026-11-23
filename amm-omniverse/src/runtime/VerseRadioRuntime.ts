@@ -49,7 +49,7 @@ export function installVerseRadioRuntime(){
  const resume=async()=>{if(!state.track)return false;try{if(audio.src==='')audio.src=state.track.url;if(state.position>0&&audio.currentTime===0)audio.currentTime=state.position;await audio.play();state.playing=true;state.needsTap=false;publish('resume');return true}catch{state.needsTap=true;state.open=true;publish('tap-required');return false}}
  const open=()=>{state.open=true;publish('open')}
  const close=()=>{state.open=false;publish('close')}
- const setStation=(station:string)=>{state.station=String(station||'musicverse-radio');state.open=true;publish('station')}
+ const setStation=(station:string)=>{state.station=String(station||'musicverse-radio');state.open=true;publish('station');if(station==='streetverse-radio')void play({id:'greenville-pilot-promo',title:'The Last Audition · Free TV preview',artist:'StreetVerse Radio',url:'/network-screening/streetverse-radio.mp3',publicAuthorized:true})}
  const setVolume=(volume:number)=>{state.volume=Math.max(0,Math.min(1,Number(volume)||0));audio.volume=state.volume;publish('volume')}
 
  const onPlay=(event:Event)=>{const track=(event as CustomEvent<{track?:VerseRadioTrack}>).detail?.track;if(track)void play(track)}
