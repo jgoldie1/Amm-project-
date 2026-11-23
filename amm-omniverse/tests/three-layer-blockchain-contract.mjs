@@ -14,7 +14,7 @@ const passportService=read('src/services/setApartPassportPersistence.ts')
 
 const checks=[
   ['Layer 1 local hash chain',experience.includes('previousHash')&&experience.includes('SHA-256')&&experience.includes('verifyOmniverseLedger')],
-  ['Layer 2 documented server chain',docs.includes('internal_chain_blocks')&&docs.includes('anchor_internal_chain_event')],
+  ['Layer 2 database contract',await import('./platform-internal-chain-db.mjs').then(()=>true)],
   ['Layer 3 separate table',migration.includes('set_apart_chain_blocks')],
   ['Layer 3 separate anchor function',migration.includes('anchor_set_apart_chain_event')],
   ['Layer 3 service-role only',migration.includes('revoke all on function public.anchor_set_apart_chain_event')&&migration.includes('grant execute on function public.anchor_set_apart_chain_event')&&migration.includes('to service_role')],

@@ -43,6 +43,12 @@ Use it for:
 - backend provenance
 - links between authoritative service events and immutable-style evidence
 
+The checkpoint implementation lives in `supabase/migrations/20261123000100_platform_internal_chain.sql` at the repository root. It requires the existing Set Apart table. Apply it transactionally. On a database with an earlier platform table or anchor function, it stops before changing either. Export and compare the existing schema, function signature, grants and hash format before adapting the migration. Existing unmatched Set Apart references also stop the migration.
+
+A trusted service supplies a stable event ID, event type, resource reference and 64-character SHA-256 payload digest after accepting a source event. Identical retries return the original receipt. Changed content under the same ID raises a conflict. A supplied Set Apart platform hash must match a stored platform block.
+
+Run `node tests/three-layer-blockchain-contract.mjs` from `amm-omniverse` after installing locked dependencies. For an installed chain, run `supabase/audits/platform_internal_chain.sql` with owner read access to identify damaged rows. Also compare the head number and hash with a previously retained independent checkpoint to detect truncation or wholesale replacement. Empty audit results on an empty chain do not demonstrate ingestion.
+
 Only trusted server authority may create anchors. Browser users do not receive direct execution authority.
 
 Real-world facts remain owned by their authoritative service:
