@@ -1,3 +1,4 @@
+import StreetVerseMobileGameShell from './StreetVerseMobileGameShell'
 import {lazy,Suspense,useCallback,useEffect,useLayoutEffect,useMemo,useRef,useState} from 'react'
 import {announceStreetVerseProductionMode} from '../config/streetverseProductionMode'
 import {getStreetVerseCommunitySlice} from '../config/streetverseCommunitySlices'
@@ -156,6 +157,7 @@ function prepareSpawn(){
 export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  const prepared=useMemo(()=>prepareSpawn(),[])
  const bootSafe=useMemo(shouldUseIndependentSafeBoot,[])
+ const [worldToolsOpen,setWorldToolsOpen]=useState(false)
  const [retryGraphics,setRetryGraphics]=useState(false)
  const [graphicsStatus,setGraphicsStatus]=useState('')
  const safe=bootSafe&&!retryGraphics
@@ -284,17 +286,20 @@ export default function StreetVerseGeoSpawnBridge({onClose}:{onClose:()=>void}){
  },[safe,quantumMode])
 
  if(safe)return <>
-  {!explicitSafe&&<div data-streetverse-render-mode="startup-fallback" style={{position:'fixed',top:75,left:12,zIndex:41000,maxWidth:'min(84vw,300px)',padding:10,borderRadius:14,background:'#071725ef',color:'#eaffff',border:'1px solid #54dcff',boxShadow:'0 8px 22px #0008',fontFamily:'system-ui,sans-serif'}}>
+  <button type="button" aria-expanded={worldToolsOpen} onClick={()=>setWorldToolsOpen(v=>!v)} style={{position:'fixed',top:'max(8px,env(safe-area-inset-top))',left:'50%',transform:'translateX(-50%)',zIndex:53000,minHeight:48,borderRadius:12}}> {worldToolsOpen?'Hide world tools':'World tools'} </button>
+  <StreetVerseMobileGameShell compact onClose={closeStreetVerse}/>
+  {worldToolsOpen&&!explicitSafe&&<div data-streetverse-render-mode="startup-fallback" style={{position:'fixed',top:75,left:12,zIndex:41000,maxWidth:'min(84vw,300px)',padding:10,borderRadius:14,background:'#071725ef',color:'#eaffff',border:'1px solid #54dcff',boxShadow:'0 8px 22px #0008',fontFamily:'system-ui,sans-serif'}}>
     <div style={{fontWeight:900,fontSize:12,marginBottom:6}}>3D city did not start</div>
     <button aria-label="Retry StreetVerse 3D" onClick={retry3D} style={{minHeight:48,border:'1px solid #8fffe2',borderRadius:9,padding:'8px 15px',background:'#073f38',color:'#fff',fontWeight:900}}>RETRY 3D CHICAGO</button>
     {graphicsStatus&&<div role="status" style={{fontSize:11,marginTop:7}}>{graphicsStatus}</div>}
   </div>}
-  <StreetVerseWestSideWorldBuilder/>
-  <BuildSwarmControl/>
+  {worldToolsOpen&&<><StreetVerseWestSideWorldBuilder/>
+  <BuildSwarmControl/></>}
   <StreetVerseWeatherSync/>
   <StreetVerseSafeWorld onClose={closeStreetVerse} communityAreaNumber={prepared.destination?.communityAreaNumber}/>
-  <StreetVerseAfterDarkAlpha/>
-  <Suspense fallback={null}><StreetVerseReelEventBridge/><StreetVerseCreatorEarnDock/><StreetVerseActionCarousel/><StreetVerseTouchDriveControls/><StreetVerseMissionWorldBridge/><HoloMobilityLauncher/><StreetVerseFaithChronoPortal/><StreetVerseCoreGameplayDock/><StreetVerseMobileProofDock/></Suspense>
+  <Suspense fallback={null}><StreetVerseReelEventBridge/><StreetVerseMissionWorldBridge/></Suspense>
+  {worldToolsOpen&&<><StreetVerseAfterDarkAlpha/>
+  <Suspense fallback={null}><StreetVerseCreatorEarnDock/><StreetVerseActionCarousel/><StreetVerseTouchDriveControls/><HoloMobilityLauncher/><StreetVerseFaithChronoPortal/><StreetVerseCoreGameplayDock/><StreetVerseMobileProofDock/></Suspense></>}
  </>
 
  return <>
