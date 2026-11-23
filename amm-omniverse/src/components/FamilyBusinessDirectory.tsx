@@ -7,6 +7,8 @@ type SiteRow = { id: string; name: string; status: string; description: string; 
 const previewRoutes: Record<string, string> = {
  'la-taeasia-beautyverse': '/lateasia-beauty-house.html',
  'lateasia-beauty-house': '/lateasia-beauty-house.html',
+ 'bj-stubbs-newumerica': '/bj-stubbs-store.html',
+ 'stubbs-mobility360': '/stubbs-mobility/index.html',
  'jacobie-visions': '/jacobie-visions.html',
 }
 const aliases: Record<string,string> = {
@@ -20,7 +22,7 @@ const aliases: Record<string,string> = {
 function canonical(id:string){return aliases[id] ?? id}
 const siteMap = new Map<string,SiteRow>()
 for(const p of FAMILY_BUSINESS_REGISTRY){
- siteMap.set(canonical(p.id),{id:canonical(p.id),name:p.owner,status:p.status==='live'?'live':p.status,description:p.ventures.join(' • '),href:'/business/'+encodeURIComponent(p.id)})
+ siteMap.set(canonical(p.id),{id:canonical(p.id),name:p.owner,status:p.status==='live'?'live':p.status,description:p.ventures.join(' • '),href:previewRoutes[canonical(p.id)] ?? '/business/'+encodeURIComponent(p.id)})
 }
 for(const p of TRYAMM_FIRST_30_WEBSITES){
  const id=canonical(p.id),old=siteMap.get(id)
