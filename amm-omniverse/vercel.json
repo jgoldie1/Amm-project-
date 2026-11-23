@@ -4,6 +4,20 @@
   "outputDirectory": "dist",
   "routes": [
     {
+      "src": "/jacobie/?",
+      "status": 307,
+      "headers": {
+        "Location": "/jacobie/index.html"
+      }
+    },
+    {
+      "src": "/jacobie-visions\\.html",
+      "status": 307,
+      "headers": {
+        "Location": "/jacobie/index.html"
+      }
+    },
+    {
       "src": "/",
       "dest": "/business-app.html"
     },

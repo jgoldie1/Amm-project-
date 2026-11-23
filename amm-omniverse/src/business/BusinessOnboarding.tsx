@@ -17,7 +17,18 @@ export default function BusinessOnboarding(){
  const [requestId,setRequestId]=useState(()=>crypto.randomUUID()),[busy,setBusy]=useState(false),[message,setMessage]=useState('No ticket has been submitted.')
  const [tickets,setTickets]=useState<Array<{reference:string;subject:string;status:string;reply?:string}>>([])
  const [submitted,setSubmitted]=useState(false)
- useEffect(()=>{const receive=(event:Event)=>{const d=(event as CustomEvent<{subject:string;description:string}>).detail;if(!d)return;setRequestId(crypto.randomUUID());setSubject(d.subject.slice(0,160));setDescription(d.description.slice(0,5000));setCategory('website-setup');setSubmitted(false);setMessage('Service inquiry draft prepared. Review it, then submit when signed in.');document.getElementById('onboarding')?.scrollIntoView({block:'start'})};window.addEventListener('tryamm:service-inquiry',receive);return()=>window.removeEventListener('tryamm:service-inquiry',receive)},[])
+ useEffect(()=>{const receive=(event:Event)=>{const d=(event as CustomEvent<{subject:string;description:string}>).detail;if(!d)return;setRequestId(crypto.randomUUID());setSubject(d.subject.slice(0,160));setDescription(d.description.slice(0,5000));setCategory('website-setup');setSubmitted(false);setMessage('Service inquiry draft prepared. Review it, then submit when signed in.');document.getElementById('onboarding')?.scrollIntoView({block:'start'})};window.addEventListener('tryamm:service-inquiry',receive);
+  try {
+    const raw = sessionStorage.getItem('jacobie.support.handoff')
+    if (raw) {
+      const draft = JSON.parse(raw)
+      if (typeof draft?.subject === 'string' && typeof draft?.description === 'string') {
+        receive(new CustomEvent('tryamm:service-inquiry', {detail: draft}))
+        sessionStorage.removeItem('jacobie.support.handoff')
+      }
+    }
+  } catch { /* A blocked storage area still allows manual ticket entry. */ }
+  return()=>window.removeEventListener('tryamm:service-inquiry',receive)},[])
  const record=()=>({requestId,category,subject,description,state:submitted?'submitted':'local-draft-or-unconfirmed',createdAt:new Date().toISOString()})
  async function api(method:'GET'|'POST'){
   if(busy)return;setBusy(true)
