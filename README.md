@@ -2,6 +2,10 @@
 
 TRYAMM is an immersive social, streaming, commerce, creator, logistics, learning, and world-simulation platform. The active architecture is built around **real authoritative services underneath and immersive presentation above them**.
 
+## Supabase billing
+
+Keep the organization’s total monthly invoice below $115. Check current and projected charges separately. Discuss either amount reaching $50 with James and escalate at $90, or sooner if usage is trending toward $115. Report missing billing data and new quota alerts. Keep Spend Cap enabled and obtain James’s explicit approval before increasing costs. For asset checks, request only the bytes needed and avoid repeated full downloads.
+
 ## Three-layer internal blockchain architecture
 
 TRYAMM uses three intentionally separated hash-chain layers:
