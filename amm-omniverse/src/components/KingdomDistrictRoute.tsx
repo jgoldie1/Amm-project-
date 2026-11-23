@@ -9,7 +9,13 @@ export default function KingdomDistrictRoute(){
  const frameRef=useRef<HTMLIFrameElement|null>(null)
  const sendBiblePreview=()=>{
   try{
-   const stored=JSON.parse(localStorage.getItem('tryamm.kingdom.hebrew-school.bible-world-preview.v1')||'null')
+   const keys=['tryamm.metaverse-bible.hebrew-school-preview.v1','tryamm.kingdom.hebrew-school.bible-world-preview.v1']
+   const stored=keys.flatMap(key=>{
+    try {
+     const value=JSON.parse(localStorage.getItem(key)||'null')
+     return value?.planId ? [value] : []
+    } catch {return []}
+   }).sort((left,right)=>(Date.parse(right.createdAt)||0)-(Date.parse(left.createdAt)||0))[0]
    if(stored?.planId)frameRef.current?.contentWindow?.postMessage({channel:'tryamm:kingdom-control',type:'BIBLE_WORLD_PREVIEW',package:stored},window.location.origin)
   }catch{}
  }
@@ -21,7 +27,7 @@ export default function KingdomDistrictRoute(){
   const send=(detail:any)=>{try{frameRef.current?.contentWindow?.postMessage({channel:'tryamm:kingdom-control',type:'BIBLE_WORLD_PREVIEW',package:detail},window.location.origin)}catch{}}
   const on=(event:Event)=>send((event as CustomEvent<any>).detail)
   window.addEventListener('tryamm:kingdom-hebrew-school-world-ready',on as EventListener)
-  try{const stored=JSON.parse(localStorage.getItem('tryamm.kingdom.hebrew-school.bible-world-preview.v1')||'null');if(stored?.planId)setTimeout(()=>send(stored),700)}catch{}
+
   return()=>window.removeEventListener('tryamm:kingdom-hebrew-school-world-ready',on as EventListener)
  },[])
  useEffect(()=>{
