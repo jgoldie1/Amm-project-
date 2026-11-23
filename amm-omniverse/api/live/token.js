@@ -31,6 +31,7 @@ export default async function handler(req,res){
   try{body=typeof req.body==='string'?JSON.parse(req.body||'{}'):req.body||{}}catch{return res.status(400).json({error:'Invalid LIVE request'})}
   const role=body.role==='viewer'?'viewer':'host';
   const room=cleanRoom(body.room);
+  if(role==='host' && room==='jacobie-greenville' && user.id!==process.env.TRYAMM_JACOBIE_HOST_ID)return res.status(403).json({error:'This Greenville stage is reserved for Jacobie.'});
   let roomRecord;
   try{
     const records=await adminRest('live_rooms',{query:{room_name:`eq.${room}`,limit:1}});

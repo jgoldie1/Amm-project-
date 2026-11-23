@@ -37,6 +37,7 @@ export default async function handler(req,res){
   const room=cleanRoom(body.room);
 
   if(action==='create_room'){
+    if(room==='jacobie-greenville' && user.id!==process.env.TRYAMM_JACOBIE_HOST_ID) return res.status(403).json({error:'This Greenville stage is reserved for Jacobie.'});
     const maxPanel=Math.max(3,Math.min(20,Number(body.maxPanel)||8));
     const existing=await roomByName(room);
     if(existing&&existing.host_user_id!==user.id) return res.status(409).json({error:'Room name is owned by another host'});

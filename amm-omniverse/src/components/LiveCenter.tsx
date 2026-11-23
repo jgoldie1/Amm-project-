@@ -37,13 +37,14 @@ function slug(value: string) {
 
 export default function LiveCenter({ onClose, initialMode='live', initialRole='host', youthViewerOnly=false }: { onClose: () => void; initialMode?: 'live'|'pk'; initialRole?: LiveRole; youthViewerOnly?: boolean }) {
   const pkMode=initialMode==='pk'
+  const greenvilleStage=!pkMode && new URLSearchParams(window.location.search).get('stage')==='jacobie-greenville'
   const [configured, setConfigured] = useState<boolean | null>(null)
   const [providerStatus,setProviderStatus]=useState<LiveProviderStatus|null>(null)
   const [format, setFormat] = useState<Format>('live')
   const [title, setTitle] = useState(pkMode?'Holographic PK Battle':'TryAMM LIVE')
   const [role, setRole] = useState<LiveRole>(youthViewerOnly?'viewer':initialRole)
   const [displayName, setDisplayName] = useState(youthViewerOnly?'Youth Viewer':'Creator')
-  const [roomName, setRoomName] = useState(()=>`${pkMode?'tryamm-pk':'tryamm-live'}-${Math.random().toString(36).slice(2,10)}`)
+  const [roomName, setRoomName] = useState(()=>greenvilleStage?'jacobie-greenville':`${pkMode?'tryamm-pk':'tryamm-live'}-${Math.random().toString(36).slice(2,10)}`)
   const [connected, setConnected] = useState(false)
   const [participants, setParticipants] = useState(0)
   const [error, setError] = useState('')
@@ -204,7 +205,7 @@ export default function LiveCenter({ onClose, initialMode='live', initialRole='h
           </div>}
 
           <label style={styles.label}>Show title<input value={title} onChange={e => { setTitle(e.target.value); setRoomName(slug(e.target.value)) }} style={styles.input} /></label>
-          <label style={styles.label}>Room ID<input value={roomName} onChange={e => setRoomName(slug(e.target.value))} style={styles.input} /></label>
+          <label style={styles.label}>Room ID<input readOnly={greenvilleStage} value={roomName} onChange={e => setRoomName(slug(e.target.value))} style={styles.input} /></label>
           <label style={styles.label}>Display name<input value={displayName} onChange={e => setDisplayName(e.target.value.slice(0,80))} style={styles.input} /></label>
 
           <div style={styles.row}>
