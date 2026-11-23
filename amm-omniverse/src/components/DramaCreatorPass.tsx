@@ -11,6 +11,7 @@ async function passRequest(body:Record<string,unknown>) {
 }
 
 export default function DramaCreatorPass({scenes=[]}:{scenes?:{dialogue:string;title:string}[]}){
+  const [myId,setMyId]=useState('')
   const [owner,setOwner]=useState(false)
   const [account,setAccount]=useState('')
   const [limit,setLimit]=useState(120)
@@ -24,6 +25,8 @@ export default function DramaCreatorPass({scenes=[]}:{scenes?:{dialogue:string;t
   async function check(){
     const data=await passRequest({action:'status'})
     setOwner(data.owner)
+    setMyId(data.accountId)
+    if(data.owner)setAccount(current=>current||data.accountId)
     setMessage(data.pass ? Math.max(0,data.pass.credit_limit-data.pass.used_units)+' approved credits available.' : 'Ask the owner to approve your account.')
   }
   async function record(){
@@ -67,6 +70,7 @@ export default function DramaCreatorPass({scenes=[]}:{scenes?:{dialogue:string;t
   async function run(fn:()=>Promise<void>){setBusy(true);try{await fn()}catch(e){setMessage(e instanceof Error?e.message:'Request failed.')}finally{setBusy(false)}}
   return <details><summary>Creator pass and short-drama export</summary>
     <button disabled={busy} onClick={()=>run(check)}>Check my access</button>
+    {myId&&<p>Your creator account ID <code>{myId}</code></p>}
     {owner&&<fieldset><legend>Owner approvals</legend><label>Creator account ID <input value={account} onChange={e=>setAccount(e.target.value)}/></label>
     <label>Lifetime credit cap (0 revokes access) <input type="number" min="0" max="400" value={limit} onChange={e=>setLimit(Number(e.target.value))}/></label>
     <button disabled={busy} onClick={()=>run(async()=>{await passRequest({action:'approve',userId:account.trim(),creditLimit:limit});setMessage('Approval saved. Previous use still counts.')})}>Save approval</button></fieldset>}

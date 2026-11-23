@@ -17,7 +17,7 @@ export default async function handler(req, res) {
     }
     if (action === 'status') {
       const rows = await adminRest('drama_creator_passes',{query:{user_id:'eq.'+user.id,select:'credit_limit,used_units'}})
-      return json(res,200,{pass:rows[0] || null,owner:user.id === process.env.TRYAMM_CREATOR_PASS_OWNER_ID})
+      return json(res,200,{accountId:user.id,pass:rows[0] || null,owner:user.id === process.env.TRYAMM_CREATOR_PASS_OWNER_ID})
     }
     if (action !== 'claim' || typeof reference !== 'string' || !/^[a-zA-Z0-9_-]{1,80}$/.test(reference))
       return json(res,400,{error:'Invalid render request.'})
