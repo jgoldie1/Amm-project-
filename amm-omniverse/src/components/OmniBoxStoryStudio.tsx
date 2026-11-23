@@ -43,7 +43,7 @@ export default function OmniBoxStoryStudio(){
  }
  function handoff(){try{localStorage.setItem(OMNI_BOX_HANDOFF_KEY,JSON.stringify({...draft,updatedAt:new Date().toISOString()}));save();window.location.href='/holo-drama?from=omni-box'}catch{setStatus('Could not hand off. Download your JSON packet as a backup.')}}
  return <main className="omni-story">
-  <header className="omni-story-header"><div><p>TRYAMM · OMNI BOX</p><h1>Make a 30-minute Holo Drama episode</h1><p>Plan six five-minute acts and prepare the script, shots, dialogue and audio for production.</p></div><nav><a href="/holo-drama">HOLO DRAMA ↗</a><a href="/business-app.html">BUSINESS APP ↗</a><a href="/streetverse">STREETVERSE ↗</a></nav></header>
+  <header className="omni-story-header"><div><p>TRYAMM · OMNI BOX</p><h1>Make a 30-minute Holo Drama episode</h1><p>Plan six five-minute acts and prepare the script, shots, dialogue and audio for production.</p></div><nav><a href="/mini-drama/index.html">Make a mini-drama</a><a href="/holo-drama">HOLO DRAMA ↗</a><a href="/business-app.html">BUSINESS APP ↗</a><a href="/streetverse">STREETVERSE ↗</a></nav></header>
   <section className="omni-story-facts" aria-label="Episode plan progress"><div><strong>6</strong><span>planned acts</span></div><div><strong>{Math.floor(total/60)}:{String(total%60).padStart(2,'0')}</strong><span>target duration</span></div><div><strong>0</strong><span>minutes rendered</span></div></section>
   <OmniBoxStoryboardPreview scenes={draft.scenes} selected={selected} onSelect={setSelected}/>
   <section className="omni-story-work"><div className="omni-story-setup"><h2>Episode identity</h2>

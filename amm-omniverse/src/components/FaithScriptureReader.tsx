@@ -15,7 +15,7 @@ function requestImmersive(title:string,section:string){
 
 export default function FaithScriptureReader(){
  const [mode,setMode]=useState<ReaderMode>('kjv-current')
- const [book,setBook]=useState('Genesis')
+ const [book,setBook]=useState(()=>new URLSearchParams(window.location.search).get('reading')==='revelation-1'?'Revelation':'Genesis')
  const [chapter,setChapter]=useState(1)
  const [selectedApocrypha,setSelectedApocrypha]=useState<string>(KJV_1611_APOCRYPHA_BOOKS[0].id)
  const [data,setData]=useState<Payload|null>(null)
@@ -36,7 +36,7 @@ export default function FaithScriptureReader(){
    }catch(e){setError(e instanceof Error?e.message:'Scripture could not be loaded')}
    finally{setLoading(false)}
  }
- useEffect(()=>{void load('Genesis',1)},[])
+ useEffect(()=>{void load(book,1)},[])
  const chapterText=useMemo(()=>data?.verses?.map(v=>`${v.verse}. ${String(v.text||'').trim()}`).join(' ')||'',[data])
  const readAloud=()=>{if(!chapterText||!('speechSynthesis'in window))return;window.speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(`${book} chapter ${chapter}. ${chapterText}`);utterance.rate=.92;window.speechSynthesis.speak(utterance)}
  const markScriptureStudied=()=>{if(!data?.verses?.length)return;window.dispatchEvent(new CustomEvent('tryamm:metaverse-bible-scripture-studied',{detail:{reference:data.reference||`${book} ${chapter}`,book,chapter,translation:data.translation_name||'King James Version',source:'faith-scripture-reader'}}))}

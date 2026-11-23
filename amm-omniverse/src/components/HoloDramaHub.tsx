@@ -1,6 +1,8 @@
 import { useEffect,useMemo,useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
 
+import DramaCreatorPass from './DramaCreatorPass'
+
 const url=import.meta.env.VITE_SUPABASE_URL as string|undefined
 const key=(import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY||import.meta.env.VITE_SUPABASE_ANON_KEY) as string|undefined
 const supabase=url&&key?createClient(url,key):null
@@ -17,6 +19,7 @@ export default function HoloDramaHub(){
   const [status,setStatus]=useState('Checking account…')
   const [userId,setUserId]=useState<string|null>(null)
   const [title,setTitle]=useState('')
+  const [playing,setPlaying]=useState<{id:string;url:string}|null>(null)
   const [caption,setCaption]=useState('')
   const [mode,setMode]=useState('free')
   const [audienceLane,setAudienceLane]=useState('all_ages')
@@ -89,6 +92,9 @@ export default function HoloDramaHub(){
 
       <div role='status' aria-live='polite' style={{margin:'16px 0',padding:'10px 13px',border:'1px solid #564066',borderRadius:12,background:'#120d18',color:'#e8dff0'}}>{status}</div>
 
+      <section style={card}><h2>The Last Audition</h2><p>Greenville Stories · one-minute animated pilot</p>
+        <video controls playsInline preload="none" aria-label="The Last Audition, captioned pilot" src="/holo-drama-media/the-last-audition-second-cut.mp4" style={{width:'min(100%,320px)',aspectRatio:'9/16'}}/>
+        <DramaCreatorPass scenes={omniOutline?.scenes}/></section>
       <nav aria-label='Holo Drama sections' style={{display:'flex',gap:7,overflowX:'auto',paddingBottom:10}}>{tabs.map(t=><button key={t} onClick={()=>setTab(t)} style={{...pill,background:tab===t?'#ff4fd8':'#17101d',color:tab===t?'#190019':'#fff'}}>{t.toUpperCase()}</button>)}</nav>
 
       {(tab==='For You'||tab==='Following'||tab==='Series'||tab==='Library')&&<section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))',gap:14}}>
@@ -96,7 +102,15 @@ export default function HoloDramaHub(){
         {episodes.map(ep=><article key={ep.id} style={{...card,minHeight:360,display:'flex',flexDirection:'column',justifyContent:'flex-end',background:'linear-gradient(180deg,#23112f,#0b0910)'}}>
           <div style={{fontSize:11,fontWeight:950,color:'#ff9df5'}}>{ep.status.toUpperCase()} • {ep.monetization_mode.toUpperCase()}</div>
           <h2 style={{fontSize:28,margin:'8px 0'}}>{ep.title}</h2><p style={muted}>{ep.caption||'Vertical episode'}</p>
-          <div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button style={button}>♡ LIKE</button><button style={button}>💬 COMMENT</button><button style={button}>↗ SHARE</button><button style={button}>🎁 GIFT</button></div>
+          {ep.status==='published' && ep.monetization_mode==='free' && ep.media_path && <div>
+            <button style={button} onClick={async()=>{
+              if(!supabase || !ep.media_path)return
+              const {data,error}=await supabase.storage.from('creator-media').createSignedUrl(ep.media_path,3600)
+              if(error||!data?.signedUrl){setStatus('Playback unavailable for this account.');return}
+              setPlaying({id:ep.id,url:data.signedUrl})
+            }}>Play episode</button>
+            {playing?.id===ep.id && <video key={playing.url} src={playing.url} controls playsInline style={{width:'100%'}}/>}
+          </div>}
         </article>)}
       </section>}
 
@@ -130,3 +144,4 @@ const primary={...button,background:'#ff4fd8',color:'#190019',border:'1px solid 
 const pill={...button,whiteSpace:'nowrap'} as const
 const label={display:'grid',gap:6,fontWeight:850,margin:'12px 0'} as const
 const input={width:'100%',boxSizing:'border-box',border:'1px solid #594568',borderRadius:12,padding:'12px 13px',background:'#0a080d',color:'#fff',font:'inherit'} as const
+
