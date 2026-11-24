@@ -1,8 +1,8 @@
 import {useEffect,useRef,useState} from 'react'
 import {advanceHoloFon,HOLOFON_CONTACTS,initialHoloFonState,type HoloFonContact,type HoloFonAction} from '../runtime/StreetVerseHoloFonRuntime'
 import {HOLOFON_MISSIONS,getHoloFonMission,speakHoloFonLine,stopHoloFonSpeech} from '../runtime/StreetVerseHoloFonMissionRuntime'
-/** In-world fictional NPC calls; no microphone, phone network, or real users. */
-export default function StreetVerseHoloFonHUD(){
+import GreenvillePlayerPhone from './GreenvillePlayerPhone'
+export default function StreetVerseHoloFonHUD({greenville=false}:{greenville?:boolean}){
  const [open,setOpen]=useState(false),[call,setCall]=useState(initialHoloFonState),[soundEnabled,setSoundEnabled]=useState(true)
  const [textMissionId,setTextMissionId]=useState('')
  const [replyTo,setReplyTo]=useState<string|null>(null)
@@ -28,6 +28,7 @@ export default function StreetVerseHoloFonHUD(){
  const btn={minHeight:46,borderRadius:9,border:'1px solid #69e5f9',background:'#113c53',color:'white',font:'700 12px system-ui',padding:'8px 12px'}
  return <div data-streetverse-holofon="true" style={{position:'fixed',right:8,bottom:'calc(env(safe-area-inset-bottom) + 150px)',zIndex:44000,width:open?'min(360px, calc(100vw - 24px))':'auto',maxWidth:'calc(100vw - 16px)',maxHeight:open?'min(72dvh, 610px)':undefined,overflowY:open?'auto':undefined,padding:open?14:0,background:open?'linear-gradient(155deg,rgba(7,37,68,.98),rgba(29,9,62,.97))':'transparent',border:open?'1px solid rgba(106,234,255,.85)':undefined,boxShadow:open?'0 0 0 2px rgba(62,203,255,.15),0 0 36px rgba(70,142,255,.48),0 16px 42px rgba(0,0,0,.65)':undefined,backdropFilter:open?'blur(18px)':undefined,borderRadius:16,color:'#dffaff',font:'600 13px system-ui'}}>
  <button type="button" style={btn} onClick={()=>setOpen(v=>!v)} aria-expanded={open}>📱 HOLO FON</button>
+ {greenville&&<GreenvillePlayerPhone expanded={open} onRing={tone}/>}
  {open&&<div style={{display:'grid',gap:8,marginTop:8}}><div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8}}><strong style={{letterSpacing:2,color:'#81f3ff',textShadow:'0 0 12px #21d9ff'}}>◈ HOLO FON • LIVE DISPLAY</strong><button type="button" aria-label="Close Holo FON hologram" onClick={()=>setOpen(false)} style={{...btn,minWidth:46}}>✕</button></div><div aria-hidden="true" style={{height:3,borderRadius:10,background:'linear-gradient(90deg,#42e9ff,#aa78ff,#42e9ff)',boxShadow:'0 0 14px #40e7ff'}}/><div aria-live="polite">{call.status==='idle'?'Contacts':call.status.toUpperCase()+' • '+(call.contact?HOLOFON_CONTACTS[call.contact].name:'')}</div>
  {call.status==='idle'&&<><details><summary style={btn}>Mission texts</summary>
  <label>Message a mission contact
