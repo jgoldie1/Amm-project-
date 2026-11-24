@@ -41,7 +41,7 @@ required(mobile.includes("['bj-upgrade',bjRenderedVersion==='V15'"),'visible one
 required(mobile.includes('tryamm:streetverse-bj-v15-preview'),'actual model refresh event')
 required(mobile.includes('request!==bjHeroLoadEpoch'),'prevent slow previous request from overwriting V15')
 required(mobile.includes('nativeLayer.add(handle.object)'),'actual game scene replaces avatar')
-required(mobile.includes('nativeHeroFallback!.visible=false'),'old player geometry hidden')
+required(mobile.includes('if(nativeHeroFallback)nativeHeroFallback.visible=false'),'old player geometry hidden')
 required(mobile.includes('nativeHeroRig=isV15?null:nativeHumanoidRig(nativeHero)'),'do not double animate V15 bones')
 required(mobile.includes("setBJRenderedVersion(isV15?'V15':null)"),'only claim V15 after mounting real GLB')
 required(mobile.includes('data-bj-active-version={bjRenderedVersion'),'surface real model version in UI')
