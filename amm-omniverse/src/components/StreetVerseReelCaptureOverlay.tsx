@@ -1,5 +1,6 @@
 import {useEffect,useState} from 'react'
 import type {StreetVerseReelCaptureReady,StreetVerseReelCaptureState} from '../runtime/StreetVerseReelCaptureRuntime'
+import {storeReelCaptureMetadata} from '../foundation/tryammCreatorWorldBridge.js'
 
 export default function StreetVerseReelCaptureOverlay(){
  const [state,setState]=useState<StreetVerseReelCaptureState>('idle')
@@ -10,7 +11,7 @@ export default function StreetVerseReelCaptureOverlay(){
 
  useEffect(()=>{
   const onState=(e:Event)=>{const d=(e as CustomEvent<{state?:StreetVerseReelCaptureState}>).detail||{};if(d.state)setState(d.state)}
-  const onReady=(e:Event)=>{const d=(e as CustomEvent<StreetVerseReelCaptureReady>).detail;if(d){setReady(d);setState('ready')}}
+  const onReady=(e:Event)=>{const d=(e as CustomEvent<StreetVerseReelCaptureReady>).detail;if(d){setReady(d);setState('ready');try{storeReelCaptureMetadata(localStorage,{fileName:d.fileName,mimeType:d.mimeType,durationMs:d.durationMs})}catch{/* capture remains available for manual export */}}}
   const onShot=(e:Event)=>{const d=(e as CustomEvent<{label?:string;angle?:string;purpose?:string}>).detail||{};if(d.label)setShotCue({label:d.label,angle:String(d.angle||''),purpose:d.purpose})}
   window.addEventListener('tryamm:reel-capture-state',onState)
   window.addEventListener('tryamm:reel-capture-ready',onReady)

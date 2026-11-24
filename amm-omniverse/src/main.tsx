@@ -61,6 +61,10 @@ const TimeMachineWorldFoundryCenter=lazy(()=>import('./components/TimeMachineWor
 const HoloLabGateway=lazy(()=>import('./components/HoloLabGateway'))
 const SECSConstructCenter=lazy(()=>import('./components/SECSConstructCenter'))
 const Chicago77HolographicAtlas=lazy(()=>import('./components/Chicago77HolographicAtlas'))
+const SoulAscensionChicagoCasting=lazy(()=>import('./components/SoulAscensionChicagoCasting'))
+const StreetVerseMissionArcade=lazy(()=>import('./components/StreetVerseMissionArcade'))
+const StreetVerseIntegrationCenter=lazy(()=>import('./components/StreetVerseIntegrationCenter'))
+const TryammCreatorWorldBridge=lazy(()=>import('./components/TryammCreatorWorldBridge'))
 const PublicReelPage=lazy(()=>import('./components/PublicReelPage'))
 const LiveOnePushTest=lazy(()=>import('./components/LiveOnePushTest'))
 const StreetVerseDeviceLiveCertificationHUD=lazy(()=>import('./components/StreetVerseDeviceLiveCertificationHUD'))
@@ -108,11 +112,15 @@ try {
   const isHoloLabStandalone=currentPath==='/holo-lab'||currentPath==='/holo-lab/'
   const isSECSConstruct=['/secs-construct','/secs-construct/','/construct','/construct/'].includes(currentPath)
   const isChicago77Atlas=['/chicago77','/chicago77/','/chicago-77','/chicago-77/'].includes(currentPath)
+  const isSoulAscensionCasting=['/soul-ascension-chicago','/soul-ascension-chicago/','/soul-ascension-casting'].includes(currentPath)
+  const isStreetVerseMissionArcade=['/streetverse-missions','/streetverse-missions/','/after-dark-007'].includes(currentPath)
+  const isStreetVerseIntegrationCenter=['/streetverse-integration','/streetverse-integration/'].includes(currentPath)
+  const isTryammCreatorWorldBridge=['/creator-world','/creator-world/'].includes(currentPath)
   const isLaunchLock=['/launch-lock','/launch-lock/','/october-launch','/october-launch/'].includes(currentPath)
   const isGlobalTradeWorld=['/global-trade','/global-trade/','/my-world','/my-world/','/we-are-the-world','/we-are-the-world/'].includes(currentPath)
   const isTwinWorld=currentPath.startsWith('/streetverse/twin-world')
   const isMeetStubbs=currentPath.startsWith('/streetverse/meet-the-stubbs')
-  const isStreetVerse=currentPath.startsWith('/streetverse')&&!isMeetStubbs&&!isTwinWorld
+  const isStreetVerse=currentPath.startsWith('/streetverse')&&!isMeetStubbs&&!isTwinWorld&&!isStreetVerseMissionArcade&&!isStreetVerseIntegrationCenter
   const streetVerseParams=new URLSearchParams(window.location.search)
   // Certification/fallback routes must be decided from the initial URL before any
   // optional runtime can mutate history or replace the selected world.
@@ -200,6 +208,10 @@ try {
   else if(isHoloLabStandalone)routeContent=<Suspense fallback={routeFallback}><HoloLabGateway onClose={()=>{window.location.href='/'}} /></Suspense>
   else if(isSECSConstruct)routeContent=<Suspense fallback={routeFallback}><SECSConstructCenter onClose={()=>{window.location.href='/holo-lab'}} /></Suspense>
   else if(isChicago77Atlas)routeContent=<Suspense fallback={routeFallback}><Chicago77HolographicAtlas /></Suspense>
+  else if(isSoulAscensionCasting)routeContent=<Suspense fallback={routeFallback}><SoulAscensionChicagoCasting /></Suspense>
+  else if(isStreetVerseMissionArcade)routeContent=<Suspense fallback={routeFallback}><StreetVerseMissionArcade /></Suspense>
+  else if(isStreetVerseIntegrationCenter)routeContent=<Suspense fallback={routeFallback}><StreetVerseIntegrationCenter /></Suspense>
+  else if(isTryammCreatorWorldBridge)routeContent=<Suspense fallback={routeFallback}><TryammCreatorWorldBridge /></Suspense>
   else if(isLaunchLock)routeContent=<Suspense fallback={routeFallback}><OctoberLaunchLockCenter /></Suspense>
   else if(isGlobalTradeWorld)routeContent=<Suspense fallback={routeFallback}><GlobalTradeWorldHub /></Suspense>
   else if(isBusinessOS)routeContent=<Suspense fallback={routeFallback}><StubbsAIHolographicBusinessOS /></Suspense>

@@ -6,12 +6,15 @@ const modes:Record<Mode,{tagline:string;items:Array<[string,string,string]>}>={
   ['PLAY AS BJ','Real BJ V15 • Chicago StreetVerse','/streetverse?core=1&bj=v15'],
   ['PLAY AS JACOBIE','12-motion rig • Greenville birthday/CampusVerse path','/streetverse?core=1&character=jacobie&world=greenville'],
   ['PLAY AS LATEASIA','Recovered LaTeasia Monroe rig • StreetVerse','/streetverse?core=1&character=lateasia'],
+  ['MISSION ARCADE','17 original careers • 51 story missions • A/B/X/Y controls','/streetverse-missions'],
+  ['STREETVERSE INTEGRATION','Launch the ten systems • export readiness report','/streetverse-integration'],
   ['GAMEVERSE','Arcade • sports • racing • challenges','/gameverse'],
   ['FAITHVERSE','Faith, culture and community worlds','/faithverse'],
   ['GLOBALVERSE','Cities, trade and Cross Borders','/global-trade'],
  ]},
  CREATE:{tagline:'Make music, movies, games, avatars and HoloReels.',items:[
   ['OMNIBOX','Movie • TV • story production','/omni-box'],
+  ['LIVING WORLD CREATOR BRIDGE','Website • missions • HoloReel • OmniBox • Isaiah AI TV','/creator-world'],
   ['HOLO MUSIC','Artists • releases • performances','/holo-music'],
   ['ANIYAH STUDIO','64-track recording and creator studio','/aniyah-studio'],
   ['HOLO LAB','3D • holograms • digital twins • AR/VR','/holo-lab'],
@@ -25,6 +28,8 @@ const modes:Record<Mode,{tagline:string;items:Array<[string,string,string]>}>={
  EARN:{tagline:'Businesses, creators and services earn from one economy.',items:[
   ['MARKETPLACE','Digital • physical • services','/marketplace'],
   ['BUSINESS OS','Storefront • AI agents • analytics','/business-os'],
+  ['111 WEBSITE COMPANY TYPES','Business OS gateway; full 111-type selector pending verification','/business-os'],
+  ['CREATOR BUSINESS SPOTLIGHT','Business website → immersive mission → reel → TV story draft','/creator-world'],
   ['OMNI WORKSTATION','Owner control and operations','/workstation'],
   ['OMNI CASH','Payments and settlement surfaces','/omni-cash'],
  ]},
@@ -106,6 +111,15 @@ export default function TryammHoloVerseHome(){
     </article>
    </section>
 
+   <section aria-label="Quick launch for the StreetVerse game and TRYAMM app shell" style={{display:'grid',gap:10,padding:14,border:'1px solid #438da5',borderRadius:16,background:'#092336dd'}}>
+    <strong style={{fontSize:19}}>STREETVERSE • PLAY WITHOUT THE CLUTTER</strong>
+    <p style={{margin:0,color:'#c7e9f1',lineHeight:1.5,fontSize:14}}>The TRYAMM app shell stays outside the 3D world. Enter the city fullscreen, keep the joystick available, then open missions, LIVE, stores and Holo FON only when needed.</p>
+    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))',gap:8}}>
+     <a href="/streetverse?core=1&bj=v15" style={{...button,minHeight:68,display:'grid',placeItems:'center',textDecoration:'none',background:'#155646',borderColor:'#7bf0be'}}>▶ ENTER CHICAGO 3D</a>
+     <a href="/streetverse-missions" style={{...button,minHeight:68,display:'grid',placeItems:'center',textDecoration:'none'}}>🎮 MISSION ARCADE</a>
+     <a href="/streetverse-integration" style={{...button,minHeight:68,display:'grid',placeItems:'center',textDecoration:'none'}}>🧪 SYSTEM TEST & REPORT</a>
+    </div>
+   </section>
    <section aria-label="StreetVerse acceptance launcher" style={{display:'grid',gap:10,padding:12,border:'1px solid #8d6c2f',borderRadius:16,background:'#171105cc'}}>
     <strong style={{fontSize:18}}>ONE-PUSH DEVICE ACCEPTANCE</strong>
     <span style={{fontSize:12,color:'#d6c9a4'}}>Run the same 7-step loop for each playable character. Session evidence carries across character switches.</span>

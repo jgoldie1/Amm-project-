@@ -1,0 +1,74 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+import {CREATOR_HANDOFF_KEY,CREATOR_CHANNELS,createCreatorPacket,saveCreatorPacket,readCreatorPacket,validCreatorPacket,creatorReleaseGates,storeReelCaptureMetadata,readReelCaptureMetadata,storeLastMissionStory,readLastMissionStory} from '../src/foundation/tryammCreatorWorldBridge.js'
+const read=p=>fs.readFileSync(new URL(p,import.meta.url),'utf8')
+test('website/template discovery, reel, world, OmniBox, Isaiah AI TV and business routes are preserved',()=>{
+ const ids=CREATOR_CHANNELS.map(x=>x.id)
+ for(const id of ['living','reel','omnibox','tv','live','business','template'])assert.ok(ids.includes(id))
+ assert.equal(new Set(ids).size,CREATOR_CHANNELS.length)
+ assert.ok(CREATOR_CHANNELS.every(x=>x.path.startsWith('/')))
+})
+test('creator packet saves across routes with no upload or publisher authorization',()=>{
+ const storage=new Map()
+ const adapter={getItem:key=>storage.get(key)||null,setItem:(key,value)=>storage.set(key,value)}
+ const packet=createCreatorPacket({kind:'business-spotlight',title:'Taylor Street Grocery Story',businessName:'Chicago Neighborhood Shop',templateId:'company-grocery',missionId:'gr1',fileName:'test.webm'},new Date('2026-11-22T00:00:00Z'))
+ assert.ok(validCreatorPacket(packet))
+ assert.equal(packet.reel.mediaAttached,false)
+ assert.equal(packet.publishAuthorized,false)
+ assert.equal(packet.immersiveReady,false)
+ saveCreatorPacket(adapter,packet)
+ assert.equal(storage.has(CREATOR_HANDOFF_KEY),true)
+ assert.equal(readCreatorPacket(adapter).businessName,'Chicago Neighborhood Shop')
+ assert.deepEqual(creatorReleaseGates(packet).canPublish,false)
+ assert.equal(creatorReleaseGates(packet).canEnterVR,false)
+ assert.throws(()=>saveCreatorPacket(adapter,{...packet,publishAuthorized:true}))
+ assert.equal(readCreatorPacket({getItem:()=>'{malformed'}),null)
+})
+test('UI integration offers actual draft import without claiming rendered video or verified 111 published websites',()=>{
+ const main=read('../src/main.tsx')
+ const home=read('../src/components/TryammHoloVerseHome.tsx')
+ const world=read('../src/components/StreetVerseMobileWorld.tsx')
+ const bridge=read('../src/components/TryammCreatorWorldBridge.tsx')
+ const omni=read('../src/components/OmniBoxStoryStudio.tsx')
+ const tv=read('../src/components/AllAmericanNetworkHub.tsx')
+ assert.match(main,/isTryammCreatorWorldBridge/)
+ assert.match(home,/111 WEBSITE COMPANY TYPES/)
+ assert.match(home,/LIVING WORLD CREATOR BRIDGE/)
+ assert.match(world,/CREATOR BRIDGE/)
+ assert.match(bridge,/SAVE CREATOR HANDOFF/)
+ assert.match(bridge,/DOWNLOAD JSON PACKET/)
+ assert.match(omni,/IMPORT LIVING WORLD STORY/)
+ assert.match(tv,/IMPORT CREATOR STORY PITCH/)
+ assert.match(tv,/Nothing was published/)
+ assert.match(bridge,/not represented as 111 published sites/)
+})
+
+test('captured HoloReel clip metadata transfers without copying a private video blob',()=>{
+ const entries=new Map()
+ const storage={getItem:k=>entries.get(k)||null,setItem:(k,v)=>entries.set(k,v)}
+ const meta=storeReelCaptureMetadata(storage,{fileName:'Chicago-Reel.webm',mimeType:'video/webm',durationMs:30000},new Date('2026-11-22T00:00:00Z'))
+ assert.equal(meta.mediaAttached,false)
+ assert.equal(meta.publishAuthorized,false)
+ assert.equal(readReelCaptureMetadata(storage).fileName,'Chicago-Reel.webm')
+ const packet=createCreatorPacket(meta)
+ assert.equal(packet.reel.fileName,'Chicago-Reel.webm')
+ assert.equal(packet.reel.mediaAttached,false)
+ const overlay=read('../src/components/StreetVerseReelCaptureOverlay.tsx')
+ const bridge=read('../src/components/TryammCreatorWorldBridge.tsx')
+ assert.match(overlay,/storeReelCaptureMetadata/)
+ assert.match(bridge,/REFRESH LAST HOLOREEL/)
+})
+
+test('completed arcade mission becomes a local creator story without authorizing game rewards',()=>{
+ const entries=new Map()
+ const store={getItem:k=>entries.get(k)||null,setItem:(k,v)=>entries.set(k,v)}
+ const receipt={schema:'tryamm.mission.local.v1',mode:'grocery',missionId:'gr1',completedAt:'2026-11-22T00:00:00.000Z',authoritative:false}
+ storeLastMissionStory(store,receipt)
+ assert.equal(readLastMissionStory(store).missionId,'gr1')
+ assert.throws(()=>storeLastMissionStory(store,{...receipt,authoritative:true}))
+ const arcade=read('../src/components/StreetVerseMissionArcade.tsx')
+ const bridge=read('../src/components/TryammCreatorWorldBridge.tsx')
+ assert.match(arcade,/storeLastMissionStory\(localStorage,receipt\)/)
+ assert.match(bridge,/IMPORT LAST COMPLETED MISSION/)
+})

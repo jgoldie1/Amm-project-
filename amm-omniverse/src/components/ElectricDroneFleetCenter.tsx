@@ -2,8 +2,8 @@ import {useState} from 'react'
 import {ELECTRIC_FLEET_FLOW} from '../logistics/electricFleetNetwork'
 import {DRONE_SWARM_FLOW} from '../logistics/droneSwarmNetwork'
 
-export default function ElectricDroneFleetCenter(){
- const [tab,setTab]=useState<'ev'|'drone'>('ev')
+export default function ElectricDroneFleetCenter({initialTab='ev'}:{initialTab?:'ev'|'drone'}={}){
+ const [tab,setTab]=useState<'ev'|'drone'>(initialTab)
  const [status,setStatus]=useState('Electric fleet + drone network ready for planning. Real charging/provider/flight actions remain externally verified.')
  return <section style={panel}>
   <div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button style={button} onClick={()=>setTab('ev')}>ELECTRIC TRUCKS</button><button style={button} onClick={()=>setTab('drone')}>DELIVERY DRONES + SWARMS</button></div>
