@@ -423,6 +423,9 @@ function addResidentialCourtyard(root:THREE.Group){
   addResidentialCourtyard(root)
   addElevatedRail(root)
   const transport=addChicagoTransport(root)
+  for(const [name,x,z] of [['WEST PLATFORM',-72,-42],['EAST MARKET PLATFORM',72,-42],['EXPRESSWAY EAST',-48,-65],['EXIT • EAST MARKET',42,-73],['DELIVERY BAY',48,-65]] as const){
+    const marker=labelSprite(name);marker.position.set(x,z===-42?10:3.8,z);root.add(marker)
+  }
   addPilsenMurals(root)
   addSaintIgnatius(root,colliders)
   addHolyFamily(root,colliders)

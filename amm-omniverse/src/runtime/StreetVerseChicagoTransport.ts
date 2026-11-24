@@ -1,3 +1,4 @@
+import {trainAt,tripStops} from './StreetVerseLaflinTrips'
 import * as THREE from 'three'
 
 // Original scenic corridor in StreetVerse game metres. One clock serves both renderers.
@@ -22,6 +23,13 @@ export function addChicagoTransport(root:THREE.Group){
  }
  part(corridor,'west-side-expressway',0,.09,-76,176,.16,12,0x45494c)
  part(corridor,'divided-median',0,.39,-76,176,.6,.65,0xb5afa0)
+ for(const side of [-1,1]){
+  part(corridor,'accessible-platform',72*side,6.8,-42,20,.4,4,0xb7b9ab)
+  part(corridor,'platform-lift',72*side,3.45,-40,3,6.9,3,0x54717a)
+  const ramp=part(corridor,'expressway-connector',45*side,.10,-69,5,.17,10,0x45494c)
+  ramp.rotation.y=Math.atan2(6*side,8)
+ }
+ part(corridor,'market-loading-bay',tripStops.drop.x,.09,tripStops.drop.z,8,.18,7,0xbaaa7e)
  const traffic=[-1,1].map((direction,index)=>{
   const car=new THREE.Group();car.name='expressway-traffic';corridor.add(car)
   car.position.set(0,.18,-76+direction*3)
@@ -33,9 +41,7 @@ export function addChicagoTransport(root:THREE.Group){
   update(now:number){
    const seconds=now/1000
    // Smooth turnaround with a four-second dwell at either end of the modeled track.
-   const t=seconds%48
-   const travel=t<4?0:t<24?(t-4)/20:t<28?1:(48-t)/20
-   train.position.x=-72*Math.cos(Math.PI*travel)
+   train.position.x=trainAt(now).x
    traffic.forEach((car,i)=>{const x=(seconds*(i?10:8)+i*83)%168-84;car.position.x=i?x:-x})
   },
   dispose(){corridor.removeFromParent();cube.dispose();materials.forEach(mat=>mat.dispose())},
