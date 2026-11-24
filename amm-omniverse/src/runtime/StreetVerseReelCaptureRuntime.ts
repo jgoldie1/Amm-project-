@@ -57,17 +57,22 @@ export function installStreetVerseReelCapture(canvas:HTMLCanvasElement){
   if(recorder&&recorder.state!=='inactive')recorder.stop()
  }
 
- const start=()=>{
-  if(disposed||recorder?.state==='recording')return
+ const start=(onRawReady?: (blob:Blob)=>void)=>{
+  if(disposed||recorder)return
   if(privacyBlocked){emitState('idle',{blocked:true,reason:'school-privacy-zone'});window.dispatchEvent(new CustomEvent('tryamm:toast',{detail:{message:'REEL CAPTURE OFF • privacy zone'}}));return}
   if(typeof MediaRecorder==='undefined'||typeof canvas.captureStream!=='function'){emitState('unsupported');return}
-  portraitCanvas=document.createElement('canvas')
-  portraitCanvas.width=540;portraitCanvas.height=960
-  if(!startPortraitLoop(portraitCanvas)){emitState('unsupported');return}
-  const stream=portraitCanvas.captureStream(24)
+  let source=canvas
+  if(!onRawReady){
+   portraitCanvas=document.createElement('canvas')
+   portraitCanvas.width=540;portraitCanvas.height=960
+   if(!startPortraitLoop(portraitCanvas)){emitState('unsupported');return}
+   source=portraitCanvas
+  }
+  let stream:MediaStream
+  try{stream=source.captureStream(24)}catch{stopPortraitLoop();emitState('unsupported');return}
   const mimeType=chooseMimeType()
   try{recorder=new MediaRecorder(stream,mimeType?{mimeType,videoBitsPerSecond:2_500_000}:{videoBitsPerSecond:2_500_000})}
-  catch{emitState('unsupported');stream.getTracks().forEach(t=>t.stop());return}
+  catch{stopPortraitLoop();emitState('unsupported');stream.getTracks().forEach(t=>t.stop());return}
   chunks=[];startedAt=performance.now()
   recorder.ondataavailable=e=>{if(e.data?.size)chunks.push(e.data)}
   recorder.onerror=()=>emitState('idle',{error:true})
@@ -75,6 +80,13 @@ export function installStreetVerseReelCapture(canvas:HTMLCanvasElement){
    const durationMs=Math.max(0,Math.round(performance.now()-startedAt))
    const actualType=recorder?.mimeType||mimeType||'video/webm'
    const blob=new Blob(chunks,{type:actualType})
+   if(stopTimer)window.clearTimeout(stopTimer)
+   if(onRawReady){
+    stream.getTracks().forEach(track=>track.stop())
+    recorder=null
+    if(!disposed){onRawReady(blob);emitState('idle')}
+    return
+   }
    cleanupUrl();lastUrl=URL.createObjectURL(blob)
    const ext=actualType.includes('mp4')?'mp4':'webm'
    const stamp=new Date().toISOString().replace(/[:.]/g,'-')
@@ -85,9 +97,10 @@ export function installStreetVerseReelCapture(canvas:HTMLCanvasElement){
    stopPortraitLoop();portraitCanvas=null
    recorder=null
   }
-  recorder.start(500)
+  try{recorder.start(500)}catch{recorder=null;stream.getTracks().forEach(track=>track.stop());stopPortraitLoop();emitState('unsupported');return}
   emitState('recording',{startedAt:Date.now(),maxDurationMs:30_000})
   stopTimer=window.setTimeout(stop,30_000)
+  return true
  }
 
  const toggle=()=>recorder?.state==='recording'?stop():start()
@@ -102,7 +115,7 @@ export function installStreetVerseReelCapture(canvas:HTMLCanvasElement){
  emitState(typeof MediaRecorder!=='undefined'&&typeof canvas.captureStream==='function'?'idle':'unsupported')
 
  return{
-  start,stop,toggle,
+  start:()=>start(),startRaw:(ready:(blob:Blob)=>void)=>start(ready)===true,stop,toggle,
   dispose:()=>{disposed=true;if(stopTimer)window.clearTimeout(stopTimer);stopPortraitLoop();if(recorder?.state==='recording')recorder.stop();window.removeEventListener('tryamm:reel-capture-toggle',onToggle);window.removeEventListener('tryamm:reel-capture-stop',onStop);window.removeEventListener('tryamm:reel-moment',onMoment);window.removeEventListener('tryamm:school-privacy-zone',onPrivacyZone);cleanupUrl()}
  }
 }
