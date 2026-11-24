@@ -4,9 +4,10 @@ import {readFileSync} from 'node:fs'
 const code=readFileSync(new URL('../src/components/StreetVerseMobileWorld.tsx',import.meta.url),'utf8')
 test('Jacobie and LaTeasia begin loading before optional native scenery',()=>{
  const priority=code.indexOf('if(eagerRecoveredId)void loadRecoveredPlayable(eagerRecoveredId)')
- const scenery=code.indexOf("void loadTryammNativeCircleParkLayer({placements:greenvilleBirthdayMode?entranceProps('greenville'):mobileNativePlacements})")
+ const policy=code.indexOf("nativePlacementsForWorld(greenvilleBirthdayMode,entranceProps('greenville'),mobileNativePlacements)")
+ const scenery=code.indexOf('void loadTryammNativeCircleParkLayer({placements:scopedNativePlacements})')
  assert.ok(priority>0,'priority loader exists')
- assert.ok(scenery>priority,'priority loader starts before scenery')
+ assert.ok(policy>priority&&scenery>policy,'priority loader starts before scoped scenery')
  assert.match(code,/scene\.add\(handle\.object\)/,'real GLB mounts in scene independently of delayed layer')
  assert.match(code,/priorityLoader:true/,'priority mount emits evidence')
  assert.match(code,/if\(recoveredPlayableHandle\?\.id===requestedRecoveredParam&&recoveredPlayableHandle\.object\.parent\)/,'later native layer preserves original player')

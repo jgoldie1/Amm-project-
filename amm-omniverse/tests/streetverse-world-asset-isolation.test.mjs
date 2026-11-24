@@ -1,9 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {build} from 'esbuild'
-
-const bundle=await build({entryPoints:['src/runtime/StreetVerseWorldAssetIsolation.ts'],bundle:true,platform:'node',format:'esm',write:false})
-const {nativePlacementsForWorld}=await import('data:text/javascript;base64,'+Buffer.from(bundle.outputFiles[0].text).toString('base64'))
+import {nativePlacementsForWorld} from '../src/runtime/StreetVerseWorldAssetIsolation.js'
 
 test('Greenville accepts only scoped lightweight entrance assets',()=>{
  const chicago=[{asset:'building',label:'chicago-building',position:[0,0,0]}]

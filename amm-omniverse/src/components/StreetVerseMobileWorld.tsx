@@ -1,6 +1,6 @@
 import {installLaflinTrips,onTripRoad} from '../runtime/StreetVerseLaflinTrips'
 import {entranceProps,entrances,installLobbyVisit} from '../runtime/StreetVerseLobbyVisit'
-import {nativePlacementsForWorld} from '../runtime/StreetVerseWorldAssetIsolation'
+import {nativePlacementsForWorld} from '../runtime/StreetVerseWorldAssetIsolation.js'
 import StreetVerseChicagoCertificationHUD from './StreetVerseChicagoCertificationHUD'
 import StreetVerseVehicleDynamicsHUD from './StreetVerseVehicleDynamicsHUD'
 import StreetVerseParkourHUD from './StreetVerseParkourHUD'
