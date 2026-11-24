@@ -1,6 +1,7 @@
 import {generateStarterDistrict,validateStarterDistrict,STREETVERSE_STARTER_CITIES} from '../data/StreetVerseLivingCityGenerator'
 import {createStreetVerseMyceliumNetwork} from './StreetVerseMyceliumNetwork'
 import {createMyceliumTimeline} from './StreetVerseMyceliumTimelineRuntime'
+import {CHICAGO_77_SLICES} from '../config/streetverseCommunitySlices'
 import {getAccessToken} from '../services/supabaseClient'
 
 export type SubmissionTestResult = {
@@ -12,16 +13,18 @@ function countryCode(country:string){
  return country==='Nigeria'?'ng':country==='Ethiopia'?'et':'us'
 }
 /** One click is a non-publishing TEST; financial/provider actions remain gated. */
-export async function runStreetVerseSubmissionTest(cityId:string):Promise<SubmissionTestResult>{
+export async function runStreetVerseSubmissionTest(cityId:string, areaNumber?:string):Promise<SubmissionTestResult>{
  const city=STREETVERSE_STARTER_CITIES.find(c=>c.id===cityId);
  if(!city)return {status:'failed',cityId,checks:[],missing:['Unknown city'],featureCount:0,eventNodes:[]};
  const checks:string[]=[],missing:string[]=[];
- const district=generateStarterDistrict(cityId);
+ const area=areaNumber && cityId==='chicago' ? CHICAGO_77_SLICES.find(a=>a.communityAreaNumber===areaNumber) : undefined;
+ if(areaNumber && !area)return {status:'failed',cityId,checks,missing:['Unknown Chicago community area'],featureCount:0,eventNodes:[]};
+ const district=generateStarterDistrict(cityId,4,area);
  const errors=validateStarterDistrict(district);
  if(errors.length)return {status:'failed',cityId,checks,missing:errors,featureCount:district.features.length,eventNodes:[]};
  checks.push('District plan generated and validated: roads, bridge, transit, mission and buildings');
  const network=createStreetVerseMyceliumNetwork({persistLocal:true});
- const event={id:`district-preview:${cityId}:${district.seed}`,kind:'district-preview' as const,cityId,source:'streetverse' as const,payload:{features:district.features.length,starter:city.starterDistrict}};
+ const event={id:`district-preview:${cityId}:${district.seed}`,kind:'district-preview' as const,cityId,source:'streetverse' as const,payload:{features:district.features.length,starter:district.district}};
  const receipt=network.publish(event),duplicate=network.publish(event);
  if(!duplicate.duplicate||receipt.delivered.length!==8)return {status:'failed',cityId,checks,missing:['Mycelium event routing/replay check failed'],featureCount:district.features.length,eventNodes:[...receipt.delivered]};
  checks.push('Mycelium event routing and replay receipts saved locally (simulation only)');
@@ -30,7 +33,7 @@ export async function runStreetVerseSubmissionTest(cityId:string):Promise<Submis
  if(!inserted||timeline.history().length!==1||timeline.record({id:event.id,kind:event.kind,payload:{featureCount:district.features.length},at:0}))return {status:'failed',cityId,checks,missing:['Mycelium timeline replay failed'],featureCount:district.features.length,eventNodes:[...receipt.delivered]};
  checks.push('Recovered Mycelium timeline recorded one persistent-in-session event without replay');
  window.dispatchEvent(new CustomEvent('tryamm:streetverse-district-preview',{detail:{cityId,district,receipt,source:'one-button-integration-test',rendered:false}}));
- window.dispatchEvent(new CustomEvent('tryamm:ai-cafe-task',{detail:{workstream:'streetverse',title:`Review ${city.name} district preview and attach licensed assets / geometry`,priority:'normal',source:'mycelium-submission-test'}}));
+ window.dispatchEvent(new CustomEvent('tryamm:ai-cafe-task',{detail:{workstream:'streetverse',title:`Review ${city.name} / ${district.district} district preview and attach licensed assets / geometry`,priority:'normal',source:'mycelium-submission-test'}}));
  checks.push('Preview event emitted to StreetVerse and AI Café task queue');
  missing.push('3D renderer/physics/NPC and real GLB integration not certified by this preview');
  missing.push('MLP adapter receives routing metadata only; model behavior not verified');
@@ -41,7 +44,7 @@ export async function runStreetVerseSubmissionTest(cityId:string):Promise<Submis
  try{
   const response=await fetch('/api/agents/jobs',{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({
    kind:'city-build-plan',requestKey:crypto.randomUUID(),input:{
-    cityId:`sv-${countryCode(city.country)}-${cityId}`,district:city.starterDistrict,assets:[],
+    cityId:`sv-${countryCode(city.country)}-${cityId}`,district:district.district,assets:[],
     publish:false,allowPaidGeneration:false
    }
   })});
@@ -54,7 +57,7 @@ export async function runStreetVerseSubmissionTest(cityId:string):Promise<Submis
   const verify=await fetch(`/api/agents/jobs?id=${encodeURIComponent(result.jobId!)}`,{headers:{Authorization:`Bearer ${token}`}});
   const stored=await verify.json().catch(()=>({}));
   const job=Array.isArray(stored.jobs)?stored.jobs.find((j:{id?:string})=>j.id===result.jobId):null;
-  if(!verify.ok||job?.status!=='succeeded'||!job?.output?.plan){result.status='blocked';result.missing.push('Backend job was queued but no completed, stored plan was verified');return result}
+  if(!verify.ok||job?.status!=='succeeded'||job?.output?.plan?.district!==district.district||job.output.plan.cityId!==`sv-${countryCode(city.country)}-${cityId}`){result.status='blocked';result.missing.push('Backend job was queued but no completed, stored plan was verified');return result}
   result.status='backend-verified';
   result.checks.push('Backend execution and stored, read-back plan verified');
   return result;

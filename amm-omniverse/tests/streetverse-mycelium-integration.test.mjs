@@ -80,3 +80,19 @@ test('frontend button is connected to backend, AI Café and world builder, witho
  assert.match(runner,/tryamm:streetverse-district-preview/)
  assert.match(runner,/publish:false,allowPaidGeneration:false/)
 })
+
+test('all 77 Chicago previews preserve area mission identities and distinct review plans',async()=>{
+ const {CHICAGO_77_SLICES}=await loadTs('../src/config/streetverseCommunitySlices.ts')
+ const seeds=new Set(), ids=new Set(), plans=new Set()
+ for(const area of CHICAGO_77_SLICES){
+  const district=generator.generateStarterDistrict('chicago',4,area)
+  assert.deepEqual(generator.validateStarterDistrict(district),[])
+  assert.deepEqual(generator.generateStarterDistrict('chicago',4,area),district)
+  assert.equal(district.district,area.name)
+  assert.deepEqual(district.features.filter(f=>f.id.includes(':anchor:')).map(f=>f.tag),area.missions.map(m=>m.label))
+  for(const feature of district.features){assert.ok(!ids.has(feature.id));ids.add(feature.id)}
+  seeds.add(district.seed)
+  plans.add(buildCityPlan({cityId:'sv-us-chicago',district:district.district,assets:[],publish:false,allowPaidGeneration:false}).sha256)
+ }
+ assert.equal(seeds.size,77);assert.equal(plans.size,77)
+})

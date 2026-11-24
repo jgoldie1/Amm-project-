@@ -2,11 +2,13 @@ import {useEffect,useRef,useState} from 'react'
 import {STREETVERSE_STARTER_CITIES} from '../data/StreetVerseLivingCityGenerator'
 import {runStreetVerseSubmissionTest,type SubmissionTestResult} from '../runtime/StreetVerseOneButtonSubmissionTest'
 import {createStreetVerseWorldKernel} from '../runtime/StreetVerseOriginalOpenWorldKernel'
+import {CHICAGO_77_SLICES,readSelectedCommunityArea} from '../config/streetverseCommunitySlices'
 import {preflightBJLocalGLB} from '../runtime/StreetVerseBJLocalAssetPreflight'
 
 const control:React.CSSProperties={minHeight:48,padding:'10px 12px',borderRadius:10,border:'1px solid #6cd8ec',background:'#123d51',color:'white',fontWeight:800}
 export default function StreetVerseMyceliumSubmissionPanel(){
  const [cityId,setCityId]=useState('chicago'),[running,setRunning]=useState(false),[result,setResult]=useState<SubmissionTestResult|null>(null)
+ const [areaNumber,setAreaNumber]=useState(()=>CHICAGO_77_SLICES.find(a=>a.communityAreaNumber===readSelectedCommunityArea())?.communityAreaNumber ?? '')
  const [placement,setPlacement]=useState('No actual 3D placement attempted')
  const [engineCheck,setEngineCheck]=useState('Engine test not run')
  const [districtVisual,setDistrictVisual]=useState('District 3D preview not requested')
@@ -90,8 +92,9 @@ export default function StreetVerseMyceliumSubmissionPanel(){
   setRunning(true);setResult(null)
   runEngineDiagnostic()
   setPlacement(cityId==='chicago'?'Requesting native geometry placement in the real StreetVerse 3D scene…':'Other cities: layout preview only; no Chicago assets placed')
-  if(cityId==='chicago')window.dispatchEvent(new CustomEvent('tryamm:streetverse-forge-placement-request',{detail:{preset:'street',source:'west-side-world-builder'}}))
-  try{setResult(await runStreetVerseSubmissionTest(cityId))}
+  if(cityId==='chicago' && areaNumber && areaNumber!==readSelectedCommunityArea())setPlacement('District preview beside player. Travel to this community area to place saved street props.')
+  else if(cityId==='chicago')window.dispatchEvent(new CustomEvent('tryamm:streetverse-forge-placement-request',{detail:{preset:'street',source:'west-side-world-builder'}}))
+  try{setResult(await runStreetVerseSubmissionTest(cityId,cityId==='chicago' ? areaNumber || undefined : undefined))}
   catch(e){setResult({status:'failed',checks:[],missing:[e instanceof Error?e.message:'Unexpected integration error'],cityId,featureCount:0,eventNodes:[]})}
   finally{setRunning(false)}
  }
@@ -113,9 +116,15 @@ export default function StreetVerseMyceliumSubmissionPanel(){
   <div role="status" aria-live="polite" style={{fontSize:12,color:'#d8f2c1'}}>{localBJResult}</div>
   <p style={{margin:0,fontSize:12,lineHeight:1.5}}>Chicago: request placement of four existing native 3D street objects, then run Mycelium, AI Café and backend verification. Other cities: generate a layout preview only. No paid generation or publishing.</p>
   <label htmlFor="mycelium-city-select" style={{fontSize:12}}>Starter city</label>
-  <select id="mycelium-city-select" value={cityId} onChange={e=>setCityId(e.target.value)} style={{...control,background:'#071824'}}>
+  <select id="mycelium-city-select" disabled={running} value={cityId} onChange={e=>setCityId(e.target.value)} style={{...control,background:'#071824'}}>
    {STREETVERSE_STARTER_CITIES.map(c=><option key={c.id} value={c.id}>{c.name} — {c.starterDistrict}</option>)}
   </select>
+  {cityId==='chicago' && <label>Chicago community area
+   <select disabled={running} value={areaNumber} onChange={e=>{setAreaNumber(e.target.value);setResult(null);setPlacement('Run the build to test placement');window.dispatchEvent(new Event('tryamm:streetverse-district-preview-clear'))}} style={{...control,width:'100%'}}>
+    <option value="">Circle Park / Taylor Street starter</option>
+    {CHICAGO_77_SLICES.map(area=><option key={area.communityAreaNumber} value={area.communityAreaNumber}>{area.communityAreaNumber}. {area.name}</option>)}
+   </select>
+  </label>}
   <button type="button" onClick={submit} disabled={running} aria-label="One-button StreetVerse build and integration test" style={{...control,background:'#145b43',opacity:running?.65:1}}>{running?'RUNNING CHECKS…':'ONE BUTTON • BUILD 3D + TEST MYCELIUM / AI / BACKEND'}</button>
   <div role="status" aria-live="polite" style={{fontSize:12,color:'#b8f4e3'}}>{placement}</div>
   <div role="status" aria-live="polite" style={{fontSize:12,color:'#9ee7ff'}}>{districtVisual}</div>

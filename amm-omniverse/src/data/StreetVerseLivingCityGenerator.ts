@@ -1,3 +1,4 @@
+import type {StreetVerseCommunitySlice} from '../config/streetverseCommunitySlices'
 /**
  * StreetVerse Living City Generator — district-scale procedural layout contracts.
  * Synthetic playable geometry ONLY. Not real street maps, bridge engineering,
@@ -44,7 +45,7 @@ export function districtSeed(id: string): number {
   for (const c of id) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); }
   return h >>> 0;
 }
-export function generateStarterDistrict(cityId: string, blocks = 4): GeneratedDistrict {
+export function generateStarterDistrict(cityId: string, blocks = 4, area?: StreetVerseCommunitySlice): GeneratedDistrict {
   const city = STREETVERSE_STARTER_CITIES.find(c => c.id === cityId);
   if (!city) throw new Error('Unknown StreetVerse city: ' + cityId);
   if (!Number.isInteger(blocks) || blocks < 2 || blocks > 12) throw new Error('blocks must be an integer from 2 to 12');
@@ -60,13 +61,22 @@ export function generateStarterDistrict(cityId: string, blocks = 4): GeneratedDi
   features.push({id:`${cityId}:transit:1`,type:'transit',x:0,z:0,tag:'arrival-spawn'});
   features.push({id:`${cityId}:landmark:1`,type:'landmark',x:spacing,z:spacing,tag:'starter-district-hub'});
   features.push({id:`${cityId}:mission:1`,type:'mission',x:spacing,z:0,tag:'welcome-mission'});
-  let seed = districtSeed(cityId);
+  if (area && cityId !== 'chicago') throw new Error('Community areas require Chicago');
+  const layoutId = area ? 'chicago:ca-' + area.communityAreaNumber : cityId;
+  const initialSeed = districtSeed(layoutId);
+  let seed = initialSeed;
   for(let i=0;i<blocks*blocks;i++){
     seed = (Math.imul(seed,1664525)+1013904223)>>>0;
     const x=(i%blocks)*spacing+24, z=Math.floor(i/blocks)*spacing+24;
     features.push({id:`${cityId}:building:${i}`,type:'building',x,z,tag:(seed%3===0?'commercial':seed%3===1?'residential':'civic')});
   }
-  return {cityId,district:city.starterDistrict,seed:districtSeed(cityId),features};
+  if (area) {
+    for (const feature of features) feature.id = feature.id.replace('chicago:', layoutId + ':');
+    for (const mission of area.missions) {
+      features.push({id:layoutId + ':anchor:' + mission.id,type:'mission',x:mission.x,z:mission.y,tag:mission.label});
+    }
+  }
+  return {cityId,district:area?.name ?? city.starterDistrict,seed:initialSeed,features};
 }
 export function validateStarterDistrict(district: GeneratedDistrict): string[] {
   const ids = district.features.map(f=>f.id);

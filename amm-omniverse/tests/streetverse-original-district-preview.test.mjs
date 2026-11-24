@@ -42,3 +42,16 @@ test('renderer bridge consumes simulation event and supports explicit cleanup',a
  assert.match(panel,/CLEAR GENERATED 3D DISTRICT PREVIEW/)
  assert.match(panel,/tryamm:streetverse-district-preview-result/)
 })
+
+test('all four community mission anchors fit the mobile mesh budget in each of the 77 areas',async()=>{
+ const {CHICAGO_77_SLICES}=await load('../src/config/streetverseCommunitySlices.ts')
+ for(const area of CHICAGO_77_SLICES){
+  const district=generator.generateStarterDistrict('chicago',4,area)
+  const scene=preview.buildStreetVerseDistrictPreview(district,new THREE.Vector3())
+  try{
+   const anchors=scene.group.children.filter(mesh=>mesh.userData.featureId.includes(':anchor:'))
+   assert.deepEqual(anchors.map(mesh=>mesh.userData.label),area.missions.map(m=>m.label))
+   assert.ok(scene.count<=preview.STREETVERSE_PREVIEW_MAX_FEATURES)
+  }finally{scene.dispose()}
+ }
+})

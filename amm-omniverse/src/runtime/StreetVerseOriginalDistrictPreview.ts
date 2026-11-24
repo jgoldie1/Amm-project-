@@ -24,7 +24,7 @@ export function buildStreetVerseDistrictPreview(district:GeneratedDistrict,origi
  if(errors.length)throw new Error(errors.join(', '))
  const group=new THREE.Group()
  group.name='streetverse-original-district-visual-preview'
- group.userData={visualOnly:true,source:'streetverse-original-engine',collisionAuthority:'none',cityId:district.cityId}
+ group.userData={visualOnly:true,source:'streetverse-original-engine',collisionAuthority:'none',cityId:district.cityId,district:district.district}
  let count=0
  const materials=[
   new THREE.MeshStandardMaterial({color:0x303844,roughness:.9}),
@@ -52,14 +52,14 @@ export function buildStreetVerseDistrictPreview(district:GeneratedDistrict,origi
   const mesh=new THREE.Mesh(geometry,material)
   mesh.position.set(x,y,z)
   mesh.name='sv-original-preview-'+feature.id
-  mesh.userData={previewOnly:true,featureId:feature.id,featureType:feature.type}
+  mesh.userData={previewOnly:true,featureId:feature.id,featureType:feature.type,label:feature.tag}
   mesh.castShadow=false;mesh.receiveShadow=false
   group.add(mesh)
  }
  // A mix of surfaces is more informative than truncating the first 24 road entries.
  const order=['road','bridge','building','transit','mission','landmark']
  for(const type of order){
-  const quota=type==='building'?10:type==='road'?7:2
+  const quota=type==='building' ? (district.features.some(f=>f.id.includes(':anchor:')) ? 9 : 10) : type==='road' ? 7 : type==='mission' ? 5 : 2
   for(const [index,feature] of district.features.filter(f=>f.type===type).slice(0,quota).entries()){
    if(count>=STREETVERSE_PREVIEW_MAX_FEATURES)break
    create(feature,index);count++
