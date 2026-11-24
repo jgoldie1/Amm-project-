@@ -47,7 +47,7 @@ export function installLaflinTrips(host:HTMLElement,options:Options){
   const ctx=map.getContext('2d');if(!ctx)return
   const px=(v:number)=>145+v*1.55,pz=(v:number)=>88+v
   ctx.clearRect(0,0,290,138)
-  function line(points:{x:number;z:number}[],color:string){
+  const line=(points:{x:number;z:number}[],color:string)=>{
    ctx.strokeStyle=color;ctx.lineWidth=3;ctx.beginPath()
    points.forEach((p,i)=>i?ctx.lineTo(px(p.x),pz(p.z)):ctx.moveTo(px(p.x),pz(p.z)));ctx.stroke()
   }
