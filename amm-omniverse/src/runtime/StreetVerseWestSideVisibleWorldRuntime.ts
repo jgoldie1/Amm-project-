@@ -1,3 +1,4 @@
+import {addChicagoTransport} from './StreetVerseChicagoTransport'
 import {installStreetVerseMapPin} from './StreetVerseMapPin'
 import * as THREE from 'three'
 import {loadTryammNativeCircleParkLayer,disposeNativeAssetLayer} from './TryammNativeAssetRuntime'
@@ -7,6 +8,7 @@ import {STREETVERSE_CHICAGO_PROOF_ZONE,STREETVERSE_CHICAGO_RECONSTRUCTION_SOURCE
 export type WestSideDistrictId='circle-park'|'roosevelt'|'taylor'|'pilsen'|'west-side'
 export type WestSideVisibleWorldHandle={
   group:THREE.Group
+  updateTransport:(now:number)=>void
   collisionBoxes:THREE.Box3[]
   dispose:()=>void
 }
@@ -420,6 +422,7 @@ function addResidentialCourtyard(root:THREE.Group){
   addPark(root)
   addResidentialCourtyard(root)
   addElevatedRail(root)
+  const transport=addChicagoTransport(root)
   addPilsenMurals(root)
   addSaintIgnatius(root,colliders)
   addHolyFamily(root,colliders)
@@ -545,9 +548,10 @@ function addResidentialCourtyard(root:THREE.Group){
 
   const removeMapPin=installStreetVerseMapPin(root)
   let disposed=false
-  return{group:root,collisionBoxes:colliders,dispose:()=>{
+  return{group:root,collisionBoxes:colliders,updateTransport:transport.update,dispose:()=>{
     if(disposed)return
     disposed=true
+    transport.dispose()
     removeMapPin()
     for(const collider of colliders){
       const index=externalCollisionBoxes.indexOf(collider)
