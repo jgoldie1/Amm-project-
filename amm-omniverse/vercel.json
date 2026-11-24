@@ -50,6 +50,10 @@
       "dest": "/tryamm-home.html"
     },
     {
+      "src": "^/arian/?$",
+      "dest": "/arian-construction.html"
+    },
+    {
       "src": "^/marion/?$",
       "has": [
         {
@@ -58,7 +62,7 @@
         }
       ],
       "headers": {
-        "Location": "/site-demo.html?template=42"
+        "Location": "/arian"
       },
       "status": 307
     },
