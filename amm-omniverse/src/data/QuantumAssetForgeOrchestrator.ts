@@ -12,7 +12,7 @@ export const FIRST_WAVE_ASSET_DEMAND:AssetDemand[]=GLOBAL_WORLD_COMPILER.firstGl
 ])
 
 export function createCityAssetQueue(demands:AssetDemand[]=FIRST_WAVE_ASSET_DEMAND){
- return demands.sort((a,b)=>b.priority-a.priority).flatMap(d=>
+ return [...demands].sort((a,b)=>b.priority-a.priority).flatMap(d=>
   Array.from({length:d.quantity},(_,i)=>({
    demand:d,job:createAssetFactoryJob(`${d.cityId}-${d.kind}-${String(i+1).padStart(3,'0')}`,d.kind,'mobile'),
   }))

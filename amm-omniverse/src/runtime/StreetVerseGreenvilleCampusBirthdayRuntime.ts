@@ -1,4 +1,6 @@
 import * as THREE from 'three'
+import {createBuildingCadPlan,makeWorldForgeRecipe,validateForgeRecipe,type ForgeSource} from '../game/forger/StreetVerseWorldForger'
+import {createAssetFactoryJob} from '../data/TryammAssetForge'
 
 export const GREENVILLE_CAMPUS_ZONES=[
  {id:'GV01',label:'Campus Welcome',x:0,z:58,kind:'arrival'},
@@ -22,12 +24,42 @@ export function installGreenvilleCampusBirthdayWorld(scene:THREE.Scene){
  box([150,.12,150],[0,-.06,8],lawn,'greenville-campus-lawn')
  box([8,.08,108],[0,.04,10],walk,'greenville-main-walk')
  box([72,.08,8],[0,.05,34],walk,'greenville-cross-walk')
+ // Reuse the native World Forger CAD and Asset Forge budgets for the existing scene.
  const building=(label:string,x:number,z:number,w:number,d:number,h:number)=>{
-   const g=new THREE.Group();g.position.set(x,0,z);g.name='greenville-'+label.toLowerCase().replace(/\s+/g,'-');root.add(g)
+   const id='greenville-'+label.toLowerCase().replace(/\s+/g,'-')
+   const cad=createBuildingCadPlan({id,label,widthM:w,depthM:d,floors:Math.max(1,Math.round(h/3.2)),floorHeightM:h/Math.max(1,Math.round(h/3.2)),sourceIds:['greenville-original-procedural-layout'],conceptualOnly:true})
+   const source:ForgeSource={id:'greenville-original-procedural-layout',kind:'conceptual',rightsCleared:true,notes:'Existing fictional game layout; not a surveyed campus or authorized real interior'}
+   const recipe=makeWorldForgeRecipe({id,label,kind:'building',districtId:'greenville',sourceIds:[source.id],cadPlanId:cad.id,prompt:label+' original procedural exterior',target:'none',textureWrap:'procedural'})
+   const job=createAssetFactoryJob(id,'building','mobile')
+   recipe.runtime.mobileTriangleBudget=Math.min(recipe.runtime.mobileTriangleBudget,job.maxTriangles)
+   recipe.materials.mobileTextureSize=Math.min(recipe.materials.mobileTextureSize,job.maxTextureSize)
+   const errors=validateForgeRecipe(recipe,[source],cad)
+   if(errors.length)throw new Error(id+': '+errors.join(', '))
+
+   const g=new THREE.Group();g.position.set(x,0,z);g.name=id;g.userData={forgeRecipe:recipe,cadPlan:cad,assetJob:job,interiorPlayable:false};root.add(g)
    const body=new THREE.Mesh(geo(new THREE.BoxGeometry(w,h,d)),brick);body.position.y=h/2;g.add(body)
    const trim=new THREE.Mesh(geo(new THREE.BoxGeometry(w+.3,.5,d+.3)),stone);trim.position.y=h+.25;g.add(trim)
    const entry=new THREE.Mesh(geo(new THREE.BoxGeometry(Math.min(5,w*.4),3,.35)),glass);entry.position.set(0,1.5,-d/2-.2);g.add(entry)
-   for(let yy=3.5;yy<h-1;yy+=3.2)for(let xx=-w/2+2;xx<w/2-1;xx+=3.2){const win=new THREE.Mesh(geo(new THREE.BoxGeometry(1.35,1,.12)),glass);win.position.set(xx,yy,-d/2-.08);g.add(win)}
+   // Batch windows on all four faces using one geometry and one draw call per building.
+   const placements:Array<{x:number;y:number;z:number;rotation:number}>=[]
+   for(let yy=3.5;yy<h-1;yy+=3.2){
+     for(let xx=-w/2+2;xx<w/2-1;xx+=3.2){
+       placements.push({x:xx,y:yy,z:-d/2-.08,rotation:0},{x:xx,y:yy,z:d/2+.08,rotation:0})
+     }
+     for(let zz=-d/2+2;zz<d/2-1;zz+=3.2){
+       placements.push({x:-w/2-.08,y:yy,z:zz,rotation:Math.PI/2},{x:w/2+.08,y:yy,z:zz,rotation:Math.PI/2})
+     }
+   }
+   if(placements.length){
+     const windows=new THREE.InstancedMesh(geo(new THREE.BoxGeometry(1.35,1,.12)),glass,placements.length)
+     const transform=new THREE.Object3D()
+     placements.forEach((p,i)=>{transform.position.set(p.x,p.y,p.z);transform.rotation.set(0,p.rotation,0);transform.updateMatrix();windows.setMatrixAt(i,transform.matrix)})
+     windows.instanceMatrix.needsUpdate=true;windows.computeBoundingSphere();windows.name=id+'-batched-windows';g.add(windows)
+   }
+   // Stronger facade silhouette and material contrast without new texture downloads.
+   const cornice=new THREE.Mesh(geo(new THREE.BoxGeometry(w+.5,.3,d+.5)),darkTrim);cornice.position.y=h-.6;g.add(cornice)
+   const plinth=new THREE.Mesh(geo(new THREE.BoxGeometry(w+.18,.55,d+.18)),stone);plinth.position.y=.275;g.add(plinth)
+
    return g
  }
  building('Residence Hall',-6,34,20,15,14)
