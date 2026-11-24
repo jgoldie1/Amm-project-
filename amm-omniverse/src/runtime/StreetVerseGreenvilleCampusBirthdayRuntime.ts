@@ -1,3 +1,4 @@
+import {unionDrive} from './GreenvilleUnionRoute'
 import * as THREE from 'three'
 
 export const GREENVILLE_CAMPUS_ZONES=[
@@ -22,6 +23,11 @@ export function installGreenvilleCampusBirthdayWorld(scene:THREE.Scene){
  box([150,.12,150],[0,-.06,8],lawn,'greenville-campus-lawn')
  box([8,.08,108],[0,.04,10],walk,'greenville-main-walk')
  box([72,.08,8],[0,.05,34],walk,'greenville-cross-walk')
+ const asphalt=mat(0x343b42)
+ unionDrive.slice(1).forEach((end,index)=>{
+   const start=unionDrive[index]
+   box([Math.abs(end.x-start.x)+5,.08,Math.abs(end.z-start.z)+5],[(start.x+end.x)/2,.10,(start.z+end.z)/2],asphalt,'student-union-drive-'+index)
+ })
  const building=(label:string,x:number,z:number,w:number,d:number,h:number)=>{
    const g=new THREE.Group();g.position.set(x,0,z);g.name='greenville-'+label.toLowerCase().replace(/\s+/g,'-');root.add(g)
    const body=new THREE.Mesh(geo(new THREE.BoxGeometry(w,h,d)),brick);body.position.y=h/2;g.add(body)
