@@ -2,6 +2,7 @@ import {useEffect,useRef,useState} from 'react'
 import {STREETVERSE_STARTER_CITIES} from '../data/StreetVerseLivingCityGenerator'
 import {runStreetVerseSubmissionTest,type SubmissionTestResult} from '../runtime/StreetVerseOneButtonSubmissionTest'
 import {createStreetVerseWorldKernel} from '../runtime/StreetVerseOriginalOpenWorldKernel'
+import {chicagoMapReference} from '../config/streetverseChicagoMapReferences'
 import {CHICAGO_77_SLICES,readSelectedCommunityArea} from '../config/streetverseCommunitySlices'
 import {preflightBJLocalGLB} from '../runtime/StreetVerseBJLocalAssetPreflight'
 
@@ -9,6 +10,8 @@ const control:React.CSSProperties={minHeight:48,padding:'10px 12px',borderRadius
 export default function StreetVerseMyceliumSubmissionPanel(){
  const [cityId,setCityId]=useState('chicago'),[running,setRunning]=useState(false),[result,setResult]=useState<SubmissionTestResult|null>(null)
  const [areaNumber,setAreaNumber]=useState(()=>CHICAGO_77_SLICES.find(a=>a.communityAreaNumber===readSelectedCommunityArea())?.communityAreaNumber ?? '')
+ const referenceArea=CHICAGO_77_SLICES.find(area=>area.communityAreaNumber===(areaNumber||'28'))
+ const reference=cityId==='chicago' && referenceArea ? chicagoMapReference(referenceArea.communityAreaNumber,referenceArea.name) : null
  const [placement,setPlacement]=useState('No actual 3D placement attempted')
  const [engineCheck,setEngineCheck]=useState('Engine test not run')
  const [districtVisual,setDistrictVisual]=useState('District 3D preview not requested')
@@ -125,6 +128,11 @@ export default function StreetVerseMyceliumSubmissionPanel(){
     {CHICAGO_77_SLICES.map(area=><option key={area.communityAreaNumber} value={area.communityAreaNumber}>{area.communityAreaNumber}. {area.name}</option>)}
    </select>
   </label>}
+  {reference && referenceArea && <nav aria-label="Neighborhood map references" style={{display:'grid',gap:8}}>
+   <a href={reference.map} target="_blank" rel="noopener noreferrer" style={control}>Google Maps · {referenceArea.name}</a>
+   <a href={reference.streetView} target="_blank" rel="noopener noreferrer" style={control}>Street View · {referenceArea.name}</a>
+   <small>Opens Google in a new tab near an interior point in this area. Use the map to choose another street if imagery is unavailable.</small>
+  </nav>}
   <button type="button" onClick={submit} disabled={running} aria-label="One-button StreetVerse build and integration test" style={{...control,background:'#145b43',opacity:running?.65:1}}>{running?'RUNNING CHECKS…':'ONE BUTTON • BUILD 3D + TEST MYCELIUM / AI / BACKEND'}</button>
   <div role="status" aria-live="polite" style={{fontSize:12,color:'#b8f4e3'}}>{placement}</div>
   <div role="status" aria-live="polite" style={{fontSize:12,color:'#9ee7ff'}}>{districtVisual}</div>

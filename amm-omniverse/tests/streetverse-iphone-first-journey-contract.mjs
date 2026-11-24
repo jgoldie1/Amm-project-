@@ -1,6 +1,5 @@
 import fs from 'node:fs'
 import assert from 'node:assert/strict'
-import ts from 'typescript'
 const dock=fs.readFileSync(new URL('../src/components/StreetVerseMobileProofDock.tsx',import.meta.url),'utf8')
 const overlays=fs.readFileSync(new URL('../src/components/StreetVerseFullWorldOverlays.tsx',import.meta.url),'utf8')
 const mobile=fs.readFileSync(new URL('../src/components/StreetVerseMobileWorld.tsx',import.meta.url),'utf8')
@@ -20,9 +19,7 @@ must(mobile.includes('FOLLOW GOLD BEACON'),'mission waypoint instruction missing
 must(mobile.includes('oneHandDriveAssist'),'one-hand drive assist missing')
 must(mobile.includes("vehicleControlPass:'stable-analog-v3'"),'stable analog vehicle control pass missing')
 must(mobile.includes('stepVehicle(vehicleDynamics,{throttle,brake,steer:analogSteer},dt,surface,oneHandDriveAssist)'), 'mobile input must reach the assisted vehicle simulation')
-const physics = fs.readFileSync(new URL('../src/runtime/StreetVerseVehicleDynamics.ts', import.meta.url), 'utf8')
-const compiled = ts.transpileModule(physics, {compilerOptions: {module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022}})
-const {newVehicle, stepVehicle} = await import('data:text/javascript;base64,' + Buffer.from(compiled.outputText).toString('base64'))
+const {newVehicle,stepVehicle}=await import('../src/runtime/StreetVerseVehicleDynamics.ts')
 const controls = {throttle: 1, brake: 0, steer: 1}
 function drive(frames, assisted = false) {
   let car = newVehicle('car')

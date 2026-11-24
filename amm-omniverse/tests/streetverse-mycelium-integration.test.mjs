@@ -96,3 +96,20 @@ test('all 77 Chicago previews preserve area mission identities and distinct revi
  }
  assert.equal(seeds.size,77);assert.equal(plans.size,77)
 })
+
+test('Google Maps and Street View open distinct Chicago references for all 77 areas',async()=>{
+ const {CHICAGO_77_SLICES}=await loadTs('../src/config/streetverseCommunitySlices.ts')
+ const {chicagoMapReference}=await loadTs('../src/config/streetverseChicagoMapReferences.ts')
+ const points=new Set()
+ for(const area of CHICAGO_77_SLICES){
+  const links=chicagoMapReference(area.communityAreaNumber,area.name)
+  const map=new URL(links.map),pano=new URL(links.streetView)
+  assert.equal(map.origin,'https://www.google.com');assert.equal(pano.origin,map.origin)
+  assert.equal(map.searchParams.get('query'),area.name+', Chicago, Illinois')
+  assert.equal(pano.searchParams.get('map_action'),'pano')
+  const point=pano.searchParams.get('viewpoint'),[lat,lng]=point.split(',').map(Number)
+  assert.ok(lat>41.6 && lat<42.1 && lng>-88.1 && lng<-87.5)
+  points.add(point)
+ }
+ assert.equal(points.size,77)
+})
