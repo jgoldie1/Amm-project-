@@ -1072,13 +1072,14 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
       if(Number.isFinite(saved?.x)&&Number.isFinite(saved?.z)&&(greenvilleBirthdayMode
         ? Math.abs(saved.x)<=72&&saved.z>=-64&&saved.z<=68
         : canTraverse(saved.x,saved.z)))avatar.position.set(saved.x,0,saved.z)
+      else if(saved)setMessage('Your saved position is unavailable. You are at the starting entrance.')
     }catch{}
   }
   if(greenvilleBirthdayMode&&query.get('visit')==='student-union')avatar.position.set(entrances.greenville.x,0,entrances.greenville.z)
   if(!greenvilleBirthdayMode&&query.get('visit')==='laflin')avatar.position.set(...CIRCLE_PARK_RESIDENT_ENTRANCE.anchors.publicApproach.position)
   scene.add(avatar);
    const visibleForge=installStreetVerseVisibleForgeBridge({getNativeLayer:()=>nativeLayer,getPlayerPosition:()=>avatar.position});
-   const underwaterPool=createStreetVerseUnderwaterPoolRuntime(scene,camera,avatar);if(!savedSpawnValid)setMessage('StreetVerse restored a safe Chicago spawn because the previous saved position was no longer walkable.')
+   const underwaterPool=createStreetVerseUnderwaterPoolRuntime(scene,camera,avatar);
   advanceLiveWorldBuild('collision',buildingColliders.length===blocks.length&&canTraverse(CIRCLE_PARK_SPAWN.x,CIRCLE_PARK_SPAWN.z))
   let persistenceCertified=false
   try{const probeKey=`${SAVE_KEY}.world-builder-probe`,probe=JSON.stringify({x:avatar.position.x,z:avatar.position.z,at:Date.now()});localStorage.setItem(probeKey,probe);persistenceCertified=localStorage.getItem(probeKey)===probe;localStorage.removeItem(probeKey)}catch{}
