@@ -4,6 +4,9 @@ import {HOLOFON_MISSIONS,getHoloFonMission,speakHoloFonLine,stopHoloFonSpeech} f
 /** In-world fictional NPC calls; no microphone, phone network, or real users. */
 export default function StreetVerseHoloFonHUD(){
  const [open,setOpen]=useState(false),[call,setCall]=useState(initialHoloFonState),[soundEnabled,setSoundEnabled]=useState(true)
+ const [textMissionId,setTextMissionId]=useState('')
+ const [replyTo,setReplyTo]=useState<string|null>(null)
+ const textMission=getHoloFonMission(textMissionId)
  const ctx=useRef<AudioContext|null>(null)
  const [missionId,setMissionId]=useState<string|null>(null)
  const [voiceEnabled,setVoiceEnabled]=useState(true)
@@ -26,7 +29,15 @@ export default function StreetVerseHoloFonHUD(){
  return <div data-streetverse-holofon="true" style={{position:'fixed',right:8,bottom:'calc(env(safe-area-inset-bottom) + 150px)',zIndex:44000,width:open?'min(360px, calc(100vw - 24px))':'auto',maxWidth:'calc(100vw - 16px)',maxHeight:open?'min(72dvh, 610px)':undefined,overflowY:open?'auto':undefined,padding:open?14:0,background:open?'linear-gradient(155deg,rgba(7,37,68,.98),rgba(29,9,62,.97))':'transparent',border:open?'1px solid rgba(106,234,255,.85)':undefined,boxShadow:open?'0 0 0 2px rgba(62,203,255,.15),0 0 36px rgba(70,142,255,.48),0 16px 42px rgba(0,0,0,.65)':undefined,backdropFilter:open?'blur(18px)':undefined,borderRadius:16,color:'#dffaff',font:'600 13px system-ui'}}>
  <button type="button" style={btn} onClick={()=>setOpen(v=>!v)} aria-expanded={open}>📱 HOLO FON</button>
  {open&&<div style={{display:'grid',gap:8,marginTop:8}}><div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8}}><strong style={{letterSpacing:2,color:'#81f3ff',textShadow:'0 0 12px #21d9ff'}}>◈ HOLO FON • LIVE DISPLAY</strong><button type="button" aria-label="Close Holo FON hologram" onClick={()=>setOpen(false)} style={{...btn,minWidth:46}}>✕</button></div><div aria-hidden="true" style={{height:3,borderRadius:10,background:'linear-gradient(90deg,#42e9ff,#aa78ff,#42e9ff)',boxShadow:'0 0 14px #40e7ff'}}/><div aria-live="polite">{call.status==='idle'?'Contacts':call.status.toUpperCase()+' • '+(call.contact?HOLOFON_CONTACTS[call.contact].name:'')}</div>
- {call.status==='idle'&&<><div>Incoming mission call test</div>{HOLOFON_MISSIONS.map(m=><button key={m.id} style={btn} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-holofon-incoming-mission',{detail:{missionId:m.id}}))}>INCOMING: {m.title}</button>)}<div>Contacts</div>{(Object.keys(HOLOFON_CONTACTS) as HoloFonContact[]).map(id=><button key={id} style={btn} onClick={()=>act('dial',id)}>CALL {HOLOFON_CONTACTS[id].name}</button>)}</>}
+ {call.status==='idle'&&<><details><summary style={btn}>Mission texts</summary>
+ <label>Message a mission contact
+ <select style={{...btn,width:'100%'}} value={textMissionId} onChange={e=>{setTextMissionId(e.target.value);setReplyTo(null)}}>
+ <option value="">Choose an assignment</option>
+ {HOLOFON_MISSIONS.map(m=><option key={m.id} value={m.id}>{HOLOFON_CONTACTS[m.caller].name} · {m.title}</option>)}
+ </select></label>
+ {textMission&&<button type="button" style={btn} onClick={()=>setReplyTo(textMission.id)}>Text “Send assignment”</button>}
+ <div role="status" aria-live="polite">{textMission&&replyTo===textMission.id&&<><p>You: Send assignment</p><p>{HOLOFON_CONTACTS[textMission.caller].name}: {textMission.line}</p><button type="button" style={btn} onClick={()=>{window.dispatchEvent(new CustomEvent('tryamm:streetverse-holofon-destination',{detail:{missionId:textMission.id,destination:textMission.destination}}));setOpen(false)}}>Track {textMission.destination}</button></>}</div>
+ </details><div>Incoming mission call test</div>{HOLOFON_MISSIONS.map(m=><button key={m.id} style={btn} onClick={()=>window.dispatchEvent(new CustomEvent('tryamm:streetverse-holofon-incoming-mission',{detail:{missionId:m.id}}))}>INCOMING: {m.title}</button>)}<div>Contacts</div>{(Object.keys(HOLOFON_CONTACTS) as HoloFonContact[]).map(id=><button key={id} style={btn} onClick={()=>act('dial',id)}>CALL {HOLOFON_CONTACTS[id].name}</button>)}</>}
  {call.status==='ringing'&&<><button style={btn} onClick={()=>act('answer')}>ANSWER</button><button style={btn} onClick={()=>act('reject')}>DECLINE</button></>}
  {call.status==='connected'&&<><div role="status" aria-live="polite">{subtitle|| (call.contact?HOLOFON_CONTACTS[call.contact].line:'')}</div>{missionId&&getHoloFonMission(missionId)&&<button style={btn} onClick={()=>{const mission=getHoloFonMission(missionId);if(mission)window.dispatchEvent(new CustomEvent('tryamm:streetverse-holofon-destination',{detail:{missionId:mission.id,destination:mission.destination}}))}}>SHOW MISSION DESTINATION: {getHoloFonMission(missionId)?.destination}</button>}<button style={btn} onClick={()=>act('toggle-mute')}>{call.muted?'UNMUTE':'MUTE'} (demo)</button><button style={btn} onClick={()=>act('end')}>END CALL</button></>}
  <label style={{minHeight:44,display:'flex',alignItems:'center',gap:8}}><input type="checkbox" checked={voiceEnabled} onChange={e=>{setVoiceEnabled(e.target.checked);if(!e.target.checked)stopHoloFonSpeech()}}/> NPC voice (device speech)</label><label style={{minHeight:44,display:'flex',alignItems:'center',gap:8}}><input type="checkbox" checked={soundEnabled} onChange={e=>setSoundEnabled(e.target.checked)}/> Ring sound</label>
