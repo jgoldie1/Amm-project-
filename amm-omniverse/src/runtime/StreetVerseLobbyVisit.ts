@@ -35,7 +35,7 @@ const steps=[
  {label:'Exit to street',status:'Lobby · illuminated exit ahead',point:[2.7,1.55,2.4]},
 ] as const
 
-export function installLobbyVisit(site:Site,mount:HTMLElement,renderer:THREE.WebGLRenderer,returnToStreet:()=>void){
+export function installLobbyVisit(site:Site,mount:HTMLElement,renderer:THREE.WebGLRenderer,returnToStreet:()=>void,savePosition?:()=>boolean){
  const entrance=entrances[site],plan=lobbyPlan(site)
  const blueprint=compileBuildingReconstruction(plan)
  const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(67,1,.08,40)
@@ -73,6 +73,10 @@ export function installLobbyVisit(site:Site,mount:HTMLElement,renderer:THREE.Web
  panel.setAttribute('aria-label',entrance.name+' guided lobby');status.setAttribute('role','status')
  panel.style.cssText='position:absolute;top:max(12px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:65000;background:#14212a;color:white;padding:8px;border-radius:10px;max-width:92vw;text-align:center;font:600 15px system-ui'
  for(const button of [action,leave]){button.type='button';button.style.cssText='min-height:48px;padding:8px 14px;margin:3px;font:inherit';panel.append(button)}
+ const save=document.createElement('button')
+ save.type='button';save.textContent='Save my place';save.style.cssText=action.style.cssText
+ save.onclick=()=>{status.textContent=savePosition?.()?'Place saved on this device.':'Unable to save on this device.'}
+ panel.append(save)
  const dialog=document.createElement('dialog')
  dialog.setAttribute('aria-label',entrance.name+' lobby walkthrough')
  dialog.style.cssText='position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;border:0;margin:0;padding:0;overflow:hidden;background:#283542'
@@ -88,7 +92,7 @@ export function installLobbyVisit(site:Site,mount:HTMLElement,renderer:THREE.Web
  const approach=CIRCLE_PARK_RESIDENT_ENTRANCE.anchors.publicApproach.position
  panel.hidden=true
  const pos=new THREE.Vector3(),target=new THREE.Vector3()
- const refresh=()=>{panel.hidden=!stage&&!near;leave.hidden=!stage;status.textContent=stage?entrance.name+' · '+(duration?['','Entering lobby','Approaching elevator','Elevator rising','Approaching stairs','Descending stairs'][stage]:steps[stage].status):atGate?'1111 S Laflin · visitor entrance':entrance.name+' · original game lobby';action.textContent=!stage&&atGate?'Visitor check-in':steps[stage].label;action.disabled=duration>0}
+ const refresh=()=>{save.hidden=Boolean(stage)||!savePosition;panel.hidden=!stage&&!near;leave.hidden=!stage;status.textContent=stage?entrance.name+' · '+(duration?['','Entering lobby','Approaching elevator','Elevator rising','Approaching stairs','Descending stairs'][stage]:steps[stage].status):atGate?'1111 S Laflin · visitor entrance':entrance.name+' · original game lobby';action.textContent=!stage&&atGate?'Visitor check-in':steps[stage].label;action.disabled=duration>0}
  const reset=()=>{returnToStreet();restoreCanvas();stage=0;duration=0;cab.position.y=0;refresh();if(near)action.focus()}
  dialog.oncancel=e=>{e.preventDefault();reset()}
  leave.onclick=reset
