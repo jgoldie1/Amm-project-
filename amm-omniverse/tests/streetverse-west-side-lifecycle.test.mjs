@@ -17,6 +17,8 @@ test('world reload preserves other worlds and removes its own collision boxes',a
     CustomEvent:class{constructor(type,options){this.type=type;this.detail=options.detail}},
     require:id=>{
       if(id==='three')return THREE
+      if(id.includes('StreetVerseChicagoTransport'))return {addChicagoTransport:()=>({update(){},dispose(){}})}
+      if(id.includes('StreetVerseMapPin'))return {installStreetVerseMapPin:()=>()=>{}}
       if(id.includes('TryammNativeAssetRuntime'))return {loadTryammNativeCircleParkLayer:async()=>({group:new THREE.Group(),loaded:0,failed:[],usedUrls:[]}),disposeNativeAssetLayer:g=>g.removeFromParent()}
       if(id.includes('StreetVerseChicagoReconstructionSources'))return {STREETVERSE_CHICAGO_PROOF_ZONE:{id:'test'},STREETVERSE_CHICAGO_RECONSTRUCTION_SOURCES:[]}
       throw new Error('Unexpected dependency '+id)

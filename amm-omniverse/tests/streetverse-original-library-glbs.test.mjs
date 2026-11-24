@@ -43,7 +43,7 @@ test('LaTeasia Library asset is correctly recognized as an UNTEXTURED diagnostic
 test('game uses original model in Greenville and keeps the animated player visible',()=>{
  assert.match(player,/getItem\('tryamm:streetverse:cast-source:'\+id\)==='device-local'/,'device import requires explicit choice')
  assert.match(imported,/RESTORE ORIGINAL LIBRARY MODELS/,'restore control exists')
- assert.match(world,/placements:greenvilleBirthdayMode\?\[\]:mobileNativePlacements/,'Greenville skips unrelated Chicago asset downloads')
+ assert.match(world,/nativePlacementsForWorld\(greenvilleBirthdayMode,entranceProps\('greenville'\),mobileNativePlacements\)/,'Greenville assets pass through the world isolation policy')
  assert.match(player,/node\.frustumCulled=!\(node instanceof THREE\.SkinnedMesh\)/,'animated model must not disappear from stale bounds')
  assert.match(player,/object\.add\(model\)/,'model rig is grouped under a movable root')
  assert.match(world,/characterId:recoveredPlayableHandle\?\.id\|\|'bj-stubbs'/,'movement evidence follows actual actor')

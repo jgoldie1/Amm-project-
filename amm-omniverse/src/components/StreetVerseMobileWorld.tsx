@@ -1,5 +1,6 @@
 import {installLaflinTrips,onTripRoad} from '../runtime/StreetVerseLaflinTrips'
 import {entranceProps,entrances,installLobbyVisit} from '../runtime/StreetVerseLobbyVisit'
+import {nativePlacementsForWorld} from '../runtime/StreetVerseWorldAssetIsolation'
 import StreetVerseChicagoCertificationHUD from './StreetVerseChicagoCertificationHUD'
 import StreetVerseVehicleDynamicsHUD from './StreetVerseVehicleDynamicsHUD'
 import StreetVerseParkourHUD from './StreetVerseParkourHUD'
@@ -390,7 +391,8 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   // Greenville has its own optimized procedural campus. Do not download Chicago
   // traffic, residents, buildings or vehicle GLBs before rendering Jacobie.
   // An empty native group still initializes the common gameplay bridge safely.
-  void loadTryammNativeCircleParkLayer({placements:greenvilleBirthdayMode?entranceProps('greenville'):mobileNativePlacements}).then(result=>{
+  const scopedNativePlacements=nativePlacementsForWorld(greenvilleBirthdayMode,entranceProps('greenville'),mobileNativePlacements)
+  void loadTryammNativeCircleParkLayer({placements:scopedNativePlacements}).then(result=>{
     if(nativeCancelled){disposeNativeAssetLayer(result.group);return}
     nativeLayer=result.group
     // Late scenery must not overwrite a player that has already mounted.
@@ -1070,9 +1072,10 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   if(!greenvilleBirthdayMode || query.get('resume')==='1'){
     try{
       const saved=JSON.parse(localStorage.getItem(positionKey)||'null')
-      if(Number.isFinite(saved?.x)&&Number.isFinite(saved?.z)&&(greenvilleBirthdayMode
+      const savedSpawnValid=Number.isFinite(saved?.x)&&Number.isFinite(saved?.z)&&(greenvilleBirthdayMode
         ? Math.abs(saved.x)<=72&&saved.z>=-64&&saved.z<=68
-        : canTraverse(saved.x,saved.z)))avatar.position.set(saved.x,0,saved.z)
+        : canTraverse(saved.x,saved.z))
+      if(savedSpawnValid)avatar.position.set(saved.x,0,saved.z)
       else if(saved)setMessage('Your saved position is unavailable. You are at the starting entrance.')
     }catch{}
   }
