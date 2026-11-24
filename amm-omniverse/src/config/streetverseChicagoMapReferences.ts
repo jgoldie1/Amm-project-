@@ -86,5 +86,5 @@ export function chicagoMapReference(areaNumber:string, areaName:string) {
   if (!Array.isArray(point)) throw new Error('Unknown Chicago community area')
   const query = new URLSearchParams({api:'1',query:areaName + ', Chicago, Illinois'})
   const panorama = new URLSearchParams({api:'1',map_action:'pano',viewpoint:point.join(',')})
-  return {map:'https://www.google.com/maps/search/?'+query,streetView:'https://www.google.com/maps/@?'+panorama}
+  return {point,map:'https://www.google.com/maps/search/?'+query,streetView:'https://www.google.com/maps/@?'+panorama}
 }

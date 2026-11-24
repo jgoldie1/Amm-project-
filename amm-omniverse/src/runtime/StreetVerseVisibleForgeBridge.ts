@@ -1,3 +1,5 @@
+import {pinOrigin} from './StreetVerseMapPin'
+import {CHICAGO_77_SLICES} from '../config/streetverseCommunitySlices'
 import * as THREE from 'three'
 import {buildStreetVerseDistrictPreview,validateStreetVersePreview} from './StreetVerseOriginalDistrictPreview'
 import type {GeneratedDistrict} from '../data/StreetVerseLivingCityGenerator'
@@ -118,7 +120,9 @@ export function installStreetVerseVisibleForgeBridge(opts:{
   }
   queuedDistrictPreview=null
   districtPreview?.dispose()
-  districtPreview=buildStreetVerseDistrictPreview(detail.district,opts.getPlayerPosition())
+  const area=CHICAGO_77_SLICES.find(a=>a.name===detail.district?.district)
+  const anchor=pinOrigin(area?.communityAreaNumber??'')
+  districtPreview=buildStreetVerseDistrictPreview(detail.district,new THREE.Vector3(anchor.x,0,anchor.z))
   layer.add(districtPreview.group)
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-district-preview-result',{detail:{rendered:true,visualOnly:true,collisions:false,cityId:'chicago',count:districtPreview.count}}))
  }

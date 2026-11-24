@@ -1,3 +1,4 @@
+import {installStreetVerseMapPin} from './StreetVerseMapPin'
 import * as THREE from 'three'
 import {loadTryammNativeCircleParkLayer,disposeNativeAssetLayer} from './TryammNativeAssetRuntime'
 import type {NativePlacement} from '../data/TryammNativeRuntimeAssetCatalog'
@@ -542,10 +543,12 @@ function addResidentialCourtyard(root:THREE.Group){
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-visible-world-ready',{detail:{version:'west-side-forger-v1',legacyVisualUpgradeVersion:'west-side-forger-v3',visualUpgradeVersion:'west-side-forger-v4',neighborhoodReconstructionVersion:'west-side-forger-v5',proofZoneDetailVersion:'chicago-proof-zone-v9',reconstructionMode:'public-data-grounded-game-reconstruction',geometryAuthority:'city-gis-source-registry',interiorAuthority:'verified-or-reconstructed',streetDetailPass:'curb-alley-signage-v5',proofZoneStreetDetailPass:'tree-pit-manhole-parking-ramp-v9',gisCompiler:'compile-chicago-proof-zone-v9',exactDigitalTwin:false,reconstructionSourceCount:STREETVERSE_CHICAGO_RECONSTRUCTION_SOURCES.length,proofZone:STREETVERSE_CHICAGO_PROOF_ZONE.id,districts:anchors.map(a=>a.id),buildings:buildings.length+3,trees:treeRows.length+extraTreeRows.length+8,vehicles:8,roads:7,crosswalks:8,streetLights:14,busShelters:2,benches:8,hydrants:5,trafficSignals:6,ambientResidents:14,nativeVisualAssets:nativePlacements.length,pilsenMurals:6,elevatedRail:true,layeredTrees:true,treeCanopyLayers:7,contactShadows:true,facadeDepth:true,fireEscapes:true,streetLevelAwnings:true,roofParapets:true,residentHandsAndShoes:true,landmarks:['St. Ignatius game reconstruction','Holy Family game reconstruction','UIC campus gateway game reconstruction','Thomas Jefferson School reconstruction'],twoWayRoadMarkings:true,raisedSidewalks:true,apartmentUnitNumbers:true,circleParkCourtyard:true,cadForger:true,collisions:true,interiorLobbies:true,treePits:true,manholeCovers:true,parkingBayMarks:true,curbRamps:true,pavementPatches:true,source:'StreetVerseWestSideVisibleWorldRuntime'}}))
   window.dispatchEvent(new CustomEvent('tryamm:game-ops-world-stage',{detail:{stage:'visible-world',state:'READY',version:'west-side-forger-v1',legacyVisualUpgradeVersion:'west-side-forger-v3',visualUpgradeVersion:'west-side-forger-v4',neighborhoodReconstructionVersion:'west-side-forger-v5',source:'StreetVerseWestSideVisibleWorldRuntime'}}))
 
+  const removeMapPin=installStreetVerseMapPin(root)
   let disposed=false
   return{group:root,collisionBoxes:colliders,dispose:()=>{
     if(disposed)return
     disposed=true
+    removeMapPin()
     for(const collider of colliders){
       const index=externalCollisionBoxes.indexOf(collider)
       if(index>=0)externalCollisionBoxes.splice(index,1)

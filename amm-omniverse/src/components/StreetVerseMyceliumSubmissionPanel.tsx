@@ -1,3 +1,4 @@
+import {StreetVerseBuildingPin} from './StreetVerseBuildingPin'
 import {useEffect,useRef,useState} from 'react'
 import {STREETVERSE_STARTER_CITIES} from '../data/StreetVerseLivingCityGenerator'
 import {runStreetVerseSubmissionTest,type SubmissionTestResult} from '../runtime/StreetVerseOneButtonSubmissionTest'
@@ -133,6 +134,7 @@ export default function StreetVerseMyceliumSubmissionPanel(){
    <a href={reference.streetView} target="_blank" rel="noopener noreferrer" style={control}>Street View · {referenceArea.name}</a>
    <small>Opens Google in a new tab near an interior point in this area. Use the map to choose another street if imagery is unavailable.</small>
   </nav>}
+  {cityId==='chicago' && <StreetVerseBuildingPin key={areaNumber} area={areaNumber}/>}
   <button type="button" onClick={submit} disabled={running} aria-label="One-button StreetVerse build and integration test" style={{...control,background:'#145b43',opacity:running?.65:1}}>{running?'RUNNING CHECKS…':'ONE BUTTON • BUILD 3D + TEST MYCELIUM / AI / BACKEND'}</button>
   <div role="status" aria-live="polite" style={{fontSize:12,color:'#b8f4e3'}}>{placement}</div>
   <div role="status" aria-live="polite" style={{fontSize:12,color:'#9ee7ff'}}>{districtVisual}</div>
