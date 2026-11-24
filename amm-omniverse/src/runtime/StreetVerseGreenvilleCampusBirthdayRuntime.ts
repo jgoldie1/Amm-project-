@@ -136,6 +136,20 @@ export function installGreenvilleCampusBirthdayWorld(scene:THREE.Scene){
    box([4,.45,1.6],[x,.7,0],stone,'greenville-student-union-table')
    for(const z of [-2,2])box([3,.5,.9],[x,.3,z],roofSlate,'greenville-student-union-bench')
  }
+ // The pond sits east of the fountain, outside the arrival promenade.
+ const pond=new THREE.Mesh(geo(new THREE.CylinderGeometry(1,1,.14,24)),fountainBlue)
+ pond.scale.set(6,1,3.6);pond.position.set(32,.12,58);pond.name='greenville-park-pond';root.add(pond)
+ box([4,.45,4],[40,.22,58],stone,'greenville-park-gazebo-deck')
+ for(const x of [38.4,41.6])for(const z of [56.4,59.6])
+   box([.18,3,.18],[x,1.9,z],trunk,'greenville-park-gazebo-post')
+ const gazeboRoof=new THREE.Mesh(geo(new THREE.ConeGeometry(3.5,1.4,4)),roofSlate)
+ gazeboRoof.rotation.y=Math.PI/4;gazeboRoof.position.set(40,4,58);gazeboRoof.name='greenville-park-gazebo-roof';root.add(gazeboRoof)
+ const umbrellaShape=geo(new THREE.ConeGeometry(2.1,.85,8))
+ for(const x of [12,24]){
+   box([.12,2.8,.12],[x,1.8,0],iron,'greenville-cafe-umbrella-post')
+   const shade=new THREE.Mesh(umbrellaShape,white)
+   shade.position.set(x,3.45,0);shade.name='greenville-plaza-cafe-umbrella';root.add(shade)
+ }
  // Goalposts, score marker, basketball practice pad and spectator signage.
  for(const z of [-18.8,2.4]){
    box([.28,4,.28],[28,2,z],iron,'greenville-football-upright-base')
