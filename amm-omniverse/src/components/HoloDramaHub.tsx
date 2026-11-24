@@ -84,7 +84,7 @@ export default function HoloDramaHub(){
     <div style={{maxWidth:1180,margin:'0 auto'}}>
       <header style={{display:'flex',justifyContent:'space-between',gap:12,alignItems:'center',flexWrap:'wrap'}}>
         <div><div style={{fontSize:12,fontWeight:950,letterSpacing:2,color:'#ff9df5'}}>TRYAMM ORIGINAL</div><h1 style={{fontSize:'clamp(34px,7vw,72px)',margin:'3px 0'}}>HOLO DRAMA</h1><p style={{margin:0,color:'#d6c8df'}}>Vertical stories • mini-series • creator earnings • OmniReel • StreetVerse</p></div>
-        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button onClick={share} style={button}>SHARE</button><a href='/omni-box' style={{...button,textDecoration:'none'}}>OMNI BOX · EPISODE STUDIO ↗</a><a href='/omni-cash' style={{...button,textDecoration:'none'}}>OMNI CASH</a><a href='/' style={{...button,textDecoration:'none'}}>HOME</a></div>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}><a style={{...primary,textDecoration:'none'}} href='/make-a-reel/index.html'>Make a Reel</a><button onClick={share} style={button}>SHARE</button><a href='/omni-box' style={{...button,textDecoration:'none'}}>OMNI BOX · EPISODE STUDIO ↗</a><a href='/omni-cash' style={{...button,textDecoration:'none'}}>OMNI CASH</a><a href='/' style={{...button,textDecoration:'none'}}>HOME</a></div>
       </header>
 
       <div role='status' aria-live='polite' style={{margin:'16px 0',padding:'10px 13px',border:'1px solid #564066',borderRadius:12,background:'#120d18',color:'#e8dff0'}}>{status}</div>
