@@ -237,9 +237,10 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
   // Never load a MetaHuman candidate by default; preview is explicitly opted-in.
   const metaHumanPreviewUrl=getPreviewBJMetaHumanUrl()
   // Default to the actual V15 hero; ?bj=legacy preserves a manual fallback.
-  const localImportedBJ=await readLocalCastAsset('bj-stubbs').catch(()=>null)
+  const suitRequested=new URLSearchParams(window.location.search).get('bj')==='v15'
+  const localImportedBJ=suitRequested?null:await readLocalCastAsset('bj-stubbs').catch(()=>null)
   const localBJMarker='local-device:bj-stubbs-v15'
-  const candidates=[...(localImportedBJ?[localBJMarker]:[]),...v15LocalUrls,v15PreviewUrl,metaHumanPreviewUrl,published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
+  const candidates=suitRequested?v15LocalUrls.slice(0,1):[...(localImportedBJ?[localBJMarker]:[]),...v15LocalUrls,v15PreviewUrl,metaHumanPreviewUrl,published?.url,BJ_MESHY_V6_ASSET.productionUrl,BJ_MESHY_V6_ASSET.legacyProductionUrl,BJ_MESHY_V6_ASSET.url].filter((url):url is string=>Boolean(url))
   const v15Candidates=new Set<string>([localBJMarker,...v15LocalUrls,...(v15PreviewUrl?[v15PreviewUrl]:[])])
   let sourceUrl=''
   let publishedGlb:Awaited<ReturnType<typeof loader.loadAsync>>|null=null
@@ -300,7 +301,8 @@ export async function loadStreetVerseMeshyBJHero():Promise<StreetVerseMeshyBJHer
           if(n instanceof THREE.Mesh)for(const name of Object.keys(n.morphTargetDictionary||{}))faceNames.add(name)
         })
         const animations=candidateGlb.animations||[]
-        const valid=animations.some(a=>/idle/i.test(a.name))&&animations.some(a=>/walk/i.test(a.name))
+        const suitPresent=Boolean(candidateGlb.scene.getObjectByName('BJ_Restore_Royal_Purple_Shirt_Front')&&candidateGlb.scene.getObjectByName('BJ_Restore_Lapel_L'))
+        const valid=(!suitRequested||suitPresent)&&animations.some(a=>/idle/i.test(a.name))&&animations.some(a=>/walk/i.test(a.name))
           &&faceNames.has('eyeBlinkLeft')&&faceNames.has('jawOpen')
         window.dispatchEvent(new CustomEvent('tryamm:bj-v15-asset-audit',{detail:{
           characterId:'bj-stubbs',sourceUrl:candidate,valid,

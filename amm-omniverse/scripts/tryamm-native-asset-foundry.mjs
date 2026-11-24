@@ -189,6 +189,12 @@ function add2027SportSedan(group,x,z,mats){
     rim.rotation.x=deg(90)
   }
 
+  for(const side of [-1,1]){
+    addBox(group,'mirror-arm',[.13,.07,.19],[x+.35,1.30,z+side*.96],mats.metal,undefined,'vehicle-mirror')
+    addRoundedShell(group,'mirror-housing',.19,.10,.14,[x+.35,1.34,z+side*1.06],mats.car,'vehicle-mirror')
+    addBox(group,'mirror-glass',[.025,.09,.15],[x+.25,1.34,z+side*1.06],mats.glass,undefined,'vehicle-mirror')
+  }
+
   for(const dz of [-.56,.56]){
     const head=new THREE.Mesh(new THREE.BoxGeometry(.08,.22,.42),mats.light)
     head.name='headlight';head.position.set(x+2.19,.78,z+dz);head.userData={semantic:'vehicle-headlight'}

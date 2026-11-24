@@ -365,6 +365,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   for(let i=0;i<14;i++)mobileNativePlacements.push({asset:'sportSedan2027',position:[0,0,0],label:`mobile-native-traffic-car-${i+1}`})
   // Original characters are priority content: load them immediately, not after all
   // scenery/NPC assets have finished loading. The native scenery layer is optional.
+  let suitSelected=new URLSearchParams(window.location.search).get('bj')==='v15'
   const initialHeroParam=new URLSearchParams(window.location.search).get('character')||''
   const eagerRecoveredId:RecoveredPlayableId|null=initialHeroParam.startsWith('jacobie')?'jacobie-stubbs':initialHeroParam.startsWith('lateasia')?'lateasia-monroe':null
   if(eagerRecoveredId)void loadRecoveredPlayable(eagerRecoveredId).then(handle=>{
@@ -530,6 +531,8 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
         }).catch(error=>{window.clearTimeout(guard);if(!nativeCancelled&&request===bjHeroLoadEpoch){console.warn('[BJ V15] loader error',error);setBJLoadStatus('error');setMessage('BJ V15 FAILED • tap RETRY BJ')}})
       }
       onBJPreviewRequest=()=>{
+        suitSelected=true
+        avatar.visible=false
         const url=new URL(window.location.href)
         url.searchParams.set('bj','v15')
         window.history.replaceState(window.history.state,'',url.href)
@@ -637,7 +640,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
       if(assetId&&assetId!=='sv-bj-stubbs-v6')void activateFamilyStandIn(assetId,String(d.label||'FAMILY CHARACTER'),String(d.characterId||''))
     }
     addEventListener('tryamm:streetverse-player-asset-select',onPlayerAssetSelect)
-    const savedPlayable=(()=>{try{return JSON.parse(localStorage.getItem('tryamm.streetverse.playable-character.v1')||'{}')?.character}catch{return null}})()
+    const savedPlayable=requestedCharacterParam?null:(()=>{try{return JSON.parse(localStorage.getItem('tryamm.streetverse.playable-character.v1')||'{}')?.character}catch{return null}})()
     if(!requestedRecoveredParam&&savedPlayable?.assetId==='sv-james-body-base-v1')void activatePublishedBody(savedPlayable.assetId,String(savedPlayable.label||'JAMES'))
     else if(!requestedRecoveredParam&&savedPlayable?.assetId&&savedPlayable.assetId!=='sv-bj-stubbs-v6')void activateFamilyStandIn(String(savedPlayable.assetId),String(savedPlayable.label||'GLOBAL CHARACTER'),String(savedPlayable.id||''))
     const recoveredParam=requestedRecoveredParam
@@ -1058,6 +1061,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
   normalizeStreetVerseHumanHeight(avatar,STREETVERSE_HUMAN_HEIGHT_METERS.adultHero)
   const fallbackWindLocs=avatar.children.filter(child=>child.name==='hero-loc')
   fallbackWindLocs.forEach(object=>{object.userData={...object.userData,windBaseRotation:{x:object.rotation.x,y:object.rotation.y,z:object.rotation.z}}})
+  if(suitSelected)avatar.visible=false
   const positionKey=greenvilleBirthdayMode?'tryamm.greenville.jacobie.position.v1':SAVE_KEY
   function savePosition(inVehicle:boolean){
     try{
@@ -1589,7 +1593,7 @@ export default function StreetVerseMobileWorld({onClose}:{onClose:()=>void}){
     bjAnatomy?.tick(now*.001)
     const reaction=bjReaction.frame(bjInjury,now)
     if(reaction.requestRescue)window.dispatchEvent(new CustomEvent('tryamm:streetverse-bj-rescue-request',{detail:{health:bjInjury.health,source:'bj-injury'}}))
-    if(nativeHero){avatar.visible=false;nativeHero.visible=true;if(activeCar){const driverOffset=(activeCar.userData.vehicleKind==='motorcycle'?new THREE.Vector3(-.14,.55,0):new THREE.Vector3(-.36,.70,.42)).applyAxisAngle(new THREE.Vector3(0,1,0),activeCar.rotation.y);nativeHero.position.copy(activeCar.position).add(driverOffset);nativeHero.rotation.y=activeCar.rotation.y-Math.PI/2}else{nativeHero.position.copy(avatar.position);nativeHero.rotation.y=avatar.rotation.y};nativeHero.rotation.z=activeCar?(activeCar.userData.vehicleKind==='motorcycle'?(vehicleDynamics?.lean||0):0):reaction.tilt;nativeHero.userData.bjReactionPose=reaction.pose;nativeHero.userData.bjInjurySpeedMultiplier=reaction.speedMultiplier;const talking=now<heroConversationUntil;bjMeshyHero?.tick(now,{moving:moving&&!activeCar,running:moving&&!activeCar&&heroSprintAllowed,talking:talking||heroLiveTalkLevel>.025,liveTalkLevel:heroLiveTalkLevel,focusYaw:heroConversationFocusYaw,breathing:heroAffectBreathing,posture:heroAffectPosture,seated:Boolean(activeCar)});publishedHeroBody?.tick(now,{moving:moving&&!activeCar,running:moving&&!activeCar&&heroSprintAllowed});familyHeroHandle?.tick(now,{moving:moving&&!activeCar,running:moving&&!activeCar&&heroSprintAllowed});recoveredPlayableHandle?.tick(now,{moving:moving&&!activeCar,running:heroSprintAllowed&&Math.hypot(analogInput.current.x,analogInput.current.y)>.85,injured:threeCastHealth.get(currentCastId()).injury!=='none',airborne:!parkour.grounded,seated:Boolean(activeCar)});animateNativeHumanoid(nativeHeroRig,moving&&!activeCar,false,now,0,true,talking||heroLiveTalkLevel>.025,heroConversationFocusYaw,heroLiveTalkLevel,heroAffectBreathing,heroAffectPosture);if(activeCar)applySeatedDriverPose(nativeHeroRig);if(bjHeadRuntime){const t=now*.001,blinkClock=t%4.6,blink=blinkClock>4.36?Math.sin(((blinkClock-4.36)/.24)*Math.PI):0,synthetic=talking?THREE.MathUtils.clamp((Math.sin(t*12.4)+Math.sin(t*7.1+1.2)+1.0)/3,0,1):0,speech=Math.max(synthetic,heroLiveTalkLevel);bjHeadRuntime.applyPose({blinkLeft:blink,blinkRight:blink,jawOpen:speech*.82,browInnerUp:(talking||heroLiveTalkLevel>.05)?.10:0,lookLeft:heroConversationFocusYaw<0?Math.min(1,Math.abs(heroConversationFocusYaw)*1.8):0,lookRight:heroConversationFocusYaw>0?Math.min(1,Math.abs(heroConversationFocusYaw)*1.8):0,cheekRaise:talking?.04:0})}}
+    if(nativeHero){avatar.visible=false;nativeHero.visible=!(suitSelected&&nativeHero===nativeHeroFallback);if(activeCar){const driverOffset=(activeCar.userData.vehicleKind==='motorcycle'?new THREE.Vector3(-.14,.55,0):new THREE.Vector3(-.36,.70,.42)).applyAxisAngle(new THREE.Vector3(0,1,0),activeCar.rotation.y);nativeHero.position.copy(activeCar.position).add(driverOffset);nativeHero.rotation.y=activeCar.rotation.y-Math.PI/2}else{nativeHero.position.copy(avatar.position);nativeHero.rotation.y=avatar.rotation.y};nativeHero.rotation.z=activeCar?(activeCar.userData.vehicleKind==='motorcycle'?(vehicleDynamics?.lean||0):0):reaction.tilt;nativeHero.userData.bjReactionPose=reaction.pose;nativeHero.userData.bjInjurySpeedMultiplier=reaction.speedMultiplier;const talking=now<heroConversationUntil;bjMeshyHero?.tick(now,{moving:moving&&!activeCar,running:moving&&!activeCar&&heroSprintAllowed,talking:talking||heroLiveTalkLevel>.025,liveTalkLevel:heroLiveTalkLevel,focusYaw:heroConversationFocusYaw,breathing:heroAffectBreathing,posture:heroAffectPosture,seated:Boolean(activeCar)});publishedHeroBody?.tick(now,{moving:moving&&!activeCar,running:moving&&!activeCar&&heroSprintAllowed});familyHeroHandle?.tick(now,{moving:moving&&!activeCar,running:moving&&!activeCar&&heroSprintAllowed});recoveredPlayableHandle?.tick(now,{moving:moving&&!activeCar,running:heroSprintAllowed&&Math.hypot(analogInput.current.x,analogInput.current.y)>.85,injured:threeCastHealth.get(currentCastId()).injury!=='none',airborne:!parkour.grounded,seated:Boolean(activeCar)});animateNativeHumanoid(nativeHeroRig,moving&&!activeCar,false,now,0,true,talking||heroLiveTalkLevel>.025,heroConversationFocusYaw,heroLiveTalkLevel,heroAffectBreathing,heroAffectPosture);if(activeCar)applySeatedDriverPose(nativeHeroRig);if(bjHeadRuntime){const t=now*.001,blinkClock=t%4.6,blink=blinkClock>4.36?Math.sin(((blinkClock-4.36)/.24)*Math.PI):0,synthetic=talking?THREE.MathUtils.clamp((Math.sin(t*12.4)+Math.sin(t*7.1+1.2)+1.0)/3,0,1):0,speech=Math.max(synthetic,heroLiveTalkLevel);bjHeadRuntime.applyPose({blinkLeft:blink,blinkRight:blink,jawOpen:speech*.82,browInnerUp:(talking||heroLiveTalkLevel>.05)?.10:0,lookLeft:heroConversationFocusYaw<0?Math.min(1,Math.abs(heroConversationFocusYaw)*1.8):0,lookRight:heroConversationFocusYaw>0?Math.min(1,Math.abs(heroConversationFocusYaw)*1.8):0,cheekRaise:talking?.04:0})}}
     if(nativeTrain){train.visible=false;nativeTrain.position.copy(train.position);nativeTrain.rotation.y=train.rotation.y}
     if(nativeStarterCar){starterCar.visible=false;nativeStarterCar.position.copy(starterCar.position);nativeStarterCar.rotation.copy(starterCar.rotation)}
     syncVisibleRiders(starterCar,now,nativeStarterCar);syncVisibleRiders(repairCar,now,nativeRepairCar)
