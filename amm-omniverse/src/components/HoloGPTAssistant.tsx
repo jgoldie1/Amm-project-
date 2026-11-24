@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import {draftWorldRequest,requestLink} from '../runtime/StreetVerseAutoBuild'
 import { getAccessToken } from '../services/supabaseClient'
 
 type Msg={role:'user'|'assistant';content:string;provider?:string}
@@ -131,6 +132,7 @@ function compactRetrieval(items:RetrievalItem[],limit=8){
 export default function HoloGPTAssistant({showLauncher=true,openOnMount=false}:Props){
   const [open,setOpen]=useState(openOnMount)
   const [messages,setMessages]=useState<Msg[]>(loadHistory)
+  const [buildLink,setBuildLink]=useState('')
   const [input,setInput]=useState(openOnMount && new URLSearchParams(window.location.search).get('context')==='mobility360'?'Help me explore the Stubbs Mobility 360 accessibility marketplace. I understand products are not approved for sale yet.':'')
   const [busy,setBusy]=useState(false)
   const [health,setHealth]=useState<Health|null>(null)
@@ -160,6 +162,12 @@ export default function HoloGPTAssistant({showLauncher=true,openOnMount=false}:P
   async function send(){
     const question=input.trim();if(!question||busy)return
     setInput('');setMessages(m=>[...m,{role:'user',content:question}])
+    const build=draftWorldRequest(question)
+    if(build){
+      setBuildLink(requestLink(build))
+      setMessages(m=>[...m,{role:'assistant',content:'Build request: '+build.assets.join(', ')+' at '+build.site+'. Save it to a new GitHub branch and open a pull request to start the preview build.'}])
+      return
+    }
     const action=localIntent(question)
     if(action){setMessages(m=>[...m,{role:'assistant',content:`${action}\n\nNavigation is active. Consequential actions such as payments, physical rides, deliveries and drones still remain behind their safety and verification gates.`,provider:'holo-router'}]);return}
     setBusy(true)
@@ -228,6 +236,7 @@ export default function HoloGPTAssistant({showLauncher=true,openOnMount=false}:P
           {messages.map((m,i)=><div key={i} style={{display:'flex',justifyContent:m.role==='user'?'flex-end':'flex-start',margin:'10px 0'}}><div style={{maxWidth:'88%',whiteSpace:'pre-wrap',lineHeight:1.55,fontSize:12,padding:'10px 12px',borderRadius:14,background:m.role==='user'?'#e8b94418':'#4fe3ff12',border:`1px solid ${m.role==='user'?'#e8b94444':'#4fe3ff33'}`,color:m.role==='user'?'#ffe7a0':'#e8faff'}}>{m.content}{m.provider&&<div style={{marginTop:7,fontSize:8,color:'#6f8d9e',fontFamily:'monospace'}}>{m.provider}</div>}</div></div>)}
           {busy&&<div style={{color:'#4fe3ff',fontFamily:'monospace',fontSize:11}}>HOLOGPT IS THINKING…</div>}<div ref={end}/>
         </div>
+        {buildLink&&<a href={buildLink} target="_blank" rel="noopener noreferrer" style={{display:'block',padding:14,color:'white'}}>Save build request on GitHub</a>}
         <div style={{padding:12,borderTop:'1px solid #4fe3ff22',display:'flex',gap:8}}><textarea aria-label="Message HoloGPT" value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}}} placeholder="Ask HoloGPT or say open Holoverse…" rows={2} style={{flex:1,resize:'none',borderRadius:12,border:'1px solid #334b5b',background:'#050912',color:'#fff',padding:10,fontFamily:'inherit'}}/><button onClick={send} disabled={disabled} style={{border:0,borderRadius:12,padding:'0 15px',background:'#4fe3ff',color:'#041018',fontWeight:950,cursor:disabled?'not-allowed':'pointer',opacity:disabled?.55:1}}>SEND</button></div>
       </div>
     </div>}

@@ -1,3 +1,4 @@
+import {applyWorldRequests} from './StreetVerseAutoBuild'
 import * as THREE from 'three'
 import {compileBuildingReconstruction,type BuildingPlan} from '../game/runtime/StreetVerseBuildingReconstructionCompiler'
 import {CIRCLE_PARK_RESIDENT_ENTRANCE} from '../data/CircleParkResidentEntrance'
@@ -11,13 +12,15 @@ type Site=keyof typeof entrances
 export function entranceProps(site:Site):NativePlacement[]{
  const anchor=CIRCLE_PARK_RESIDENT_ENTRANCE.anchors.publicApproach.position
  const {x,z,front}=site==='chicago'?{x:anchor[0],z:anchor[2],front:1}:entrances.greenville
- return [
+ const base:NativePlacement[]=[
   {asset:'tree',position:[x-9,0,z-2*front],scale:1.25,label:site+'-approach-tree'},
   {asset:'tree',position:[x+10,0,z+4*front],scale:1.08,label:site+'-lawn-tree'},
   {asset:'bench',position:[x-4,0,z+front],rotationY:front===1?Math.PI:0,label:site+'-entrance-bench'},
   {asset:'streetLamp',position:[x+4,0,z+front],label:site+'-entrance-lamp'},
   {asset:'holoWayfinder',position:[x+3,0,z+front*2],label:site+'-lobby-wayfinder'},
  ]
+ const requests=import.meta.glob('../world-requests/*.json',{eager:true,import:'default'})
+ return applyWorldRequests(base,site==='chicago'?'laflin':'student-union',{x,z,front},Object.values(requests))
 }
 export function lobbyPlan(site:Site):BuildingPlan{
  return {id:site+'-practice-lobby',cityId:site,district:entrances[site].name,label:'Public lobby walkthrough',
