@@ -9,13 +9,13 @@ test('renderer escapes markup and produces repeatable evidence',()=>{
  assert.throws(()=>normalizeDraft({...input,services:'a'.repeat(2001)}));assert.throws(()=>normalizeDraft({...input,name:''}));
 });
 test('executor records results under claimed lease and owner',async()=>{
- const calls=[];const result=await executeOne({userId:'owner',jobId:'job',rpc:async(n,b)=>{calls.push([n,b]);return n==='ai_cafe_claim'?[{id:'job',lease_token:'lease',input}]:true}});
+ const calls=[];const result=await executeOne({userId:'owner',jobId:'job',rpc:async(n,b)=>{calls.push([n,b]);return n==='ai_cafe_claim'?[{id:'job',lease_token:'lease',kind:'website-draft',input}]:true}});
  assert.equal(result.completed,true);assert.equal(calls[0][1].p_user,'owner');assert.equal(calls[1][1].p_token,'lease');assert.ok(calls[1][1].p_output.sha256);
 });
 test('failed render is sanitized; lost lease never reports success',async()=>{
- const rpc=async n=>n==='ai_cafe_claim'?[{id:'job',lease_token:'lease',input}]:false;
+ const rpc=async n=>n==='ai_cafe_claim'?[{id:'job',lease_token:'lease',kind:'website-draft',input}]:false;
  assert.equal((await executeOne({rpc})).completed,false);
- let error;await executeOne({render:()=>{throw Error('private')},rpc:async(n,b)=>{if(n==='ai_cafe_claim')return [{id:'job',lease_token:'lease',input}];error=b.p_error;return true}});assert.equal(error,'draft_render_failed');
+ let error;await executeOne({render:()=>{throw Error('private')},rpc:async(n,b)=>{if(n==='ai_cafe_claim')return [{id:'job',lease_token:'lease',kind:'website-draft',input}];error=b.p_error;return true}});assert.equal(error,'job_render_failed');
 });
 function response(){return {code:0,setHeader(){},status(c){this.code=c;return this},json(p){this.payload=p;return this}}}
 test('unauthorized caller cannot reach persistence',async()=>{

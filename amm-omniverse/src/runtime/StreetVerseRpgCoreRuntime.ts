@@ -107,6 +107,7 @@ export function installStreetVerseRpgCore(){
   const onMissionComplete=(event:Event)=>{
     const d=(event as CustomEvent<Record<string,unknown>>).detail||{}
     const id=String(d.missionId||d.id||'mission-'+Date.now())
+    if(d.oneTimeQuest===true&&state.completedQuestIds.includes(id))return
     state.activeQuestIds=state.activeQuestIds.filter(x=>x!==id)
     if(!state.completedQuestIds.includes(id))state.completedQuestIds.push(id)
     const text=JSON.stringify(d).toLowerCase()
@@ -129,9 +130,15 @@ export function installStreetVerseRpgCore(){
   const onChoice=(event:Event)=>{
     const d=(event as CustomEvent<Record<string,unknown>>).detail||{}
     const token=[d.missionId,d.stepId,d.choiceId].filter(Boolean).join(':')
-    if(token&&!state.choices.includes(token))state.choices.push(token)
+    if(!token||state.choices.includes(token))return
+    state.choices.push(token)
     reward(state,{xp:10,skill:'leadership'})
     publish('choice')
+  }
+  const onRouteActive=(event:Event)=>{
+    const route=(event as CustomEvent).detail
+    if(!route?.missionId||!['A','B','C','D'].includes(route.choice))return
+    onChoice(new CustomEvent('choice',{detail:{missionId:route.missionId,stepId:'route',choiceId:route.choice}}))
   }
   const onGameplay=(event:Event)=>{
     const d=(event as CustomEvent<Record<string,unknown>>).detail||{}
@@ -166,6 +173,7 @@ export function installStreetVerseRpgCore(){
   addEventListener('tryamm:streetverse-mission-start',onMissionStart)
   addEventListener('tryamm:streetverse-mission-complete',onMissionComplete)
   addEventListener('tryamm:npc-conversation',onNpc)
+  addEventListener('tryamm:mission:route-active',onRouteActive)
   addEventListener('tryamm:universal-mission-choice',onChoice)
   addEventListener('tryamm:streetverse-gameplay-action',onGameplay)
   addEventListener('tryamm:city-incident',onIncident)
@@ -192,6 +200,7 @@ export function installStreetVerseRpgCore(){
     removeEventListener('tryamm:streetverse-mission-start',onMissionStart)
     removeEventListener('tryamm:streetverse-mission-complete',onMissionComplete)
     removeEventListener('tryamm:npc-conversation',onNpc)
+    removeEventListener('tryamm:mission:route-active',onRouteActive)
     removeEventListener('tryamm:universal-mission-choice',onChoice)
     removeEventListener('tryamm:streetverse-gameplay-action',onGameplay)
     removeEventListener('tryamm:city-incident',onIncident)

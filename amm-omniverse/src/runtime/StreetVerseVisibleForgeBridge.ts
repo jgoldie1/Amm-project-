@@ -1,4 +1,8 @@
+import {pinOrigin} from './StreetVerseMapPin'
+import {CHICAGO_77_SLICES} from '../config/streetverseCommunitySlices'
 import * as THREE from 'three'
+import {buildStreetVerseDistrictPreview,validateStreetVersePreview} from './StreetVerseOriginalDistrictPreview'
+import type {GeneratedDistrict} from '../data/StreetVerseLivingCityGenerator'
 import type {TryammNativeRuntimeAssetKey} from '../data/TryammNativeRuntimeAssetCatalog'
 
 const KEY='tryamm.streetverse.forge-placements.v1'
@@ -40,6 +44,8 @@ export function installStreetVerseVisibleForgeBridge(opts:{
 }){
  let records:ForgeRecord[]=[]
  let active=true
+ let districtPreview:ReturnType<typeof buildStreetVerseDistrictPreview>|null=null
+ let queuedDistrictPreview:GeneratedDistrict|null=null
  const instances=new Map<string,THREE.Object3D>()
  function sourceObject(key:TryammNativeRuntimeAssetKey){
   const layer=opts.getNativeLayer()
@@ -101,6 +107,40 @@ export function installStreetVerseVisibleForgeBridge(opts:{
   const layer=opts.getNativeLayer()
   broadcast({status:layer?(layer.children.some(child=>allowed.has(child.userData.tryammNativeAsset))?'ready':'native-models-unavailable'):'native-layer-loading',requested:0,placed:0,count:instances.size,missing:[]})
  }
+ const preview=(event:Event)=>{
+  if(!active)return
+  const detail=(event as CustomEvent<{district?:GeneratedDistrict;cityId?:string;source?:string}>).detail||{}
+  if(detail.source!=='one-button-integration-test'||detail.cityId!=='chicago'||!detail.district)return
+  const issues=validateStreetVersePreview(detail.district)
+  const layer=opts.getNativeLayer()
+  if(issues.length||!layer){
+   queuedDistrictPreview=issues.length?null:detail.district
+   window.dispatchEvent(new CustomEvent('tryamm:streetverse-district-preview-result',{detail:{rendered:false,queued:Boolean(queuedDistrictPreview),reason:issues.join(',')||'native-layer-not-ready',count:0}}))
+   return
+  }
+  queuedDistrictPreview=null
+  districtPreview?.dispose()
+  const area=CHICAGO_77_SLICES.find(a=>a.name===detail.district?.district)
+  const anchor=pinOrigin(area?.communityAreaNumber??'')
+  districtPreview=buildStreetVerseDistrictPreview(detail.district,new THREE.Vector3(anchor.x,0,anchor.z))
+  layer.add(districtPreview.group)
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-district-preview-result',{detail:{rendered:true,visualOnly:true,collisions:false,cityId:'chicago',count:districtPreview.count}}))
+ }
+ const clearPreview=()=>{
+  queuedDistrictPreview=null
+  const count=districtPreview?.count||0
+  districtPreview?.dispose();districtPreview=null
+  window.dispatchEvent(new CustomEvent('tryamm:streetverse-district-preview-result',{detail:{rendered:false,cleared:true,count}}))
+ }
+ const previewOnReady=()=>{
+  if(!active||!queuedDistrictPreview||!opts.getNativeLayer())return
+  const district=queuedDistrictPreview
+  queuedDistrictPreview=null
+  preview(new CustomEvent('tryamm:streetverse-district-preview',{detail:{district,cityId:'chicago',source:'one-button-integration-test'}}))
+ }
+ window.addEventListener('tryamm:streetverse-forge-renderer-ready',previewOnReady)
+ window.addEventListener('tryamm:streetverse-district-preview',preview)
+ window.addEventListener('tryamm:streetverse-district-preview-clear',clearPreview)
  window.addEventListener('tryamm:streetverse-forge-request-state',report)
  window.addEventListener('tryamm:streetverse-forge-placement-request',forge)
  window.addEventListener('tryamm:streetverse-forge-placement-undo',undo)
@@ -108,6 +148,10 @@ export function installStreetVerseVisibleForgeBridge(opts:{
   hydrate,
   dispose:()=>{
    active=false
+   districtPreview?.dispose();districtPreview=null;queuedDistrictPreview=null
+   window.removeEventListener('tryamm:streetverse-forge-renderer-ready',previewOnReady)
+   window.removeEventListener('tryamm:streetverse-district-preview',preview)
+   window.removeEventListener('tryamm:streetverse-district-preview-clear',clearPreview)
    window.removeEventListener('tryamm:streetverse-forge-request-state',report)
    window.removeEventListener('tryamm:streetverse-forge-placement-request',forge)
    window.removeEventListener('tryamm:streetverse-forge-placement-undo',undo)

@@ -21,6 +21,6 @@ test('untextured diagnostic is not mistaken for real texture and original materi
  assert.doesNotMatch(player,/vertexColors:true/)
 })
 test('Jacobie does not download unrelated Chicago scenery during Greenville boot',()=>{
- assert.match(world,/placements:greenvilleBirthdayMode\?\[\]:mobileNativePlacements/)
+ assert.match(world,/nativePlacementsForWorld\(greenvilleBirthdayMode,entranceProps\('greenville'\),mobileNativePlacements\)/)
  assert.match(player,/node\.frustumCulled=!\(node instanceof THREE\.SkinnedMesh\)/)
 })

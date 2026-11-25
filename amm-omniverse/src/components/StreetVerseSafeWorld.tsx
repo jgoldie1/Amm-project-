@@ -1,4 +1,5 @@
-import {useMemo} from 'react'
+import {installStreetVerseRpgCore} from '../runtime/StreetVerseRpgCoreRuntime'
+import {useEffect,useMemo} from 'react'
 import {getStreetVerseCommunitySlice,getStreetVerseMissionSlice} from '../config/streetverseCommunitySlices'
 import StreetVerseMobilePlayableWorld from './StreetVerseMobilePlayableWorld'
 import StreetVerseHydeParkMobileWorld from './StreetVerseHydeParkMobileWorld'
@@ -18,6 +19,7 @@ function routeRequest(){
 }
 
 export default function StreetVerseSafeWorld({onClose,communityAreaNumber}:{onClose:()=>void;communityAreaNumber?:string|number}){
+ useEffect(installStreetVerseRpgCore,[])
  const route=useMemo(routeRequest,[])
  const slice=useMemo(()=>communityAreaNumber!==undefined?getStreetVerseCommunitySlice(communityAreaNumber):getStreetVerseMissionSlice(),[communityAreaNumber])
  const restore3D=<button type="button" data-streetverse-restore-3d="true" aria-label="Open full 3D StreetVerse Chicago" onClick={()=>{

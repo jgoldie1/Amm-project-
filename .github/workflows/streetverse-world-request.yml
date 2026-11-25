@@ -1,0 +1,42 @@
+name: Build StreetVerse world requests
+on:
+  pull_request:
+    paths: ['amm-omniverse/src/world-requests/**','amm-omniverse/src/runtime/StreetVerseAutoBuild.ts','amm-omniverse/scripts/*world-request*.mjs','.github/workflows/streetverse-world-request.yml']
+  push:
+    branches: [main]
+    paths: ['amm-omniverse/src/world-requests/**','amm-omniverse/src/runtime/StreetVerseAutoBuild.ts','amm-omniverse/scripts/*world-request*.mjs','.github/workflows/streetverse-world-request.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: world-request-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amm-omniverse/package-lock.json
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: node --test tests/streetverse-auto-build.test.mjs
+      - run: npm run native:assets
+      - run: node scripts/build-world-request-preview.mjs
+      - uses: actions/upload-artifact@v4
+        id: preview
+        with:
+          name: streetverse-world-preview
+          path: amm-omniverse/world-request-preview/index.html
+          if-no-files-found: error
+          retention-days: 7
+      - name: Link the playable preview
+        env:
+          PREVIEW_URL: ${{ steps.preview.outputs.artifact-url }}
+        run: echo "[Download the preview]($PREVIEW_URL), extract it and open index.html. Use Walk to next prop to inspect each placement." >> "$GITHUB_STEP_SUMMARY"

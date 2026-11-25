@@ -17,7 +17,7 @@ test('owned BJ V12 or V7 GLB replaces the basic hero on iPhone-sized Circle Park
       ready.push((event as CustomEvent).detail||{})
     })
   })
-  await page.goto('/streetverse',{waitUntil:'domcontentloaded',timeout:45_000})
+  await page.goto('/streetverse?graphics=3d&character=bj&bj=legacy',{waitUntil:'domcontentloaded',timeout:45_000})
   await expect(page.locator('canvas').first()).toBeVisible({timeout:30_000})
   await page.waitForFunction(()=>{
     const proof=(window as unknown as {__bjOwnedAssetProof:Array<{url:string}>}).__bjOwnedAssetProof||[]
@@ -27,4 +27,21 @@ test('owned BJ V12 or V7 GLB replaces the basic hero on iPhone-sized Circle Park
   expect(results.length).toBeGreaterThan(0)
   console.log('BJ OWNED GLB LIVE PROOF',JSON.stringify(results))
   await page.screenshot({path:testInfo.outputPath('streetverse-bj-owned-glb-active-iphone.png'),fullPage:false})
+})
+
+test('default BJ uses the recovered V15 rig with walk and facial controls',async({page})=>{
+  test.setTimeout(100_000)
+  await page.addInitScript(()=>{
+    window.addEventListener('tryamm:bj-meshy-v6-ready',event=>{
+      const {url,clipNames,morphTargetNames}=(event as CustomEvent).detail
+      if(url.endsWith('/BJ_Stubbs_V15_Black_Suit_Purple_Shirt_Restore.glb')
+          &&clipNames.some((name:string)=>/walk/i.test(name))
+          &&morphTargetNames.includes('jawOpen')&&morphTargetNames.includes('eyeBlinkLeft')){
+        document.documentElement.dataset.ownedBjV15='loaded'
+      }
+    })
+  })
+  await page.goto('/streetverse?graphics=3d&character=bj',{waitUntil:'domcontentloaded'})
+  await expect(page.locator('canvas').first()).toBeVisible()
+  await expect(page.locator('html')).toHaveAttribute('data-owned-bj-v15','loaded',{timeout:60000})
 })

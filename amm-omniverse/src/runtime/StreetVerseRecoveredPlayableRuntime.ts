@@ -4,13 +4,15 @@ import {STREETVERSE_RECOVERED_THREE_CAST} from '../data/StreetVerseRecoveredThre
 import {readLocalCastAsset} from './StreetVerseCharacterLocalRecovery'
 
 export type RecoveredPlayableId='jacobie-stubbs'|'lateasia-monroe'
+type MovementState={moving:boolean;running?:boolean;injured?:boolean;airborne?:boolean;seated?:boolean}
 export type RecoveredPlayableHandle={
  id:RecoveredPlayableId
  name:string
  object:THREE.Object3D
  clips:THREE.AnimationClip[]
+ mixer:THREE.AnimationMixer
  source:'device-local'|'app-asset'
- tick:(now:number,state:{moving:boolean;running?:boolean})=>void
+ tick:(now:number,state:MovementState)=>void
  dispose:()=>void
 }
 
@@ -86,7 +88,7 @@ export async function loadRecoveredPlayable(id:RecoveredPlayableId):Promise<Reco
    // NEVER misrepresented as installed when it returns a 404.
    const repoRoot='https://raw.githubusercontent.com/jgoldie1/Amm-project-/feature/ai-commons-one-push-20261118/amm-omniverse/public'
    const candidates=id==='lateasia-monroe'
-     ? ['/tryamm-assets/meshy/characters/LaTeasia_Monroe_Textured_Seven_Motion_Recovery.glb',entry.url,repoRoot+entry.url]
+     ? ['/tryamm-assets/meshy/characters/LaTeasia_Monroe_Full_Body.glb','/tryamm-assets/meshy/characters/LaTeasia_Monroe_Textured_Seven_Motion_Recovery.glb',entry.url,repoRoot+entry.url]
      : [entry.url,repoRoot+entry.url]
    const attempts:string[]=[]
    for(const candidate of candidates){
@@ -133,7 +135,7 @@ export async function loadRecoveredPlayable(id:RecoveredPlayableId):Promise<Reco
  })
  object.userData={recoveredPlayable:true,characterId:id,displayName:entry.name,source,clipCount:clips.length,
    textureVerified:hasPhotoTextures,diagnosticAppearance:id==='lateasia-monroe'&&!hasPhotoTextures,
-   experimentalSkinTransfer:id==='lateasia-monroe'&&hasPhotoTextures&&source==='device-local',
+   experimentalSkinTransfer:id==='lateasia-monroe'&&hasPhotoTextures,
    likenessVerified:false,visualHeightMeters:fitted.height,modelScaleCorrection:fitted.scale,sourcePosedHeightMeters:fitted.sourceHeight}
  object.add(model)
  object.traverse(node=>{
@@ -150,17 +152,20 @@ export async function loadRecoveredPlayable(id:RecoveredPlayableId):Promise<Reco
  const map={
    idle:find([/idle/i,/stand/i,/breath/i]),
    walk:find([/walk/i,/locomotion/i]),
-   run:find([/run/i,/jog/i,/sprint/i]),
+   run:find([/^run(?:ning)?$/i,/sprint/i,/jog/i]),
+   jump:find([/jump/i]),
+   limp:find([/limp/i]),
+   sit:find([/sit/i,/seated/i]),
  }
  let active:THREE.AnimationAction|null=null
  let activeName=''
  let last=performance.now()
- const tick=(now:number,state:{moving:boolean;running?:boolean})=>{
-   const motion=state.running?'run':state.moving?'walk':'idle'
+ const tick=(now:number,state:MovementState)=>{
+   const motion=state.seated?'sit':state.airborne?'jump':state.moving?(state.injured?'limp':state.running?'run':'walk'):'idle'
    if(motion!==activeName){
-     const clip=map[motion]||map.walk||map.idle||clips[0]
+     const clip=map[motion]||(state.moving&&!state.seated?map.walk:map.idle)
      if(clip){
-       const next=mixer.clipAction(clip);next.enabled=true;next.reset().play()
+       const next=mixer.clipAction(clip);next.enabled=true;next.setLoop(THREE.LoopRepeat,Infinity);next.reset().play()
        if(active&&active!==next)active.crossFadeTo(next,.14,false)
        active=next;activeName=motion
      }
@@ -177,5 +182,5 @@ export async function loadRecoveredPlayable(id:RecoveredPlayableId):Promise<Reco
    })
  }
  window.dispatchEvent(new CustomEvent('tryamm:streetverse-recovered-playable-ready',{detail:{id,name:entry.name,source,clips:clips.map(c=>c.name)}}))
- return{id,name:entry.name,object,clips,source,tick,dispose}
+ return{id,name:entry.name,object,clips,mixer,source,tick,dispose}
 }

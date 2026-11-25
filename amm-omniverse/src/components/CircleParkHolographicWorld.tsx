@@ -1,3 +1,4 @@
+import {completeCircleParkQuest} from '../runtime/CircleParkQuestEvents'
 import {useEffect,useRef,useState} from 'react'
 import * as THREE from 'three'
 import {createCircleParkHologram} from '../game/holographic/CircleParkHolographicPrototype'
@@ -16,7 +17,46 @@ const BUSINESS_TARGET=new THREE.Vector3(9,1.4,-4)
 const HOME_TARGET=new THREE.Vector3(-9,1.4,-4)
 const inside=(x:number,z:number,b:Zone)=>x>b.minX&&x<b.maxX&&z>b.minZ&&z<b.maxZ
 
+const APARTMENT_TEST='tryamm.circle-park.apartment-test.v1'
+const RPG_SAVE='tryamm.streetverse.rpg-core.v1'
+function apartmentSave(){
+ const raw=JSON.parse(localStorage.getItem(RPG_SAVE)||'null')
+ return {claimed:raw?.completedQuestIds?.includes('circle-park-home')===true,xp:raw?.xp??0}
+}
+function exportApartmentReport(report:object){
+ const url=URL.createObjectURL(new Blob([JSON.stringify(report,null,2)],{type:'application/json'}))
+ const link=document.createElement('a')
+ link.href=url;link.download='Circle-Park-Apartment-Test.json'
+ document.body.appendChild(link);link.click();link.remove()
+ window.setTimeout(()=>URL.revokeObjectURL(url),1000)
+}
+
 export default function CircleParkHolographicWorld({onClose}:{onClose:()=>void}){
+ const homeInRange=useRef(false)
+ const [tripStatus,setTripStatus]=useState('')
+ const [tripReport,setTripReport]=useState<object|null>(null)
+ useEffect(()=>{
+  try{
+   const saved=apartmentSave()
+   if(saved.claimed)setStarterHome(true)
+   const trial=JSON.parse(sessionStorage.getItem(APARTMENT_TEST)||'null')
+   if(trial?.phase==='reload'){
+    const passed=trial.reached===true&&trial.afterXp-trial.beforeXp===200&&trial.claimed===true&&saved.claimed&&saved.xp===trial.afterXp
+    const report={...trial,phase:'finished',passed,afterReload:saved,testedAt:new Date().toISOString()}
+    sessionStorage.setItem(APARTMENT_TEST,JSON.stringify(report))
+    setTripStatus(passed?'Apartment test passed. Report exported.':'Apartment test failed. Report exported.')
+    setTripReport(report);exportApartmentReport(report)
+   }else if(trial?.phase==='finished'){setTripReport(trial);setTripStatus(trial.passed?'Apartment test passed.':'Apartment test failed.')}
+   else if(trial?.phase==='walk')setTripStatus('Walk to the apartment and tap Claim Home.')
+  }catch{setTripStatus('Browser storage unavailable for this test.')}
+ },[])
+ const startTrip=()=>{
+  try{
+   if(apartmentSave().claimed||starterHome){setTripStatus('Apartment already claimed on this save. Use a fresh browser profile to test a first claim.');return}
+   sessionStorage.setItem(APARTMENT_TEST,JSON.stringify({phase:'walk',startedAt:new Date().toISOString()}))
+   setTripReport(null);setTripStatus('Walk to the apartment and tap Claim Home. The game will reload and export your result.')
+  }catch{setTripStatus('Browser storage unavailable for this test.')}
+ }
  const mountRef=useRef<HTMLDivElement|null>(null),joystickKnob=useRef<HTMLDivElement|null>(null),input=useRef({x:0,z:0}),nearEntrance=useRef(false),insideDemo=useRef(false),nearElevator=useRef(false),companionCommand=useRef<CompanionCommand>('follow'),playerRef=useRef<THREE.Mesh|null>(null),dogRef=useRef<THREE.Group|null>(null),carryingRef=useRef<string|null>(null),disposedRef=useRef<string[]>([]),repairKitRef=useRef(false),repairStepRef=useRef(0),drivingRef=useRef(false),routeIndexRef=useRef(0),routeCompleteRef=useRef(false),doorsOpenRef=useRef(false),repairCarPositionRef=useRef<[number,number,number]>([...CIRCLE_PARK_REPAIR_CAR.position]),mobilityJobRef=useRef<StreetVerseAmbientJob|null>(null),mobilityStageRef=useRef<'pickup'|'dropoff'|'complete'>('pickup')
  const [message,setMessage]=useState('Walk to the glowing entrance.'),[nativeAssets,setNativeAssets]=useState<{state:'LOADING'|'READY'|'FALLBACK';loaded:number;failed:number}>({state:'LOADING',loaded:0,failed:0}),[canOpen,setCanOpen]=useState(false),[interior,setInterior]=useState(false),[canElevator,setCanElevator]=useState(false),[floorLevel,setFloorLevel]=useState(1),[dogCommand,setDogCommand]=useState<CompanionCommand>('follow'),[missionComplete,setMissionComplete]=useState(false),[xp,setXp]=useState(0),[shareMessage,setShareMessage]=useState(''),[businessNear,setBusinessNear]=useState(false),[businessComplete,setBusinessComplete]=useState(false),[selectedMission,setSelectedMission]=useState<SelectedMission|null>(null),[selectedCharacter,setSelectedCharacter]=useState('YOU'),[circleXp,setCircleXp]=useState(0),[starterHome,setStarterHome]=useState(false),[chicagoUnlocked,setChicagoUnlocked]=useState(false),[homeNear,setHomeNear]=useState(false),[carrying,setCarrying]=useState<string|null>(null),[disposed,setDisposed]=useState<string[]>([]),[repairKit,setRepairKit]=useState(false),[repairStep,setRepairStep]=useState(0),[nearWasteId,setNearWasteId]=useState<string|null>(null),[nearDump,setNearDump]=useState(false),[nearKit,setNearKit]=useState(false),[nearCar,setNearCar]=useState(false),[driving,setDriving]=useState(false),[routeIndex,setRouteIndex]=useState(0),[routeComplete,setRouteComplete]=useState(false),[doorsOpen,setDoorsOpen]=useState(false),[mobilityJob,setMobilityJob]=useState<StreetVerseAmbientJob|null>(null),[mobilityStage,setMobilityStage]=useState<'pickup'|'dropoff'|'complete'>('pickup')
  useEffect(()=>{
@@ -24,7 +64,7 @@ export default function CircleParkHolographicWorld({onClose}:{onClose:()=>void})
   const onCharacter=(event:Event)=>{const detail=(event as CustomEvent).detail||{};if(detail.label)setSelectedCharacter(detail.label)}
   window.addEventListener('tryamm:streetverse-mission-selected',onMission as EventListener);window.addEventListener('tryamm:streetverse-character-select',onCharacter as EventListener)
   try{const saved=JSON.parse(localStorage.getItem('tryamm.streetverse.playable-character.v1')||'{}');if(saved?.character?.label)setSelectedCharacter(saved.character.label)}catch{}
-  const onProgress=(event:Event)=>{const p=(event as CustomEvent).detail||{};setCircleXp(Number(p.xp||0));setStarterHome(Boolean(p.starterHomeClaimed));setChicagoUnlocked(Boolean(p.chicagoUnlocked))}
+  const onProgress=(event:Event)=>{const p=(event as CustomEvent).detail||{};setCircleXp(Number(p.xp||0));setStarterHome(previous=>previous||Boolean(p.starterHomeClaimed));setChicagoUnlocked(Boolean(p.chicagoUnlocked))}
   window.addEventListener('tryamm:circle-park-progress',onProgress as EventListener)
   const onMobilityJob=(event:Event)=>{
     const detail=(event as CustomEvent<StreetVerseAmbientJob>).detail
@@ -258,7 +298,7 @@ export default function CircleParkHolographicWorld({onClose}:{onClose:()=>void})
         routeCompleteRef.current=true;setRouteComplete(true);setRouteIndex(STREETVERSE_CHICAGO_ROUTE.length)
         setXp(v=>v+250)
         setMessage(`CHICAGO SLICE COMPLETE • ${checkpoint.label} reached • Circle Park → Roosevelt → Taylor → Pilsen • +${checkpoint.rewardXP+250} XP.`)
-        window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-complete',{detail:{mission:{id:'circle-park-roosevelt-taylor-pilsen',title:'Circle Park → Roosevelt → Taylor → Pilsen',rewardXP:550},character:selectedCharacter,routeComplete:true}}))
+        completeCircleParkQuest({id:'circle-park-roosevelt-taylor-pilsen',title:'Circle Park → Roosevelt → Taylor → Pilsen',rewardXP:550},selectedCharacter,true)
       }else{
         routeIndexRef.current=next;setRouteIndex(next)
         setMessage(`CHECKPOINT • ${checkpoint.label} • +${checkpoint.rewardXP} XP • NEXT: ${STREETVERSE_CHICAGO_ROUTE[next].label}.`)
@@ -269,7 +309,7 @@ export default function CircleParkHolographicWorld({onClose}:{onClose:()=>void})
    const near=player.position.distanceTo(MISSION_TARGET)<4
    if(near!==nearEntrance.current){nearEntrance.current=near;setCanOpen(near);if(!insideDemo.current&&!drivingRef.current)setMessage(near?'Entrance reached • OPEN is available.':'Explore Circle Park • follow the active objective.')}
    const homeClose=!insideDemo.current&&player.position.distanceTo(HOME_TARGET)<6
-   if(homeClose!==homeNear){setHomeNear(homeClose);if(homeClose&&!starterHome&&!drivingRef.current)setMessage('Starter home marker reached • CLAIM HOME is available.')}
+   if(homeClose!==homeInRange.current){homeInRange.current=homeClose;setHomeNear(homeClose);if(homeClose&&!starterHome&&!drivingRef.current)setMessage('Starter home marker reached • CLAIM HOME is available.')}
    const shopNear=!insideDemo.current&&player.position.distanceTo(BUSINESS_TARGET)<6
    if(shopNear!==businessNear){setBusinessNear(shopNear);if(shopNear&&!businessComplete&&!drivingRef.current)setMessage('Local business discovered • CHECK IN is available.')}
    const elev=insideDemo.current&&player.position.distanceTo(new THREE.Vector3(3,1.4,-16))<3.5
@@ -343,10 +383,23 @@ export default function CircleParkHolographicWorld({onClose}:{onClose:()=>void})
   setMessage(`DRIVE MODE ACTIVE • NEXT: ${STREETVERSE_CHICAGO_ROUTE[routeIndexRef.current]?.label||'Pilsen'}.`)
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-controlled',{detail:{entered:true,vehicleType:'car',controlledVehicleId:'circle-park-repair-car'}}))
  }
- const open=()=>{if(!nearEntrance.current)return setMessage('Move closer to the entrance first.');insideDemo.current=true;setInterior(true);if(!missionComplete){const reward=selectedMission?.rewardXP||100;setMissionComplete(true);setXp(v=>v+reward);setMessage(`MISSION COMPLETE • ${selectedMission?.title||'Circle Park Arrival'} • +${reward} XP. Interior demo entered.`);window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-complete',{detail:{mission:selectedMission||{id:'circle-park-arrival',title:'Circle Park Arrival',rewardXP:100},character:selectedCharacter,rewardXP:reward}}))}else setMessage('Interior demo entered • stairs + elevator mockup active.')}
+ const open=()=>{if(!nearEntrance.current)return setMessage('Move closer to the entrance first.');insideDemo.current=true;setInterior(true);if(!missionComplete){const reward=selectedMission?.rewardXP||100;setMissionComplete(true);setXp(v=>v+reward);setMessage(`MISSION COMPLETE • ${selectedMission?.title||'Circle Park Arrival'} • +${reward} XP. Interior demo entered.`);completeCircleParkQuest(selectedMission||{id:'circle-park-arrival',title:'Circle Park Arrival',rewardXP:reward},selectedCharacter)}else setMessage('Interior demo entered • stairs + elevator mockup active.')}
  const exitInterior=()=>{insideDemo.current=false;nearElevator.current=false;setCanElevator(false);setInterior(false);setFloorLevel(1);setMessage('Returned outside • source-backed interior geometry remains pending authorization.')}
  const rideElevator=()=>{if(!nearElevator.current)return;setFloorLevel(v=>v===1?2:1);setMessage('Elevator demo moved between conceptual floors • verified interior geometry remains pending.')}
- const claimHome=()=>{if(!homeNear||starterHome)return;window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-complete',{detail:{mission:{id:'circle-park-home',title:'Find & Claim Your Apartment',rewardXP:200},character:selectedCharacter,rewardXP:200}}));setMessage('STARTER HOME CLAIMED • personal instanced Circle Park home • +200 XP.')}
+ const claimHome=()=>{
+  if(!homeInRange.current||starterHome)return
+  let beforeXp:number|undefined
+  try{if(JSON.parse(sessionStorage.getItem(APARTMENT_TEST)||'null')?.phase==='walk')beforeXp=apartmentSave().xp}catch{}
+  completeCircleParkQuest({id:'circle-park-home',title:'Find & Claim Your Apartment',rewardXP:200},selectedCharacter)
+  setStarterHome(true)
+  if(beforeXp!==undefined){
+   try{
+    const after=apartmentSave()
+    sessionStorage.setItem(APARTMENT_TEST,JSON.stringify({phase:'reload',reached:true,beforeXp,afterXp:after.xp,claimed:after.claimed}))
+    window.location.reload()
+   }catch{setTripStatus('Claim processed. Test could not save its reload checkpoint.')}
+  }
+  setMessage('STARTER HOME CLAIMED • personal instanced Circle Park home • +200 XP.')}
  const checkInBusiness=()=>{if(!businessNear||businessComplete)return;setBusinessComplete(true);setXp(v=>v+50);setMessage('BUSINESS MISSION COMPLETE • Neighborhood Check-In • +50 XP.')}
  const captureMission=async()=>{if(!missionComplete)return;const share={title:'StreetVerse Chicago',text:`I completed ${selectedMission?.title||'Circle Park Arrival'} in StreetVerse Chicago • +${selectedMission?.rewardXP||100} XP`};try{if(navigator.share){await navigator.share(share);setShareMessage('Share sheet opened • choose Reels, LIVE, Messages or another app.')}else{await navigator.clipboard?.writeText(share.text);setShareMessage('Mission highlight copied • ready for TRYAMM Reels/Holo LIVE composer.')}}catch{setShareMessage('Share cancelled • mission highlight remains ready.')}}
  const commandDog=(cmd:CompanionCommand)=>{companionCommand.current=cmd;setDogCommand(cmd);const labels:Record<CompanionCommand,string>={follow:'Companion following.',stay:'Companion staying here.',search:'Companion searching the nearby mission area.',help:'Companion ready to assist/rescue.',defend:'Companion guarding during fictional gameplay danger.',return:'Companion returning to you.'};setMessage(labels[cmd])}
@@ -354,7 +407,9 @@ export default function CircleParkHolographicWorld({onClose}:{onClose:()=>void})
  const nextObjective=mobilityJob&&mobilityStage!=='complete'?(mobilityStage==='pickup'?mobilityJob.label:(mobilityJob.kind==='recovery'?'TOW VEHICLE TO IMPOUND':'GO TO DESTINATION')):baseNextObjective
  const repairAction=['OPEN HOOD','FIX ENGINE','CLOSE HOOD'][repairStep]||'REPAIR COMPLETE'
  return <div tabIndex={0} onKeyDown={keyDown} onKeyUp={stop} aria-label="Playable StreetVerse Chicago Circle Park world" style={{position:'fixed',inset:0,zIndex:2500,background:'#050b14',outline:'none'}}><div ref={mountRef} style={{position:'absolute',inset:0}}/>
-  <div style={{position:'absolute',top:12,left:12,right:12,padding:12,border:'1px solid #00ffcc88',borderRadius:14,background:'#07131dcc',color:'#eaffff',fontFamily:'system-ui'}}><b>STREETVERSE CHICAGO • CIRCLE PARK</b><div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:5,fontSize:11}}><span>PLAYER: {selectedCharacter}</span><span>MISSION: {missionComplete?'COMPLETE':selectedMission?.title||'REACH THE GLOWING ENTRANCE'}</span><span>REWARD: {selectedMission?`+${selectedMission.rewardXP} XP`:'+100 XP'}</span><span>MISSION XP: {xp}</span><span>CIRCLE XP: {circleXp}/1000</span><span>HOME: {starterHome?'CLAIMED':'FIND IT'}</span><span>CHICAGO: {chicagoUnlocked?'UNLOCKED':'LOCKED'}</span><span>CITY ACTIVITY: 18 PEDS • 10 CARS • 4 MOTOS + JOB TRAFFIC</span><span>BUSINESS: {businessComplete?'CHECKED IN':'DISCOVER'}</span><span>NATIVE ASSETS: {nativeAssets.state} • {nativeAssets.loaded} LOADED{nativeAssets.failed?` • ${nativeAssets.failed} FALLBACK`:''}</span><span>2027 FLEET: ACTIVE • RARE AIR TRAFFIC</span><span>MOBILITY: {mobilityJob?mobilityStage.toUpperCase():'AVAILABLE'}</span></div><div style={{fontSize:12,opacity:.82}}>Chicago-inspired playable district • TRYAMM native GLB preview layer + authoritative gameplay primitives • conceptual massing, not survey/CAD geometry.</div><div style={{fontSize:12,marginTop:5}}>{message}{interior?` • FLOOR ${floorLevel}`:''}</div><div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:7,fontSize:11,fontWeight:900}}><span>CLEANUP: {disposed.length}/{CIRCLE_PARK_WASTE_PICKUPS.length}{carrying?' • CARRYING':''}</span><span>CAR: {driving?'DRIVING':repairStep>=3?'REPAIRED':repairKit?`REPAIR ${repairStep}/3`:'BROKEN'}</span><span>ROUTE: {Math.min(routeIndex,STREETVERSE_CHICAGO_ROUTE.length)}/{STREETVERSE_CHICAGO_ROUTE.length}</span><span style={{color:'#ffd75e'}}>NEXT: {nextObjective}</span></div></div>
+  <div style={{position:'absolute',top:12,left:12,right:12,padding:12,border:'1px solid #00ffcc88',borderRadius:14,background:'#07131dcc',color:'#eaffff',fontFamily:'system-ui'}}><button type="button" onClick={tripReport?()=>exportApartmentReport(tripReport):startTrip} style={actionBtn}>{tripReport?'Export apartment report':'Test apartment trip'}</button>
+   {homeNear&&!starterHome&&<button type="button" onClick={claimHome} aria-label="Claim personal Circle Park starter home" style={actionBtn}>Claim Home • +200 XP</button>}
+   <span role="status">{tripStatus}</span> <b>STREETVERSE CHICAGO • CIRCLE PARK</b><div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:5,fontSize:11}}><span>PLAYER: {selectedCharacter}</span><span>MISSION: {missionComplete?'COMPLETE':selectedMission?.title||'REACH THE GLOWING ENTRANCE'}</span><span>REWARD: {selectedMission?`+${selectedMission.rewardXP} XP`:'+100 XP'}</span><span>MISSION XP: {xp}</span><span>CIRCLE XP: {circleXp}/1000</span><span>HOME: {starterHome?'CLAIMED':'FIND IT'}</span><span>CHICAGO: {chicagoUnlocked?'UNLOCKED':'LOCKED'}</span><span>CITY ACTIVITY: 18 PEDS • 10 CARS • 4 MOTOS + JOB TRAFFIC</span><span>BUSINESS: {businessComplete?'CHECKED IN':'DISCOVER'}</span><span>NATIVE ASSETS: {nativeAssets.state} • {nativeAssets.loaded} LOADED{nativeAssets.failed?` • ${nativeAssets.failed} FALLBACK`:''}</span><span>2027 FLEET: ACTIVE • RARE AIR TRAFFIC</span><span>MOBILITY: {mobilityJob?mobilityStage.toUpperCase():'AVAILABLE'}</span></div><div style={{fontSize:12,opacity:.82}}>Chicago-inspired playable district • TRYAMM native GLB preview layer + authoritative gameplay primitives • conceptual massing, not survey/CAD geometry.</div><div style={{fontSize:12,marginTop:5}}>{message}{interior?` • FLOOR ${floorLevel}`:''}</div><div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:7,fontSize:11,fontWeight:900}}><span>CLEANUP: {disposed.length}/{CIRCLE_PARK_WASTE_PICKUPS.length}{carrying?' • CARRYING':''}</span><span>CAR: {driving?'DRIVING':repairStep>=3?'REPAIRED':repairKit?`REPAIR ${repairStep}/3`:'BROKEN'}</span><span>ROUTE: {Math.min(routeIndex,STREETVERSE_CHICAGO_ROUTE.length)}/{STREETVERSE_CHICAGO_ROUTE.length}</span><span style={{color:'#ffd75e'}}>NEXT: {nextObjective}</span></div></div>
   <div aria-live="polite" style={{position:'absolute',width:1,height:1,overflow:'hidden',clip:'rect(0 0 0 0)'}}>{message}</div>
   <div aria-label="Circle Park analog movement joystick" onPointerDown={joystick} onPointerMove={e=>{if(e.buttons)joystick(e)}} onPointerUp={stop} onPointerCancel={stop} onLostPointerCapture={stop} style={{position:'absolute',left:18,bottom:20,width:124,height:124,borderRadius:'50%',border:'2px solid #00ffcc',background:'#06131bcc',touchAction:'none',boxShadow:'inset 0 0 28px #00ffcc33'}}><div ref={joystickKnob} style={{position:'absolute',left:44,top:44,width:32,height:32,borderRadius:'50%',background:'#eaffff',boxShadow:'0 0 18px #00ffcc',transition:'transform 35ms linear'}}/></div>
   <div aria-label="One-hand movement controls" style={{position:'absolute',left:18,bottom:152,display:'grid',gridTemplateColumns:'repeat(3,38px)',gap:4}}><span/><button aria-label="Move forward" onPointerDown={()=>move(0,1)} onPointerUp={stop} onPointerCancel={stop} style={moveBtn}>▲</button><span/><button aria-label="Move left" onPointerDown={()=>move(-1,0)} onPointerUp={stop} onPointerCancel={stop} style={moveBtn}>◀</button><button aria-label="Stop movement" onClick={stop} style={moveBtn}>■</button><button aria-label="Move right" onPointerDown={()=>move(1,0)} onPointerUp={stop} onPointerCancel={stop} style={moveBtn}>▶</button><span/><button aria-label="Move backward" onPointerDown={()=>move(0,-1)} onPointerUp={stop} onPointerCancel={stop} style={moveBtn}>▼</button><span/></div>
@@ -367,7 +422,7 @@ export default function CircleParkHolographicWorld({onClose}:{onClose:()=>void})
    {(nearCar||driving)&&<button onClick={toggleVehicle} style={{...actionBtn,border:'1px solid #59e7ff',color:'#9af0ff'}}>{driving?'EXIT VEHICLE':'ENTER VEHICLE'}</button>}
   </div>
   <div aria-label="Companion controls" style={{position:'absolute',left:154,bottom:20,display:'flex',maxWidth:'calc(100vw - 330px)',gap:6,flexWrap:'wrap'}}>{(['follow','stay','search','help','defend','return'] as CompanionCommand[]).map(cmd=><button key={cmd} onClick={()=>commandDog(cmd)} style={{padding:'8px 10px',borderRadius:999,border:'1px solid #00ffcc88',background:dogCommand===cmd?'#0b5048dd':'#06131bdd',color:'#fff',fontSize:11,textTransform:'uppercase'}}>{cmd}</button>)}</div>
-  {homeNear&&!starterHome&&<button onClick={claimHome} aria-label="Claim personal Circle Park starter home" style={{position:'absolute',right:16,bottom:330,padding:'12px 16px',borderRadius:999,border:'1px solid #7ee7ff',background:'#071b24dd',color:'#fff'}}>CLAIM HOME • +200 XP</button>}
+
   {chicagoUnlocked&&<button onClick={()=>{window.location.href='/streetverse?district=chicago'}} aria-label="Open StreetVerse Chicago" style={{position:'absolute',right:16,bottom:330,padding:'12px 16px',borderRadius:999,border:'1px solid #ffd75e',background:'#211b08ee',color:'#fff'}}>OPEN STREETVERSE CHICAGO</button>}
   {businessNear&&!businessComplete&&<button onClick={checkInBusiness} aria-label="Check in at local Chicago business" style={{position:'absolute',right:16,bottom:268,padding:'12px 16px',borderRadius:999,border:'1px solid #ffd75e',background:'#211b08dd',color:'#fff'}}>CHECK IN • +50 XP</button>}
   {missionComplete&&<div style={{position:'absolute',right:16,bottom:206,display:'flex',flexDirection:'column',alignItems:'flex-end',gap:6}}><button onClick={captureMission} aria-label="Share completed Chicago mission" style={{padding:'12px 16px',borderRadius:999,border:'1px solid #ff4fd8',background:'#1b0b20dd',color:'#fff'}}>CAPTURE / SHARE</button>{shareMessage&&<div aria-live="polite" style={{maxWidth:260,padding:'7px 9px',borderRadius:10,background:'#07131ddd',color:'#fff',fontSize:11}}>{shareMessage}</div>}</div>}

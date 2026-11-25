@@ -13,6 +13,6 @@ assert.match(hud,/localStorage\.setItem\('tryamm\.greenville\.birthday\.stage\.v
 assert.match(script,/Math\.min\(labels\.length,Math\.max\(0,Math\.floor\(n\)\)\)/,'stored progress is bounded')
 assert.match(script,/window\.addEventListener\('pageshow',render\)/,'progress rehydrates upon returning from game')
 assert.match(script,/data-progress-count/,'progress count displayed')
-assert.match(script,/\/streetverse\?core=1&character=jacobie&world=greenville&graphics=3d/,'progress resumes correct game route')
+assert.match(script,/\/streetverse\?core=1&character=jacobie&world=greenville&graphics=character&resume=1/,'progress resumes correct game route')
 assert.doesNotMatch(script,/innerHTML\s*=/,'progress uses safe DOM methods')
 console.log('Greenville website mission progress contract PASS')
