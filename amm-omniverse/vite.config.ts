@@ -1,10 +1,26 @@
 import { defineConfig } from 'vite'
+import {readFileSync} from 'node:fs'
 import react from '@vitejs/plugin-react'
 import {assertSafePublicEnv} from './scripts/public-env-guard.mjs'
 import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
-  plugins: [react(), {name:'safe-public-environment',configResolved(config){assertSafePublicEnv({...process.env,...config.env})}}],
+  plugins: [react(), {
+    name: 'first-30-standalone-sites',
+    apply: 'build',
+    buildStart() {
+      const pages = [
+        'bj-stubbs-store.html', 'newumerica-winter-showroom.html', 'newumerica-winter-demo.html',
+        'newumerica-tech-superstore.html', 'streetverse-business.html', 'streetverse-living-district.html',
+      ].map(name => ({source: '../public/' + name, fileName: name}))
+      for (const name of ['index.html', 'founding-10.html']) {
+        pages.push({source: '../sites/stubbs-mobility/' + name, fileName: 'stubbs-mobility/' + name})
+      }
+      for (const page of pages) {
+        this.emitFile({type: 'asset', fileName: page.fileName, source: readFileSync(new URL(page.source, import.meta.url))})
+      }
+    },
+  }, {name:'safe-public-environment',configResolved(config){assertSafePublicEnv({...process.env,...config.env})}}],
   resolve: {
     alias: [
       {
