@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { createServer } from 'vite'
 
-const server = await createServer({ configFile: false, server: { middlewareMode: true }, appType: 'custom' })
+const server = await createServer({ configFile: false, optimizeDeps: { noDiscovery: true, include: [] }, server: { middlewareMode: true }, appType: 'custom' })
 try {
   const runtime = await server.ssrLoadModule('/src/runtime/StreetVerseAbracadabraGeniiRuntime.ts')
   const bus = new EventTarget()
