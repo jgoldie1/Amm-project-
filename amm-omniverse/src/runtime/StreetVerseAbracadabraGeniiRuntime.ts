@@ -2,7 +2,7 @@ import {searchStreetVerseRPActions} from '../data/streetVerseRPActionCatalog'
 import {createEventDNA,compileEvent} from './HoloEventGenesisEngine'
 
 type WishMode='emoji'|'text'|'sound'|'scene'
-export type RPGeniiWish={query:string;mode?:WishMode;emoji?:string;targetId?:string;worldId?:string;loop?:boolean}
+export type RPGeniiWish={query:string;requestId?:string;mode?:WishMode;emoji?:string;targetId?:string;worldId?:string;loop?:boolean}
 type SoundChoice={key:string;tags:string[]}
 
 const SOUNDS:SoundChoice[]=[
@@ -35,7 +35,8 @@ const SOUNDS:SoundChoice[]=[
 ]
 
 const STORAGE='tryamm.googolplex.rp-genii.v1'
-let installed=false
+let subscribers=0
+let detach:(()=>void)|undefined
 const normalize=(s:string)=>s.toLowerCase().trim().replace(/\s+/g,' ')
 function soundMatches(query:string){
  const q=normalize(query)
@@ -71,11 +72,19 @@ export function compileRPGeniiWish(wish:RPGeniiWish){
  return{query,actions,sounds,missingKinds}
 }
 export function installStreetVerseAbracadabraGeniiRuntime(){
- if(installed||typeof window==='undefined')return()=>{}
- installed=true
+ if(typeof window==='undefined')return()=>{}
+ subscribers++
+ let released=false
+ const release=()=>{
+  if(released)return
+  released=true
+  if(--subscribers===0){detach?.();detach=undefined}
+ }
+ if(subscribers>1)return release
  const onWish=(event:Event)=>{
   const wish=(event as CustomEvent<RPGeniiWish>).detail||{query:''}
   const plan=compileRPGeniiWish(wish)
+  if(!plan.query)return
   const primary=plan.actions[0]
   if(primary)window.dispatchEvent(new CustomEvent('tryamm:streetverse-rp-action-play',{detail:{actionId:primary.id,label:primary.label,animationClip:primary.animationClip,gifQuery:primary.gifQuery,loop:Boolean(wish.loop&&primary.loopable),durationMs:primary.durationMs,source:'abracadabra-genii'}}))
   for(const sound of plan.sounds)window.dispatchEvent(new CustomEvent('tryamm:streetverse-sound-preview',{detail:{key:sound.key,source:'abracadabra-genii'}}))
@@ -99,6 +108,7 @@ export function installStreetVerseAbracadabraGeniiRuntime(){
   window.dispatchEvent(new CustomEvent('tryamm:rp-genii-result',{detail:receipt}))
  }
  addEventListener('tryamm:rp-genii-request',onWish)
+ detach=()=>removeEventListener('tryamm:rp-genii-request',onWish)
  window.dispatchEvent(new CustomEvent('tryamm:rp-genii-ready',{detail:{emoji:true,text:true,sound:true,scene:true,mindOverMatter:true,holoForge:true,eventGenesis:true,googolplexMemory:true}}))
- return()=>{removeEventListener('tryamm:rp-genii-request',onWish);installed=false}
+ return release
 }

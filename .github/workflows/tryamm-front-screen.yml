@@ -6,6 +6,10 @@ on:
       - 'amm-omniverse/public/tryamm-home.html'
       - 'amm-omniverse/src/business-entry.tsx'
       - 'amm-omniverse/src/business/**'
+      - 'amm-omniverse/src/components/StreetVerseActionCarousel.tsx'
+      - 'amm-omniverse/src/components/StreetVerseRPOmnibar.tsx'
+      - 'amm-omniverse/src/runtime/StreetVerseAbracadabraGeniiRuntime.ts'
+      - 'amm-omniverse/tests/rp-genii-panel-lifecycle.mjs'
       - '.github/workflows/tryamm-front-screen.yml'
 permissions:
   contents: read
@@ -29,6 +33,7 @@ jobs:
         with:
           node-version: 24
       - run: npm ci --no-audit --no-fund
+      - run: node tests/rp-genii-panel-lifecycle.mjs
       - run: npm run build
       - name: Verify rendered home, catalog, and template preview
         shell: bash
