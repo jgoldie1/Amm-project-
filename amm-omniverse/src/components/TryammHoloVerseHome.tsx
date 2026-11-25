@@ -51,32 +51,29 @@ const modes:Record<Mode,{tagline:string;items:Array<[string,string,string]>}>={
 const shell:React.CSSProperties={minHeight:'100dvh',background:'radial-gradient(circle at 50% 18%,#15255f 0,#071020 38%,#02050b 75%)',color:'#fff',fontFamily:'Inter,system-ui,sans-serif',padding:'max(18px,env(safe-area-inset-top)) 14px calc(28px + env(safe-area-inset-bottom))'}
 const button:React.CSSProperties={minHeight:54,borderRadius:14,border:'1px solid #546a9b',background:'#0a1730',color:'#fff',fontWeight:950,fontSize:13,padding:'10px 12px',touchAction:'manipulation'}
 
+const launchLink:React.CSSProperties={display:'grid',alignContent:'center',gap:4,minHeight:64,padding:'12px 16px',borderRadius:12,background:'#101d34',border:'1px solid #7285a6',color:'#fff',textDecoration:'none',touchAction:'manipulation'}
+
 export default function TryammHoloVerseHome(){
  const [mode,setMode]=useState<Mode>('PLAY')
  const [age,setAge]=useState<'K-12'|'TEEN'|'ADULT'>('ADULT')
  const current=useMemo(()=>modes[mode],[mode])
  return <main data-tryamm-holoverse-home="level-200k-v1" style={shell}>
   <section style={{maxWidth:1060,margin:'0 auto',display:'grid',gap:16}}>
-   <header style={{display:'grid',gap:7,textAlign:'center'}}>
-    <div style={{fontSize:11,fontWeight:950,letterSpacing:2,color:'#9bb7ff'}}>TRYAMM • HOLOVERSE</div>
-    <h1 style={{margin:0,fontSize:'clamp(28px,8vw,54px)',lineHeight:1}}>ONE WORLD</h1>
-    <p style={{margin:0,color:'#c6d4ff',fontWeight:800}}>Play • Create • Learn • Earn • Live • Global</p>
+   <header style={{display:'grid',gap:16,padding:'clamp(18px,4vw,40px)',borderRadius:20,background:'linear-gradient(120deg,#162744,#28284d)',border:'1px solid #4a6081'}}>
+    <h1 style={{margin:0,fontSize:'clamp(28px,6vw,52px)',lineHeight:1.1}}>TRYAMM HoloVerse</h1>
+    <nav aria-label="Featured destinations" style={{display:'grid',gap:10,gridTemplateColumns:'repeat(auto-fit,minmax(min(100%,190px),1fr))'}}>
+     <a href="/streetverse?core=1&character=jacobie&world=greenville&graphics=character&playHand=left" style={{...launchLink,background:'#f3c979',color:'#17243a'}}>
+      <strong>Enter Greenville</strong><span>Jacobie · Left-hand controls</span>
+     </a>
+     <a href="/omni-box" style={launchLink}><strong>Open story studio</strong><span>OmniBox</span></a>
+     <a href="/live" style={launchLink}><strong>Open broadcast studio</strong><span>TRYAMM Live</span></a>
+    </nav>
    </header>
 
    <nav aria-label="TRYAMM primary actions" style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(120px,1fr))',gap:8}}>
     {(Object.keys(modes) as Mode[]).map(key=><button key={key} type="button" aria-pressed={mode===key} onClick={()=>setMode(key)}
      style={{...button,background:mode===key?'linear-gradient(135deg,#263ca0,#7028a5)':'#0a1730',borderColor:mode===key?'#d4c1ff':'#465676'}}>{key}</button>)}
    </nav>
-
-   <section aria-label="Age access mode" style={{display:'grid',gap:8,padding:12,border:'1px solid #33496c',borderRadius:16,background:'#07101bd9'}}>
-    <div style={{display:'flex',gap:8,justifyContent:'space-between',alignItems:'center',flexWrap:'wrap'}}>
-     <strong>ACCESS MODE</strong><span style={{fontSize:12,color:'#aebbd0'}}>Separate chat • commerce • content • discovery permissions</span>
-    </div>
-    <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8}}>
-     {(['K-12','TEEN','ADULT'] as const).map(key=><button key={key} type="button" onClick={()=>setAge(key)} aria-pressed={age===key}
-      style={{...button,minHeight:48,background:age===key?'#153f6d':'#0b1625'}}>{key}</button>)}
-    </div>
-   </section>
 
    <section style={{display:'grid',gap:10}}>
     <div>
@@ -88,6 +85,16 @@ export default function TryammHoloVerseHome(){
       style={{display:'grid',gap:6,minHeight:108,padding:15,borderRadius:16,border:'1px solid #394e77',background:'linear-gradient(180deg,#101c34,#07101e)',color:'#fff',textDecoration:'none'}}>
        <strong style={{fontSize:17}}>{title}</strong><span style={{color:'#aebbd0',fontSize:13,lineHeight:1.35}}>{desc}</span><span style={{fontSize:12,fontWeight:950,color:'#9ec8ff'}}>OPEN →</span>
       </a>)}
+    </div>
+   </section>
+
+   <section aria-label="Age access mode" style={{display:'grid',gap:8,padding:12,border:'1px solid #33496c',borderRadius:16,background:'#07101bd9'}}>
+    <div style={{display:'flex',gap:8,justifyContent:'space-between',alignItems:'center',flexWrap:'wrap'}}>
+     <strong>ACCESS MODE</strong><span style={{fontSize:12,color:'#aebbd0'}}>Separate chat • commerce • content • discovery permissions</span>
+    </div>
+    <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8}}>
+     {(['K-12','TEEN','ADULT'] as const).map(key=><button key={key} type="button" onClick={()=>setAge(key)} aria-pressed={age===key}
+      style={{...button,minHeight:48,background:age===key?'#153f6d':'#0b1625'}}>{key}</button>)}
     </div>
    </section>
 
