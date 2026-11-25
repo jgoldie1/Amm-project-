@@ -1,3 +1,4 @@
+import {completeCircleParkQuest} from '../runtime/CircleParkQuestEvents'
 import {useEffect,useRef,useState} from 'react'
 import * as THREE from 'three'
 import {createCircleParkHologram} from '../game/holographic/CircleParkHolographicPrototype'
@@ -258,7 +259,7 @@ export default function CircleParkHolographicWorld({onClose}:{onClose:()=>void})
         routeCompleteRef.current=true;setRouteComplete(true);setRouteIndex(STREETVERSE_CHICAGO_ROUTE.length)
         setXp(v=>v+250)
         setMessage(`CHICAGO SLICE COMPLETE • ${checkpoint.label} reached • Circle Park → Roosevelt → Taylor → Pilsen • +${checkpoint.rewardXP+250} XP.`)
-        window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-complete',{detail:{mission:{id:'circle-park-roosevelt-taylor-pilsen',title:'Circle Park → Roosevelt → Taylor → Pilsen',rewardXP:550},character:selectedCharacter,routeComplete:true}}))
+        completeCircleParkQuest({id:'circle-park-roosevelt-taylor-pilsen',title:'Circle Park → Roosevelt → Taylor → Pilsen',rewardXP:550},selectedCharacter,true)
       }else{
         routeIndexRef.current=next;setRouteIndex(next)
         setMessage(`CHECKPOINT • ${checkpoint.label} • +${checkpoint.rewardXP} XP • NEXT: ${STREETVERSE_CHICAGO_ROUTE[next].label}.`)
@@ -343,10 +344,10 @@ export default function CircleParkHolographicWorld({onClose}:{onClose:()=>void})
   setMessage(`DRIVE MODE ACTIVE • NEXT: ${STREETVERSE_CHICAGO_ROUTE[routeIndexRef.current]?.label||'Pilsen'}.`)
   window.dispatchEvent(new CustomEvent('tryamm:streetverse-vehicle-controlled',{detail:{entered:true,vehicleType:'car',controlledVehicleId:'circle-park-repair-car'}}))
  }
- const open=()=>{if(!nearEntrance.current)return setMessage('Move closer to the entrance first.');insideDemo.current=true;setInterior(true);if(!missionComplete){const reward=selectedMission?.rewardXP||100;setMissionComplete(true);setXp(v=>v+reward);setMessage(`MISSION COMPLETE • ${selectedMission?.title||'Circle Park Arrival'} • +${reward} XP. Interior demo entered.`);window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-complete',{detail:{mission:selectedMission||{id:'circle-park-arrival',title:'Circle Park Arrival',rewardXP:100},character:selectedCharacter,rewardXP:reward}}))}else setMessage('Interior demo entered • stairs + elevator mockup active.')}
+ const open=()=>{if(!nearEntrance.current)return setMessage('Move closer to the entrance first.');insideDemo.current=true;setInterior(true);if(!missionComplete){const reward=selectedMission?.rewardXP||100;setMissionComplete(true);setXp(v=>v+reward);setMessage(`MISSION COMPLETE • ${selectedMission?.title||'Circle Park Arrival'} • +${reward} XP. Interior demo entered.`);completeCircleParkQuest(selectedMission||{id:'circle-park-arrival',title:'Circle Park Arrival',rewardXP:reward},selectedCharacter)}else setMessage('Interior demo entered • stairs + elevator mockup active.')}
  const exitInterior=()=>{insideDemo.current=false;nearElevator.current=false;setCanElevator(false);setInterior(false);setFloorLevel(1);setMessage('Returned outside • source-backed interior geometry remains pending authorization.')}
  const rideElevator=()=>{if(!nearElevator.current)return;setFloorLevel(v=>v===1?2:1);setMessage('Elevator demo moved between conceptual floors • verified interior geometry remains pending.')}
- const claimHome=()=>{if(!homeNear||starterHome)return;window.dispatchEvent(new CustomEvent('tryamm:streetverse-mission-complete',{detail:{mission:{id:'circle-park-home',title:'Find & Claim Your Apartment',rewardXP:200},character:selectedCharacter,rewardXP:200}}));setMessage('STARTER HOME CLAIMED • personal instanced Circle Park home • +200 XP.')}
+ const claimHome=()=>{if(!homeNear||starterHome)return;completeCircleParkQuest({id:'circle-park-home',title:'Find & Claim Your Apartment',rewardXP:200},selectedCharacter);setMessage('STARTER HOME CLAIMED • personal instanced Circle Park home • +200 XP.')}
  const checkInBusiness=()=>{if(!businessNear||businessComplete)return;setBusinessComplete(true);setXp(v=>v+50);setMessage('BUSINESS MISSION COMPLETE • Neighborhood Check-In • +50 XP.')}
  const captureMission=async()=>{if(!missionComplete)return;const share={title:'StreetVerse Chicago',text:`I completed ${selectedMission?.title||'Circle Park Arrival'} in StreetVerse Chicago • +${selectedMission?.rewardXP||100} XP`};try{if(navigator.share){await navigator.share(share);setShareMessage('Share sheet opened • choose Reels, LIVE, Messages or another app.')}else{await navigator.clipboard?.writeText(share.text);setShareMessage('Mission highlight copied • ready for TRYAMM Reels/Holo LIVE composer.')}}catch{setShareMessage('Share cancelled • mission highlight remains ready.')}}
  const commandDog=(cmd:CompanionCommand)=>{companionCommand.current=cmd;setDogCommand(cmd);const labels:Record<CompanionCommand,string>={follow:'Companion following.',stay:'Companion staying here.',search:'Companion searching the nearby mission area.',help:'Companion ready to assist/rescue.',defend:'Companion guarding during fictional gameplay danger.',return:'Companion returning to you.'};setMessage(labels[cmd])}
