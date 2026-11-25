@@ -128,4 +128,4 @@ const nav:React.CSSProperties={border:'1px solid #67e8f944',borderRadius:12,back
 
 const playBtn:React.CSSProperties={minHeight:56,minWidth:72,padding:'0 10px',borderRadius:12,border:'2px solid #8effb7',background:'#0a5535',color:'#fff',fontSize:12,fontWeight:950,touchAction:'manipulation'}
 const closeBtn:React.CSSProperties={minWidth:88,minHeight:56,padding:'0 10px',borderRadius:12,border:'2px solid #fff',background:'#852525',color:'#fff',fontSize:12,fontWeight:950,touchAction:'manipulation'}
-const toolBtn:React.CSSProperties={minHeight:34,padding:'0 9px',borderRadius:9,border:'1px solid #9d6bff66',background:'#171027',color:'#fff',fontSize:9,fontWeight:950,touchAction:'manipulation'}
+const toolBtn:React.CSSProperties={minHeight:46,padding:'0 9px',borderRadius:9,border:'1px solid #9d6bff66',background:'#171027',color:'#fff',fontSize:9,fontWeight:950,touchAction:'manipulation'}

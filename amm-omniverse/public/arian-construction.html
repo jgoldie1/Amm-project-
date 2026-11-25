@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>Arian | Construction project preview</title>
+<style>
+*{box-sizing:border-box}body{margin:0;color:#202d29;background:#f5f2e8;font:18px/1.5 system-ui,sans-serif}header,main{max-width:55rem;margin:auto;padding:1rem clamp(1rem,5vw,3rem)}header{border-bottom:2px solid #284f44}h1{font:700 clamp(3rem,10vw,6rem)/1 Georgia,serif;margin:1rem 0}h2{font-size:1.5rem}a{color:#214e40}nav{display:flex;flex-wrap:wrap;gap:.8rem}nav a,button{display:inline-block;padding:.75rem 1rem;background:#214e40;color:white;border:0;border-radius:.3rem;font:inherit;cursor:pointer}section{margin:2.5rem 0}label{display:block;margin:1rem 0}input,textarea{display:block;width:100%;padding:.75rem;margin-top:.25rem;border:1px solid #617168;font:inherit;background:white}a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #b14c17;outline-offset:3px}
+</style></head><body><header>TRYAMM · Construction website preview</header><main><h1>Arian</h1><p>Planning a construction project? Put the location, work you need, and preferred timing into a brief you can share with Arian.</p>
+<nav><a href="#brief">Prepare a project brief</a><a href="/site-demo.html?template=42">View the construction template</a></nav>
+<section id="brief"><h2>Your project brief</h2><p>This preview saves a text file on your device. You can send it to Arian when you have his contact details.</p><form><label>Project location<input name="location" required maxlength="150" placeholder="City or neighborhood"></label><label>Work requested<textarea name="work" required maxlength="3500" rows="4"></textarea></label><label>Preferred timing (optional)<input name="timing" maxlength="150"></label><button>Download my brief</button><p role="status" id="status"></p></form></section><a href="/templates">Browse TRYAMM websites</a></main>
+<script>
+document.querySelector('form').addEventListener('submit',event=>{
+  event.preventDefault()
+  const fields=new FormData(event.currentTarget)
+  const brief=['Construction project brief','Location: '+fields.get('location'),'Work: '+fields.get('work'),'Preferred timing: '+(fields.get('timing')||'Open')].join('\n\n')
+  const url=URL.createObjectURL(new Blob([brief],{type:'text/plain;charset=utf-8'}))
+  const link=document.createElement('a')
+  link.href=url
+  link.download='construction-project-brief.txt'
+  document.body.append(link)
+  link.click()
+  link.remove()
+  setTimeout(()=>URL.revokeObjectURL(url),5000)
+  document.querySelector('#status').textContent='Download requested. Share the saved brief with Arian when ready.'
+})
+</script></body></html>

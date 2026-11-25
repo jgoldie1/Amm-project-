@@ -4,6 +4,69 @@
   "outputDirectory": "dist",
   "routes": [
     {
+      "src": "^/$",
+      "has": [
+        {
+          "type": "host",
+          "value": "play.tryamm.online"
+        }
+      ],
+      "headers": {
+        "Location": "/streetverse"
+      },
+      "status": 307
+    },
+    {
+      "src": "^/$",
+      "has": [
+        {
+          "type": "host",
+          "value": "streetverse.tryamm.online"
+        }
+      ],
+      "headers": {
+        "Location": "/streetverse"
+      },
+      "status": 307
+    },
+    {
+      "src": "^/$",
+      "has": [
+        {
+          "type": "host",
+          "value": "tryamm.online"
+        }
+      ],
+      "dest": "/tryamm-home.html"
+    },
+    {
+      "src": "^/$",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.tryamm.online"
+        }
+      ],
+      "dest": "/tryamm-home.html"
+    },
+    {
+      "src": "^/arian/?$",
+      "dest": "/arian-construction.html"
+    },
+    {
+      "src": "^/marion/?$",
+      "has": [
+        {
+          "type": "host",
+          "value": "sites.tryamm.online"
+        }
+      ],
+      "headers": {
+        "Location": "/arian"
+      },
+      "status": 307
+    },
+    {
       "src": "/",
       "dest": "/business-app.html"
     },
