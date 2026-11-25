@@ -114,6 +114,17 @@ try {
   const isMeetStubbs=currentPath.startsWith('/streetverse/meet-the-stubbs')
   const isStreetVerse=currentPath.startsWith('/streetverse')&&!isMeetStubbs&&!isTwinWorld
   const streetVerseParams=new URLSearchParams(window.location.search)
+  if (isStreetVerse && streetVerseParams.get('playHand') === 'left') {
+    try {
+      localStorage.setItem('tryamm:streetverse-one-hand-side', 'left')
+      localStorage.setItem('tryamm:streetverse-control-mode', 'one-hand')
+      const cleanUrl = new URL(window.location.href)
+      cleanUrl.searchParams.delete('playHand')
+      window.history.replaceState(window.history.state, '', cleanUrl)
+    } catch {
+      // The game remains available when browser storage is restricted.
+    }
+  }
   // Certification/fallback routes must be decided from the initial URL before any
   // optional runtime can mutate history or replace the selected world.
   const initialSearch=window.location.search
