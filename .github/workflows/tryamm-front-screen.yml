@@ -1,0 +1,57 @@
+name: TRYAMM front screen
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'amm-omniverse/public/tryamm-home.html'
+      - 'amm-omniverse/src/business-entry.tsx'
+      - 'amm-omniverse/src/business/**'
+      - '.github/workflows/tryamm-front-screen.yml'
+permissions:
+  contents: read
+concurrency:
+  group: front-screen-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  screen:
+    if: ${{ !github.event.repository.private || github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository }}
+    # Hosted runners for public repos only. Private repos use an existing runner.
+    runs-on: ${{ github.event.repository.private && 'self-hosted' || 'ubuntu-latest' }}
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - name: Verify rendered home, catalog, and template preview
+        shell: bash
+        run: |
+          set -euo pipefail
+          work=$(mktemp -d)
+          cp -r dist "$work/site"
+          mkdir -p "$work/site/templates"
+          cp "$work/site/business-app.html" "$work/site/templates/index.html"
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory "$work/site" >"$work/server.log" 2>&1 &
+          server=$!
+          trap 'kill "$server"; rm -rf "$work"' EXIT
+          curl --fail --retry 10 --retry-connrefused -s http://127.0.0.1:4173/tryamm-home.html >/dev/null
+          browser=$(command -v google-chrome || command -v chromium)
+          for width in 390 1280; do
+            for page in tryamm-home.html templates/ 'site-demo.html?template=42'; do
+              "$browser" --headless --disable-gpu --disable-dev-shm-usage \
+                --window-size="$width,844" --virtual-time-budget=8000 --dump-dom \
+                "http://127.0.0.1:4173/$page" > "$work/dom"
+              case "$page" in
+                tryamm-home.html) grep -q '>Enter Greenville</a>' "$work/dom" ;;
+                templates/) grep -q 'id="business-catalog"' "$work/dom" ;;
+                site-demo*) grep -q '>Website preview controls</summary>' "$work/dom" ;;
+              esac
+            done
+          done
