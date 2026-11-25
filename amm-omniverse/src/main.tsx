@@ -156,7 +156,7 @@ try {
   
   const routeFallback=<div role="status" aria-live="polite" style={{position:'fixed',inset:0,zIndex:15980,display:'grid',placeItems:'center',background:'#050505',color:'#fff',fontFamily:'system-ui,sans-serif',fontWeight:900}}>LOADING…</div>
   
-  const streetVerseLowMemoryDevice=typeof navigator!=='undefined'&&/(CrOS|Android|iPhone|iPad|iPod)/i.test(navigator.userAgent)
+  const streetVerseLowMemoryDevice=!isStreetVerseSafe&&typeof navigator!=='undefined'&&/(CrOS|Android|iPhone|iPad|iPod)/i.test(navigator.userAgent)
   // Chromebook and phone browsers can run out of memory while booting the full
   // StreetVerse shell before the playable world appears. Default those devices
   // to the direct 3D core route. Add ?full=1 only when intentionally testing the
@@ -219,6 +219,7 @@ try {
   else if(businessSlug)routeContent=<FamilyBusinessPublicSite slug={businessSlug} onClose={()=>{window.location.href='/business'}} />
   else if(isTwinWorld)routeContent=<Suspense fallback={routeFallback}><StreetVerseTwinWorld onClose={()=>{window.location.href='/'}} /></Suspense>
   else if(isMeetStubbs)routeContent=<Suspense fallback={routeFallback}><MeetTheStubbsWorldDistrict onClose={()=>{window.location.href='/streetverse'}} /></Suspense>
+  else if(isStreetVerseSafe && streetVerseParams.get('place')==='circle-park')routeContent=<StreetVerseMobileErrorBoundary name="Circle Park apartment trip"><StreetVerseSafeWorld onClose={()=>{window.location.href='/'}} /></StreetVerseMobileErrorBoundary>
   else if(isStreetVerse)routeContent=isStreetVerseCore?<>{streetVerseRoute}<Suspense fallback={null}><StreetVerseDeviceLiveCertificationHUD/></Suspense></>:<>{streetVerseRoute}<Suspense fallback={null}><StreetVerseCinematicMissions/></Suspense><Suspense fallback={null}><StreetVerseDeviceLiveCertificationHUD/></Suspense></>
   else routeContent=mainShell
   
@@ -453,3 +454,4 @@ queueMicrotask(() => {
     console.error('[TRYAMM] Optional global UI failed after core mount; preserving public route.', error)
   }
 })
+
