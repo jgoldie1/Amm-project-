@@ -53,7 +53,7 @@ function emit(name:string,detail:unknown){if(typeof window!=='undefined')window.
 export function createBiometricAvatarConsent(input:{purpose:AvatarCapturePurpose;views:AvatarCaptureView[];adultOrGuardianAuthorized:boolean;saveRawPhotos?:boolean}):BiometricAvatarConsent{
   const hasEphemeralVideo=input.views.includes('camera-live')||input.views.includes('video-clip')
   return {
-    version:'2026-09-01',granted:true,adultOrGuardianAuthorized:input.adultOrGuardianAuthorized,purpose:input.purpose,
+    version:'2026-09-01',granted:false,adultOrGuardianAuthorized:input.adultOrGuardianAuthorized,purpose:input.purpose,
     inputs:['face-landmarks','face-geometry'],views:input.views,localProcessingPreferred:true,
     identityRecognition:false,identityMatching:false,emotionInference:false,protectedAttributeInference:false,fingerprintCollection:false,
     sellOrTradeBiometrics:false,advertisingUse:false,modelTrainingUse:false,
@@ -67,10 +67,15 @@ export function canProcessAvatarBiometrics(consent:BiometricAvatarConsent|undefi
   if(!consent.adultOrGuardianAuthorized)return {ok:false,reason:'Adult or legally authorized guardian approval is required.'} as const
   if(consent.identityRecognition||consent.identityMatching||consent.fingerprintCollection||consent.emotionInference||consent.protectedAttributeInference)return {ok:false,reason:'Requested processing exceeds the avatar-only privacy boundary.'} as const
   if((consent.views.includes('camera-live')||consent.views.includes('video-clip'))&&consent.rawPhotoRetention==='user-save-explicit')return {ok:false,reason:'Camera/video input cannot be retained as raw media. It must be deleted after avatar fitting.'} as const
-  return {ok:true,reason:'Avatar-only local processing permitted by this consent record.'} as const
+  return {ok:false,reason:'Capture disabled until an executed written release is independently verified and retention/deletion controls are operational.'} as const
 }
 
 export function requestPrivacySafeAvatarCapture(detail:{purpose:AvatarCapturePurpose;views:AvatarCaptureView[];consent:BiometricAvatarConsent}){
+  if(detail.purpose!==detail.consent?.purpose||!detail.views.length||detail.views.some(view=>!detail.consent.views.includes(view))){
+    const blocked={ok:false,reason:'Requested purpose or capture views are outside the consent scope.'} as const
+    emit('tryamm:avatar-capture-blocked',blocked)
+    return blocked
+  }
   const gate=canProcessAvatarBiometrics(detail.consent)
   if(!gate.ok){emit('tryamm:avatar-capture-blocked',{...gate,createdAt:new Date().toISOString()});return gate}
   const ephemeralVideo=detail.views.includes('camera-live')||detail.views.includes('video-clip')
@@ -84,7 +89,7 @@ export function requestAvatarBiometricDeletion(scope:'raw-captures'|'derived-ava
 
 export function completeEphemeralAvatarVideoProcessing(source:'camera-live'|'video-clip'='camera-live'){
   requestAvatarBiometricDeletion('raw-captures')
-  emit('tryamm:avatar-video-ephemeral-complete',{source,rawFrameRetained:false,recordingRetained:false,serverCopyRetained:false,createdAt:new Date().toISOString()})
+  emit('tryamm:avatar-video-cleanup-pending',{source,deletionVerified:false,createdAt:new Date().toISOString()})
 }
 
 export function installBiometricAvatarPrivacyRuntime(){
