@@ -7,6 +7,10 @@ on:
       - '.github/workflows/production-dependency-candidate.yml'
       - 'amm-omniverse/package.json'
       - 'amm-omniverse/package-lock.json'
+  pull_request:
+    paths:
+      - '.github/workflows/production-dependency-candidate.yml'
+      - 'amm-omniverse/package-lock.json'
   workflow_dispatch:
 permissions:
   contents: read
