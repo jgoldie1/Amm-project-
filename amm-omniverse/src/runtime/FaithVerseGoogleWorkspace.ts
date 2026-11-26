@@ -30,3 +30,21 @@ export async function writeMinistryGoogle(kind:'drive'|'docs'|'draft',title:stri
  else {const r=await fetch('https://www.googleapis.com/upload/drive/v3/files/'+id+'?uploadType=media',{method:'PATCH',headers:{Authorization:'Bearer '+token,'Content-Type':'text/plain; charset=UTF-8'},body});if(!r.ok)throw Error('File created but content upload failed; check Drive before retrying.')}
  return 'Saved to Google '+(kind==='docs'?'Docs':'Drive')+'.'
 }
+
+export async function diagnoseMinistryGoogle(){
+ const sb=getSupabaseClient()
+ if(!sb||!await ministryLeader())throw Error('Verified adult ministry leader required.')
+ const {data}=await sb.auth.getSession()
+ const token=data.session?.provider_token
+ if(!token)throw Error('Google consent required. Reconnect Google Workspace.')
+ const headers={Authorization:'Bearer '+token}
+ const checks=await Promise.all([
+ ['Drive','https://www.googleapis.com/drive/v3/files?pageSize=1&fields=nextPageToken'],
+ ['Gmail drafts','https://gmail.googleapis.com/gmail/v1/users/me/drafts?maxResults=1&fields=nextPageToken'],
+ ['Docs (nonexistent document probe)','https://docs.googleapis.com/v1/documents/faithverse-diagnostic-nonexistent']
+ ].map(async ([service,url])=>{
+ try{const r=await fetch(url,{headers,cache:'no-store'});return {service,http:r.status,result:r.ok?'READ_ACCESS_OK':service.startsWith('Docs')&&r.status===404?'REACHABLE_WRITE_UNVERIFIED':r.status===401?'RECONNECT_REQUIRED':r.status===403?'PERMISSION_OR_API_BLOCKED':'UNVERIFIED'}}
+ catch{return {service,http:0,result:'NETWORK_ERROR'}}
+ }))
+ return {checkedAt:new Date().toISOString(),checks,writeVerified:false,backgroundSyncVerified:false}
+}
