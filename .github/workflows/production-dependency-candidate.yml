@@ -27,8 +27,16 @@ jobs:
       - name: Generate compatible lockfile candidate
         run: npm audit fix --package-lock-only --ignore-scripts --no-fund --audit-level=high
       - name: Audit candidate production dependencies
+        id: production_audit
         if: always()
         run: npm audit --omit=dev --audit-level=moderate
+      - name: Clean install candidate without lifecycle scripts
+        if: ${{ !cancelled() && steps.production_audit.outcome == 'success' }}
+        id: candidate_install
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Build candidate
+        if: ${{ !cancelled() && steps.candidate_install.outcome == 'success' }}
+        run: npm run build
       - name: Capture dependency diff
         if: always()
         run: git diff -- package.json package-lock.json > dependency-candidate.patch
