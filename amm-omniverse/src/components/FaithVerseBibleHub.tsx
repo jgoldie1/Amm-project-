@@ -1,4 +1,5 @@
 import {lazy,Suspense,useEffect,useState,type CSSProperties} from 'react'
+const FaithVerseMinistryStudio = lazy(() => import('./FaithVerseMinistryStudio'))
 const FaithHoloBook = lazy(() => import('./FaithHoloBook'))
 const FaithScriptureReader = lazy(() => import('./FaithScriptureReader'))
 const FaithVerseWebReader = lazy(() => import('./FaithVerseWebReader'))
@@ -26,7 +27,7 @@ const PASSAGES:readonly Passage[]=[
 ]
 // Short KJV excerpts, public domain in the US. This is not a complete Bible text.
 const KEY='tryamm:faithverse:bible:bookmark:v1'
-type Tab='landing'|'read'|'web'|'chapters'|'study'|'languages'|'scrolls'|'chrono'|'miracles'|'ancient'|'tree'|'immersive'|'world'|'press'|'library'|'edition'
+type Tab='ministry'|'landing'|'read'|'web'|'chapters'|'study'|'languages'|'scrolls'|'chrono'|'miracles'|'ancient'|'tree'|'immersive'|'world'|'press'|'library'|'edition'
 function readBookmark(){try{return localStorage.getItem(KEY)||'matthew-6-33'}catch{return'matthew-6-33'}}
 export default function FaithVerseBibleHub({onClose,onOpenFaith,onOpenPress}:{onClose:()=>void;onOpenFaith:()=>void;onOpenPress:()=>void}){
  const [tab,setTab]=useState<Tab>('landing')
@@ -67,8 +68,9 @@ export default function FaithVerseBibleHub({onClose,onOpenFaith,onOpenPress}:{on
  <p style={{fontSize:14,color:'#d2dbeb',lineHeight:1.6,margin:0}}>One accessible reading and roleplay entrance connected to the existing Faith Realm and Kingdoms Press publishing tools.</p>
  <p role="status" aria-live="polite" style={{background:'#222d35',borderRadius:12,padding:12,lineHeight:1.55,margin:0}}>{notice}</p>
  <nav aria-label="FaithVerse sections" style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:8}}>
- {(['landing','web','read','chapters','study','languages','scrolls','chrono','miracles','ancient','tree','immersive','world','press','library','edition'] as Tab[]).map(k=><button key={k} style={{...btn,background:tab===k?'#435d64':'#132a40'}} aria-pressed={tab===k} onClick={()=>setTab(k)}>{k==='landing'?'Start Here · Study':k==='web'?'Full WEB Bible':k==='read'?'Starter Verses':k==='chapters'?'Full KJV Chapters':k==='study'?'Ethiopian Canon + 88':k==='languages'?'Paleo-Hebrew · Strong’s':k==='scrolls'?'Dead Sea Scrolls + Apocrypha':k==='chrono'?'Time Machine · Yeshua & Fishing':k==='miracles'?'Miracles · Walk on Water':k==='ancient'?'Flood · Giants · David':k==='tree'?'Nations · Hung on the Tree':k==='immersive'?'Metaverse Bible World':k==='world'?'FaithVerse RP':k==='press'?'Kingdoms Press':k==='library'?'Edition Library':'Import & Read Edition'}</button>)}
+ {(['ministry','landing','web','read','chapters','study','languages','scrolls','chrono','miracles','ancient','tree','immersive','world','press','library','edition'] as Tab[]).map(k=><button key={k} style={{...btn,background:tab===k?'#435d64':'#132a40'}} aria-pressed={tab===k} onClick={()=>setTab(k)}>{k==='ministry'?'Ministry Studio · Youth & Teen':k==='landing'?'Start Here · Study':k==='web'?'Full WEB Bible':k==='read'?'Starter Verses':k==='chapters'?'Full KJV Chapters':k==='study'?'Ethiopian Canon + 88':k==='languages'?'Paleo-Hebrew · Strong’s':k==='scrolls'?'Dead Sea Scrolls + Apocrypha':k==='chrono'?'Time Machine · Yeshua & Fishing':k==='miracles'?'Miracles · Walk on Water':k==='ancient'?'Flood · Giants · David':k==='tree'?'Nations · Hung on the Tree':k==='immersive'?'Metaverse Bible World':k==='world'?'FaithVerse RP':k==='press'?'Kingdoms Press':k==='library'?'Edition Library':'Import & Read Edition'}</button>)}
  </nav>
+ {tab==='ministry'&&<Suspense fallback={<p>Loading ministry studio…</p>}><FaithVerseMinistryStudio onStudy={()=>setTab('web')} onWorld={()=>setTab('chrono')} onPress={onOpenPress}/></Suspense>}
  {tab==='read'&&<section style={{display:'grid',gap:12}}>
  <label htmlFor="tryamm-bible-search">Find a passage in the available starter selections</label>
  <input id="tryamm-bible-search" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Reference or words" style={{fontSize:18,minHeight:54,padding:12,borderRadius:12,color:'#fff',background:'#12283b',border:'1px solid #8dacc4'}}/>
