@@ -45,6 +45,18 @@ jobs:
         run: |
           npm run test:industry-resilience
           npm run test:live-lifecycle
+      - name: Forge tooling regression
+        if: ${{ !cancelled() && steps.candidate_install.outcome == 'success' }}
+        run: npm run forge:check
+      - name: Graphics runtime regression
+        if: ${{ !cancelled() && steps.candidate_install.outcome == 'success' }}
+        run: npm run graphics:check
+      - name: StreetVerse RP action regression
+        if: ${{ !cancelled() && steps.candidate_install.outcome == 'success' }}
+        run: npm run rp-actions:check
+      - name: Business income regression
+        if: ${{ !cancelled() && steps.candidate_install.outcome == 'success' }}
+        run: npm run business-income:check
       - name: Capture remaining dependency paths and audit
         if: always()
         run: |
