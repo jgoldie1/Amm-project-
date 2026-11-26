@@ -37,6 +37,14 @@ jobs:
       - name: Build candidate
         if: ${{ !cancelled() && steps.candidate_install.outcome == 'success' }}
         run: npm run build
+      - name: Candidate typecheck
+        if: ${{ !cancelled() && steps.candidate_install.outcome == 'success' }}
+        run: npm run typecheck
+      - name: Candidate regression contracts
+        if: ${{ !cancelled() && steps.candidate_install.outcome == 'success' }}
+        run: |
+          npm run test:industry-resilience
+          npm run test:live-lifecycle
       - name: Capture dependency diff
         if: always()
         run: git diff -- package.json package-lock.json > dependency-candidate.patch
