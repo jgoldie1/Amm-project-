@@ -45,6 +45,11 @@ jobs:
         run: |
           npm run test:industry-resilience
           npm run test:live-lifecycle
+      - name: Capture remaining dependency paths and audit
+        if: always()
+        run: |
+          npm explain minimatch glob vite launch-editor > dependency-paths.txt 2>&1 || true
+          npm audit --json > dependency-audit.json || true
       - name: Capture dependency diff
         if: always()
         run: git diff -- package.json package-lock.json > dependency-candidate.patch
@@ -55,3 +60,5 @@ jobs:
           path: |
             amm-omniverse/package-lock.json
             amm-omniverse/dependency-candidate.patch
+            amm-omniverse/dependency-paths.txt
+            amm-omniverse/dependency-audit.json
