@@ -1,0 +1,21 @@
+name: Biometric avatar safety
+on:
+  push:
+    branches: ['fix/biometric-avatar-fail-closed-20261126']
+  pull_request:
+    paths:
+      - 'amm-omniverse/src/runtime/BiometricAvatarPrivacyRuntime.ts'
+      - 'amm-omniverse/tests/biometric-avatar-fail-closed.test.mjs'
+      - '.github/workflows/biometric-avatar-safety.yml'
+permissions:
+  contents: read
+jobs:
+  safety:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: node --test tests/biometric-avatar-fail-closed.test.mjs
+        working-directory: amm-omniverse
