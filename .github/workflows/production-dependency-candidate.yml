@@ -1,0 +1,35 @@
+name: Production dependency repair candidate
+on:
+  push:
+    branches: [fix/production-dependency-audit-20261126]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Generate compatible lockfile candidate
+        run: npm audit fix --package-lock-only --ignore-scripts --no-fund --audit-level=high
+      - name: Audit candidate production dependencies
+        run: npm audit --omit=dev --audit-level=moderate
+      - name: Capture dependency diff
+        if: always()
+        run: git diff -- package.json package-lock.json > dependency-candidate.patch
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: production-dependency-candidate
+          path: |
+            amm-omniverse/package-lock.json
+            amm-omniverse/dependency-candidate.patch
