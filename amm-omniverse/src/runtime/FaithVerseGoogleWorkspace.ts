@@ -8,7 +8,7 @@ export async function ministryLeader(){
 }
 export async function connectMinistryGoogle(){
  const sb=getSupabaseClient();if(!sb||!await ministryLeader())throw Error('Verified adult ministry leader required.')
- const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{scopes:ministryScopes,redirectTo:window.location.origin+window.location.pathname,queryParams:{prompt:'consent'}}})
+ const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{scopes:ministryScopes,redirectTo:window.location.origin+window.location.pathname,queryParams:{prompt:'consent',access_type:'offline'}}})
  if(error)throw Error(error.message)
 }
 export async function writeMinistryGoogle(kind:'drive'|'docs'|'draft',title:string,body:string){
