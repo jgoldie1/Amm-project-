@@ -27,6 +27,7 @@ jobs:
       - name: Generate compatible lockfile candidate
         run: npm audit fix --package-lock-only --ignore-scripts --no-fund --audit-level=high
       - name: Audit candidate production dependencies
+        if: always()
         run: npm audit --omit=dev --audit-level=moderate
       - name: Capture dependency diff
         if: always()
