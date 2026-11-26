@@ -50,6 +50,14 @@ jobs:
         run: |
           npm explain minimatch glob vite launch-editor > dependency-paths.txt 2>&1 || true
           npm audit --json > dependency-audit.json || true
+      - name: Inspect tooling upgrade paths
+        if: ${{ !cancelled() && steps.candidate_install.outcome == 'success' }}
+        run: |
+          npm explain minimatch > tooling-upgrade-paths.txt
+          npm explain glob >> tooling-upgrade-paths.txt
+          for package in @gltf-transform/cli @donmccurdy/caporal eslint typescript-eslint vite; do
+            npm view "$package@latest" version engines dependencies peerDependencies --json >> tooling-upgrade-paths.txt
+          done
       - name: Capture dependency diff
         if: always()
         run: git diff -- package.json package-lock.json > dependency-candidate.patch
@@ -60,5 +68,6 @@ jobs:
           path: |
             amm-omniverse/package-lock.json
             amm-omniverse/dependency-candidate.patch
+            amm-omniverse/tooling-upgrade-paths.txt
             amm-omniverse/dependency-paths.txt
             amm-omniverse/dependency-audit.json
