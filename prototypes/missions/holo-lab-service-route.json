@@ -1,0 +1,52 @@
+{
+  "schema": "tryamm.mission.prototype.v1",
+  "id": "holo-lab-service-route",
+  "title": "Service Route: Inspection Ticket",
+  "fictional": true,
+  "start": "dispatch",
+  "nodes": {
+    "dispatch": {
+      "text": "Receive a simulated ATM inspection ticket.",
+      "next": "route"
+    },
+    "route": {
+      "text": "Choose a service route.",
+      "choices": {
+        "A": "inspection",
+        "B": "inspection",
+        "C": "dispatch_review"
+      }
+    },
+    "dispatch_review": {
+      "text": "Ask dispatch to clarify the assignment.",
+      "next": "route"
+    },
+    "inspection": {
+      "text": "Observe the fictional machine status without accessing it.",
+      "next": "report"
+    },
+    "report": {
+      "text": "Log findings in the simulated ticket system.",
+      "choices": {
+        "A": "closed",
+        "B": "escalated",
+        "C": "dispatch_review"
+      }
+    },
+    "closed": {
+      "ending": "Routine inspection documented"
+    },
+    "escalated": {
+      "ending": "Authorized technician requested"
+    }
+  },
+  "constraints": [
+    "No real ATM access, credentials, cash handling or security procedures",
+    "No real dispatch or payment"
+  ],
+  "acceptance": [
+    "All choices resolve",
+    "Both endings reachable",
+    "Ticket persists across save and reload"
+  ]
+}
