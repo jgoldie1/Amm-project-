@@ -1,0 +1,65 @@
+name: Promote reviewed Vite candidate
+on:
+  pull_request:
+    types: [labeled]
+permissions:
+  contents: read
+jobs:
+  promote:
+    if: github.event.label.name == 'approve-vite-candidate' && github.event.pull_request.number == 772 && github.event.pull_request.head.repo.full_name == github.repository
+    environment: dependency-promotion
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Verify and extract exact reviewed artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$REPO/actions/artifacts/15178536937" > /tmp/meta.json
+          python3 - <<'PY'
+          import json
+          m=json.load(open('/tmp/meta.json'))
+          assert m['workflow_run']['id']==45954913420
+          assert m['workflow_run']['head_sha']=='a2f5330851793056f7596c8d9f33e10ab112347b'
+          assert m['name']=='production-dependency-candidate' and not m['expired']
+          assert m['digest'].startswith('sha256:')
+          PY
+          gh api "repos/$REPO/actions/artifacts/15178536937/zip" > /tmp/candidate.zip
+          python3 - <<'PY'
+          import hashlib,json,zipfile
+          from pathlib import Path
+          m=json.load(open('/tmp/meta.json'))
+          assert 'sha256:'+hashlib.sha256(Path('/tmp/candidate.zip').read_bytes()).hexdigest()==m['digest']
+          with zipfile.ZipFile('/tmp/candidate.zip') as z:
+              p=z.read('vite-upgrade-package.json')
+              l=z.read('vite-upgrade-package-lock.json')
+          a,b=json.loads(p),json.loads(l)
+          assert a['devDependencies']['vite']==b['packages']['']['devDependencies']['vite']=='^8.4.0'
+          assert b['packages']['node_modules/vite']['version']=='8.4.0'
+          Path('amm-omniverse/package.json').write_bytes(p)
+          Path('amm-omniverse/package-lock.json').write_bytes(l)
+          PY
+      - name: Commit exact pair without bypassing branch protections
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.event.pull_request.head.ref }}
+          EXPECTED: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          test "$BRANCH" = fix/production-dependency-audit-20261126
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add amm-omniverse/package.json amm-omniverse/package-lock.json
+          git diff --cached --check
+          git commit -m "Promote reviewed Vite 8 dependency candidate"
+          gh auth setup-git
+          git push "https://github.com/$REPO.git" "HEAD:refs/heads/$BRANCH"

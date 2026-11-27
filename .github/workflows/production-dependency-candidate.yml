@@ -1,0 +1,176 @@
+name: Production dependency repair candidate
+on:
+  push:
+    branches: [fix/production-dependency-audit-20261126]
+  pull_request:
+    paths:
+      - '.github/workflows/production-dependency-candidate.yml'
+      - 'amm-omniverse/package.json'
+      - 'amm-omniverse/package-lock.json'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: amm-omniverse
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Generate compatible lockfile candidate
+        run: npm audit fix --package-lock-only --ignore-scripts --no-fund --audit-level=high
+      - name: Audit candidate production dependencies
+        id: production_audit
+        if: always()
+        run: npm audit --omit=dev --audit-level=moderate
+      - name: Clean install candidate without lifecycle scripts
+        if: ${{ !cancelled() && steps.production_audit.outcome == 'success' }}
+        id: candidate_install
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Build candidate
+        if: ${{ !cancelled() && steps.candidate_install.outcome == 'success' }}
+        run: npm run build
+      - name: Candidate typecheck
+        if: ${{ !cancelled() && steps.candidate_install.outcome == 'success' }}
+        run: npm run typecheck
+      - name: Candidate regression contracts
+        if: ${{ !cancelled() && steps.candidate_install.outcome == 'success' }}
+        run: |
+          npm run test:industry-resilience
+          npm run test:live-lifecycle
+      - name: Forge tooling regression
+        if: ${{ !cancelled() && steps.candidate_install.outcome == 'success' }}
+        run: npm run forge:check
+      - name: Graphics runtime regression
+        if: ${{ !cancelled() && steps.candidate_install.outcome == 'success' }}
+        run: npm run graphics:check
+      - name: StreetVerse RP action regression
+        id: rp_regression
+        if: ${{ !cancelled() && steps.candidate_install.outcome == 'success' }}
+        run: npm run rp-actions:check
+      - name: Compare failed RP contract with PR base
+        if: ${{ !cancelled() && steps.rp_regression.outcome == 'failure' && github.event_name == 'pull_request' }}
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          git fetch --no-tags --depth=1 origin "$BASE_SHA"
+          git diff --exit-code "$BASE_SHA" HEAD -- tests/rp-action-search-bj-regression-contract.mjs public/streetverse-kingdom/02-physics-traffic.js
+      - name: Business income regression
+        if: ${{ !cancelled() && steps.candidate_install.outcome == 'success' }}
+        run: npm run business-income:check
+      - name: Capture remaining dependency paths and audit
+        if: always()
+        run: |
+          npm explain minimatch glob vite launch-editor > dependency-paths.txt 2>&1 || true
+          npm audit --json > dependency-audit.json || true
+      - name: Inspect tooling upgrade paths
+        if: ${{ !cancelled() && steps.candidate_install.outcome == 'success' }}
+        run: |
+          npm explain minimatch > tooling-upgrade-paths.txt
+          npm explain glob >> tooling-upgrade-paths.txt
+          for package in @gltf-transform/cli @donmccurdy/caporal eslint typescript-eslint vite; do
+            npm view "$package@latest" version engines dependencies peerDependencies --json >> tooling-upgrade-paths.txt
+          done
+      - name: Probe compatible tooling updates without changing candidate
+        if: ${{ !cancelled() && steps.candidate_install.outcome == 'success' }}
+        run: npm outdated --json > tooling-outdated.json || test "$?" -eq 1
+      - name: Isolated Vite upgrade audit experiment
+        if: ${{ !cancelled() && steps.candidate_install.outcome == 'success' }}
+        run: |
+          experiment="$(mktemp -d)"
+          cp package.json package-lock.json "$experiment/"
+          (
+            cd "$experiment"
+            npm install --package-lock-only --ignore-scripts --no-fund --no-audit --save-dev vite@8.4.0
+            npm audit --json > audit.json || audit_status=$?
+            test "${audit_status:-0}" -le 1
+          )
+          cp "$experiment/audit.json" vite-upgrade-audit.json
+          cp "$experiment/package.json" vite-upgrade-package.json
+          cp "$experiment/package-lock.json" vite-upgrade-package-lock.json
+          tar --exclude='./node_modules' --exclude='./package.json' --exclude='./package-lock.json' --exclude='./dist' -cf - . | tar -xf - -C "$experiment"
+          (
+            cd "$experiment"
+            npm ci --ignore-scripts --no-audit --no-fund
+            npm run build
+            npm run typecheck
+            npm run forge:check
+            node --input-type=module -e "import {NodeIO} from '@gltf-transform/core'; const {Document}=await import('@gltf-transform/core'); const io=new NodeIO(); const doc=new Document(); doc.createScene('regression'); const bytes=await io.writeBinary(doc); const restored=await io.readBinary(bytes); if(restored.getRoot().listScenes()[0]?.getName()!=='regression') throw new Error('GLB round-trip failed');"
+            npm run graphics:check
+            npm run test:live-lifecycle
+            npm run business-income:check
+          )
+          diff -u package.json "$experiment/package.json" > vite-upgrade-manifest.patch || test "$?" -eq 1
+      - name: Capture dependency diff
+        if: always()
+        run: git diff -- package.json package-lock.json > dependency-candidate.patch
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: production-dependency-candidate
+          path: |
+            amm-omniverse/package-lock.json
+            amm-omniverse/dependency-candidate.patch
+            amm-omniverse/tooling-upgrade-paths.txt
+            amm-omniverse/vite-upgrade-audit.json
+            amm-omniverse/vite-upgrade-package.json
+            amm-omniverse/vite-upgrade-package-lock.json
+            amm-omniverse/vite-upgrade-manifest.patch
+            amm-omniverse/tooling-outdated.json
+            amm-omniverse/dependency-paths.txt
+            amm-omniverse/dependency-audit.json
+
+  promote-tested-vite:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/fix/production-dependency-audit-20261126'
+    environment: dependency-promotion
+    permissions:
+      actions: read
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Verify and extract tested artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api repos/jgoldie1/Amm-project-/actions/artifacts/15178536937 > /tmp/meta.json
+          python3 -c 'import json; a=json.load(open("/tmp/meta.json")); assert a["workflow_run"]["id"]==45954913420 and a["workflow_run"]["head_sha"]=="a2f5330851793056f7596c8d9f33e10ab112347b" and not a["expired"] and a["digest"]=="sha256:d87bcba21140f09e901f521328324b7680aa980867d3fbcd8f2e7431a2f0749e"'
+          gh api repos/jgoldie1/Amm-project-/actions/artifacts/15178536937/zip > /tmp/candidate.zip
+          echo 'd87bcba21140f09e901f521328324b7680aa980867d3fbcd8f2e7431a2f0749e  /tmp/candidate.zip' | sha256sum -c -
+          python3 - <<'PY'
+          import zipfile,json,pathlib
+          with zipfile.ZipFile("/tmp/candidate.zip") as z:
+              p=z.read("vite-upgrade-package.json")
+              l=z.read("vite-upgrade-package-lock.json")
+          a,b=json.loads(p),json.loads(l)
+          assert a["devDependencies"]["vite"]==b["packages"][""]["devDependencies"]["vite"]=="^8.4.0"
+          assert b["packages"]["node_modules/vite"]["version"]=="8.4.0"
+          root=pathlib.Path("amm-omniverse")
+          (root/"package.json").write_bytes(p)
+          (root/"package-lock.json").write_bytes(l)
+          PY
+      - name: Commit exact tested pair
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          test "$(gh api repos/jgoldie1/Amm-project-/git/ref/heads/fix/production-dependency-audit-20261126 --jq .object.sha)" = "$EXPECTED_SHA"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add amm-omniverse/package.json amm-omniverse/package-lock.json
+          git commit -m "Promote tested Vite 8 dependency pair"
+          gh auth setup-git
+          git push https://github.com/jgoldie1/Amm-project-.git HEAD:refs/heads/fix/production-dependency-audit-20261126
