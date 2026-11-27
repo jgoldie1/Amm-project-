@@ -214,6 +214,15 @@ function attachBJProductionHuman(person){
       const height=bounds.max.y-bounds.min.y;
       productionPrint.position.set((bounds.min.x+bounds.max.x)/2,bounds.min.y+height*.72,bounds.min.z-.012);
       person.mesh.add(productionPrint);
+      // Preserve the print's world placement while binding it to the animated chest.
+      let chestBone=null;
+      clone.traverse(node=>{
+        if(node.isBone && /^(mixamorig[:_])?(upperchest|chest|spine2|spine_02)$/i.test(node.name||''))chestBone=node;
+      });
+      if(chestBone){
+        person.mesh.updateMatrixWorld(true);
+        chestBone.attach(productionPrint);
+      }
     }
     person.torso.visible=false;person.legL.visible=false;person.legR.visible=false;
     person.externalModel=clone;person.humanFallback=false;person.visualIdentity='bj-v6-production';
