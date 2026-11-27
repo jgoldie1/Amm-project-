@@ -52,8 +52,16 @@ jobs:
         if: ${{ !cancelled() && steps.candidate_install.outcome == 'success' }}
         run: npm run graphics:check
       - name: StreetVerse RP action regression
+        id: rp_regression
         if: ${{ !cancelled() && steps.candidate_install.outcome == 'success' }}
         run: npm run rp-actions:check
+      - name: Compare failed RP contract with PR base
+        if: ${{ !cancelled() && steps.rp_regression.outcome == 'failure' && github.event_name == 'pull_request' }}
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          git fetch --no-tags --depth=1 origin "$BASE_SHA"
+          git diff --exit-code "$BASE_SHA" HEAD -- tests/rp-action-search-bj-regression-contract.mjs public/streetverse-kingdom/02-physics-traffic.js
       - name: Business income regression
         if: ${{ !cancelled() && steps.candidate_install.outcome == 'success' }}
         run: npm run business-income:check
