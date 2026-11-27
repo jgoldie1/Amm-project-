@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+const source=fs.readFileSync(new URL('../public/streetverse-kingdom/02-physics-traffic.js',import.meta.url),'utf8');
+const start=source.indexOf('    let authoredPrintVisible=!!authoredPrint;');
+const end=source.indexOf('    if(fallbackPrint && !authoredPrintVisible){',start);
+assert.ok(start>=0 && end>start,'production visibility logic missing');
+const code=source.slice(start,end)+'\nauthoredPrintVisible';
+const node=(scale=1,visible=true,parent=null)=>({scale:{x:scale,y:scale,z:scale},visible,parent});
+const visible=authoredPrint=>vm.runInNewContext(code,{authoredPrint});
+assert.equal(visible(null),false);
+assert.equal(visible(node(0)),false);
+assert.equal(visible(node(1,false)),false);
+assert.equal(visible(node(1,true,node(0))),false);
+assert.equal(visible(node()),true);
+console.log('BJ authored shirt visibility cases: PASS');
