@@ -166,6 +166,23 @@ function makeBJStubbsFallback(){
   beard.position.set(0,-.105,-.105);beard.scale.set(.88,.72,.52);p.headPivot.add(beard);
   const beardDark=new T.Mesh(new T.SphereGeometry(.176,12,9,0,Math.PI*2,Math.PI*.42,Math.PI*.48),lam(0x2c2725));
   beardDark.position.set(0,-.08,-.11);beardDark.scale.set(.90,.65,.5);p.headPivot.add(beardDark);
+  // BJ's visible shirt graphic, not merely a regression-contract marker.
+  const shirtCanvas=document.createElement('canvas');
+  shirtCanvas.width=512;shirtCanvas.height=256;
+  const shirtCtx=shirtCanvas.getContext('2d');
+  if(shirtCtx){
+    shirtCtx.clearRect(0,0,512,256);
+    shirtCtx.fillStyle='#ffffff';shirtCtx.textAlign='center';
+    shirtCtx.textBaseline='middle';shirtCtx.font='bold 58px sans-serif';
+    shirtCtx.fillText('ONLY YAHAVAH',256,92,480);
+    shirtCtx.fillText('CAN JUDGE ME',256,164,480);
+    const shirtTexture=new T.CanvasTexture(shirtCanvas);
+    const shirtGraphic=new T.Mesh(new T.PlaneGeometry(.48,.24),new T.MeshBasicMaterial({map:shirtTexture,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1}));
+    shirtGraphic.rotation.y=Math.PI;
+    shirtGraphic.position.set(0,.10,-.35);
+    shirtGraphic.name='bj-shirt-only-yahavah';
+    p.torso.add(shirtGraphic);
+  }
   // gold pendant / chain marker
   const chain=new T.Mesh(new T.TorusGeometry(.12,.012,6,18),lam(0xd5aa36));
   chain.rotation.x=Math.PI/2;chain.position.set(0,.01,-.31);p.torso.add(chain);
@@ -186,6 +203,33 @@ function attachBJProductionHuman(person){
     const scale=size.y>0?1.82/size.y:1;
     clone.scale.setScalar(scale);clone.position.y=0;
     person.mesh.add(clone);
+    // Preserve BJ's shirt identity when the fallback torso is hidden.
+    const fallbackPrint=person.torso.getObjectByName('bj-shirt-only-yahavah');
+    // Original V15 models carry their own authored shirt print; do not cover it.
+    const authoredPrint=clone.getObjectByName('BJ_V12_YAHAVAH_PRINT_ON_TSHIRT');
+    let authoredPrintVisible=!!authoredPrint;
+    for(let node=authoredPrint;node && authoredPrintVisible;node=node.parent){
+      authoredPrintVisible=node.visible!==false && Math.abs(node.scale.x)>1e-6 && Math.abs(node.scale.y)>1e-6 && Math.abs(node.scale.z)>1e-6;
+    }
+    if(fallbackPrint && !authoredPrintVisible){
+      const productionPrint=fallbackPrint.clone();
+      productionPrint.name='bj-production-shirt-only-yahavah';
+      const bounds=new T.Box3().setFromObject(clone);
+      person.mesh.worldToLocal(bounds.min);
+      person.mesh.worldToLocal(bounds.max);
+      const height=bounds.max.y-bounds.min.y;
+      productionPrint.position.set((bounds.min.x+bounds.max.x)/2,bounds.min.y+height*.72,bounds.min.z-.012);
+      person.mesh.add(productionPrint);
+      // Preserve the print's world placement while binding it to the animated chest.
+      let chestBone=null;
+      clone.traverse(node=>{
+        if(node.isBone && /^(mixamorig[:_])?(upperchest|chest|spine2|spine_02)$/i.test(node.name||''))chestBone=node;
+      });
+      if(chestBone){
+        person.mesh.updateMatrixWorld(true);
+        chestBone.attach(productionPrint);
+      }
+    }
     person.torso.visible=false;person.legL.visible=false;person.legR.visible=false;
     person.externalModel=clone;person.humanFallback=false;person.visualIdentity='bj-v6-production';
   };
