@@ -1,0 +1,75 @@
+name: Reviewed dependency artifact promotion
+on:
+  workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: Reviewed current head SHA of dependency repair branch
+        required: true
+        type: string
+permissions: {}
+jobs:
+  verify-approval-policy:
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Require configured reviewer protection
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+        run: |
+          set -euo pipefail
+          [[ "$EXPECTED_SHA" =~ ^[0-9a-f]{40}$ ]]
+          gh api repos/jgoldie1/Amm-project-/environments/dependency-promotion > /tmp/environment.json
+          python3 - <<'PY'
+          import json
+          e=json.load(open('/tmp/environment.json'))
+          assert any(r.get('type')=='required_reviewers' and r.get('reviewers') and r.get('prevent_self_review') for r in e.get('protection_rules',[])), 'Independent required reviewer protection missing'
+          PY
+  promote-tested-vite:
+    needs: verify-approval-policy
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    environment: dependency-promotion
+    permissions:
+      actions: read
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.expected_sha }}
+          persist-credentials: false
+      - name: Verify and extract tested artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api repos/jgoldie1/Amm-project-/actions/artifacts/15178536937 > /tmp/meta.json
+          python3 -c 'import json; a=json.load(open("/tmp/meta.json")); assert a["workflow_run"]["id"]==45954913420 and a["workflow_run"]["head_sha"]=="a2f5330851793056f7596c8d9f33e10ab112347b" and not a["expired"] and a["digest"]=="sha256:d87bcba21140f09e901f521328324b7680aa980867d3fbcd8f2e7431a2f0749e"'
+          gh api repos/jgoldie1/Amm-project-/actions/artifacts/15178536937/zip > /tmp/candidate.zip
+          echo 'd87bcba21140f09e901f521328324b7680aa980867d3fbcd8f2e7431a2f0749e  /tmp/candidate.zip' | sha256sum -c -
+          python3 - <<'PY'
+          import zipfile,json,pathlib
+          with zipfile.ZipFile("/tmp/candidate.zip") as z:
+              p=z.read("vite-upgrade-package.json")
+              l=z.read("vite-upgrade-package-lock.json")
+          a,b=json.loads(p),json.loads(l)
+          assert a["devDependencies"]["vite"]==b["packages"][""]["devDependencies"]["vite"]=="^8.4.0"
+          assert b["packages"]["node_modules/vite"]["version"]=="8.4.0"
+          root=pathlib.Path("amm-omniverse")
+          (root/"package.json").write_bytes(p)
+          (root/"package-lock.json").write_bytes(l)
+          PY
+      - name: Commit exact tested pair
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+        run: |
+          set -euo pipefail
+          test "$(gh api repos/jgoldie1/Amm-project-/git/ref/heads/fix/production-dependency-audit-20261126 --jq .object.sha)" = "$EXPECTED_SHA"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add amm-omniverse/package.json amm-omniverse/package-lock.json
+          git commit -m "Promote tested Vite 8 dependency pair"
+          gh auth setup-git
+          git push https://github.com/jgoldie1/Amm-project-.git HEAD:refs/heads/fix/production-dependency-audit-20261126
