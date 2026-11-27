@@ -81,6 +81,19 @@ jobs:
       - name: Probe compatible tooling updates without changing candidate
         if: ${{ !cancelled() && steps.candidate_install.outcome == 'success' }}
         run: npm outdated --json > tooling-outdated.json || test "$?" -eq 1
+      - name: Isolated Vite upgrade audit experiment
+        if: ${{ !cancelled() && steps.candidate_install.outcome == 'success' }}
+        run: |
+          experiment="$(mktemp -d)"
+          cp package.json package-lock.json "$experiment/"
+          (
+            cd "$experiment"
+            npm install --package-lock-only --ignore-scripts --no-fund --no-audit --save-dev vite@8.4.0
+            npm audit --json > audit.json || audit_status=$?
+            test "${audit_status:-0}" -le 1
+          )
+          cp "$experiment/audit.json" vite-upgrade-audit.json
+          diff -u package.json "$experiment/package.json" > vite-upgrade-manifest.patch || test "$?" -eq 1
       - name: Capture dependency diff
         if: always()
         run: git diff -- package.json package-lock.json > dependency-candidate.patch
@@ -92,6 +105,8 @@ jobs:
             amm-omniverse/package-lock.json
             amm-omniverse/dependency-candidate.patch
             amm-omniverse/tooling-upgrade-paths.txt
+            amm-omniverse/vite-upgrade-audit.json
+            amm-omniverse/vite-upgrade-manifest.patch
             amm-omniverse/tooling-outdated.json
             amm-omniverse/dependency-paths.txt
             amm-omniverse/dependency-audit.json
