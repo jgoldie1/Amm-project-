@@ -8,7 +8,25 @@ on:
         type: string
 permissions: {}
 jobs:
+  verify-approval-policy:
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Require configured reviewer protection
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+        run: |
+          set -euo pipefail
+          [[ "$EXPECTED_SHA" =~ ^[0-9a-f]{40}$ ]]
+          gh api repos/jgoldie1/Amm-project-/environments/dependency-promotion > /tmp/environment.json
+          python3 - <<'PY'
+          import json
+          e=json.load(open('/tmp/environment.json'))
+          assert any(r.get('type')=='required_reviewers' and r.get('reviewers') and r.get('prevent_self_review') for r in e.get('protection_rules',[])), 'Independent required reviewer protection missing'
+          PY
   promote-tested-vite:
+    needs: verify-approval-policy
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
     environment: dependency-promotion
     permissions:
