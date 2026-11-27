@@ -205,7 +205,9 @@ function attachBJProductionHuman(person){
     person.mesh.add(clone);
     // Preserve BJ's shirt identity when the fallback torso is hidden.
     const fallbackPrint=person.torso.getObjectByName('bj-shirt-only-yahavah');
-    if(fallbackPrint){
+    // Original V15 models carry their own authored shirt print; do not cover it.
+    const authoredPrint=clone.getObjectByName('BJ_V12_YAHAVAH_PRINT_ON_TSHIRT');
+    if(fallbackPrint && !authoredPrint){
       const productionPrint=fallbackPrint.clone();
       productionPrint.name='bj-production-shirt-only-yahavah';
       const bounds=new T.Box3().setFromObject(clone);
