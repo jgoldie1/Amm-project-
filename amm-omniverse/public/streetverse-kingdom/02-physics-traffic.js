@@ -207,7 +207,11 @@ function attachBJProductionHuman(person){
     const fallbackPrint=person.torso.getObjectByName('bj-shirt-only-yahavah');
     // Original V15 models carry their own authored shirt print; do not cover it.
     const authoredPrint=clone.getObjectByName('BJ_V12_YAHAVAH_PRINT_ON_TSHIRT');
-    if(fallbackPrint && !authoredPrint){
+    let authoredPrintVisible=!!authoredPrint;
+    for(let node=authoredPrint;node && authoredPrintVisible;node=node.parent){
+      authoredPrintVisible=node.visible!==false && Math.abs(node.scale.x)>1e-6 && Math.abs(node.scale.y)>1e-6 && Math.abs(node.scale.z)>1e-6;
+    }
+    if(fallbackPrint && !authoredPrintVisible){
       const productionPrint=fallbackPrint.clone();
       productionPrint.name='bj-production-shirt-only-yahavah';
       const bounds=new T.Box3().setFromObject(clone);
