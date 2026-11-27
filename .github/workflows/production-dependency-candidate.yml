@@ -102,6 +102,7 @@ jobs:
             npm run build
             npm run typecheck
             npm run forge:check
+            node --input-type=module -e "import {NodeIO} from '@gltf-transform/core'; const {Document}=await import('@gltf-transform/core'); const io=new NodeIO(); const doc=new Document(); doc.createScene('regression'); const bytes=await io.writeBinary(doc); const restored=await io.readBinary(bytes); if(restored.getRoot().listScenes()[0]?.getName()!=='regression') throw new Error('GLB round-trip failed');"
             npm run graphics:check
             npm run test:live-lifecycle
             npm run business-income:check
