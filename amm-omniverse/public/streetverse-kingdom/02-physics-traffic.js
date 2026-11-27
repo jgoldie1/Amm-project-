@@ -166,6 +166,23 @@ function makeBJStubbsFallback(){
   beard.position.set(0,-.105,-.105);beard.scale.set(.88,.72,.52);p.headPivot.add(beard);
   const beardDark=new T.Mesh(new T.SphereGeometry(.176,12,9,0,Math.PI*2,Math.PI*.42,Math.PI*.48),lam(0x2c2725));
   beardDark.position.set(0,-.08,-.11);beardDark.scale.set(.90,.65,.5);p.headPivot.add(beardDark);
+  // BJ's visible shirt graphic, not merely a regression-contract marker.
+  const shirtCanvas=document.createElement('canvas');
+  shirtCanvas.width=512;shirtCanvas.height=256;
+  const shirtCtx=shirtCanvas.getContext('2d');
+  if(shirtCtx){
+    shirtCtx.clearRect(0,0,512,256);
+    shirtCtx.fillStyle='#ffffff';shirtCtx.textAlign='center';
+    shirtCtx.textBaseline='middle';shirtCtx.font='bold 58px sans-serif';
+    shirtCtx.fillText('ONLY YAHAVAH',256,92,480);
+    shirtCtx.fillText('CAN JUDGE ME',256,164,480);
+    const shirtTexture=new T.CanvasTexture(shirtCanvas);
+    const shirtGraphic=new T.Mesh(new T.PlaneGeometry(.48,.24),new T.MeshBasicMaterial({map:shirtTexture,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1}));
+    shirtGraphic.rotation.y=Math.PI;
+    shirtGraphic.position.set(0,.10,-.35);
+    shirtGraphic.name='bj-shirt-only-yahavah';
+    p.torso.add(shirtGraphic);
+  }
   // gold pendant / chain marker
   const chain=new T.Mesh(new T.TorusGeometry(.12,.012,6,18),lam(0xd5aa36));
   chain.rotation.x=Math.PI/2;chain.position.set(0,.01,-.31);p.torso.add(chain);
