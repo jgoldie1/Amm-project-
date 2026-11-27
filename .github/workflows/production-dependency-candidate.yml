@@ -93,6 +93,17 @@ jobs:
             test "${audit_status:-0}" -le 1
           )
           cp "$experiment/audit.json" vite-upgrade-audit.json
+          tar --exclude='./node_modules' --exclude='./package.json' --exclude='./package-lock.json' --exclude='./dist' -cf - . | tar -xf - -C "$experiment"
+          (
+            cd "$experiment"
+            npm ci --ignore-scripts --no-audit --no-fund
+            npm run build
+            npm run typecheck
+            npm run forge:check
+            npm run graphics:check
+            npm run test:live-lifecycle
+            npm run business-income:check
+          )
           diff -u package.json "$experiment/package.json" > vite-upgrade-manifest.patch || test "$?" -eq 1
       - name: Capture dependency diff
         if: always()
