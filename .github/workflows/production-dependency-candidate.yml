@@ -93,6 +93,8 @@ jobs:
             test "${audit_status:-0}" -le 1
           )
           cp "$experiment/audit.json" vite-upgrade-audit.json
+          cp "$experiment/package.json" vite-upgrade-package.json
+          cp "$experiment/package-lock.json" vite-upgrade-package-lock.json
           tar --exclude='./node_modules' --exclude='./package.json' --exclude='./package-lock.json' --exclude='./dist' -cf - . | tar -xf - -C "$experiment"
           (
             cd "$experiment"
@@ -117,6 +119,8 @@ jobs:
             amm-omniverse/dependency-candidate.patch
             amm-omniverse/tooling-upgrade-paths.txt
             amm-omniverse/vite-upgrade-audit.json
+            amm-omniverse/vite-upgrade-package.json
+            amm-omniverse/vite-upgrade-package-lock.json
             amm-omniverse/vite-upgrade-manifest.patch
             amm-omniverse/tooling-outdated.json
             amm-omniverse/dependency-paths.txt
