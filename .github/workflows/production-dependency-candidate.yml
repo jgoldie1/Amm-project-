@@ -78,6 +78,9 @@ jobs:
           for package in @gltf-transform/cli @donmccurdy/caporal eslint typescript-eslint vite; do
             npm view "$package@latest" version engines dependencies peerDependencies --json >> tooling-upgrade-paths.txt
           done
+      - name: Probe compatible tooling updates without changing candidate
+        if: ${{ !cancelled() && steps.candidate_install.outcome == 'success' }}
+        run: npm outdated --json > tooling-outdated.json || test "$?" -eq 1
       - name: Capture dependency diff
         if: always()
         run: git diff -- package.json package-lock.json > dependency-candidate.patch
@@ -89,5 +92,6 @@ jobs:
             amm-omniverse/package-lock.json
             amm-omniverse/dependency-candidate.patch
             amm-omniverse/tooling-upgrade-paths.txt
+            amm-omniverse/tooling-outdated.json
             amm-omniverse/dependency-paths.txt
             amm-omniverse/dependency-audit.json
