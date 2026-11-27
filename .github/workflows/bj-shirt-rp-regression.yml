@@ -20,3 +20,6 @@ jobs:
       - name: Run actual BJ RP regression contract
         working-directory: amm-omniverse
         run: node tests/rp-action-search-bj-regression-contract.mjs
+      - name: Test authored shirt visibility decisions
+        working-directory: amm-omniverse
+        run: node tests/bj-shirt-visibility.mjs
