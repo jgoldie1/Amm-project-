@@ -203,6 +203,18 @@ function attachBJProductionHuman(person){
     const scale=size.y>0?1.82/size.y:1;
     clone.scale.setScalar(scale);clone.position.y=0;
     person.mesh.add(clone);
+    // Preserve BJ's shirt identity when the fallback torso is hidden.
+    const fallbackPrint=person.torso.getObjectByName('bj-shirt-only-yahavah');
+    if(fallbackPrint){
+      const productionPrint=fallbackPrint.clone();
+      productionPrint.name='bj-production-shirt-only-yahavah';
+      const bounds=new T.Box3().setFromObject(clone);
+      person.mesh.worldToLocal(bounds.min);
+      person.mesh.worldToLocal(bounds.max);
+      const height=bounds.max.y-bounds.min.y;
+      productionPrint.position.set((bounds.min.x+bounds.max.x)/2,bounds.min.y+height*.72,bounds.min.z-.012);
+      person.mesh.add(productionPrint);
+    }
     person.torso.visible=false;person.legL.visible=false;person.legR.visible=false;
     person.externalModel=clone;person.humanFallback=false;person.visualIdentity='bj-v6-production';
   };
